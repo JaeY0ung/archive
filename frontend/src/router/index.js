@@ -1,0 +1,73 @@
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      // path: '/',
+      // name: 'main',
+      path: "",
+      component: () => import('@/layouts/TopSearchBarLayout.vue'),
+      children: [
+        {
+          path: '/',
+          name: 'main',
+          component: () => import('@/views/MainView.vue')
+        },
+        {
+          path: '/sheet/search',
+          name: 'sheetSearch',
+          component: () => import('@/views/SheetSearchView.vue')
+        },
+        {
+          path: '/sheet/detail',
+          name: 'sheetDetail',
+          component: () => import('@/views/SheetDetailView.vue')
+        },
+      ]
+    },
+
+    // -----------------------------------------------
+    {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/AdminView.vue')
+    },
+    // -----------------------------------------------
+    {
+      path: '/mypage',
+      name: 'mypage',
+      component: () => import('@/views/MyPageView.vue')
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/LoginView.vue'),
+    },
+    // -----------------------------------------------
+    {
+      path: '/sheet/upload',
+      name: 'sheetUpload',
+      component: () => import('@/views/SheetUploadView.vue')
+    },
+    {
+      path: '/sheet/fullscreen',
+      name: 'sheet/fullscreen',
+      component: () => import('@/views/SheetFullScreenView.vue')
+    },
+     // -----------------------------------------------
+    {
+      path: '/payment',
+      name: 'payment',
+      component: () => import('@/views/PaymentView.vue')
+    },
+    // -----------------------------------------------
+    {
+      path: '/battle',
+      name: 'battle',
+      component: () => import('@/views/BattleView.vue')
+    },
+  ]
+})
+
+export default router

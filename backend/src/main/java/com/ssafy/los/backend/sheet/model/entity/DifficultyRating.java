@@ -1,0 +1,61 @@
+package com.ssafy.los.backend.sheet.model.entity;
+
+import com.ssafy.los.backend.common.model.entity.BaseEntity;
+import com.ssafy.los.backend.user.model.entity.User;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+@Getter
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "difficulty_rating")
+public class DifficultyRating extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "difficulty_rating_id")
+    private Long id;
+
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @JoinColumn(name = "sheet_id")
+    private Sheet sheet;
+
+    private Integer level;
+
+    @Column(columnDefinition = "TEXT")
+    private String contents;
+
+    @Builder
+    public DifficultyRating(User user, Sheet sheet, Integer level, String contents) {
+        this.user = user;
+        this.sheet = sheet;
+        this.level = level;
+        this.contents = contents;
+    }
+
+    //== 메서드 ==//
+    public void update(Integer level, String contents) {
+        this.level = level;
+        this.contents = contents;
+    }
+
+}

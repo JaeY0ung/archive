@@ -1,0 +1,29 @@
+<script setup>
+import { useThemeStore } from '@/stores/theme'
+import { storeToRefs } from "pinia";
+
+const themeStore = useThemeStore();
+const { isDarkMode } = storeToRefs(themeStore);
+</script>
+
+<template>
+    <div>
+        <svg :class="isDarkMode ? 'text-white' : 'text-black'" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" >
+            <g clip-path="url(#clip0_120_1439)">
+            <path d="M31.5 7.875H4.5C3.87868 7.875 3.375 8.37868 3.375 9V27C3.375 27.6213 3.87868 28.125 4.5 28.125H31.5C32.1213 28.125 32.625 27.6213 32.625 27V9C32.625 8.37868 32.1213 7.875 31.5 7.875Z" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M23.625 23.625H28.125" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16.875 23.625H19.125" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.375 13.6199H32.625" stroke="#121212" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <defs>
+            <clipPath id="clip0_120_1439">
+            <rect width="36" height="36" fill="white"/>
+            </clipPath>
+            </defs>
+            </svg>
+    </div>
+</template>
+
+<style scoped>
+
+</style>
