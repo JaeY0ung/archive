@@ -76,11 +76,9 @@ const changeSongId = (data) => {
 
 <template>
     <div class="container">
-        <form @submit.prevent="uploadFile">
-            <div>
-                <input type="file" @change="handleFileChange" multiple />
-            </div>
-            <Input @send-input="changeTitle" inputTitle="악보 제목"/>        
+        <form class="form" @submit.prevent="uploadFile">
+            <input type="file" class="file-input w-full max-w-xs" @change="handleFileChange" multiple />
+            <Input @send-input="changeTitle" inputTitle="악보 제목"/>   
             <Input @send-input="changePrice" inputTitle="악보 가격"/>
             <Input @send-input="changeLevel" inputTitle="악보 티어"/>
             <Input @send-input="changePoint" inputTitle="악보 경험치"/>
@@ -91,5 +89,7 @@ const changeSongId = (data) => {
 </template>
 
 <style scoped>
-
+.form > * {
+    
+}
 </style>

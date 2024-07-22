@@ -1,18 +1,11 @@
 import { ref } from 'vue'
+import { httpStatusCode } from "@/util/http-status"
 import { useRouter } from "vue-router"
 import { defineStore } from 'pinia'
 import { jwtDecode } from "jwt-decode"
-import {
-  userConfirm,
-  findById,
-  tokenRegeneration,
-  logout,
-} from "@/api/user"
-import { httpStatusCode } from "@/components/util/http-status"
+import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user"
 
 export const useUserStore = defineStore('user', () => {
-  const lat = ref(37.5); // 37.501228095438144
-  const lng = ref(0); // 127.03957077888003
   const router = useRouter();
 
   const isLogin = ref(false)
@@ -20,20 +13,12 @@ export const useUserStore = defineStore('user', () => {
   const userInfo = ref(null)
   const isValidToken = ref(false)
 
-  const getLatLng = async () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => { // GeoLocation을 이용해서 접속 위치를 얻어옵니다
-        lat.value = position.coords.latitude
-        lng.value = position.coords.longitude;
-        console.log("[사용자의 위치 가져옴] ", lat.value, " ", lng.value);
-      });
-    }
-}
-
   const userLogin = async (loginUser) => {
     await userConfirm(
       loginUser,
       (response) => {
+        console.log("loginUser: ")
+        console.log(loginUser)
         if (response.status === httpStatusCode.CREATE) {
           let { data } = response
           let accessToken = data["access-token"]
@@ -47,6 +32,8 @@ export const useUserStore = defineStore('user', () => {
         }
       },
       (error) => {
+        console.log("loginUser: ")
+        console.log(loginUser)
         console.log("로그인 실패!!!!")
         isLogin.value = false
         isLoginError.value = true
@@ -143,12 +130,10 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return {
-    lat, lng,
     isLogin,
     isLoginError,
     userInfo,
     isValidToken,
-    getLatLng,
     userLogin,
     getUserInfo,
     tokenRegenerate,

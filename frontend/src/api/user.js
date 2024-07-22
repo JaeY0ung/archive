@@ -1,4 +1,4 @@
-import { localAxios } from '@/components/util/http-common';
+import { localAxios } from '@/util/http-common';
 const local = localAxios();
 
 async function userConfirm(param, success, fail) {
