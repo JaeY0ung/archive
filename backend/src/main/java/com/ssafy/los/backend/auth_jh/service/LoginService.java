@@ -18,16 +18,12 @@ public class LoginService {
     // 유저 등록하기
     public Long saveCustomer(CustomerCreateRequest request) {
 
-//        String hashPwd = passwordEncoder.encode(request.getPassword());
-//        request.setPassword(hashPwd); // 패스워드 변환
-//        Customer customer = Customer.builder()
-//                .nickname(request.getNickname())
-//                .pwd(hashPwd)
-//                .build();
-
+        String hashPwd = passwordEncoder.encode(request.getPassword());
+        request.setPassword(hashPwd); // 패스워드 변환
         Customer customer = Customer.builder()
-                .username(request.getNickname())
-                .password(request.getPassword())
+                .username(request.getUsername())
+                .password(hashPwd)
+                .role(request.getRole())
                 .build();
         userRepository.save(customer);
 

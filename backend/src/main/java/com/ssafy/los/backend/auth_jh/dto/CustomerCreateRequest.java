@@ -11,7 +11,8 @@ import lombok.Setter;
 @Data
 public class CustomerCreateRequest {
 
-    private String nickname;
+    private String username;
     private String password;
+    private String role;
 
 }

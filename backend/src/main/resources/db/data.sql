@@ -2,6 +2,10 @@
 # CREATE SCHEMA IF NOT EXISTS archive DEFAULT CHARACTER SET UTF8mb4;
 USE archive;
 
+# TRUNCATE TABLE customer;
+INSERT INTO customer(username, password, role)
+VALUES ('wngud', '1234', 'user');
+
 # user
 TRUNCATE TABLE user;
 INSERT INTO user(user_id, nickname, uuid, pwd_hash, email, token, created_at, modified_at,
@@ -24,6 +28,7 @@ VALUES (1, 'user1', '94eecf5b-b597-461a-8b50-4fd47f82cea5',
        (6, 'user6', 'e717f88e-9ece-4653-b1d2-ded3b9b5bea6',
         'ecb48a1cc94f951252ec462fe9ecc55c3ef123fadfe935661396c26a45a5809d',
         'user6@ssafy.com', NULL, NOW(), NOW(), NULL);
+
 
 # 팔로우 (follow)
 TRUNCATE TABLE follow;
