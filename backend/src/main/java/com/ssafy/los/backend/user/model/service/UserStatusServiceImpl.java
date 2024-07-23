@@ -3,13 +3,12 @@ package com.ssafy.los.backend.user.model.service;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Transactional
 public class UserStatusServiceImpl {
 
@@ -17,9 +16,9 @@ public class UserStatusServiceImpl {
     private static final String USER_ONLINE_KEY_PREFIX = "USER_ONLINE_";
     private final RedisTemplate<String, Object> redisTemplate;
 
-//    public UserStatusServiceImpl(RedisTemplate<String, Object> redisTemplate) {
-//        this.redisTemplate = redisTemplate;
-//    }
+    public UserStatusServiceImpl(RedisTemplate<String, Object> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     public void setUserOnline(Long id) {
         redisTemplate.opsForValue().set("USER_ONLINE_" + id, true);
