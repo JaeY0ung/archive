@@ -25,6 +25,7 @@ VALUES (1, 'user1', '94eecf5b-b597-461a-8b50-4fd47f82cea5',
         'ecb48a1cc94f951252ec462fe9ecc55c3ef123fadfe935661396c26a45a5809d',
         'user6@ssafy.com', NULL, NOW(), NOW(), NULL);
 
+
 # 팔로우 (follow)
 TRUNCATE TABLE follow;
 INSERT INTO follow(follow_id, followed_id, follower_id)

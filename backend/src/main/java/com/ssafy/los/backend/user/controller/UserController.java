@@ -6,7 +6,7 @@ import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.user.model.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,20 +20,21 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
     private final UserService userService;
-
-    @Autowired
     private final AuthService authService;
 
     // 회원 등록
     @PostMapping
     public ResponseEntity<?> saveUser(@RequestBody UserRegisterDto requestDto) {
+        log.info("---------------------------------");
+        log.info("회원 등록 요청을 한 DTO = {}" , requestDto.toString());
+
         Long saveId = userService.saveUser(requestDto);
 
         return new ResponseEntity<>(saveId, HttpStatus.CREATED);
