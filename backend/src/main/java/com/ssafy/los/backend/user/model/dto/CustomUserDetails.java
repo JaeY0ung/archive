@@ -3,10 +3,12 @@ package com.ssafy.los.backend.user.model.dto;
 import com.ssafy.los.backend.user.model.entity.User;
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+@Getter
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 

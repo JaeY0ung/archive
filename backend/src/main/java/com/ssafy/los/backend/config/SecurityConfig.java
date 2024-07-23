@@ -2,6 +2,7 @@ package com.ssafy.los.backend.config;
 
 import com.ssafy.los.backend.user.filter.JWTFilter;
 import com.ssafy.los.backend.user.filter.LoginFilter;
+import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
 
 
     @Bean
@@ -51,7 +53,7 @@ public class SecurityConfig {
 
         // 필터 추가
         http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정
         http.sessionManagement((session) -> session
@@ -64,5 +66,4 @@ public class SecurityConfig {
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
