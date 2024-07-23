@@ -13,6 +13,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<UserMyPageDto> findUserMyPageDtoById(Long id);
 
-    // TODO : 추가하자고 말하기
     Optional<User> findUserById(Long id);
 }

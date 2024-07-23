@@ -10,16 +10,15 @@ const leftNavigationStore = useLeftNavigationStore();
 </script>
 
 <template>
-  <div class="left-and-hamburger" :class="{ 'show' : leftNavigationStore.navVisibility }">
-    <LeftNavigation class="left-nav"/>
-    <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
-  </div>
-
   <div>
+    <div class="left-and-hamburger" :class="{ 'show' : leftNavigationStore.navVisibility }">
+      <LeftNavigation class="left-nav"/>
+      <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
+    </div>
     <div style="height:50px; display: flex; justify-content:end;">
       <MyProfile style="height:40px;"/>
     </div>
-    <RouterView class="container" @click="leftNavigationStore.closeNav" />
+    <RouterView @click="leftNavigationStore.closeNav" />
   </div>
 </template>
 
@@ -55,7 +54,6 @@ const leftNavigationStore = useLeftNavigationStore();
 .container {
   width: 100vw;
   margin-top: 20px;
-  margin-left: 20px;
   min-height: calc(100vh - 70px);
 }
 </style>
