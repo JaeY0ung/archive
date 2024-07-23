@@ -1,10 +1,12 @@
 package com.ssafy.los.backend.user.controller;
 
-import com.ssafy.los.backend.user.model.dto.request.UserMyPageDto;
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
+import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.user.model.service.UserService;
+import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -40,19 +42,38 @@ public class UserController {
         return new ResponseEntity<>(saveId, HttpStatus.CREATED);
     }
 
-    // 회원 수정
-    @PostMapping(value = "/{user-id}", consumes = {MediaType.APPLICATION_JSON_VALUE,
-            MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> updateUser(@PathVariable("user-id") Long userId,
-            @RequestPart("postData") UserMyPageDto requestDto,
-            @RequestPart(value = "profileImg", required = false) MultipartFile profileImg) {
-        // 내 정보만 수정 가능
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "multipart/form-data"})
+    public ResponseEntity<?> updateUser(
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart("nickname") String nickname) throws IOException {
+
         User loginUser = authService.getLoginUser();
-        if (loginUser == null || !loginUser.getId().equals(userId)) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+
+        // 파일 처리
+        String uuid = null;
+        if  (files.size() == 1) {
+            uuid = userService.saveUserImgFile(files.get(0));
         }
-        Long updateId = userService.updateUser(userId, requestDto, profileImg);
-        return new ResponseEntity<>(updateId, HttpStatus.OK);
+
+        // 닉네임 처리
+        UserUpdateDto.UserUpdateDtoBuilder updateFormBuilder = UserUpdateDto.builder();
+        if (nickname != null) {
+            updateFormBuilder.nickname(nickname);
+        }
+        UserUpdateDto userUpdateForm = updateFormBuilder.build();
+
+        Long updatedId = userService.updateUser(loginUser.getId(), userUpdateForm, uuid);
+        return new ResponseEntity<>(updatedId, HttpStatus.OK);
+
+    }
+
+    // 회원 삭제
+    @DeleteMapping("/{user-id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("user-id") Long userId) {
+        // TODO : 로그인 유저랑 비교하여 내 정보 삭제 가능하게 하기
+        Long deleteId = userService.deleteUser(userId);
+        return new ResponseEntity<>(deleteId, HttpStatus.OK);
     }
 
     // 회원 조회
@@ -63,11 +84,4 @@ public class UserController {
         return new ResponseEntity<>(getId, HttpStatus.OK);
     }
 
-    // 회원 삭제
-    @DeleteMapping("/{user-id}")
-    public ResponseEntity<?> deleteUser(@PathVariable("user-id") Long userId) {
-        // TODO : 로그인 유저랑 비교하여 내 정보 삭제 가능하게 하기
-        Long deleteId = userService.deleteUser(userId);
-        return new ResponseEntity<>(deleteId, HttpStatus.OK);
-    }
 }
