@@ -1,6 +1,5 @@
 package com.ssafy.los.backend.user.controller;
 
-import com.ssafy.los.backend.user.model.dto.request.UserCreateRequest;
 import com.ssafy.los.backend.user.model.dto.request.UserMyPageDto;
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.entity.User;
@@ -30,25 +29,12 @@ public class UserController {
     private final UserService userService;
     private final AuthService authService;
 
-    @PostMapping("/test/register")
-    public String register(@RequestBody UserCreateRequest request) {
-
-        log.info("요청 = {}" , request.toString());
-        authService.registerUser(request);
-        return "success";
-    }
-
-    @GetMapping("/user")
-    public String useruser() {
-        return "유저만 접근할 수 있는 페이지입니다.";
-    }
-
-
-
-
     // 회원 등록
     @PostMapping
     public ResponseEntity<?> saveUser(@RequestBody UserRegisterDto requestDto) {
+        log.info("---------------------------------");
+        log.info("회원 등록 요청을 한 DTO = {}" , requestDto.toString());
+
         Long saveId = userService.saveUser(requestDto);
 
         return new ResponseEntity<>(saveId, HttpStatus.CREATED);

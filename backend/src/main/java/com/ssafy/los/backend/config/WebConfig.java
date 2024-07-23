@@ -29,9 +29,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    private final AuthenticationConfiguration authenticationConfiguration;
-    private final JWTUtil jwtUtil;
-
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
@@ -43,70 +40,4 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
-
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
-
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        // csrf 설정
-        http.csrf((auth) -> auth.disable());
-
-        // cors 설정
-        http.cors((cors) -> cors
-                .configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-
-                        CorsConfiguration configuration = new CorsConfiguration();
-
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                        configuration.setAllowedMethods(Collections.singletonList("*"));
-                        configuration.setAllowCredentials(true);
-                        configuration.setAllowedHeaders(Collections.singletonList("*"));
-                        configuration.setMaxAge(3600L);
-
-                        configuration.setExposedHeaders(Collections.singletonList("Authorization"));
-
-                        return configuration;
-                    }
-                }));
-
-        // From 로그인 방식 disable
-        http.formLogin((auth) -> auth.disable());
-
-        // http basic 인증 방식 disable
-        http.httpBasic((auth) -> auth.disable());
-
-        // 경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth
-                .requestMatchers("/register").authenticated()
-                .requestMatchers("/users/user").hasRole("USER")
-                .requestMatchers("/admin").hasRole("ADMIN")
-//                .anyRequest().authenticated());
-                .anyRequest().permitAll());
-
-        // 필터 추가
-        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
-
-        //세션 설정
-        http.sessionManagement((session) -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        return http.build();
-    }
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-
 }

@@ -5,6 +5,8 @@ import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public Long selectUserInfoForMyPageById(Long id) {
@@ -24,7 +27,9 @@ public class UserServiceImpl implements UserService {
     // 회원 등록
     @Override
     public Long saveUser(UserRegisterDto userRegisterDto) {
-        User user = userRegisterDto.toEntity();
+        String hashPwd = bCryptPasswordEncoder.encode(userRegisterDto.getPassword());
+        String role = "ROLE_USER";
+        User user = userRegisterDto.toEntity(hashPwd, role);
         return userRepository.save(user).getId();
     }
 
