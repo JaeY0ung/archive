@@ -2,10 +2,6 @@
 # CREATE SCHEMA IF NOT EXISTS archive DEFAULT CHARACTER SET UTF8mb4;
 USE archive;
 
-# TRUNCATE TABLE customer;
-INSERT INTO customer(username, password, role)
-VALUES ('wngud', '1234', 'user');
-
 # user
 TRUNCATE TABLE user;
 INSERT INTO user(user_id, nickname, uuid, pwd_hash, email, token, created_at, modified_at,

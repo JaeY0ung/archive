@@ -44,7 +44,7 @@ public class User extends BaseEntity {
 
     private LocalDateTime birthDate;
 
-    @Column(columnDefinition = "VARCHAR(64)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(64)")
     private String nickname;
 
     private Boolean gender;
@@ -71,13 +71,14 @@ public class User extends BaseEntity {
     @Builder
     public User(String email, String pwdHash, LocalDateTime birthDate, String nickname,
             Boolean gender,
-            String userImg) {
+            String userImg, String role) {
         this.email = email;
         this.pwdHash = pwdHash;
         this.birthDate = birthDate;
         this.nickname = nickname;
         this.gender = gender;
         this.userImg = userImg;
+        this.role = role;
     }
 
     @Builder

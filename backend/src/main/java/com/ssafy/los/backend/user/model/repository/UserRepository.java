@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    User findByNickname(String nickname);
+
     Optional<UserMyPageDto> findUserMyPageDtoById(Long id);
 
     // TODO : 추가하자고 말하기

@@ -1,12 +1,13 @@
 package com.ssafy.los.backend.user.controller;
 
+import com.ssafy.los.backend.user.model.dto.request.UserCreateRequest;
 import com.ssafy.los.backend.user.model.dto.request.UserMyPageDto;
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.user.model.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,16 +21,30 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
     private final UserService userService;
-
-    @Autowired
     private final AuthService authService;
+
+    @PostMapping("/test/register")
+    public String register(@RequestBody UserCreateRequest request) {
+
+        log.info("요청 = {}" , request.toString());
+        authService.registerUser(request);
+        return "success";
+    }
+
+    @GetMapping("/user")
+    public String useruser() {
+        return "유저만 접근할 수 있는 페이지입니다.";
+    }
+
+
+
 
     // 회원 등록
     @PostMapping
