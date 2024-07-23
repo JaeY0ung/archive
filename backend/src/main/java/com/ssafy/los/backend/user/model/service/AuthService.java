@@ -1,9 +1,9 @@
 package com.ssafy.los.backend.user.model.service;
 
-import com.ssafy.los.backend.user.model.dto.LoginUser;
+import com.ssafy.los.backend.user.model.entity.User;
 
 public interface AuthService {
 
-    LoginUser getLoginUser();
+    User getLoginUser();
 
 }

@@ -1,7 +1,6 @@
 package com.ssafy.los.backend.user.model.service;
 
 import com.ssafy.los.backend.user.model.dto.CustomUserDetails;
-import com.ssafy.los.backend.user.model.dto.LoginUser;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,7 @@ public class AuthServiceImpl implements AuthService {
 
     // TODO: 실제 로직으로 변경하기 ( Test 용 )
     @Override
-    public LoginUser getLoginUser() {
+    public User getLoginUser() {
         // Retrieve the authentication object from the security context
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -28,10 +27,11 @@ public class AuthServiceImpl implements AuthService {
             // 가져오기
             User findUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-            return LoginUser.builder()
-                    .id(findUser.getId())
-                    .email(findUser.getEmail())
-                    .build();
+            return findUser;
+//            return LoginUser.builder()
+//                    .id(findUser.getId())
+//                    .email(findUser.getEmail())
+//                    .build();
         } else {
             throw new UsernameNotFoundException("User not authenticated");
         }
