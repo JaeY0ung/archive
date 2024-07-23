@@ -22,6 +22,7 @@ public class HomeController {
     @GetMapping("/test/user")
     public String home1() {
         log.info("현재 로그인 유저 정보입니다. " + authService.getLoginUser().getId());
+        log.info("현재 로그인 유저 정보입니다. " + authService.getLoginUser().getEmail());
         return "유저만 들어올 수 있는 곳입니다. ROLE_USER";
     }
 

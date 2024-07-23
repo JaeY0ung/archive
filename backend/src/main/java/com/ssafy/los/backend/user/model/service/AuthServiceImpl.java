@@ -25,8 +25,13 @@ public class AuthServiceImpl implements AuthService {
         if (principal instanceof CustomUserDetails) {
             String email = ((CustomUserDetails) principal).getUsername();
             // 가져오기
-            return userRepository.findByEmail(email)
+            User findUser = userRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+            return findUser;
+//            return LoginUser.builder()
+//                    .id(findUser.getId())
+//                    .email(findUser.getEmail())
+//                    .build();
         } else {
             throw new UsernameNotFoundException("User not authenticated");
         }
