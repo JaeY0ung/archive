@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,8 +67,12 @@ public class SheetController {
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
 
-
+    @GetMapping
+    public ResponseEntity<?> getSheetListByFilter(@RequestParam String sort) {
+        return new ResponseEntity<>(sheetService.searchSheetListBySort(sort),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{sheet-id}")
@@ -88,6 +93,5 @@ public class SheetController {
             log.info(e.getMessage()); // 파일이 없습니다.
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
     }
 }

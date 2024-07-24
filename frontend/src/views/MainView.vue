@@ -10,9 +10,15 @@ const recommendSheets = ref([]); // 추천 악보 리스트
 
 const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 
-const getPopularsheets = () => {
-	axios.get("http://localhost:8080/sheets", { order:"likes", page: "1", count : "10" })
+const getPopularsheets = async() => {
+	await axios.get("http://localhost:8080/sheets?sort=new")
+		.then(({data}) => {
+			popularSheets.value = data;
+		})
+	console.log(popularSheets.value);
 }
+
+getPopularsheets()
 </script>
 
 <template>
@@ -20,9 +26,15 @@ const getPopularsheets = () => {
 		<div class="up-div">
 			<div>인기</div>
 			<div class="scroll-x">
-				<template v-for="i in 10">
+				<template v-for="sheet in popularSheets">
 					<div class="card">
-						카드{{ i }}
+						<div>
+							<RouterLink :to="{ name: 'sheetDetail', params: { sheetId :  sheet.id} }">악보명: {{ sheet.title }}</RouterLink>
+						</div>
+						<div>파일 이름: {{ sheet.fileName }}</div>
+						<!-- <img src="C:/SSAFY/Archive/file/user-img/img.jpg" alt=""> -->
+						<div>티어: {{ sheet.level }}</div>
+						<div>업로더 닉네임: {{ sheet.uploader.nickname }}</div>
 					</div>
 				</template>
 			</div>

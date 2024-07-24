@@ -1,12 +1,14 @@
 package com.ssafy.los.backend.sheet.model.service;
 
 import com.ssafy.los.backend.sheet.model.dto.request.SheetUploadForm;
+import com.ssafy.los.backend.sheet.model.dto.response.SheetResponseDto;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.sheet.model.repository.SheetRepository;
 import com.ssafy.los.backend.song.model.repository.SongRepository;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -48,5 +50,17 @@ public class SheetServiceImpl implements SheetService {
     @Override
     public Resource getSheetFileByName(String fileName) throws IOException {
         return fileUploadUtil.downloadSheet(fileName);
+    }
+
+    @Override
+    public List<SheetResponseDto> searchSheetListBySort(String sort) {
+        if (sort.equals("new")) {  // sort : new
+            return sheetRepository.findSheetResponseDtoListByDeletedAtIsNullAndCreatedAtIsNotNullOrderByCreatedAt();
+        }
+        if (sort.equals("popular")) { // sort : popular
+            // 메서드 고쳐야 함
+            return sheetRepository.findSheetResponseDtoListByDeletedAtIsNullAndCreatedAtIsNotNullOrderByCreatedAt();
+        }
+        return null;
     }
 }
