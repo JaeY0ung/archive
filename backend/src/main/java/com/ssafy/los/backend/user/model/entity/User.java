@@ -33,19 +33,21 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(36)", nullable = false, updatable = false)
     private String uuid;
 
+    @NotNull
+    @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
+    private String email;
+
     private String role;
 
     @Column(columnDefinition = "VARCHAR(64)")
     private String pwdHash;
 
-    @NotNull
-    @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
-    private String email;
-
-    private LocalDateTime birthDate;
-
     @Column(columnDefinition = "VARCHAR(64)")
     private String nickname;
+
+    private String userImg;
+
+    private LocalDateTime birthDate;
 
     private Boolean gender;
 
@@ -54,18 +56,14 @@ public class User extends BaseEntity {
     @ColumnDefault("0")
     private int cash;
 
-    private String userImg;
+    private int SingleScore;
+    private int MultiScore;
 
     private LocalDateTime deletedAt;
 
     @PrePersist
     public void prePersist() {
         this.uuid = UUID.randomUUID().toString();
-    }
-
-    public void update(String email, String userImg) {
-        this.email = email;
-        this.userImg = userImg;
     }
 
     @Builder
@@ -95,6 +93,22 @@ public class User extends BaseEntity {
         if (uuid != null) {
             this.uuid = uuid;
         }
+    }
+
+    public void increaseSingleScore(int amount) {
+        this.SingleScore += amount;
+    }
+
+//    public void decreaseSingleScore(int amount) {
+//        this.SingleScore -= amount;
+//    }
+
+    public void increaseMultiScore(int amount) {
+        this.MultiScore += amount;
+    }
+
+    public void decreaseMultiScore(int amount) {
+        this.MultiScore -= amount;
     }
 
 }

@@ -18,11 +18,8 @@ import java.util.List;
 @RequestMapping("/follows")
 public class FollowController {
 
-    @Autowired
     private final FollowService followService;
-    @Autowired
     private final UserService userService;
-    @Autowired
     private final AuthService authService;
 
     // 유저 팔로우
