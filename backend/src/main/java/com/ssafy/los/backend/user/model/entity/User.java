@@ -37,14 +37,7 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(36)", nullable = false, updatable = false)
     private String uuid;
 
-//<<<<<<< HEAD
     private String role;
-//=======
-//    @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
-//    private String email;
-
-//    private Role role;
-//>>>>>>> ae6bd198b2ce90993e28e759e4e247bc299be303
 
     @Column(columnDefinition = "VARCHAR(64)")
     private String pwdHash;
@@ -69,6 +62,10 @@ public class User extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
+    private Integer singleScore;
+
+    private Integer multiScore;
+
     @PrePersist
     public void prePersist() {
         this.uuid = UUID.randomUUID().toString();
@@ -82,7 +79,7 @@ public class User extends BaseEntity {
     @Builder
     public User(String email, String pwdHash, LocalDateTime birthDate, String nickname,
             Boolean gender,
-            String userImg, String role) {
+            String userImg, String role, Integer singleScore, Integer multiScore) {
         this.email = email;
         this.pwdHash = pwdHash;
         this.birthDate = birthDate;
@@ -90,6 +87,8 @@ public class User extends BaseEntity {
         this.gender = gender;
         this.userImg = userImg;
         this.role = role;
+        this.singleScore = singleScore;
+        this.multiScore = multiScore;
     }
 
     @Builder
