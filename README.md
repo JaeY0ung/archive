@@ -41,6 +41,8 @@
 1. ```.env``` 파일 다운 받아 .env로 이름 변경하여, ```/frontend``` 폴더 밑에 저장
 2. ```Archive\frontend```에서 터미널 열기
 3. ```npm install``` 입력
+4. ```npm install @vue/cli-service --save-dev```
+5. ```npm run serve```
 
 ## Redis 세팅 가이드
 
