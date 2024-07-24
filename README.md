@@ -41,3 +41,22 @@
 1. ```.env``` 파일 다운 받아 .env로 이름 변경하여, ```/frontend``` 폴더 밑에 저장
 2. ```Archive\frontend```에서 터미널 열기
 3. ```npm install``` 입력
+
+## Redis 세팅 가이드
+
+1. application.properties에 설정
+- spring.jwt.redis.host=localhost
+- spring.jwt.redis.port=6379
+
+2. docker desktop 설치
+    - 설치<br/>
+        docker pull redis  
+    - 실행<br/>
+        docker run --name some-redis -p 6379:6379 -d redis
+    - Redis-cli 접속<br/>
+        docker exec -it some-redis redis-cli
+
+이후 backend실행시, docker desktop에서 some-redis를 실행한 이후에 실행해주세요!
+
+
+
