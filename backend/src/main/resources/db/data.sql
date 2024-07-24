@@ -3,7 +3,7 @@
 USE archive;
 
 # user
-TRUNCATE TABLE user;
+--TRUNCATE TABLE user;
 INSERT INTO user(user_id, nickname, uuid, pwd_hash, email, token, created_at, modified_at,
                  deleted_at)
 VALUES (1, 'user1', '94eecf5b-b597-461a-8b50-4fd47f82cea5',
@@ -26,7 +26,7 @@ VALUES (1, 'user1', '94eecf5b-b597-461a-8b50-4fd47f82cea5',
         'user6@ssafy.com', NULL, NOW(), NOW(), NULL);
 
 # 팔로우 (follow)
-TRUNCATE TABLE follow;
+--TRUNCATE TABLE follow;
 INSERT INTO follow(follow_id, followed_id, follower_id)
 VALUES (1, 1, 2),
        (2, 1, 3),
@@ -49,7 +49,7 @@ VALUES (1, 1, 2),
        (16, 3, 1);
 
 # 장르(Genre)
-TRUNCATE TABLE genre;
+--TRUNCATE TABLE genre;
 INSERT INTO genre(genre_id, title)
 VALUES (1, '클래식'),
        (2, '세미클래식'),
@@ -59,19 +59,19 @@ VALUES (1, '클래식'),
        (6, '기타');
 
 # 곡 (Song)
-TRUNCATE TABLE song;
+--TRUNCATE TABLE song;
 INSERT INTO song(song_id, genre_id, composer, title)
 VALUES (1, 1, 'Max Vogrich', '체르니 100번 1');
 
 # 악보(sheet)
-TRUNCATE TABLE sheet;
+--TRUNCATE TABLE sheet;
 INSERT INTO sheet(sheet_id, song_id, level, point, price, uploader_id, status, title, file_name, created_at,
                   modified_at,
                   deleted_at)
 VALUES (1, 1, 5, 5, 500, 1, 0, '체르니 100 1번', '체르니 100 1번', NOW(), NOW(), NULL);
 
 # 악보 좋아요 (like_sheet)
-TRUNCATE TABLE like_sheet;
+--TRUNCATE TABLE like_sheet;
 INSERT INTO like_sheet(like_sheet_id, user_id, sheet_id, created_at)
 VALUES (1, 1, 1, NOW()),
        (2, 2, 1, NOW()),
@@ -81,7 +81,7 @@ VALUES (1, 1, 1, NOW()),
        (6, 6, 1, NOW());
 
 # 알림 타입 (AlertType)
-TRUNCATE TABLE alert_type;
+--TRUNCATE TABLE alert_type;
 INSERT INTO alert_type(alert_type_id, alert_table_name)
 VALUES (1, 'sheet'),
        (2, 'like_sheet'),
@@ -91,21 +91,21 @@ VALUES (1, 'sheet'),
        (6, 'report_sheet');
 
 # 실시간 알람 (Alert)
-TRUNCATE TABLE alert;
+--TRUNCATE TABLE alert;
 INSERT INTO alert(alert_id, receiver_id, alert_type_id, reference_id, read_status, created_at)
 VALUES (1, 1, 1, 1, 0, NOW()),
        (2, 2, 2, 1, 0, NOW()),
        (3, 3, 3, 1, 0, NOW());
 
 # 결제 (payment)
-TRUNCATE TABLE payment;
+--TRUNCATE TABLE payment;
 INSERT INTO payment(payment_id, name)
 VALUES (1, '카카오 페이'),
        (2, '토스'),
        (3, '신용카드');
 
 # 결제 (payment)
-TRUNCATE TABLE sheet_order;
+--TRUNCATE TABLE sheet_order;
 INSERT INTO sheet_order(sheet_order_id, user_id, sheet_id, payment_id, created_at)
 VALUES (1, 1, 1, 1, NOW()),
        (2, 2, 1, 1, NOW()),
