@@ -5,7 +5,7 @@ import com.ssafy.los.backend.config.RefreshToken;
 import com.ssafy.los.backend.user.model.dto.CustomUserDetails;
 import com.ssafy.los.backend.user.model.dto.response.Response;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
-import com.ssafy.los.backend.user.util.JWTUtil;
+import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

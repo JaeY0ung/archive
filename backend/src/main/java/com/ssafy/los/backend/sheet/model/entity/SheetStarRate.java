@@ -2,7 +2,6 @@ package com.ssafy.los.backend.sheet.model.entity;
 
 import com.ssafy.los.backend.common.model.entity.BaseEntity;
 import com.ssafy.los.backend.user.model.entity.User;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,11 +29,11 @@ public class SheetStarRate extends BaseEntity {
     @Column(name = "sheet_star_rate_id")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sheet_id")
     private Sheet sheet;
 

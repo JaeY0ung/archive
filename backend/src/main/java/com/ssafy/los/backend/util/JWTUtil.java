@@ -1,4 +1,4 @@
-package com.ssafy.los.backend.user.util;
+package com.ssafy.los.backend.util;
 
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;

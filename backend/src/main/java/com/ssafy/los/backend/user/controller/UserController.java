@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -42,7 +43,7 @@ public class UserController {
         return new ResponseEntity<>(saveId, HttpStatus.CREATED);
     }
 
-    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
+    @PutMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
     public ResponseEntity<?> updateUser(
             @RequestPart(value = "files", required = false) List<MultipartFile> files,

@@ -11,8 +11,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,8 +18,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @Entity
@@ -37,14 +33,7 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(36)", nullable = false, updatable = false)
     private String uuid;
 
-//<<<<<<< HEAD
     private String role;
-//=======
-//    @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
-//    private String email;
-
-//    private Role role;
-//>>>>>>> ae6bd198b2ce90993e28e759e4e247bc299be303
 
     @Column(columnDefinition = "VARCHAR(64)")
     private String pwdHash;
