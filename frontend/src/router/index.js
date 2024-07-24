@@ -18,7 +18,7 @@ const router = createRouter({
           component: () => import('@/views/SheetSearchView.vue')
         },
         {
-          path: 'sheet/detail',
+          path: 'sheet/:sheetId/detail',
           name: 'sheetDetail',
           component: () => import('@/views/SheetDetailView.vue')
         },
