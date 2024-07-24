@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(process.env.VUE_APP_REQUEST_URL),
   routes: [
     {
       path: "/",
@@ -30,12 +30,12 @@ const router = createRouter({
       component: () => import('@/layouts/BattleLayout.vue'),
       children: [
         {
-          path: '/wait',
+          path: 'wait',
           name: 'waitBattle',
           component: () => import('@/views/BattleWaitView.vue')
         },
         {
-          path: '/battle',
+          path: 'battle',
           name: 'battle',
           component: () => import('@/views/BattleView.vue')
         },

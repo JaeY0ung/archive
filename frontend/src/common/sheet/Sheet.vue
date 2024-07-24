@@ -1,18 +1,3 @@
-<template>
-  <div style="margin-left: 100px">
-    <div>
-      <button @click="play">재생</button>
-      <button @click="pause">일시정지</button>
-      <button @click="stop">정지</button>
-      <label for="volumeSlider">Volume: {{ volume }}</label>
-      <input id="volumeSlider" type="range" min="0" max="100" v-model="volume" @input="setVolume">
-    </div>
-    <div id="scrollContainer" style="overflow-y: scroll" :style="{ width: width + 'px', height: height + 'px' }">
-      <div id="osmdContainer" ref="osmdContainer"></div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted } from 'vue';
 
@@ -20,6 +5,7 @@ const props = defineProps({
   width: Number,
   height: Number,
 });
+
 const emit = defineEmits(['measure-changed']);
 
 const osmdContainer = ref(null);
@@ -27,8 +13,8 @@ const volume = ref(50); // 초기 볼륨 값을 50으로 설정
 let osmd = null;
 let playbackManager = null;
 
-const loadMusicXML = async () => {
-  const response = await fetch('/loa.musicxml');
+const loadMusicXML = async(xmlFile) => {
+  const response = await fetch(xmlFile);
   const xml = await response.text();
   return xml;
 };
@@ -110,21 +96,47 @@ const setVolume = () => {
 };
 
 onMounted(async () => {
-  osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(osmdContainer.value);
-  console.log('osmd init');
-  osmd.setOptions({
-    pageFormat: 'A4 P', // P = 세로 L = 가로
-    pageBackgroundColor: 'white',
-  });
-  const xml = await loadMusicXML();
-  console.log('loaded xml');
-  await osmd.load(xml);
-  console.log('osmd loaded xml');
-  osmd.render();
-  console.log('osmd rendered');
+  const script = document.createElement('script');
+  script.src = '/opensheetmusicdisplay.min.js'; // public 폴더에 있는 파일의 경로
+  script.onload = () => {
+    osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(osmdContainer.value);
+    console.log('osmd init');
+    osmd.setOptions({
+      pageFormat: 'A4 P', // P = 세로 L = 가로
+      pageBackgroundColor: 'white',
+    });
+  };
+  document.body.appendChild(script);
+  // -----------------------------------------------------------------------------------
+
+  // osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(osmdContainer.value);
+  // console.log('osmd init');
+  // osmd.setOptions({
+  //   pageFormat: 'A4 P', // P = 세로 L = 가로
+  //   pageBackgroundColor: 'white',
+  // });
+
+  const xml = await loadMusicXML('/loa.musicxml'); console.log('loaded xml');
+  await osmd.load(xml); console.log('osmd loaded xml');
+  osmd.render(); console.log('osmd rendered');
   setupPlaybackManager();
 });
 </script>
+
+<template>
+  <div style="margin-left: 100px">
+    <div>
+      <button @click="play">재생하기</button>
+      <button @click="pause">일시정지</button>
+      <button @click="stop">처음으로</button>
+      <label for="volumeSlider">Volume: {{ volume }}</label>
+      <input id="volumeSlider" type="range" min="0" max="100" v-model="volume" @input="setVolume">
+    </div>
+    <div id="scrollContainer" style="overflow-y: scroll" :style="{ width, height }">
+      <div id="osmdContainer" ref="osmdContainer"></div>
+    </div>
+  </div>
+</template>
 
 <style>
 button {

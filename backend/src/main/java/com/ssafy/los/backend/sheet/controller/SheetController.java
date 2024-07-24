@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -76,16 +77,25 @@ public class SheetController {
     }
 
     @GetMapping("/{sheet-id}")
+    public ResponseEntity<?> getSheetInfo(@PathVariable("sheet-id") Long sheetId) {
+        return new ResponseEntity<>(sheetService.searchSheetById(sheetId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{sheet-id}/download")
     public ResponseEntity<?> downloadSheet(@PathVariable("sheet-id") Long sheetId) {
         // TODO : 구매여부 확인
 
         Sheet sheet = sheetService.searchSheetById(sheetId);
         try {
             Resource resource = sheetService.getSheetFileByName(sheet.getFileName());
+
             String encodedOriginalFileName = UriUtils.encode(sheet.getTitle(),
                     StandardCharsets.UTF_8);
+
+            String fileExtension = FilenameUtils.getExtension(sheet.getFileName());
             String contentDisposition =
-                    "attachment; filename=\"" + encodedOriginalFileName + ".mid\"";
+                    "attachment; filename=\"" + encodedOriginalFileName + "." + fileExtension
+                            + "\"";
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                     .body(resource);

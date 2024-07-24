@@ -58,7 +58,7 @@ public class SheetServiceImpl implements SheetService {
             return sheetRepository.findSheetResponseDtoListByDeletedAtIsNullAndCreatedAtIsNotNullOrderByCreatedAt();
         }
         if (sort.equals("popular")) { // sort : popular
-            // 메서드 고쳐야 함
+            // TODO : 메서드 고쳐야 함
             return sheetRepository.findSheetResponseDtoListByDeletedAtIsNullAndCreatedAtIsNotNullOrderByCreatedAt();
         }
         return null;

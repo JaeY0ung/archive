@@ -45,7 +45,7 @@ public class FileUploadUtil {
     }
 
     public Resource downloadSheet(String fileName) throws IOException {
-        return downloadOneFile(sheetFilePath, fileName, "mid");
+        return downloadOneFile(sheetFilePath, fileName);
     }
 
     public String uploadPlayRecord(MultipartFile file) throws IOException {
@@ -62,7 +62,6 @@ public class FileUploadUtil {
     private String saveOneFile(MultipartFile file, String filePath) throws IOException {
         String originalFilename = file.getOriginalFilename(); // 원본 파일명, 저장 될 파일명 생성
         validatePath(filePath);
-        log.info("저장 장소: " + filePath);
 
         if (originalFilename == null || originalFilename.isEmpty()) {
             throw new IllegalArgumentException("파일의 이름이 없습니다."); // NO_FILE_NAME_MESSAGE
@@ -74,12 +73,14 @@ public class FileUploadUtil {
 
         File saveFile = new File(filePath, saveFileName);
         file.transferTo(saveFile);
-        return uuid;
+        return saveFileName;
     }
 
-    private Resource downloadOneFile(String filePath, String fileName, String ext) throws IOException {
-        Path path = Paths.get(filePath, fileName + "." + ext);
+    private Resource downloadOneFile(String filePath, String fileName) throws IOException {
+        Path path = Paths.get(filePath, fileName);
+
         UrlResource resource = new UrlResource(path.toUri());
+
         if (resource.exists() || resource.isReadable()) {
             return resource;
         }
@@ -88,11 +89,10 @@ public class FileUploadUtil {
 
     private void validatePath(String filePath) throws IOException {
         File directory = new File(filePath);
-        if (!directory.exists()) {
-            if (!directory.mkdirs()) {
-                log.error("파일 저장 디렉토리 생성 실패: " + filePath);
-                throw new IOException("파일 저장 디렉토리 생성 실패");
-            }
+        if (directory.exists() || directory.mkdirs()) {
+            return;
         }
+        log.error("파일 저장 디렉토리 생성 실패: " + filePath);
+        throw new IOException("파일 저장 디렉토리 생성 실패");
     }
 }
