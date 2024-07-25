@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class SinglePlayRequestDto {
+public class SingleRequestDto {
     private Long sheetId;
     private Float score;
 }

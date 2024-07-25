@@ -1,6 +1,6 @@
 package com.ssafy.los.backend.play.controller;
 
-import com.ssafy.los.backend.play.model.dto.request.SinglePlayRequestDto;
+import com.ssafy.los.backend.play.model.dto.request.SingleRequestDto;
 import com.ssafy.los.backend.play.model.entity.SinglePlayResult;
 import com.ssafy.los.backend.play.model.service.SinglePlayService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class SinglePlayController {
 
     // 싱글결과 생성
     @PostMapping
-    private ResponseEntity<?> saveSinglePlayResult(SinglePlayRequestDto singlePlayRequestDto) {
+    private ResponseEntity<?> saveSinglePlayResult(SingleRequestDto singlePlayRequestDto) {
         Long singePlayResultId = singlePlayService.saveSinglePlayResult(singlePlayRequestDto);
 
         return new ResponseEntity<>(singePlayResultId, HttpStatus.CREATED);

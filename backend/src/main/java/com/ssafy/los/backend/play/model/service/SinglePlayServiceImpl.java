@@ -1,13 +1,12 @@
 package com.ssafy.los.backend.play.model.service;
 
-import com.ssafy.los.backend.play.model.dto.request.SinglePlayRequestDto;
+import com.ssafy.los.backend.play.model.dto.request.SingleRequestDto;
 import com.ssafy.los.backend.play.model.entity.SinglePlayResult;
 import com.ssafy.los.backend.play.model.repository.SinglePlayResultRepository;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.sheet.model.repository.SheetRepository;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
 
     // 싱글 결과 생성
     @Override
-    public Long saveSinglePlayResult(SinglePlayRequestDto singlePlayRequestDto) {
+    public Long saveSinglePlayResult(SingleRequestDto singlePlayRequestDto) {
         User loginUser = authService.getLoginUser();
         Sheet sheetInfo = sheetRepository.findById(singlePlayRequestDto.getSheetId())
                 .orElseThrow(() -> new RuntimeException("Sheet not found"));

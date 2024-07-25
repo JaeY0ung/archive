@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class SingePlayResultDto {
+public class SingeResultDto {
     private String nickname;
     private String userImg;
     private String sheetTitle;
