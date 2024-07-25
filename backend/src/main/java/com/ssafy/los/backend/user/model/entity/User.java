@@ -42,11 +42,6 @@ public class User extends BaseEntity {
     @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
     private String email;
 
-    private String role;
-
-    @Column(columnDefinition = "VARCHAR(64)")
-    private String pwdHash;
-
     @Column(columnDefinition = "VARCHAR(64)")
     private String nickname;
 
@@ -60,9 +55,6 @@ public class User extends BaseEntity {
 
     @ColumnDefault("0")
     private int cash;
-
-    private int SingleScore;
-    private int MultiScore;
 
     private LocalDateTime deletedAt;
 
@@ -107,7 +99,7 @@ public class User extends BaseEntity {
     }
 
     public void increaseSingleScore(int amount) {
-        this.SingleScore += amount;
+        this.singleScore += amount;
     }
 
 //    public void decreaseSingleScore(int amount) {
@@ -115,11 +107,11 @@ public class User extends BaseEntity {
 //    }
 
     public void increaseMultiScore(int amount) {
-        this.MultiScore += amount;
+        this.multiScore += amount;
     }
 
     public void decreaseMultiScore(int amount) {
-        this.MultiScore -= amount;
+        this.multiScore -= amount;
     }
 
 }
