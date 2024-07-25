@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 
 export const useThemeStore = defineStore('theme', () => {
   const isDarkMode = ref(true);
-
+  document.querySelector("html").setAttribute('data-theme', "dark")
   const switchTheme = () => {
     if (isDarkMode.value) {
       isDarkMode.value = false;
