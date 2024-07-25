@@ -48,11 +48,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) throws AuthenticationException {
 
-        log.info("로그인");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        log.info("패스워드 시도: email - {}, pwd - {}", email, password);
+        log.info("로그인 시도: email - {}, pwd - {}", email, password);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
@@ -78,6 +77,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
+        log.info("accessToken - {}", accessToken);
 
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
         response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
@@ -85,7 +85,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
         setTokenResponse(response, accessToken, refreshToken);
+<<<<<<< Updated upstream
 //        response.addHeader("Authorization", "Bearer " + accessToken);
+=======
+        response.addHeader("Authorization", "Bearer " + accessToken);
+        log.info("refreshToken - {}", refreshToken);
+>>>>>>> Stashed changes
     }
 
     private String createHttpOnlyCookie(String name, String value, String path) {

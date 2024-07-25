@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.user.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ssafy.los.backend.common.model.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -47,6 +48,7 @@ public class User extends BaseEntity {
 
     private String userImg;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime birthDate;
 
     private Boolean gender;
@@ -56,6 +58,12 @@ public class User extends BaseEntity {
     @ColumnDefault("0")
     private int cash;
 
+<<<<<<< Updated upstream
+=======
+    private Integer singleScore;
+    private Integer multiScore;
+
+>>>>>>> Stashed changes
     private LocalDateTime deletedAt;
 
     private Integer singleScore;

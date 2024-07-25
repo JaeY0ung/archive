@@ -28,13 +28,12 @@ export const useUserStore = defineStore('user', () => {
           isValidToken.value = true
           sessionStorage.setItem("accessToken", accessToken)
           sessionStorage.setItem("refreshToken", refreshToken)
-          alert(`${loginUser.username}님 환영합니다`)
         }
       },
       (error) => {
         console.log("loginUser: ")
         console.log(loginUser)
-        console.log("로그인 실패!!!!")
+        console.log("로그인에 실패했습니다.")
         isLogin.value = false
         isLoginError.value = true
         isValidToken.value = false
@@ -53,11 +52,11 @@ export const useUserStore = defineStore('user', () => {
         if (response.status === httpStatusCode.OK) {
           userInfo.value = response.data.userInfo
         } else {
-          console.log("유저 정보 없음!!!!")
+          console.log("해당 유저 정보가 없습니다.")
         }
       },
       async (error) => {
-        console.error("g[토큰 만료되어 사용 불가능.] : ",)
+        console.error("g[토큰이 만료되어 사용 불가능합니다.] : ",)
         console.error(error.response.status, error.response.statusText)
         isValidToken.value = false
 

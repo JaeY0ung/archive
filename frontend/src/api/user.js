@@ -1,9 +1,29 @@
 import { localAxios } from '@/util/http-common';
 const local = localAxios();
 
+// async function userConfirm(param, success, fail) {
+//     await local.post(`/auth/login`, param).then(success).catch(fail);
+// }
+
 async function userConfirm(param, success, fail) {
-    await local.post(`/auth/login`, param).then(success).catch(fail);
+    // URLSearchParams 객체를 사용하여 데이터를 URL-encoded 형식으로 변환
+    const formData = new URLSearchParams();
+    formData.append('email', param.email);
+    formData.append('password', param.password);
+
+    try {
+        const response = await local.post(`http://localhost:8080/auth/login`, formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+        console.log('전송', response);
+        success(response);
+    } catch (error) {
+        fail(error);
+    }
 }
+
 
 async function findById(username, success, fail) {
     local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
