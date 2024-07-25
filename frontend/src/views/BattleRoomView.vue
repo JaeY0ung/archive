@@ -1,9 +1,7 @@
 <script setup>
 
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { useRouter } from 'vue-router';
 
-const router = useRouter();
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 let eventSource;
 
@@ -58,61 +56,17 @@ onMounted(() => {
 </script>
 
 <template>
-
-    <h1>배틀 대기방</h1>
-
-    <div id="userform">
-        <button @click="router.push({name:'signin'})">회원가입</button>
-        <button>로그인</button>
+    <div>
+        <h1>배틀 페이지</h1>
     </div>
-
-    <div id="profiles">
-        <div>
-            <p>
-                인절미 프로필
-            </p>
-            <button>게임 준비</button>
-        </div>
-        <div>
-            <p>
-                팽귀니 프로필
-            </p>
-            <button>게임 준비</button>
-        </div>
+    <div>
+        <h2>실시간 점수</h2>
+        <ul>
+            Player: 창용, Score: {{ score.score }}
+        </ul>
     </div>
-
 </template>
 
-<style>
-    
-    #userform{
-        display:flex;
-        justify-content: space-around;
-        margin-bottom: 5%;
-    }
-    
-    #profiles{
-        display: flex;
-        justify-content: space-around;
-        height: 10vh;
-        /* border: 1px solid orange; */
-    }
+<style scoped>
 
-
-    button{
-        height: 5vh;
-        border: 1px solid white ;
-    }
-
-    #profiles div {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    p {
-        margin-bottom: 10%;
-    }
-
-    
 </style>
