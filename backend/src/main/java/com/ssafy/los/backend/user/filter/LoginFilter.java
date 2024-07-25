@@ -5,6 +5,7 @@ import com.ssafy.los.backend.config.RefreshToken;
 import com.ssafy.los.backend.user.model.dto.CustomUserDetails;
 import com.ssafy.los.backend.user.model.dto.response.Response;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
+import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,11 +15,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,16 +35,28 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final UserStatusService userStatusService;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
+            RefreshTokenRepository refreshTokenRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/auth/login"); // Set the login endpoint to /auth/login
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
+            RefreshTokenRepository refreshTokenRepository, UserStatusService userStatusService) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+        setFilterProcessesUrl("/auth/login"); // Set the login endpoint to /auth/login
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.userStatusService = userStatusService;
+    }
+
     @Override
-    public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(final HttpServletRequest request,
+            final HttpServletResponse response) throws AuthenticationException {
 
         log.info("로그인");
         String email = request.getParameter("email");
@@ -54,7 +64,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         log.info("패스워드 시도: email - {}, pwd - {}", email, password);
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                email, password, null);
 
         // token에 담은 검증을 위한 AuthenticationManager로 전달
         return authenticationManager.authenticate(authToken);
@@ -64,7 +75,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     //로그인 성공시 실행하는 메소드 (여기서 JWT 발급)
     // authentication : Auth에 대한 결과
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication)
+    protected void successfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain, Authentication authentication)
             throws IOException, ServletException {
         //UserDetails
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -76,20 +88,24 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
+        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
-        response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
+        response.addHeader("Set-Cookie",
+                createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
+        userStatusService.setUserOnline(customUserDetails.getUser().getId());
+
         setTokenResponse(response, accessToken, refreshToken);
 //        response.addHeader("Authorization", "Bearer " + accessToken);
     }
 
     private String createHttpOnlyCookie(String name, String value, String path) {
-        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value, path);
+        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value,
+                path);
     }
 
 
@@ -111,7 +127,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     //로그인 실패시 실행하는 메소드
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);
     }
 
