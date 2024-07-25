@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class MultiResultBeforeDto {
+public class MultiPlayResultBeforeDto {
 
     private Long sheetId;
 

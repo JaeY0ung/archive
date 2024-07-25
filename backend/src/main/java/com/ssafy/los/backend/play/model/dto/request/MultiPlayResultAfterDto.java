@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class MultiResultAfterDto {
+public class MultiPlayResultAfterDto {
     private Long myUserId;
     private Float myScore;
     private Long otherUserId;

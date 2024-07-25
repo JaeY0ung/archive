@@ -1,8 +1,8 @@
 package com.ssafy.los.backend.play.controller;
 
-import com.ssafy.los.backend.play.model.dto.request.MultiResultAfterDto;
-import com.ssafy.los.backend.play.model.dto.request.MultiResultBeforeDto;
-import com.ssafy.los.backend.play.model.dto.response.MultiResultListDto;
+import com.ssafy.los.backend.play.model.dto.request.MultiPlayResultAfterDto;
+import com.ssafy.los.backend.play.model.dto.request.MultiPlayResultBeforeDto;
+import com.ssafy.los.backend.play.model.dto.response.MultiPlayResultListDto;
 import com.ssafy.los.backend.play.model.service.MultiPlayService;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
@@ -29,7 +29,7 @@ public class MultiPlayController {
 
     // 게임 시작 시, 멀티 결과 생성
     @PostMapping
-    public ResponseEntity<?> saveMultiPlayResult(MultiResultBeforeDto multiResultBeforeDto) {
+    public ResponseEntity<?> saveMultiPlayResult(MultiPlayResultBeforeDto multiResultBeforeDto) {
         Long multiPlayResultId = multiPlayService.saveMultiPlayResult(multiResultBeforeDto);
 
         return new ResponseEntity<>(multiPlayResultId, HttpStatus.CREATED);
@@ -37,7 +37,7 @@ public class MultiPlayController {
 
     // 게임 종료 시, 멀티 결과 업데이트
     @PatchMapping("/{multi-result-id}")
-    public ResponseEntity<?> completeMultiPlayResult(@PathVariable("multi-result-id") Long multiResultId, MultiResultAfterDto multiResultAfterDto) {
+    public ResponseEntity<?> completeMultiPlayResult(@PathVariable("multi-result-id") Long multiResultId, MultiPlayResultAfterDto multiResultAfterDto) {
         Long multiPlayResult = multiPlayService.completeMultiPlayResult(multiResultId,
                 multiResultAfterDto);
 
@@ -48,7 +48,7 @@ public class MultiPlayController {
     @GetMapping
     public ResponseEntity<?> getMultiResultAll() {
         User loginUser = authService.getLoginUser();
-        List<MultiResultListDto> multiPlayResultList = multiPlayService.getMultiPlayResultList(loginUser);
+        List<MultiPlayResultListDto> multiPlayResultList = multiPlayService.getMultiPlayResultList(loginUser);
 
         return new ResponseEntity<>(multiPlayResultList, HttpStatus.OK);
     }

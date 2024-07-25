@@ -1,6 +1,6 @@
 package com.ssafy.los.backend.play.model.service;
 
-import com.ssafy.los.backend.play.model.dto.request.SingleRequestDto;
+import com.ssafy.los.backend.play.model.dto.request.SinglePlayRequestDto;
 import com.ssafy.los.backend.play.model.entity.SinglePlayResult;
 import com.ssafy.los.backend.play.model.repository.SinglePlayResultRepository;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
@@ -22,7 +22,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
 
     // 싱글 결과 생성
     @Override
-    public Long saveSinglePlayResult(SingleRequestDto singlePlayRequestDto) {
+    public Long saveSinglePlayResult(SinglePlayRequestDto singlePlayRequestDto) {
         User loginUser = authService.getLoginUser();
         Sheet sheetInfo = sheetRepository.findById(singlePlayRequestDto.getSheetId())
                 .orElseThrow(() -> new RuntimeException("Sheet not found"));
@@ -34,14 +34,11 @@ public class SinglePlayServiceImpl implements SinglePlayService {
                 .score(singlePlayRequestDto.getScore())
                 .build();
 
+        // 플레이 종료시간 저장
+        singlePlayResult.updatePlayTime();
+
         return singlePlayResultRepository.save(singlePlayResult).getId(); // single result 결과 저장
     }
-
-    // 싱글 결과 단일 조회
-//    @Override
-//    public void getSinglePlayResult() {
-//
-//    }
 
     // 싱글 결과 목록 조회(유저, 악보 기준)
     @Override
