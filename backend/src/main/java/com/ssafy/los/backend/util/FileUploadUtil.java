@@ -2,6 +2,7 @@ package com.ssafy.los.backend.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -44,8 +45,12 @@ public class FileUploadUtil {
         return saveOneFile(file, sheetFilePath);
     }
 
-    public Resource downloadSheet(String fileName) throws IOException {
+    public Resource downloadSheetFile(String fileName) throws IOException {
         return downloadOneFile(sheetFilePath, fileName);
+    }
+
+    public Path getSomgImgPath(String fileName) {
+        return getPath(songImgPath, fileName);
     }
 
     public String uploadPlayRecord(MultipartFile file) throws IOException {
@@ -76,15 +81,25 @@ public class FileUploadUtil {
         return saveFileName;
     }
 
-    private Resource downloadOneFile(String filePath, String fileName) throws IOException {
-        Path path = Paths.get(filePath, fileName);
+    private Resource downloadOneFile(String filePath, String fileName) {
+        Path path = getPath(filePath, fileName);
 
-        UrlResource resource = new UrlResource(path.toUri());
+        UrlResource resource = null;
+        try {
+            resource = new UrlResource(path.toUri());
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("파일을 가져올 수 없습니다.");
+        }
 
         if (resource.exists() || resource.isReadable()) {
             return resource;
         }
-        throw new IllegalArgumentException("파일을 가져올 수 없습니다.");
+        return null;
+    }
+
+    private Path getPath(String filePath, String fileName) {
+
+        return Paths.get(filePath, fileName);
     }
 
     private void validatePath(String filePath) throws IOException {

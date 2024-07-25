@@ -1,23 +1,29 @@
 <script setup>
 import axios from 'axios';
 import { useRoute } from 'vue-router'
-import Sheet from '@/common/sheet/Sheet.vue';
+import SheetPage from '@/common/sheet/SheetPage.vue';
+import SheetPlayNavigation from '@/common/sheet/SheetPlayNavigation.vue';
 import RecordButton from '@/common/RecordButton.vue';
 import { ref } from 'vue';
+
 const route = useRoute();
 
+const sheet = ref({})
 const searchSheetDetailById = () => {
     axios.get("http://localhost:8080/sheets/" + route.params.sheetId)
         .then(({data}) => {
-            console.log(data);
             sheet.value = data;
+            sheet.value.imageUrl =`data:image/jpeg;base64,${data.songImg}`
+            console.log(sheet.value);
         }).catch((err) => {
             alert(err)
         })
 }
 
-const sheet = ref({})
+
 searchSheetDetailById()
+
+const isPlay = ref("stop")
 
 </script>
 
@@ -26,7 +32,7 @@ searchSheetDetailById()
         <div class="left w-1/2">
             <div class="sheet-detail">
                 <div style="width: 100px; height: 100px; background-color: aliceblue;">
-                    <img :src="`C:/SSAFY/Archive/file/sheet-img/${sheet.song?.imgName}`" alt="악보 이미지">
+                    <img :src="sheet.imageUrl" alt="악보 이미지">
                 </div>
                 <div>
                     <div>제목: {{ sheet.title }}</div>
@@ -38,11 +44,11 @@ searchSheetDetailById()
                     <div><RouterLink :to="{name: 'waitBattle'}">곡 연습하러 가기</RouterLink></div>
                 </div>
             </div>
-
         </div>
+
         <div>
-            <Sheet v-on:measure-changed="mChange" :width="'45vw'" height="'80vh'"/>
-            <RecordButton ref="recordComponent" :triggerSplit="triggerSplit"/>
+            <SheetPlayNavigation @play="isPlay='play'" @pause="isPlay='pause'" @stop="'stop'"/>
+            <SheetPage :isPlay height="80vh" width="45vw"/>
         </div>
     </div>
 </template>

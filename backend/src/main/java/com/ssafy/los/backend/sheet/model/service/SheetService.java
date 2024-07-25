@@ -15,7 +15,7 @@ public interface SheetService {
 
     Sheet saveSheetInfo(SheetUploadForm sheetUploadForm, User loginUser, String fileName);
 
-    Sheet searchSheetById(Long sheetId);
+    SheetResponseDto searchSheetById(Long sheetId);
 
     Resource getSheetFileByName(String fileName) throws IOException;
 

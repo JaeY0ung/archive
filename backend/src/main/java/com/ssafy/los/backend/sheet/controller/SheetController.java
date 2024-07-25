@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.sheet.controller;
 
 import com.ssafy.los.backend.sheet.model.dto.request.SheetUploadForm;
+import com.ssafy.los.backend.sheet.model.dto.response.SheetResponseDto;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.sheet.model.service.SheetService;
 import com.ssafy.los.backend.user.model.entity.User;
@@ -78,14 +79,16 @@ public class SheetController {
 
     @GetMapping("/{sheet-id}")
     public ResponseEntity<?> getSheetInfo(@PathVariable("sheet-id") Long sheetId) {
-        return new ResponseEntity<>(sheetService.searchSheetById(sheetId), HttpStatus.OK);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sheetService.searchSheetById(sheetId));
     }
 
     @GetMapping("/{sheet-id}/download")
     public ResponseEntity<?> downloadSheet(@PathVariable("sheet-id") Long sheetId) {
         // TODO : 구매여부 확인
 
-        Sheet sheet = sheetService.searchSheetById(sheetId);
+        SheetResponseDto sheet = sheetService.searchSheetById(sheetId);
         try {
             Resource resource = sheetService.getSheetFileByName(sheet.getFileName());
 

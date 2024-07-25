@@ -1,31 +1,43 @@
 package com.ssafy.los.backend.sheet.model.dto.response;
 
-import com.ssafy.los.backend.song.model.entity.Song;
-import com.ssafy.los.backend.user.model.entity.User;
 import java.sql.Timestamp;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public interface SheetResponseDto {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SheetResponseDto {
 
-    Long getId();
+    private Long id;
 
-    String getTitle();
+    private String title;
 
-    Song getSong();
+    private String songTitle;
 
-    User getUploader();
+    private String songComposer;
 
-    String getFileName();
+    private String uploaderNickname;
 
-    Integer getPrice();
+    private String fileName;
 
-    Integer getLevel(); // 1,2,3,4,5,6,7,8,9
+    private String songImg;
 
-    Integer getStatus(); // "waiting: 0, accepted: 1, rejected: 2"
+    private Integer price;
 
-    Integer getPoint();
+    private Integer level; // 1,2,3,4,5,6,7,8,9
 
-    Integer getViewCount();
+    private Integer status; // "waiting: 0, accepted: 1, rejected: 2"
 
-    Timestamp getCreatedAt();
+    private Integer point;
+
+    private Integer viewCount;
+
+    private Timestamp createdAt;
 
 }
