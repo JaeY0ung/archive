@@ -14,11 +14,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-
 import java.util.Map;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -85,12 +82,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
         setTokenResponse(response, accessToken, refreshToken);
-<<<<<<< Updated upstream
-//        response.addHeader("Authorization", "Bearer " + accessToken);
-=======
-        response.addHeader("Authorization", "Bearer " + accessToken);
         log.info("refreshToken - {}", refreshToken);
->>>>>>> Stashed changes
     }
 
     private String createHttpOnlyCookie(String name, String value, String path) {

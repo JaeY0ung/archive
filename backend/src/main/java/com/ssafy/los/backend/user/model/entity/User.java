@@ -58,17 +58,10 @@ public class User extends BaseEntity {
     @ColumnDefault("0")
     private int cash;
 
-<<<<<<< Updated upstream
-=======
     private Integer singleScore;
     private Integer multiScore;
 
->>>>>>> Stashed changes
     private LocalDateTime deletedAt;
-
-    private Integer singleScore;
-
-    private Integer multiScore;
 
     @PrePersist
     public void prePersist() {
