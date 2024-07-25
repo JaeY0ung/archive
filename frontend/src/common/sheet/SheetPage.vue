@@ -9,6 +9,8 @@ const props = defineProps({
   height: {type: String, required : false, default: '70vh'},
 })
 
+const osmd = ref(null);
+
 watch(() => props.isPlay, (newValue, oldValue) => {
   if (newValue === 'play') {
     play();
@@ -21,7 +23,7 @@ watch(() => props.isPlay, (newValue, oldValue) => {
 
 const osmdContainer = ref(null);
 const volume = ref(50); // 초기 볼륨 값을 50으로 설정
-let osmd = null;
+// let osmd = null;
 let playbackManager = null;
 
 
@@ -45,13 +47,13 @@ const setupPlaybackManager = () => {
   playbackManager.DoPlayback = true;
   playbackManager.DoPreCount = false;
   playbackManager.PreCountMeasures = 1;
-  osmd.FollowCursor = true;
+  osmd.value.FollowCursor = true;
 
   timingSource.reset();
   timingSource.pause();
-  timingSource.Settings = osmd.Sheet.playbackSettings;
-  playbackManager.initialize(osmd.Sheet.musicPartManager);
-  playbackManager.addListener(osmd.cursor);
+  timingSource.Settings = osmd.value.Sheet.playbackSettings;
+  playbackManager.initialize(osmd.value.Sheet.musicPartManager);
+  playbackManager.addListener(osmd.value.cursor);
 
   let lastEmittedMeasureIndex = 0;
   playbackManager.addListener({
@@ -79,7 +81,7 @@ const setupPlaybackManager = () => {
   });
 
   playbackManager.reset();
-  osmd.PlaybackManager = playbackManager;
+  osmd.value.PlaybackManager = playbackManager;
 };
 
 const play = () => {
@@ -104,22 +106,25 @@ const setVolume = () => {
 };
 
 onMounted(async () => {
+  const xml = await loadMusicXML('/loa.musicxml');
+  
   const script = document.createElement('script');
   script.src = '/opensheetmusicdisplay.min.js'; // public 폴더에 있는 파일의 경로
   script.onload = () => {
-    osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(osmdContainer.value);
-    console.log('osmd init');
-    osmd.setOptions({
+    osmd.value = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(osmdContainer.value);
+
+    osmd.value.setOptions({
       pageFormat: 'A4 P', // P = 세로 L = 가로
       pageBackgroundColor: 'white',
     });
   };
   document.body.appendChild(script);
 
-  const xml = await loadMusicXML('/loa.musicxml');
-  await osmd.load(xml); 
-  osmd.render();
-  setupPlaybackManager();
+  watch(osmd, async(newValue, oldValue) => {
+    await osmd.value.load(xml); 
+    osmd.value.render();
+    setupPlaybackManager();
+  })
 });
 </script>
 

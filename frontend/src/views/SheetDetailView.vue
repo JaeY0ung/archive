@@ -19,7 +19,6 @@ const searchSheetDetailById = () => {
         })
 }
 
-
 searchSheetDetailById()
 
 const isPlay = ref("stop")
