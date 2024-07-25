@@ -1,8 +1,9 @@
 package com.ssafy.los.backend.user.model.service;
 
-import com.ssafy.los.backend.user.model.dto.request.UserMyPageDto;
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
+import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
 import com.ssafy.los.backend.user.model.entity.User;
+import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
@@ -11,9 +12,11 @@ public interface UserService {
 
     Long saveUser(UserRegisterDto userRegisterDto);
 
-    Long updateUser(Long id, UserMyPageDto userMyPageDto, MultipartFile profileImg);
+    Long updateUser(Long id, UserUpdateDto userUpdateForm, String uuid);
 
     Long deleteUser(Long id);
 
     User selectUserById(Long id);
+
+    String saveUserImgFile(MultipartFile profileImg) throws IOException;
 }

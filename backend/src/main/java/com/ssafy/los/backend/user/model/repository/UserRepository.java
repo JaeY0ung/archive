@@ -1,6 +1,6 @@
 package com.ssafy.los.backend.user.model.repository;
 
-import com.ssafy.los.backend.user.model.dto.request.UserMyPageDto;
+import com.ssafy.los.backend.user.model.dto.response.UserMyPageDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

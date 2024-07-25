@@ -111,3 +111,15 @@ INSERT INTO sheet_order(sheet_order_id, user_id, sheet_id, payment_id, created_a
 VALUES (1, 1, 1, 1, NOW()),
        (2, 2, 1, 1, NOW()),
        (3, 3, 1, 1, NOW());
+
+# 별점
+INSERT INTO sheet_star_rate(sheet_star_rate_id, sheet_id, user_id, content, star_rate)
+VALUES (1, 1, 1, "평가1", 1),
+       (2, 1, 2, "평가2", 2),
+       (3, 1, 3, "평가3", 3);
+
+# 난이도 평가
+INSERT INTO difficulty(user_id, sheet_id, level, content)
+VALUES (1, 1, 4, "너무 쉬워요!"),
+       (2, 1, 3, "너무 어려워요!"),
+       (3, 1, 2, "너무 대박이에요!");

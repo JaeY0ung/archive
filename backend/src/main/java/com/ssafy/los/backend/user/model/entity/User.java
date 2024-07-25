@@ -11,8 +11,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -20,8 +18,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Getter
 @Entity
@@ -46,10 +42,17 @@ public class User extends BaseEntity {
     @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
     private String email;
 
-    private LocalDateTime birthDate;
+    private String role;
+
+    @Column(columnDefinition = "VARCHAR(64)")
+    private String pwdHash;
 
     @Column(columnDefinition = "VARCHAR(64)")
     private String nickname;
+
+    private String userImg;
+
+    private LocalDateTime birthDate;
 
     private Boolean gender;
 
@@ -58,7 +61,8 @@ public class User extends BaseEntity {
     @ColumnDefault("0")
     private int cash;
 
-    private String userImg;
+    private int SingleScore;
+    private int MultiScore;
 
     private LocalDateTime deletedAt;
 
@@ -69,11 +73,6 @@ public class User extends BaseEntity {
     @PrePersist
     public void prePersist() {
         this.uuid = UUID.randomUUID().toString();
-    }
-
-    public void update(String email, String userImg) {
-        this.email = email;
-        this.userImg = userImg;
     }
 
     @Builder
@@ -96,4 +95,31 @@ public class User extends BaseEntity {
         this.userImg = userImg;
         this.email = email;
     }
+
+    //=== 메서드 ===//
+    public void updateProfile(String nickname, String uuid) {
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (uuid != null) {
+            this.uuid = uuid;
+        }
+    }
+
+    public void increaseSingleScore(int amount) {
+        this.SingleScore += amount;
+    }
+
+//    public void decreaseSingleScore(int amount) {
+//        this.SingleScore -= amount;
+//    }
+
+    public void increaseMultiScore(int amount) {
+        this.MultiScore += amount;
+    }
+
+    public void decreaseMultiScore(int amount) {
+        this.MultiScore -= amount;
+    }
+
 }
