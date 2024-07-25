@@ -15,7 +15,8 @@ async function userConfirm(param, success, fail) {
         const response = await local.post(`http://localhost:8080/auth/login`, formData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
-            }
+            },
+            withCredentials: true // 자격 증명 포함
         });
         console.log('전송', response);
         success(response);

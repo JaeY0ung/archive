@@ -5,7 +5,7 @@
         <div class="form-group">
           <label for="email">이메일:</label>
           <div class="email-input-group">
-            <input type="email" id="email" v-model="email" required>
+            <input type="text" id="email" v-model="email" required>
             <button type="button" @click="checkEmailDuplicate" :disabled="!email">중복 확인</button>
           </div>
           <p v-if="emailCheckMessage" :class="{ 'success': !isEmailDuplicate, 'error': isEmailDuplicate }">

@@ -72,21 +72,25 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
+        // accessToken
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
-        log.info("accessToken - {}", accessToken);
 
+        // refreshToken
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
         response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
-        log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
         setTokenResponse(response, accessToken, refreshToken);
+
+        log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
+        log.info("accessToken - {}", accessToken);
         log.info("refreshToken - {}", refreshToken);
     }
 
     private String createHttpOnlyCookie(String name, String value, String path) {
-        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value, path);
+        return String.format("%s=%s; Path=%s; HttpOnly; SameSite=None;", name, value, path);
+//        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value, path);
     }
 
 

@@ -19,16 +19,19 @@ export const useUserStore = defineStore('user', () => {
       (response) => {
         console.log("loginUser: ")
         console.log(loginUser)
-        if (response.status === httpStatusCode.CREATE) {
+        // if (response.status === httpStatusCode.CREATE) {
           let { data } = response
-          let accessToken = data["access-token"]
-          let refreshToken = data["refresh-token"]
+          console.log("로그인 완료 후 data ", data)
+          let accessToken = data["data"]["accessToken"]
+          console.log("accessToke 저장 = ", accessToken)
+          let refreshToken = data["data"]["refreshToken"]
+          console.log("refreshToken 저장 = ", refreshToken)
           isLogin.value = true
           isLoginError.value = false
           isValidToken.value = true
           sessionStorage.setItem("accessToken", accessToken)
-          sessionStorage.setItem("refreshToken", refreshToken)
-        }
+          // sessionStorage.setItem("refreshToken", refreshToken)
+        // }
       },
       (error) => {
         console.log("loginUser: ")
