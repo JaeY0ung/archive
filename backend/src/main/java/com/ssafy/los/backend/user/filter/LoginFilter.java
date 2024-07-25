@@ -79,13 +79,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
-        String refreshToken = UUID.randomUUID().toString();
+        String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
+        response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
         setTokenResponse(response, accessToken, refreshToken);
-        response.addHeader("Authorization", "Bearer " + accessToken);
+//        response.addHeader("Authorization", "Bearer " + accessToken);
     }
+
+    private String createHttpOnlyCookie(String name, String value, String path) {
+        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value, path);
+    }
+
 
     private void setTokenResponse(HttpServletResponse response, String accessToken,
             String refreshToken) throws IOException {
