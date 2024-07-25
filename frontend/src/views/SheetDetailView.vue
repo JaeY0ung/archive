@@ -14,7 +14,6 @@ const searchSheetDetailById = () => {
         .then(({data}) => {
             sheet.value = data;
             sheet.value.imageUrl =`data:image/jpeg;base64,${data.songImg}`
-            console.log(sheet.value);
         }).catch((err) => {
             alert(err)
         })
@@ -36,10 +35,15 @@ const isPlay = ref("stop")
                 </div>
                 <div>
                     <div>제목: {{ sheet.title }}</div>
-                    <div>작곡가: {{ sheet.song?.composer }}</div>
-                    <div>업로더: {{ sheet.uploader?.nickname }}</div>
+                    <div>작곡가: {{ sheet.songComposer }}</div>
+                    <div>업로더: {{ sheet.uploaderNickname }}</div>
                     <div>가격: {{ sheet.price }}</div>
-                    <div>티어: {{ sheet.level }}</div>
+                    <div>
+                        티어: {{ sheet.level }}
+                        <img v-if="sheet.level === 1" src="@/assets/img/level/bronze.svg" alt="Bronze">
+                        <img v-else-if="sheet.level === 2" src="@/assets/img/level/silver.svg" alt="Silver">
+                        <img v-else-if="sheet.level === 3" src="@/assets/img/level/gold.svg" alt="Gold">
+                    </div>
                     <div>view: {{ sheet.viewCount }}</div>
                     <div><RouterLink :to="{name: 'waitBattle'}">곡 연습하러 가기</RouterLink></div>
                 </div>

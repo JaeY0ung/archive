@@ -12,10 +12,10 @@ const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 
 const getPopularsheets = async() => {
 	await axios.get("http://localhost:8080/sheets?sort=new")
-		.then(({data}) => {
+		.then(({ data }) => {
 			popularSheets.value = data;
-		})
-	console.log(popularSheets.value);
+			popularSheets.value.map(sheet => sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}`); // TODO: songImg가 없으면 기본 로고로.
+		}).catch((err)=> alert(err))
 }
 
 getPopularsheets()
@@ -29,12 +29,16 @@ getPopularsheets()
 				<template v-for="sheet in popularSheets">
 					<div class="card">
 						<div>
-							<RouterLink :to="{ name: 'sheetDetail', params: { sheetId :  sheet.id} }">악보명: {{ sheet.title }}</RouterLink>
+							<img :src="sheet.imageUrl" alt="원본 곡 이미지">
 						</div>
-						<div>파일 이름: {{ sheet.fileName }}</div>
-						<!-- <img src="C:/SSAFY/Archive/file/user-img/img.jpg" alt=""> -->
-						<div>티어: {{ sheet.level }}</div>
-						<div>업로더 닉네임: {{ sheet.uploader.nickname }}</div>
+						<div>
+							<div>
+								<RouterLink :to="{ name: 'sheetDetail', params: { sheetId :  sheet.id} }">{{ sheet.title }}</RouterLink>
+							</div>
+							<div>파일 이름: {{ sheet.fileName }}</div>
+							<div>티어: {{ sheet.level }}</div>
+							<div>업로더 닉네임: {{ sheet.uploaderNickname }}</div>
+						</div>
 					</div>
 				</template>
 			</div>
