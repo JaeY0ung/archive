@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.play.model.entity;
 
+import com.ssafy.los.backend.common.model.entity.BaseEntity;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.user.model.entity.User;
 import jakarta.persistence.CascadeType;
@@ -12,15 +13,23 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.sql.Timestamp;
+import java.time.Duration;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class MultiPlayResult {
+public class MultiPlayResult extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +39,6 @@ public class MultiPlayResult {
     @JoinColumn(name = "sheet_id")
     @ManyToOne(cascade = CascadeType.REMOVE)
     private Sheet sheet;
-
-    private String status; // 진행 상태 : 0(대기), 1(진행), 2(완료)
 
     @JoinColumn(name = "winner_id")
     @ManyToOne(cascade = CascadeType.REMOVE)
@@ -47,10 +54,33 @@ public class MultiPlayResult {
     @Column(columnDefinition = "FLOAT")
     private Float loserScore;
 
-    @CreatedDate
-    private Timestamp createdAt;
+    @ColumnDefault("false")
+    @Column(columnDefinition = "TINYINT(1)")
+    private boolean isDraw; // 무승부 여부: false, true
 
-    @CreatedDate
-    @LastModifiedDate
-    private Timestamp modifiedAt;
+    @ColumnDefault("false")
+    @Column(columnDefinition = "TINYINT(1)")
+    private boolean status; // 진행 상태: false (진행), true (완료)
+
+    private long playTime;
+
+
+    public void update(User winner, Float winnerScore, User loser, Float loserScore) {
+        this.winner = winner;
+        this.winnerScore = winnerScore;
+        this.loser = loser;
+        this.loserScore = loserScore;
+    }
+
+    public void updateDraw(boolean isDraw) {
+        this.isDraw = isDraw;
+    }
+    public void updateStatus(boolean status) {
+        this.status = status;
+    }
+
+    public void updatePlayTime() {
+        playTime = Duration.between(this.getCreatedAt(), this.getModifiedAt()).getSeconds();
+    }
+    
 }

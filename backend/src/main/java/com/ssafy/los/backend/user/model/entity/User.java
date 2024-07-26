@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.user.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ssafy.los.backend.common.model.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -33,19 +34,22 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(36)", nullable = false, updatable = false)
     private String uuid;
 
-    @NotNull
-    @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
-    private String email;
-
-    private Role role;
+    private String role;
 
     @Column(columnDefinition = "VARCHAR(64)")
     private String pwdHash;
 
-    private LocalDateTime birthDate;
+    @NotNull
+    @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
+    private String email;
 
-    @Column(columnDefinition = "VARCHAR(64)", nullable = false)
+    @Column(columnDefinition = "VARCHAR(64)")
     private String nickname;
+
+    private String userImg;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime birthDate;
 
     private Boolean gender;
 
@@ -54,7 +58,8 @@ public class User extends BaseEntity {
     @ColumnDefault("0")
     private int cash;
 
-    private String userImg;
+    private Integer singleScore;
+    private Integer multiScore;
 
     private LocalDateTime deletedAt;
 
@@ -63,21 +68,19 @@ public class User extends BaseEntity {
         this.uuid = UUID.randomUUID().toString();
     }
 
-    public void update(String email, String userImg) {
-        this.email = email;
-        this.userImg = userImg;
-    }
-
     @Builder
     public User(String email, String pwdHash, LocalDateTime birthDate, String nickname,
             Boolean gender,
-            String userImg) {
+            String userImg, String role, Integer singleScore, Integer multiScore) {
         this.email = email;
         this.pwdHash = pwdHash;
         this.birthDate = birthDate;
         this.nickname = nickname;
         this.gender = gender;
         this.userImg = userImg;
+        this.role = role;
+        this.singleScore = singleScore;
+        this.multiScore = multiScore;
     }
 
     @Builder
@@ -85,4 +88,31 @@ public class User extends BaseEntity {
         this.userImg = userImg;
         this.email = email;
     }
+
+    //=== 메서드 ===//
+    public void updateProfile(String nickname, String uuid) {
+        if (nickname != null) {
+            this.nickname = nickname;
+        }
+        if (uuid != null) {
+            this.uuid = uuid;
+        }
+    }
+
+    public void increaseSingleScore(int amount) {
+        this.singleScore += amount;
+    }
+
+//    public void decreaseSingleScore(int amount) {
+//        this.SingleScore -= amount;
+//    }
+
+    public void increaseMultiScore(int amount) {
+        this.multiScore += amount;
+    }
+
+    public void decreaseMultiScore(int amount) {
+        this.multiScore -= amount;
+    }
+
 }

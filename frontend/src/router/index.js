@@ -4,29 +4,44 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      // path: '/',
-      // name: 'main',
-      path: "",
+      path: "/",
       component: () => import('@/layouts/TopSearchBarLayout.vue'),
       children: [
         {
-          path: '/',
+          path: '',
           name: 'main',
           component: () => import('@/views/MainView.vue')
         },
         {
-          path: '/sheet/search',
+          path: 'sheet/search',
           name: 'sheetSearch',
           component: () => import('@/views/SheetSearchView.vue')
         },
         {
-          path: '/sheet/detail',
+          path: 'sheet/detail',
           name: 'sheetDetail',
           component: () => import('@/views/SheetDetailView.vue')
         },
       ]
     },
-
+    // -----------------------------------------------
+    {
+      path: "/battleroom",
+      component: () => import('@/layouts/BattleLayout.vue'),
+      children: [
+        {
+          path: '/wait',
+          name: 'waitBattle',
+          component: () => import('@/views/BattleWaitView.vue')
+        },
+        {
+          path: '/battle',
+          name: 'battle',
+          component: () => import('@/views/BattleView.vue')
+        },
+      ]
+    },
+    
     // -----------------------------------------------
     {
       path: '/admin',
@@ -42,7 +57,12 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/LoginView.vue'),
+      component: () => import('@/views/LoginView.vue')
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('@/views/RegisterView.vue')
     },
     {
       path: '/signin',
@@ -67,11 +87,6 @@ const router = createRouter({
       component: () => import('@/views/PaymentView.vue')
     },
     // -----------------------------------------------
-    {
-      path: '/battle',
-      name: 'battle',
-      component: () => import('@/views/BattleView.vue')
-    },
   ]
 })
 

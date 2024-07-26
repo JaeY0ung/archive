@@ -2,7 +2,6 @@ package com.ssafy.los.backend.sheet.model.entity;
 
 import com.ssafy.los.backend.common.model.entity.BaseEntity;
 import com.ssafy.los.backend.user.model.entity.User;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -23,39 +22,39 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "difficulty_rating")
-public class DifficultyRating extends BaseEntity {
+@Table(name = "difficulty")
+public class Difficulty extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "difficulty_rating_id")
+    @Column(name = "difficulty_id")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sheet_id")
     private Sheet sheet;
 
     private Integer level;
 
     @Column(columnDefinition = "TEXT")
-    private String contents;
+    private String content;
 
     @Builder
-    public DifficultyRating(User user, Sheet sheet, Integer level, String contents) {
+    public Difficulty(User user, Sheet sheet, Integer level, String contents) {
         this.user = user;
         this.sheet = sheet;
         this.level = level;
-        this.contents = contents;
+        this.content = contents;
     }
 
     //== 메서드 ==//
     public void update(Integer level, String contents) {
         this.level = level;
-        this.contents = contents;
+        this.content = contents;
     }
 
 }

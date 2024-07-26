@@ -1,18 +1,11 @@
 import { ref } from 'vue'
+import { httpStatusCode } from "@/util/http-status"
 import { useRouter } from "vue-router"
 import { defineStore } from 'pinia'
 import { jwtDecode } from "jwt-decode"
-import {
-  userConfirm,
-  findById,
-  tokenRegeneration,
-  logout,
-} from "@/api/user"
-import { httpStatusCode } from "@/components/util/http-status"
+import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user"
 
 export const useUserStore = defineStore('user', () => {
-  const lat = ref(37.5); // 37.501228095438144
-  const lng = ref(0); // 127.03957077888003
   const router = useRouter();
 
   const isLogin = ref(false)
@@ -20,34 +13,30 @@ export const useUserStore = defineStore('user', () => {
   const userInfo = ref(null)
   const isValidToken = ref(false)
 
-  const getLatLng = async () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => { // GeoLocation을 이용해서 접속 위치를 얻어옵니다
-        lat.value = position.coords.latitude
-        lng.value = position.coords.longitude;
-        console.log("[사용자의 위치 가져옴] ", lat.value, " ", lng.value);
-      });
-    }
-}
-
   const userLogin = async (loginUser) => {
     await userConfirm(
       loginUser,
       (response) => {
-        if (response.status === httpStatusCode.CREATE) {
+        console.log("loginUser: ")
+        console.log(loginUser)
+        // if (response.status === httpStatusCode.CREATE) {
           let { data } = response
-          let accessToken = data["access-token"]
-          let refreshToken = data["refresh-token"]
+          console.log("로그인 완료 후 data ", data)
+          let accessToken = data["data"]["accessToken"]
+          console.log("accessToke 저장 = ", accessToken)
+          let refreshToken = data["data"]["refreshToken"]
+          console.log("refreshToken 저장 = ", refreshToken)
           isLogin.value = true
           isLoginError.value = false
           isValidToken.value = true
           sessionStorage.setItem("accessToken", accessToken)
-          sessionStorage.setItem("refreshToken", refreshToken)
-          alert(`${loginUser.username}님 환영합니다`)
-        }
+          // sessionStorage.setItem("refreshToken", refreshToken)
+        // }
       },
       (error) => {
-        console.log("로그인 실패!!!!")
+        console.log("loginUser: ")
+        console.log(loginUser)
+        console.log("로그인에 실패했습니다.")
         isLogin.value = false
         isLoginError.value = true
         isValidToken.value = false
@@ -66,11 +55,11 @@ export const useUserStore = defineStore('user', () => {
         if (response.status === httpStatusCode.OK) {
           userInfo.value = response.data.userInfo
         } else {
-          console.log("유저 정보 없음!!!!")
+          console.log("해당 유저 정보가 없습니다.")
         }
       },
       async (error) => {
-        console.error("g[토큰 만료되어 사용 불가능.] : ",)
+        console.error("g[토큰이 만료되어 사용 불가능합니다.] : ",)
         console.error(error.response.status, error.response.statusText)
         isValidToken.value = false
 
@@ -143,12 +132,10 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return {
-    lat, lng,
     isLogin,
     isLoginError,
     userInfo,
     isValidToken,
-    getLatLng,
     userLogin,
     getUserInfo,
     tokenRegenerate,

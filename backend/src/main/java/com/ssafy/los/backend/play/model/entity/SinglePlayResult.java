@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.play.model.entity;
 
+import com.ssafy.los.backend.common.model.entity.BaseEntity;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.user.model.entity.User;
 import jakarta.persistence.CascadeType;
@@ -12,15 +13,22 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.sql.Timestamp;
+import java.time.Duration;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public class SinglePlayResult {
+public class SinglePlayResult extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,11 +46,10 @@ public class SinglePlayResult {
     @Column(columnDefinition = "FLOAT")
     private Float score;
 
-    @CreatedDate
-    private Timestamp createdAt;
+    private long playTime;
 
-    @CreatedDate
-    @LastModifiedDate
-    private Timestamp modifiedAt;
+    public void updatePlayTime() {
+        playTime = Duration.between(this.getCreatedAt(), this.getModifiedAt()).getSeconds();
+    }
 
 }
