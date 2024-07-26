@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UserStatusServiceImpl {
+public class UserStatusServiceImpl implements UserStatusService {
 
     private static final Logger LOGGER = Logger.getLogger(UserStatusService.class.getName());
     private static final String USER_ONLINE_KEY_PREFIX = "USER_ONLINE_";

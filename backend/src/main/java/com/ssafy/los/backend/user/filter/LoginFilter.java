@@ -35,15 +35,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
-    private final UserStatusService userStatusService;
-
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
-            RefreshTokenRepository refreshTokenRepository) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-        setFilterProcessesUrl("/auth/login"); // Set the login endpoint to /auth/login
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
+    private static UserStatusService userStatusService;
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
             RefreshTokenRepository refreshTokenRepository, UserStatusService userStatusService) {

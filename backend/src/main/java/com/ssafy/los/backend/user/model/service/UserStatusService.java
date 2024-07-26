@@ -10,5 +10,5 @@ public interface UserStatusService {
 
     public boolean isUserOnline(Long id);
 
-    public Set<Long> getOnlineUsers();
+    public Set<String> getOnlineUsers();
 }
