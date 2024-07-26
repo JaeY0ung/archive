@@ -1,5 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
 
 const me = ref({
     img: "이미지1",
@@ -16,11 +20,14 @@ const opponent = ref({
 const getLiveResult = computed(() => {
     return me.value.score > opponent.value.score ? "win" : "lose"
 })
+
+const goToBattle = () => {
+    router.push({name:'battle'})
+}
 </script>
 
 <template>
     <div class="container">
-        <!-- 배틀 페이지 -->
         <div class="up">
             <RouterView/>
         </div>
@@ -36,8 +43,11 @@ const getLiveResult = computed(() => {
             </div>
 
             <div class="button-div">
-                <button class="btn btn-primary w-24">
+                <button class="btn btn-primary w-24" v-if="route.name == 'waitBattle'" @click="goToBattle">
                     시작하기
+                </button>
+                <button class="btn btn-primary w-24" v-if="route.name == 'battle'">
+                    나가기
                 </button>
             </div>
 

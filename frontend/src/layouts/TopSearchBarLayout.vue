@@ -5,16 +5,17 @@ import SearchBar from '@/common/search-bar/CommonSearchBar.vue'
 <template>
     <div>
         <SearchBar class="search-bar "/>
-        <RouterView style="width:100vw;"/>
+        <div style="height: 30px;"></div>
+        <RouterView style="width:100%;"/>
     </div>
 </template>
 
 <style scoped>
 .search-bar {
-    min-width: 20vw; 
+    min-width: 20vw;
     position: fixed; 
     top: 10px; 
     left: 40vw; 
-    z-index: 5;
+    z-index: 10;
 }
 </style>
