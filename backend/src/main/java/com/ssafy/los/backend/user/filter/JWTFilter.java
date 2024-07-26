@@ -21,10 +21,11 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException, ServletException, IOException {
+
+        log.info("필터 확인 ----------------");
 
         // request에서 Authorization 헤더 찾기
         String authorization= request.getHeader("Authorization");
@@ -32,7 +33,7 @@ public class JWTFilter extends OncePerRequestFilter {
         // 1. Authorization 헤더 검증하기
         if (authorization == null || !authorization.startsWith("Bearer ")) {
 
-            System.out.println("token null");
+            log.info("토큰이 없습니다. ");
             filterChain.doFilter(request, response);
 
             // 종료 조건
@@ -60,7 +61,6 @@ public class JWTFilter extends OncePerRequestFilter {
         // userEntity를 생성하여 값 set
         User user = User.builder()
                 .email(email)
-                .pwdHash("temp-pw") // 채워놓는 용
                 .role(role)
                 .build();
 

@@ -19,19 +19,23 @@ export const useUserStore = defineStore('user', () => {
       (response) => {
         console.log("loginUser: ")
         console.log(loginUser)
-        // if (response.status === httpStatusCode.CREATE) {
+          //로그인 완료
           let { data } = response
           console.log("로그인 완료 후 data ", data)
+
+          // accessToken 토큰 저장
           let accessToken = data["data"]["accessToken"]
-          console.log("accessToke 저장 = ", accessToken)
+          sessionStorage.setItem("accessToken", accessToken)
+          // console.log("accessToke 저장 = ", accessToken)
+          
+          // refreshToken 확인
           let refreshToken = data["data"]["refreshToken"]
           console.log("refreshToken 저장 = ", refreshToken)
+
+          // 유저 정보 저장하기
           isLogin.value = true
           isLoginError.value = false
           isValidToken.value = true
-          sessionStorage.setItem("accessToken", accessToken)
-          // sessionStorage.setItem("refreshToken", refreshToken)
-        // }
       },
       (error) => {
         console.log("loginUser: ")
@@ -59,7 +63,7 @@ export const useUserStore = defineStore('user', () => {
         }
       },
       async (error) => {
-        console.error("g[토큰이 만료되어 사용 불가능합니다.] : ",)
+        console.error("토큰이 만료되어 사용 불가능합니다.",)
         console.error(error.response.status, error.response.statusText)
         isValidToken.value = false
 
@@ -121,7 +125,7 @@ export const useUserStore = defineStore('user', () => {
           sessionStorage.removeItem("refreshToken")
           alert("로그아웃 되었습니다")
         } else {
-          console.error("유저 정보 없음!!!!")
+          console.error("유저 정보가 없습니다.")
         }
       },
       (error) => {

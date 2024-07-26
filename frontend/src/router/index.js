@@ -64,6 +64,11 @@ const router = createRouter({
       name: 'register',
       component: () => import('@/views/RegisterView.vue')
     },
+    {
+      path: '/test',
+      name: 'naverLogin',
+      component: () => import('@/views/components/NaverLogin.vue')
+    },
     // -----------------------------------------------
     {
       path: '/sheet/upload',
