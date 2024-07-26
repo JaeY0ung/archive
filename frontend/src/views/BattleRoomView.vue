@@ -8,7 +8,7 @@ let eventSource;
 let score = ref(0);
 
 const connect = () => {
-    const socket = new WebSocket('ws://localhost:5173/battle')
+    const socket = new WebSocket('ws://localhost:8081/battle')
 
     socket.onopen = () => {
         console.log('Socket opened!');

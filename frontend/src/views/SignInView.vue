@@ -1,13 +1,16 @@
 <template>
-    <form @submit.prevent="signIn">
-                <div id="form-id-box">
-                    <div id="id-box-text">email</div>
-                    <input id="id-box-input" name="email" v-model="email" />
-                </div>
-                <div id="form-pw-box">
-                    <div id="pw-box-text">pwdHash</div>
-                    <input id="pw-box-input" name="pwdHash" v-model="pwdHash" />
-                </div>
+
+    <div id="signin-box">
+
+        <form @submit.prevent="signIn">
+            <div id="form-id-box">
+                <div id="id-box-text">email</div>
+                <input id="id-box-input" name="email" v-model="email" />
+            </div>
+            <div id="form-pw-box">
+                <div id="pw-box-text">pwdHash</div>
+                <input id="pw-box-input" name="pwdHash" v-model="pwdHash" />
+            </div>
                 <div>
                     <div>birthDate</div>
                     <input name="birthDate" v-model="birthDate" />
@@ -20,9 +23,15 @@
                     <div>gender</div>
                     <input name="gender" v-model="gender" />
                 </div>
-                <button id="form-next-button">next</button>
+                <button @click="cl" type="submit">next</button>
             </form>
-</template>
+            
+            <div @click="cl">
+                클릭
+            </div>
+        </div>
+
+        </template>
 
 <script setup>
 import {ref} from 'vue';
@@ -36,9 +45,14 @@ const birthDate = ref('');
 const nickname = ref('');
 const gender = ref('');
 
+const cl = function() {
+    console.log("click");
+}
 
 
 const signIn = function () {
+
+    console.log("signin 메서드 실행")
     
     formData.append("email", email.value);
     formData.append("pwdHash", pwdHash.value);
@@ -48,7 +62,11 @@ const signIn = function () {
 
     const url = "http://localhost:8080/users"
 
-    axios.post(url, formData)
+    axios.post(url, formData, {
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+    })
     .catch((error) => {
         console.log("회원가입 실패")
         alert("회원가입에 실패했습니다.")
@@ -56,7 +74,6 @@ const signIn = function () {
     .then((response) => {
         if (response.status == 200) {
             console.log(response)
-            store.login(id.value,pw.value)
 
         }
     })
@@ -69,5 +86,14 @@ const signIn = function () {
 </script>
 
 <style>
+
+#signin-box{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border: 1px solid red;
+    height: 100%;
+    align-items: center;
+}
 
 </style>
