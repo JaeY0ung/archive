@@ -4,18 +4,80 @@ import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
+import { ref, computed, onMounted } from 'vue';
+import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+
+const userStore = new useUserStore();
+
+var stompClient = null;
 
 const me = ref({
     img: "이미지1",
     name: "악카이브1",
-    score: "80",
-})
+    score: "0",
+    isEmpty: true
+})  
 
 const opponent = ref({
     img: "이미지2",
-    name: "악하이브2",
-    score: "85",
+    name: "유저를 기다리는 중...", 
+    score: "0",
+    isEmpty: true
 })
+
+
+// 웹소켓 생성 후, 구독하기.
+function connect() {
+
+        console.log("Connecting")
+
+        var socket = new SockJS('http://localhost:8080/archive-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            //구독
+            stompClient.subscribe('/wait/socket', function (chatMessage) {
+                console.log("구독한 곳으로부터 정보 받아오는 과정")
+                const userLogin = JSON.parse(chatMessage.body);
+                // 정보 뿌리기
+                // 상대방 프로필 표시
+
+                if (opponent.value.isEmpty && decodeToken.username != userLogin.email) {
+                    stompClient.send("/app/wait", {},   
+                    JSON.stringify({
+                        'id': "",
+                        'email' : decodeToken.username
+                    }));
+                    opponent.value.name = userLogin.email;
+                    opponent.value.isEmpty = true;
+                    console.log("userLogin" + userLogin);
+                }
+
+
+ 
+            });
+
+
+            // 자신의 유저 정보를 Controller에 보낸다.
+            console.log("들어왓습니다~~~~~~~~")
+            stompClient.send("/app/wait", {},   
+            JSON.stringify({
+                'id': "",
+                'email' : decodeToken.username
+            }));
+            
+
+        });
+    }
+
+
 
 const getLiveResult = computed(() => {
     return me.value.score > opponent.value.score ? "win" : "lose"
@@ -24,6 +86,39 @@ const getLiveResult = computed(() => {
 const goToBattle = () => {
     router.push({name:'battle'})
 }
+// 로그인한 자신의 정보 가져오기.
+// session storage에서 access토큰 가져오기.
+// 닉네임 정보를 가져오려 했으나, 아직 pk를 가져올 수 없어서 decodeToken의 이메일 정보를 대신 넣었다.
+const accessToken = sessionStorage.getItem("accessToken");
+
+
+userStore.getUserInfo(accessToken);
+
+const decodeToken = jwtDecode(accessToken);
+
+
+const email = decodeToken.username;
+
+me.value.name = email;
+
+
+
+
+// axios({
+//     url: `localhost:8080/users/${decodeToken.username}`,
+//     method: 'GET',
+//     headers: {
+//         'Authorization': `Bearer ${accessToken}`
+//     }
+// })
+// .then((response) => {
+//     console.log(response.data)
+// })
+
+onMounted(() => {
+    connect()
+})
+
 </script>
 
 <template>

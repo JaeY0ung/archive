@@ -8,14 +8,19 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 export default defineConfig({
   plugins: [
     vue(),
-    vueDevTools(),
+    vueDevTools()
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  define: {
-    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
+  server: {
+    port: 8081
+  },
+  define : {
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
+    global : 'window'
   }
 })
+

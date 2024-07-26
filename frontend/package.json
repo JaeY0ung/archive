@@ -17,6 +17,8 @@
     "axios": "^1.7.2",
     "jwt-decode": "^4.0.0",
     "pinia": "^2.1.7",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },
