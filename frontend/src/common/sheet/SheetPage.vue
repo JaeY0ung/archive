@@ -1,34 +1,34 @@
-<template>
-  <div style="margin-left: 100px">
-    <div>
-      <button @click="play">재생</button>
-      <button @click="pause">일시정지</button>
-      <button @click="stop">정지</button>
-      <label for="volumeSlider">Volume: {{ volume }}</label>
-      <input id="volumeSlider" type="range" min="0" max="100" v-model="volume" @input="setVolume">
-    </div>
-    <div id="scrollContainer" style="overflow-y: scroll" :style="{ width: width + 'px', height: height + 'px' }">
-      <div id="osmdContainer" ref="osmdContainer"></div>
-    </div>
-  </div>
-</template>
-
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+
+const emit = defineEmits(['measure-changed']);
 
 const props = defineProps({
-  width: Number,
-  height: Number,
-});
-const emit = defineEmits(['measure-changed']);
+  isPlay: {type: String, required : false, default: false},
+  width: {type: String, required : false, default: '100%'},
+  height: {type: String, required : false, default: '70vh'},
+})
+
+const osmd = ref(null);
+
+watch(() => props.isPlay, (newValue, oldValue) => {
+  if (newValue === 'play') {
+    play();
+  } else if (newValue === 'pause') {
+    pause();
+  } else if (newValue === 'stop') {
+    stop();
+  }
+})
 
 const osmdContainer = ref(null);
 const volume = ref(50); // 초기 볼륨 값을 50으로 설정
-let osmd = null;
+// let osmd = null;
 let playbackManager = null;
 
-const loadMusicXML = async () => {
-  const response = await fetch('/loa.musicxml');
+
+const loadMusicXML = async(xmlFile) => {
+  const response = await fetch(xmlFile);
   const xml = await response.text();
   return xml;
 };
@@ -47,13 +47,13 @@ const setupPlaybackManager = () => {
   playbackManager.DoPlayback = true;
   playbackManager.DoPreCount = false;
   playbackManager.PreCountMeasures = 1;
-  osmd.FollowCursor = true;
+  osmd.value.FollowCursor = true;
 
   timingSource.reset();
   timingSource.pause();
-  timingSource.Settings = osmd.Sheet.playbackSettings;
-  playbackManager.initialize(osmd.Sheet.musicPartManager);
-  playbackManager.addListener(osmd.cursor);
+  timingSource.Settings = osmd.value.Sheet.playbackSettings;
+  playbackManager.initialize(osmd.value.Sheet.musicPartManager);
+  playbackManager.addListener(osmd.value.cursor);
 
   let lastEmittedMeasureIndex = 0;
   playbackManager.addListener({
@@ -81,28 +81,24 @@ const setupPlaybackManager = () => {
   });
 
   playbackManager.reset();
-  osmd.PlaybackManager = playbackManager;
+  osmd.value.PlaybackManager = playbackManager;
 };
 
 const play = () => {
-  console.log('play click');
   playbackManager.play();
 };
 
 const pause = () => {
-  console.log('pause click');
   playbackManager.pause();
 };
 
 const stop = () => {
-  console.log('stop click');
   playbackManager.pause();
   playbackManager.reset();
 };
 
 const setVolume = () => {
   // 메트로놈 볼륨 등 추가로 재생 가능
-  console.log('setVolume', volume.value);
   const instrumentIds = Array.from(playbackManager.instrumentIdMapping.keys());
   instrumentIds.forEach((instrumentId) => {
     playbackManager.volumeChanged(instrumentId, volume.value);
@@ -110,35 +106,45 @@ const setVolume = () => {
 };
 
 onMounted(async () => {
-  osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(osmdContainer.value);
-  console.log('osmd init');
-  osmd.setOptions({
-    pageFormat: 'A4 P', // P = 세로 L = 가로
-    pageBackgroundColor: 'white',
-  });
-  const xml = await loadMusicXML();
-  console.log('loaded xml');
-  await osmd.load(xml);
-  console.log('osmd loaded xml');
-  osmd.render();
-  console.log('osmd rendered');
-  setupPlaybackManager();
+  const xml = await loadMusicXML('/loa.musicxml');
+  
+  const script = document.createElement('script');
+  script.src = '/opensheetmusicdisplay.min.js'; // public 폴더에 있는 파일의 경로
+  script.onload = () => {
+    osmd.value = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(osmdContainer.value);
+
+    osmd.value.setOptions({
+      pageFormat: 'A4 P', // P = 세로 L = 가로
+      pageBackgroundColor: 'white',
+    });
+  };
+  document.body.appendChild(script);
+
+  watch(osmd, async(newValue, oldValue) => {
+    await osmd.value.load(xml); 
+    osmd.value.render();
+    setupPlaybackManager();
+  })
 });
 </script>
 
+<template>
+  <div class="w-full h-full min-h-full min-w-full">
+    <div class="osmd-container" :style="{'height':height, 'width':width}" ref="osmdContainer"></div>
+  </div>
+</template>
+
 <style>
-button {
-  margin-right: 10px;
+.time-count {
+  font-size: 100px;
+  color:brown;
+  position: fixed;
+  top: 50vh;
+  left:50vw;
+  z-index: 50;
 }
-scrollContainer {
-  margin: 0px;
-  padding: 0px;
-  width: 100%;
-  box-sizing: border-box;
-}
-osmdContainer {
-  margin: 0px;
-  padding: 0px;
-  box-sizing: border-box;
+
+.osmd-container {
+  overflow-y: hidden;
 }
 </style>

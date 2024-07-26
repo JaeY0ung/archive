@@ -15,7 +15,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  // server: {
-  //   port: 8081
-  // }
+  define: {
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
+  }
 })
