@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const { VITE_REQUEST_URL } = import.meta.env;
+// const { VUE_APP_REQUEST_URL } = process.env;
+const { VITE_REQUEST_URL } = process.env;
+
 
 function localAxios() {
   const instance = axios.create({

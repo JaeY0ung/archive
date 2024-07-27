@@ -4,6 +4,7 @@ import com.ssafy.los.backend.user.filter.JWTFilter;
 import com.ssafy.los.backend.user.filter.LoginFilter;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.model.service.OAuth2UserService;
+import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -31,10 +32,12 @@ public class SecurityConfig {
     private final RefreshTokenRepository refreshTokenRepository;
     private final OAuth2UserService oauth2UserService;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final UserStatusService userStatusService;
 
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+            throws Exception {
         return configuration.getAuthenticationManager();
     }
 
@@ -42,14 +45,16 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         //
-        http.cors((corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+        http.cors((corsCustomizer -> corsCustomizer.configurationSource(
+                new CorsConfigurationSource() {
 
                     @Override
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
 
                         CorsConfiguration configuration = new CorsConfiguration();
 
-                        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+                        configuration.setAllowedOrigins(
+                                Collections.singletonList("http://localhost:5173"));
                         configuration.setAllowedMethods(Collections.singletonList("*"));
                         configuration.setAllowCredentials(true);
                         configuration.setAllowedHeaders(Collections.singletonList("*"));
@@ -60,7 +65,6 @@ public class SecurityConfig {
                         return configuration;
                     }
                 })));
-
 
         // csrf 설정
         http.csrf((auth) -> auth.disable());
@@ -82,7 +86,10 @@ public class SecurityConfig {
 
         // 필터 추가
         http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(
+                new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
+                        refreshTokenRepository, userStatusService),
+                UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정
         http.sessionManagement((session) -> session

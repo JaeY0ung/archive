@@ -1,6 +1,4 @@
 <script setup>
-import ThemeSwitch from '@/common/ui/ThemeSwitch.vue'
-
 import Home from '@/common/icons/Home.vue'
 import My from '@/common/icons/My.vue'
 import Search from '@/common/icons/Search.vue'
@@ -27,9 +25,7 @@ const pages = ref([
 
 <template>
 	<nav class="left-nav-container">
-		<br><br>
-		<ThemeSwitch/>
-		<br><br><br><br><br>
+		<br><br><br><br><br><br><br>
 
 		<div class="nav-main">
 		<div v-for="page in pages" :key="page.name">
@@ -55,7 +51,7 @@ const pages = ref([
 
 <style scoped>
 .left-nav-container {
-	background-color: rgba(82, 78, 78, 1);
+	background-color: rgb(114, 160, 208);
 	border-top-right-radius: 10px;
 border-bottom-right-radius: 10px;
 }

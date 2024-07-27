@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: "/",
@@ -18,7 +18,7 @@ const router = createRouter({
           component: () => import('@/views/SheetSearchView.vue')
         },
         {
-          path: 'sheet/detail',
+          path: 'sheet/:sheetId/detail',
           name: 'sheetDetail',
           component: () => import('@/views/SheetDetailView.vue')
         },
@@ -30,18 +30,22 @@ const router = createRouter({
       component: () => import('@/layouts/BattleLayout.vue'),
       children: [
         {
-          path: '/wait',
+          path: 'wait',
           name: 'waitBattle',
           component: () => import('@/views/BattleWaitView.vue')
         },
         {
-          path: '/battle',
+          path: 'battle',
           name: 'battle',
           component: () => import('@/views/BattleView.vue')
         },
       ]
     },
-    
+    {
+      path: "/user/:userId/profile",
+      name: "userProfile",
+      component: () => import('@/views/ProfileView.vue'),
+    },
     // -----------------------------------------------
     {
       path: '/admin',
