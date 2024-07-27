@@ -9,7 +9,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class DummyDataForSecurity implements ApplicationRunner {
 
@@ -18,10 +18,11 @@ public class DummyDataForSecurity implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        Optional<User> user = userRepository.findByEmail("wngud1225@naver.com");
-        if (!user.isPresent()) {
-            createDummyUser("wngud1225@naver.com", "1234");
+        Optional<User> user = userRepository.findByEmail("wngud@naver.com");
+        if (user.isEmpty()) {
+            createDummyUser("wngud@naver.com", "1234");
         }
+
     }
 
     private void createDummyUser(String email, String password) {

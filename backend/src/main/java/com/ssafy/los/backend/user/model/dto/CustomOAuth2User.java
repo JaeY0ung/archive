@@ -3,16 +3,16 @@ package com.ssafy.los.backend.user.model.dto;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
+import com.ssafy.los.backend.user.model.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @RequiredArgsConstructor
-public class CustomOauth2User implements OAuth2User {
+public class CustomOAuth2User implements OAuth2User {
 
-    private final Oauth2Response oauth2Response;
-    private final String role;
-
+    private final User user;
 
     @Override
     public Map<String, Object> getAttributes() {
@@ -25,7 +25,7 @@ public class CustomOauth2User implements OAuth2User {
         authorities.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return role;
+                return user.getRole();
             }
         });
         return authorities;
@@ -33,10 +33,11 @@ public class CustomOauth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return oauth2Response.getName();
+        return user.getEmail();
     }
 
-    public String getUsername() {
-        return oauth2Response.getProvider() + " " + oauth2Response.getProviderId();
+    public String getEmail() {
+        return user.getEmail();
     }
+
 }

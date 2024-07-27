@@ -2,7 +2,7 @@ package com.ssafy.los.backend.user.model.dto;
 
 import java.util.Map;
 
-public class GoogleResponse implements Oauth2Response {
+public class GoogleResponse implements OAuth2Response {
 
     private final Map<String, Object> attribute;
 

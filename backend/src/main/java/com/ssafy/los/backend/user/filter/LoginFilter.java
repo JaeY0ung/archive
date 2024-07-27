@@ -75,6 +75,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // accessToken
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
+//        response.addHeader("Authorization", accessToken);
 
         // refreshToken
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
@@ -84,8 +85,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         setTokenResponse(response, accessToken, refreshToken);
 
         log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
-        log.info("accessToken - {}", accessToken);
-        log.info("refreshToken - {}", refreshToken);
+        log.info("발급한 accessToken - {}", accessToken);
+        log.info("발급한 refreshToken - {}", refreshToken);
     }
 
     private String createHttpOnlyCookie(String name, String value, String path) {

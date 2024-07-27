@@ -1,6 +1,6 @@
 package com.ssafy.los.backend.user.model.dto;
 
-public interface Oauth2Response {
+public interface OAuth2Response {
 
     String getProvider();
     String getProviderId();

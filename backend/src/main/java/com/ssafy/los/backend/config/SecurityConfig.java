@@ -3,7 +3,7 @@ package com.ssafy.los.backend.config;
 import com.ssafy.los.backend.user.filter.JWTFilter;
 import com.ssafy.los.backend.user.filter.LoginFilter;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
-import com.ssafy.los.backend.user.model.service.Oauth2UserService;
+import com.ssafy.los.backend.user.model.service.OAuth2UserService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -29,7 +29,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final Oauth2UserService oauth2UserService;
+    private final OAuth2UserService oauth2UserService;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
 
@@ -81,16 +81,16 @@ public class SecurityConfig {
                 .anyRequest().permitAll());
 
         // 필터 추가
-        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
+        http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // Oauth2 설정
+        // OAuth2 설정
         http.oauth2Login((oauth2) -> oauth2
-                .userInfoEndpoint(userInfoEndpointConfig ->
+                .userInfoEndpoint((userInfoEndpointConfig) ->
                         userInfoEndpointConfig.userService(oauth2UserService))
                 .successHandler(customOAuth2SuccessHandler));
 
