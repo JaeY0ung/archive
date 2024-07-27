@@ -1,6 +1,5 @@
 <script setup>
 import SheetPage from '@/common/sheet/SheetPage.vue';
-import { ref } from 'vue';
 
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
@@ -54,6 +53,26 @@ onMounted(() => {
     //     eventSource.close();
     // });
 
+    const isPlay = ref("stop");
+    const waitTime = ref(2);
+    const countTime = ref(5);
+
+    const wait = setInterval(() => {
+        waitTime.value--;
+        if (waitTime.value === 0) {
+
+            const countdown = setInterval(() => {
+            countTime.value--;
+            if (countTime.value === 0) {
+                isPlay.value = "play";
+                clearInterval(countdown);
+            }
+            }, 1000);
+
+            clearInterval(wait);
+        }
+    }, 1000);
+
 
 })
 
@@ -66,31 +85,12 @@ onMounted(() => {
     <div id="userform">
         <button @click="router.push({name:'signin'})">회원가입</button>
         <button>로그인</button>
-const isPlay = ref("stop");
-const waitTime = ref(2);
-const countTime = ref(5);
+    </div>
+    
 
-const wait = setInterval(() => {
-    waitTime.value--;
-    if (waitTime.value === 0) {
-
-        const countdown = setInterval(() => {
-        countTime.value--;
-        if (countTime.value === 0) {
-            isPlay.value = "play";
-            clearInterval(countdown);
-        }
-        }, 1000);
-
-        clearInterval(wait);
-    }
-}, 1000);
-</script>
-
-<template>
     <div>
         <div v-if="waitTime == 0 && countTime !== 0" class="time-count">{{ countTime }}</div>
-        <SheetPage :isPlay/>
+        <!-- <SheetPage :isPlay/> -->
     </div>
 
     <div id="profiles">

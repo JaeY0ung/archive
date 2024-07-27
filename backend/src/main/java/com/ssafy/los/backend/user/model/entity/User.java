@@ -58,8 +58,8 @@ public class User extends BaseEntity {
     @ColumnDefault("0")
     private int cash;
 
-    private Integer singleScore;
-    private Integer multiScore;
+    private int singleScore;
+    private int multiScore;
 
     private LocalDateTime deletedAt;
 
@@ -71,7 +71,7 @@ public class User extends BaseEntity {
     @Builder
     public User(String email, String pwdHash, LocalDateTime birthDate, String nickname,
             Boolean gender,
-            String userImg, String role, Integer singleScore, Integer multiScore) {
+            String userImg, String role, int singleScore, int multiScore) {
         this.email = email;
         this.pwdHash = pwdHash;
         this.birthDate = birthDate;

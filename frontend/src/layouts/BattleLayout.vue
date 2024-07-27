@@ -1,12 +1,10 @@
 <script setup>
-import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
 import { ref, computed, onMounted } from 'vue';
 import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
-import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
@@ -16,6 +14,10 @@ import Stomp from 'stompjs';
 const userStore = new useUserStore();
 
 var stompClient = null;
+
+// 준비하기를 동적으로 변화시켜주기 위한 불리언 변수
+let isReady = ref("false");
+let opponentReady = ref("false");
 
 const me = ref({
     img: "이미지1",
@@ -49,29 +51,56 @@ function connect() {
                 // 정보 뿌리기
                 // 상대방 프로필 표시
 
-                if (opponent.value.isEmpty && decodeToken.username != userLogin.email) {
+                if (userLogin.id == "profile" && opponent.value.isEmpty && decodeToken.username != userLogin.email) {
+                    
                     stompClient.send("/app/wait", {},   
                     JSON.stringify({
-                        'id': "",
+                        'id': "profile",
                         'email' : decodeToken.username
                     }));
+                    
                     opponent.value.name = userLogin.email;
-                    opponent.value.isEmpty = true;
-                    console.log("userLogin" + userLogin);
+                    opponent.value.isEmpty = false;
+
+                    // 자신의 ready 정보를 Controller에 보낸다.
+                    stompClient.send("/app/wait/ready", {},   
+                    JSON.stringify({
+                        'sender': decodeToken.username,
+                        'isReady' : isReady.value
+                    }));
+                
                 }
-
-
  
             });
 
+            // 준비 상태를 받기 위한 또 다른 구독.
+            stompClient.subscribe('/wait/socket/ready', function (readyStatus){
+                const playerReady = JSON.parse(readyStatus.body);
+            
+                console.log("구독 성공")
+                console.log(playerReady)
 
-            // 자신의 유저 정보를 Controller에 보낸다.
+                // ready 정보를 받아서 적용하기 위한 조건문
+                if(playerReady.sender != decodeToken.username){
+                    console.log("조건문 뚫기")
+                    // 상대방이 ready를 누르면, type이 ready인 json 데이터가 온다.
+                    // 그럼 이 조건문에 도달할 것이고, 여기서 준비하기 버튼을 바꿔주면 된다.
+                    opponentReady.value = playerReady.isReady;
+                }
+            
+            })
+
+
             console.log("들어왓습니다~~~~~~~~")
+            
+            // 자신의 유저 정보를 Controller에 보낸다.
             stompClient.send("/app/wait", {},   
             JSON.stringify({
-                'id': "",
+                'id': "profile",
                 'email' : decodeToken.username
             }));
+
+            
             
 
         });
@@ -101,7 +130,24 @@ const email = decodeToken.username;
 
 me.value.name = email;
 
+function readyButton() {
+    // 이곳에서 할 것.
+    if(isReady.value == "false"){
+        isReady.value = "true";
+    }else{
+        isReady.value = "false";
+    }
+    console.log("버튼을 눌렀다")
+    console.log(isReady.value);
 
+    // send를 보내어서 상대방에게 나의 준비 변화를 알릴 것.
+    // 준비 상태를 보내기 위한 다른 경로
+    stompClient.send("/app/wait/ready", {},   
+        JSON.stringify({
+            'sender': decodeToken.username,
+            'isReady' : isReady.value
+        }));
+}
 
 
 // axios({
@@ -115,8 +161,10 @@ me.value.name = email;
 //     console.log(response.data)
 // })
 
+
 onMounted(() => {
     connect()
+
 })
 
 </script>
@@ -135,10 +183,15 @@ onMounted(() => {
                     <div>{{ me.name }}</div>
                     <div>현재 스코어 : {{ me.score }}</div>
                 </div>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" @click=readyButton v-else>준비완료</button>
             </div>
 
             <div class="button-div">
-                <button class="btn btn-primary w-24" v-if="route.name == 'waitBattle'" @click="goToBattle">
+                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'waitBattle' && (isReady == 'false' || opponentReady == 'false')">
+                    시작하기
+                </button>
+                <button class="btn btn-primary w-24" v-if="route.name == 'waitBattle' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
                 <button class="btn btn-primary w-24" v-if="route.name == 'battle'">
@@ -152,6 +205,8 @@ onMounted(() => {
                     <div>{{ opponent.name }}</div>
                     <div>현재 스코어 : {{ opponent.score }}</div>
                 </div>
+                <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" v-else>준비완료</button>
             </div>
         </div>
     </div>
@@ -198,4 +253,11 @@ onMounted(() => {
     width: 200px;
     margin-left: 10px;
 }
+
+button {
+    border: 1px solid black;
+    width: 30%;
+    height: 100%;
+}
+
 </style>
