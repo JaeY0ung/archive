@@ -22,12 +22,21 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
 
+    /**
+     * 특정 경로에 대해 이 필터를 적용하지 않도록 결정합니다.
+     * 로그인, 회원가입에 필요한 경로는 JWT 검증을 거치지 않습니다.
+     *
+     * @param request 현재 HTTP 요청
+     * @return 필터를 적용하지 않아야 하면 true, 그렇지 않으면 false
+     * @throws ServletException 서블릿 처리 중 오류 발생 시
+     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getServletPath();
         return path.equals("/auth/login")
                 || path.equals("/users")
-                || path.equals("/users/check-email");
+                || path.equals("/users/check-email")
+                || path.equals("/auth/access");
     }
 
     @Override

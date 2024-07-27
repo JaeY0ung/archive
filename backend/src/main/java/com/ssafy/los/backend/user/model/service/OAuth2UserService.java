@@ -23,41 +23,40 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 요청받은 oAuthUser 가져오기
+        // 요청받은 oAuthUser 가져오기 및 응답 만들기
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        log.info("클라이언트가 접근한 OAuth2 user = {}", oAuth2User.toString());
+        log.info("클라이언트가 접근한 OAuth2 user입니다. = {}", oAuth2User.toString());
+        OAuth2Response oAuth2Response = getOAuth2Response(userRequest, oAuth2User);
 
-        // 가져온 oAuthUser 출처마다 다른 OAuth2Response 제작하기
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2Response oAuth2Response = null;
-        if (registrationId.equals("naver")) {
-            oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
-        }
-        else if (registrationId.equals("google")) {
-//            oAuth2Response = new GoogleReponse(oAuth2User.getAttributes());
-        } else {
-            log.info("지원하지 않는 OAuth2 서비스 입니다. = {}", registrationId);
-            return null;
-        }
-
-        // OAuth2 로그인 유저 저장 및 업데이트 하기
-        // TODO : 회원가입인 경우 새로운 로직 필요
+        // 유저 정보 처리하기
         String email = oAuth2Response.getEmail();
-        log.info("OAuth2에서 저장할 email입니다. = {}", email);
+        log.info("OAuth2에서 받은 email입니다. = {}", email);
         Optional<User> findUser = userRepository.findByEmail(email);
-        
-        // 저장할 OAuth2 계정 이메일이 존재하는 경우
+
+        // 해당 이메일이 있는 경우 -> 로그인 진행하기
         if (findUser.isPresent()) {
-            log.info("해당 이메일로 가입된 계정이 있습니다. = {}", findUser.get().getEmail());
-            return new CustomOAuth2User(findUser.get());
+            log.info("해당 이메일로 가입된 계정이 있습니다. = {}", oAuth2Response.getEmail());
+            return new CustomOAuth2User(findUser.get()); // Provider에게 제공
+        } else {
+            // 해당 이메일이 없는 경우 -> 회원가입 진행하기
+            log.info("해당 이메일로 가입된 계정이 있습니다. = {}", oAuth2Response.getEmail());
+            User newUser = User.builder()
+                    // TODO : 추가 정보 있으면 넘기기
+                    .email(oAuth2Response.getEmail())
+//                    .role("ROLE_TEMP") // 없으면 회원가입 필요
+                    .build();
+            userRepository.save(newUser); // 이후에 가입으로 추가 업데이트 하기
+            return new CustomOAuth2User(newUser); 
         }
-        // 새롭게 등록하는 경우
-        User newUser = User.builder()
-                .email(oAuth2Response.getEmail())
-                .role("ROLE_USER")
-                // TODO : 추가 정보 적기
-                .build();
-        userRepository.save(newUser);
-        return new CustomOAuth2User(newUser); // Provider에게 제공
+    }
+
+    private OAuth2Response getOAuth2Response(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        if (registrationId.equals("naver")) {
+            return new NaverResponse(oAuth2User.getAttributes());
+        } else if (registrationId.equals("google")) {
+            // return new GoogleResponse(oAuth2User.getAttributes());
+        }
+        throw new OAuth2AuthenticationException("Unsupported OAuth2 service");
     }
 }

@@ -17,7 +17,7 @@ async function userConfirm(param, success, fail) {
             },
             withCredentials: true
         });
-        console.log('전송', response);
+        console.log('유저 정보를 확인하는 정보를 백엔드로 전달합니다.', response);
         success(response);
     } catch (error) {
         fail(error);

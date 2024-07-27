@@ -29,17 +29,28 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
         CustomOAuth2User customOAuth2User = (CustomOAuth2User) authentication.getPrincipal();
         String email = customOAuth2User.getEmail();
+        
+        // 회원가입
+        if (customOAuth2User.getAuthorities().isEmpty()) {
+            // TODO : 더 많은 정보를 회원가입에 제공하기
+            response.sendRedirect("http://localhost:5173/register?email=" + email);
+        } else {
+            // 로그인
+            Collection<? extends GrantedAuthority> authorities = customOAuth2User.getAuthorities();
+            Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+            GrantedAuthority authority = iterator.next();
+            String role = authority.getAuthority();
 
-        Collection<? extends GrantedAuthority> authorities = customOAuth2User.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority authority = iterator.next();
-        String role = authority.getAuthority();
+            // JWT 토큰 발급
+            String token = jwtUtil.createJwt(email, role, 60*60*60L);
+            log.info("OAuth2에서 임시 JWT를 발급한 뒤 쿠키에 담아 보냈습니다. = {} ", token);
 
-        String token = jwtUtil.createJwt(email, role, 60*60*60L);
-        log.info("JWT가 발급되어 쿠키에 담아 보냈습니다. = {} ", token);
+            response.addCookie(createCookie("Authorization", token));
 
-        response.addCookie(createCookie("Authorization", token));
-        response.sendRedirect("http://localhost:5173/");
+            // 프론트 엔드 주소 -> /auth/request
+            response.sendRedirect("http://localhost:5173/auth-success");
+        }
+
     }
 
     private Cookie createCookie(String key, String value) {

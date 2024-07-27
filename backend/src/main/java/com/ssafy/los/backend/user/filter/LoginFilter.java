@@ -65,37 +65,27 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throws IOException, ServletException {
         //UserDetails
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        log.info("로그인 이후 JWT를 발급 받을 유저입니다. = {}", customUserDetails.getUser().getEmail());
 
         String email = customUserDetails.getUsername();
-
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        // accessToken
+        // accessToken 발급하기
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
-        // refreshToken
+        // refreshToken 발급하기
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
-//        response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
-        response.addCookie(createCookie("Authorization", refreshToken, "/auth/refresh"));
-//        response.addCookie(createCookie("Authorization", refreshToken));
-        // redis 저장
+        response.addCookie(createCookie("Authorization", refreshToken));
+        // redis 저장하기
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
-        setTokenResponse(response, accessToken, refreshToken);
 
-
-        log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
         log.info("발급한 accessToken - {}", accessToken);
         log.info("발급한 refreshToken - {}", refreshToken);
-    }
-
-    private String createHttpOnlyCookie(String name, String value, String path) {
-        return String.format("%s=%s; Path=%s; HttpOnly; SameSite=None;", name, value, path);
-//        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value, path);
     }
 
     private Cookie createCookie(String key, String value, String path) {
@@ -136,11 +126,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     }
 
-    //로그인 실패시 실행하는 메소드
+    // 로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);
     }
-
 
 }

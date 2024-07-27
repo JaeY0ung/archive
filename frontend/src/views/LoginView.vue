@@ -7,7 +7,7 @@ import axios from 'axios';
 
 const router = useRouter();
 const userStore = useUserStore();
-const { userLogin, getUserInfo } = userStore;
+const { userLogin } = userStore;
 const { isLogin, isLoginError } = storeToRefs(userStore);
 
 const loginForm = ref({
@@ -19,14 +19,23 @@ const goToRegister = () => {
   router.push({ name: 'register' });
 }
 
+// const login = async () => {
+//     await userLogin(loginForm.value);
+//     if (isLogin.value) {
+//         const token = sessionStorage.getItem("accessToken");
+//         if (token) {
+//             await getUserInfo(token);
+//             router.replace({ name: "main" });
+//         }
+//     } else {
+//         alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+//     }
+// }
+
 const login = async () => {
     await userLogin(loginForm.value);
     if (isLogin.value) {
-        const token = sessionStorage.getItem("accessToken");
-        if (token) {
-            await getUserInfo(token);
-            router.replace({ name: "main" });
-        }
+      router.replace({ name: "main" });
     } else {
         alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
     }

@@ -8,46 +8,53 @@ import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user"
 export const useUserStore = defineStore('user', () => {
   const router = useRouter();
 
+  // 유저 정보 스토어에 저장
+  const userInfo = ref(null)
+
+  // 유저 상태 스토어에 저장
   const isLogin = ref(false)
   const isLoginError = ref(false)
-  const userInfo = ref(null)
   const isValidToken = ref(false)
 
   const userLogin = async (loginUser) => {
     await userConfirm(
       loginUser,
       (response) => {
-        console.log("loginUser: ")
-        console.log(loginUser)
-          //로그인 완료
-          let { data } = response
-          console.log("로그인 완료 후 data ", data)
+        console.log("loginUser: ", loginUser);
+        
+        // 응답 헤더에서 Authorization 토큰 추출
+        const authHeader = response.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          const accessToken = authHeader.substring(7);
+          // 세션 스토리지에 저장
+          sessionStorage.setItem("accessToken", accessToken);
+          console.log("accessToken을 세션 스토리에 저장합니다. = ", accessToken);
+        } else {
+          console.warn("Authorization 헤더가 없거나 Bearer 토큰이 아닙니다.");
+        }
+  
+        // 로그인 완료 후 데이터 처리
+        let { data } = response;
+        console.log("로그인 완료 후 data ", data);
+  
+        // TODO: 유저 정보 저장하기 (UserStore에 저장)
 
-          // accessToken 토큰 저장
-          let accessToken = data["data"]["accessToken"]
-          sessionStorage.setItem("accessToken", accessToken)
-          // console.log("accessToke 저장 = ", accessToken)
-          
-          // refreshToken 확인
-          let refreshToken = data["data"]["refreshToken"]
-          console.log("refreshToken 저장 = ", refreshToken)
-
-          // 유저 정보 저장하기
-          isLogin.value = true
-          isLoginError.value = false
-          isValidToken.value = true
+  
+        // 로그인 상태 업데이트
+        isLogin.value = true;
+        isLoginError.value = false;
+        isValidToken.value = true;
       },
       (error) => {
-        console.log("loginUser: ")
-        console.log(loginUser)
-        console.log("로그인에 실패했습니다.")
-        isLogin.value = false
-        isLoginError.value = true
-        isValidToken.value = false
-        console.error(error)
+        console.log("loginUser: ", loginUser);
+        console.log("로그인에 실패했습니다.");
+        isLogin.value = false;
+        isLoginError.value = true;
+        isValidToken.value = false;
+        console.error(error);
       }
-    )
-  }
+    );
+  };
 
   const getUserInfo = async (token) => {
     let decodeToken = jwtDecode(token)
