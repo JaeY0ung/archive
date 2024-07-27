@@ -114,6 +114,9 @@ const getLiveResult = computed(() => {
 
 const goToBattle = () => {
     router.push({name:'battle'})
+
+    // send
+
 }
 // 로그인한 자신의 정보 가져오기.
 // session storage에서 access토큰 가져오기.
