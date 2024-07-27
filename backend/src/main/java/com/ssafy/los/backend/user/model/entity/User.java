@@ -58,8 +58,8 @@ public class User extends BaseEntity {
     @ColumnDefault("0")
     private int cash;
 
-    private int singleScore;
-    private int multiScore;
+    private Integer singleScore;
+    private Integer multiScore;
 
     private LocalDateTime deletedAt;
 
@@ -71,7 +71,7 @@ public class User extends BaseEntity {
     @Builder
     public User(String email, String pwdHash, LocalDateTime birthDate, String nickname,
             Boolean gender,
-            String userImg, String role, int singleScore, int multiScore) {
+            String userImg, String role, Integer singleScore, Integer multiScore, String token) {
         this.email = email;
         this.pwdHash = pwdHash;
         this.birthDate = birthDate;
@@ -81,6 +81,7 @@ public class User extends BaseEntity {
         this.role = role;
         this.singleScore = singleScore;
         this.multiScore = multiScore;
+        this.token = token;
     }
 
     @Builder
@@ -97,6 +98,10 @@ public class User extends BaseEntity {
         if (uuid != null) {
             this.uuid = uuid;
         }
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
     }
 
     public void increaseSingleScore(int amount) {
