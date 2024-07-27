@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const { VITE_REQUEST_URL } = import.meta.env;
+const { VUE_APP_REQUEST_URL } = process.env;
 
 function localAxios() {
   const instance = axios.create({
-    baseURL: VITE_REQUEST_URL,
+    baseURL: VUE_APP_REQUEST_URL,
   });
   instance.defaults.headers.common["Authorization"] = "";
   instance.defaults.headers.post["Content-Type"] = "application/json";

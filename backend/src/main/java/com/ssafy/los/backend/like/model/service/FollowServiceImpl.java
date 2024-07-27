@@ -5,27 +5,23 @@ import com.ssafy.los.backend.like.model.entity.Follow;
 import com.ssafy.los.backend.like.model.repository.FollowRepository;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class FollowServiceImpl implements FollowService {
 
-    @Autowired
     private final FollowRepository followRepository;
-    @Autowired
     private final UserRepository userRepository;
+
 
     // 팔로우 추가하기
     @Override
-    @Transactional
     public void followUser(Long followerId, Long followedId) {
         User follower = userRepository.findById(followerId)
                 .orElseThrow(() -> new RuntimeException("현재 로그인된 유저의 ID를 불러올 수 없습니다."));
@@ -46,7 +42,6 @@ public class FollowServiceImpl implements FollowService {
 
     // 언팔로우 하기
     @Override
-    @Transactional
     public void unfollowUSer(Long followerId, Long followedId) {
         User follower = userRepository.findById(followerId)
                 .orElseThrow(() -> new RuntimeException("현재 로그인된 유저의 ID를 불러올 수 없습니다."));

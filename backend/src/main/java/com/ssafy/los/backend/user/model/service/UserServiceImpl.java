@@ -28,6 +28,7 @@ public class UserServiceImpl implements UserService {
         return id;
     }
 
+
     // 회원 등록
     @Override
     public Long saveUser(UserRegisterDto userRegisterDto) {
@@ -35,6 +36,12 @@ public class UserServiceImpl implements UserService {
         String role = "ROLE_USER";
         User user = userRegisterDto.toEntity(hashPwd, role);
         return userRepository.save(user).getId();
+    }
+
+    // 이메일 중복 확인
+    @Override
+    public Boolean validateEmail(String email) {
+        return userRepository.existsByEmail(email);
     }
 
     // 회원 수정

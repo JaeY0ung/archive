@@ -1,26 +1,176 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+import { ref, computed, onMounted } from 'vue';
+import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
+import { useUserStore } from '@/stores/user';
+import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+
+const userStore = new useUserStore();
+
+var stompClient = null;
+
+// 준비하기를 동적으로 변화시켜주기 위한 불리언 변수
+let isReady = ref("false");
+let opponentReady = ref("false");
 
 const me = ref({
     img: "이미지1",
     name: "악카이브1",
-    score: "80",
-})
+    score: "0",
+    isEmpty: true
+})  
 
 const opponent = ref({
     img: "이미지2",
-    name: "악하이브2",
-    score: "85",
+    name: "유저를 기다리는 중...", 
+    score: "0",
+    isEmpty: true
 })
+
+
+// 웹소켓 생성 후, 구독하기.
+function connect() {
+
+        console.log("Connecting")
+
+        var socket = new SockJS('http://localhost:8080/archive-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            //구독
+            stompClient.subscribe('/wait/socket', function (chatMessage) {
+                console.log("구독한 곳으로부터 정보 받아오는 과정")
+                const userLogin = JSON.parse(chatMessage.body);
+                // 정보 뿌리기
+                // 상대방 프로필 표시
+
+                if (userLogin.id == "profile" && opponent.value.isEmpty && decodeToken.username != userLogin.email) {
+                    
+                    stompClient.send("/app/wait", {},   
+                    JSON.stringify({
+                        'id': "profile",
+                        'email' : decodeToken.username
+                    }));
+                    
+                    opponent.value.name = userLogin.email;
+                    opponent.value.isEmpty = false;
+
+                    // 자신의 ready 정보를 Controller에 보낸다.
+                    stompClient.send("/app/wait/ready", {},   
+                    JSON.stringify({
+                        'sender': decodeToken.username,
+                        'isReady' : isReady.value
+                    }));
+                
+                }
+ 
+            });
+
+            // 준비 상태를 받기 위한 또 다른 구독.
+            stompClient.subscribe('/wait/socket/ready', function (readyStatus){
+                const playerReady = JSON.parse(readyStatus.body);
+            
+                console.log("구독 성공")
+                console.log(playerReady)
+
+                // ready 정보를 받아서 적용하기 위한 조건문
+                if(playerReady.sender != decodeToken.username){
+                    console.log("조건문 뚫기")
+                    // 상대방이 ready를 누르면, type이 ready인 json 데이터가 온다.
+                    // 그럼 이 조건문에 도달할 것이고, 여기서 준비하기 버튼을 바꿔주면 된다.
+                    opponentReady.value = playerReady.isReady;
+                }
+            
+            })
+
+
+            console.log("들어왓습니다~~~~~~~~")
+            
+            // 자신의 유저 정보를 Controller에 보낸다.
+            stompClient.send("/app/wait", {},   
+            JSON.stringify({
+                'id': "profile",
+                'email' : decodeToken.username
+            }));
+
+            
+            
+
+        });
+    }
+
+
 
 const getLiveResult = computed(() => {
     return me.value.score > opponent.value.score ? "win" : "lose"
 })
+
+const goToBattle = () => {
+    router.push({name:'battle'})
+}
+// 로그인한 자신의 정보 가져오기.
+// session storage에서 access토큰 가져오기.
+// 닉네임 정보를 가져오려 했으나, 아직 pk를 가져올 수 없어서 decodeToken의 이메일 정보를 대신 넣었다.
+const accessToken = sessionStorage.getItem("accessToken");
+
+
+userStore.getUserInfo(accessToken);
+
+const decodeToken = jwtDecode(accessToken);
+
+
+const email = decodeToken.username;
+
+me.value.name = email;
+
+function readyButton() {
+    // 이곳에서 할 것.
+    if(isReady.value == "false"){
+        isReady.value = "true";
+    }else{
+        isReady.value = "false";
+    }
+    console.log("버튼을 눌렀다")
+    console.log(isReady.value);
+
+    // send를 보내어서 상대방에게 나의 준비 변화를 알릴 것.
+    // 준비 상태를 보내기 위한 다른 경로
+    stompClient.send("/app/wait/ready", {},   
+        JSON.stringify({
+            'sender': decodeToken.username,
+            'isReady' : isReady.value
+        }));
+}
+
+
+// axios({
+//     url: `localhost:8080/users/${decodeToken.username}`,
+//     method: 'GET',
+//     headers: {
+//         'Authorization': `Bearer ${accessToken}`
+//     }
+// })
+// .then((response) => {
+//     console.log(response.data)
+// })
+
+
+onMounted(() => {
+    connect()
+
+})
+
 </script>
 
 <template>
     <div class="container">
-        <!-- 배틀 페이지 -->
         <div class="up">
             <RouterView/>
         </div>
@@ -33,11 +183,19 @@ const getLiveResult = computed(() => {
                     <div>{{ me.name }}</div>
                     <div>현재 스코어 : {{ me.score }}</div>
                 </div>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" @click=readyButton v-else>준비완료</button>
             </div>
 
             <div class="button-div">
-                <button class="btn btn-primary w-24">
+                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'waitBattle' && (isReady == 'false' || opponentReady == 'false')">
                     시작하기
+                </button>
+                <button class="btn btn-primary w-24" v-if="route.name == 'waitBattle' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
+                    시작하기
+                </button>
+                <button class="btn btn-primary w-24" v-if="route.name == 'battle'">
+                    나가기
                 </button>
             </div>
 
@@ -47,6 +205,8 @@ const getLiveResult = computed(() => {
                     <div>{{ opponent.name }}</div>
                     <div>현재 스코어 : {{ opponent.score }}</div>
                 </div>
+                <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" v-else>준비완료</button>
             </div>
         </div>
     </div>
@@ -93,4 +253,11 @@ const getLiveResult = computed(() => {
     width: 200px;
     margin-left: 10px;
 }
+
+button {
+    border: 1px solid black;
+    width: 30%;
+    height: 100%;
+}
+
 </style>

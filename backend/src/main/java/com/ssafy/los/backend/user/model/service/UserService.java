@@ -10,6 +10,8 @@ public interface UserService {
 
     Long selectUserInfoForMyPageById(Long id);
 
+    Boolean validateEmail(String email);
+
     Long saveUser(UserRegisterDto userRegisterDto);
 
     Long updateUser(Long id, UserUpdateDto userUpdateForm, String uuid);

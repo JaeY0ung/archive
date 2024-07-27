@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,12 +36,19 @@ public class UserController {
     // 회원 등록
     @PostMapping
     public ResponseEntity<?> saveUser(@RequestBody UserRegisterDto requestDto) {
-        log.info("---------------------------------");
         log.info("회원 등록 요청을 한 DTO = {}" , requestDto.toString());
 
         Long saveId = userService.saveUser(requestDto);
 
         return new ResponseEntity<>(saveId, HttpStatus.CREATED);
+    }
+
+    // 회원 이메일 중복 여부 체크
+    @GetMapping("/check-email")
+    public ResponseEntity<?> validateEmail(@RequestParam("email") String email) {
+        boolean isDuplicated = userService.validateEmail(email);
+        log.info("이메일 중복 여부 검사 data = {}", isDuplicated);
+        return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
     @PutMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,

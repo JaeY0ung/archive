@@ -10,16 +10,19 @@ const leftNavigationStore = useLeftNavigationStore();
 </script>
 
 <template>
-  <div>
+  <div style="z-index: 1;">
     <div class="left-and-hamburger" :class="{ 'show' : leftNavigationStore.navVisibility }">
       <LeftNavigation class="left-nav"/>
       <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
     </div>
-    <div style="height:50px; display: flex; justify-content:end;">
+    <div style="height:50px; display:flex; justify-content:end;">
       <MyProfile style="height:40px;"/>
     </div>
-    <RouterView @click="leftNavigationStore.closeNav" />
+    <div class="router-view-parent">
+      <RouterView @click="leftNavigationStore.closeNav" class="router-view" />
+    </div>
   </div>
+  <img src="@/assets/img/common/background.png" class="background-image">
 </template>
 
 <style scoped>
@@ -55,5 +58,23 @@ const leftNavigationStore = useLeftNavigationStore();
   width: 100vw;
   margin-top: 20px;
   min-height: calc(100vh - 70px);
+}
+
+.background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지가 화면에 꽉 차도록 설정 */
+  z-index: 1;
+}
+
+.router-view-parent {
+  margin: 0 20px;
+}
+.router-view {
+  position: relative;
+  z-index: 2; /* 배경 이미지보다 높은 z-index 설정 */
 }
 </style>

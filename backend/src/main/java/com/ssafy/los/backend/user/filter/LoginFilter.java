@@ -50,11 +50,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(final HttpServletRequest request,
             final HttpServletResponse response) throws AuthenticationException {
 
-        log.info("로그인");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        log.info("패스워드 시도: email - {}, pwd - {}", email, password);
+        log.info("로그인 시도: email - {}, pwd - {}", email, password);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 email, password, null);
@@ -83,16 +82,19 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
+        // refreshToken
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
         response.addHeader("Set-Cookie",
                 createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
-        log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
         userStatusService.setUserOnline(customUserDetails.getUser().getId());
 
         setTokenResponse(response, accessToken, refreshToken);
-//        response.addHeader("Authorization", "Bearer " + accessToken);
+
+        log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
+        log.info("accessToken - {}", accessToken);
+        log.info("refreshToken - {}", refreshToken);
     }
 
     private String createHttpOnlyCookie(String name, String value, String path) {
