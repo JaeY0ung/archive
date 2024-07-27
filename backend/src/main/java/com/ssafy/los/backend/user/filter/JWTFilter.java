@@ -23,16 +23,26 @@ public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return path.equals("/auth/login")
+                || path.equals("/users")
+                || path.equals("/users/check-email");
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException, ServletException, IOException {
 
         log.info("----- JWT 필터에 검증요청이 왔습니다. -----");
+        log.info("요청 URL: {}", request.getRequestURL());
+        log.info("Servlet 경로: {}", request.getServletPath());
         
-        // 1.헤더 또는 쿠기에서 Authorization 찾기
+        // 1.헤더 또는 쿠키에서 Authorization 찾기
         String authorization = null;
         // 헤더에서 찾기
-        authorization = request.getHeader("Authorization");
-        log.info("헤더에서 Access 토큰을 찾았습니다. = {}", authorization);
+//        authorization = request.getHeader("Authorization");
+//        log.info("헤더에서 Access 토큰을 찾았습니다. = {}", authorization);
         // 쿠키에서 찾기
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
@@ -43,6 +53,7 @@ public class JWTFilter extends OncePerRequestFilter {
             }
         }
 
+        // TODO : 레디스 추가 검증
         // 1. Authorization 헤더 검증하기
         if (authorization == null) {
             log.info("토큰이 없습니다. ");

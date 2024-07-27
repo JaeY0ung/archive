@@ -39,7 +39,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         log.info("JWT가 발급되어 쿠키에 담아 보냈습니다. = {} ", token);
 
         response.addCookie(createCookie("Authorization", token));
-//        response.addHeader("Set-Cookie", createCookie("refreshToken", refreshToken, "/auth/refresh"));
         response.sendRedirect("http://localhost:5173/");
     }
 

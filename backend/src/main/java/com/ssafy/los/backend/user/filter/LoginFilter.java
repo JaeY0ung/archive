@@ -8,6 +8,7 @@ import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -75,14 +76,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // accessToken
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
-//        response.addHeader("Authorization", accessToken);
 
         // refreshToken
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
-        response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
+//        response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
+        response.addCookie(createCookie("Authorization", refreshToken, "/auth/refresh"));
+//        response.addCookie(createCookie("Authorization", refreshToken));
+        // redis 저장
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
         setTokenResponse(response, accessToken, refreshToken);
+
 
         log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
         log.info("발급한 accessToken - {}", accessToken);
@@ -94,6 +98,27 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 //        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value, path);
     }
 
+    private Cookie createCookie(String key, String value, String path) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        //cookie.setSecure(true);
+        cookie.setPath(path);
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
+
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        //cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
 
     private void setTokenResponse(HttpServletResponse response, String accessToken,
             String refreshToken) throws IOException {
@@ -116,5 +141,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);
     }
+
 
 }
