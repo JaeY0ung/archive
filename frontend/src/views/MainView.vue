@@ -9,7 +9,7 @@ const getPopularsheets = async () => {
 		.then(({ data }) => {
 			popularSheets.value = data;
 			popularSheets.value.map(sheet => sheet.songImg ? sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}` : '기본 이미지'); // TODO: songImg가 없으면 기본 로고로.
-		}).catch((err)=> alert(err))
+		}).catch((err)=> console.log(err))
 }
 getPopularsheets();
 
@@ -19,7 +19,7 @@ const getnewsheets = async () => {
 		.then(({ data }) => {
 			newSheets.value = data;
 			newSheets.value.map(sheet => sheet.songImg ? sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}` : '기본 이미지');
-		}).catch((err)=> alert(err))
+		}).catch((err)=> console.log(err))
 }
 getnewsheets();
 
@@ -30,7 +30,7 @@ const getRecommendsheets = async () => {
 		.then(({ data }) => {
 			recommendSheets.value = data;
 			recommendSheets.value.map(sheet => sheet.songImg ? sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}` : '기본 이미지'); 
-		}).catch((err)=> alert(err))
+		}).catch((err)=> console.log(err))
 }
 getRecommendsheets();
 
@@ -41,7 +41,7 @@ const getRecentChallengedsheets = async () => {
 		.then(({ data }) => {
 			recentChallengedSheet.value = data;
 			recentChallengedSheet.imageUrl = recentChallengedSheet.songImg ? `data:image/jpeg;base64,${recentChallengedSheet.songImg}` : '기본 이미지'; 
-		}).catch((err)=> alert(err))
+		}).catch((err)=> console.log(err))
 }
 getRecentChallengedsheets();
 </script>

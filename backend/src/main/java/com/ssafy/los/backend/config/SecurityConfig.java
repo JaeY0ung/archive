@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -85,19 +86,22 @@ public class SecurityConfig {
 
         // 필터 추가
         http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshTokenRepository, userStatusService), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(
+                new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
+                        refreshTokenRepository, userStatusService),
+                UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        return http.build();
         // OAuth2 설정
         http.oauth2Login((oauth2) -> oauth2
                 .userInfoEndpoint((userInfoEndpointConfig) ->
                         userInfoEndpointConfig.userService(oauth2UserService))
                 .successHandler(customOAuth2SuccessHandler));
 
+        return http.build();
     }
 
     @Bean
