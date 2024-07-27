@@ -3,9 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite --port 8081",
+    "dev": "vite --port 5173",
     "preview": "vite preview",
-    "serve": "vue-cli-service serve --port 8081",
+    "serve": "vue-cli-service serve --port 5173",
+
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
