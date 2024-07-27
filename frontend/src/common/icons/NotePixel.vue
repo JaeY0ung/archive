@@ -1,14 +1,10 @@
 <script setup>
-import { useThemeStore } from '@/stores/theme'
-import { storeToRefs } from "pinia";
-
-const themeStore = useThemeStore();
-const { isDarkMode } = storeToRefs(themeStore);
+ 
 </script>
 
 <template>
     <div>
-        <svg :class="isDarkMode ? 'text-white' : 'text-black'" width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <svg class='text-black' width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
             <rect width="38" height="38" fill="url(#pattern0_120_1430)"/>
             <defs>
             <pattern id="pattern0_120_1430" patternContentUnits="objectBoundingBox" width="1" height="1">
