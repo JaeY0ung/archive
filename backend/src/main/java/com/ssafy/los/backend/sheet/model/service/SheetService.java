@@ -15,9 +15,11 @@ public interface SheetService {
 
     Sheet saveSheetInfo(SheetUploadForm sheetUploadForm, User loginUser, String fileName);
 
+    Sheet selectById(Long sheetId);
+
     SheetResponseDto searchSheetById(Long sheetId);
 
     Resource getSheetFileByName(String fileName) throws IOException;
 
-    List<SheetResponseDto> searchSheetListBySort(String sort);
+    List<SheetResponseDto> searchSheetByFilter(String keyword, String sort);
 }

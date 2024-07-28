@@ -72,8 +72,10 @@ public class SheetController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getSheetListByFilter(@RequestParam String sort) {
-        return new ResponseEntity<>(sheetService.searchSheetListBySort(sort),
+    public ResponseEntity<?> getSheetListByFilter(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam String sort) {
+        return new ResponseEntity<>(sheetService.searchSheetByFilter(keyword, sort),
                 HttpStatus.OK);
     }
 

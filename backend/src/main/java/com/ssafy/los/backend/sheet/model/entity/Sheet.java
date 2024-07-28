@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.sheet.model.entity;
 
+import com.ssafy.los.backend.like.model.entity.LikeSheet;
 import com.ssafy.los.backend.song.model.entity.Song;
 import com.ssafy.los.backend.user.model.entity.User;
 import jakarta.persistence.CascadeType;
@@ -11,7 +12,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -65,7 +69,10 @@ public class Sheet {
 
     private Timestamp deletedAt;
 
+    @OneToMany(mappedBy = "sheet")
+    private List<LikeSheet> likeSheets = new ArrayList<>();
 
+    // 저장할 때
     @Builder
     public Sheet(Integer level, Integer point, String title, Song song, Integer price,
             User uploader, String fileName) {

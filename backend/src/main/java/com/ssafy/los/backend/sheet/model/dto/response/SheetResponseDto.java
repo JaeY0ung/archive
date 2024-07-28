@@ -1,17 +1,21 @@
 package com.ssafy.los.backend.sheet.model.dto.response;
 
+import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Slf4j
+
 public class SheetResponseDto {
 
     private Long id;
@@ -26,6 +30,8 @@ public class SheetResponseDto {
 
     private String fileName;
 
+    private String songImgName;
+
     private String songImg;
 
     private Integer price;
@@ -38,6 +44,32 @@ public class SheetResponseDto {
 
     private Integer viewCount;
 
+    private Boolean likeStatus; // 로그인 유저가 좋아하면 true, 아니면 false, 로그인 안 했으면 null
+
+    private Long likeCount; // 좋아요 수
+
     private Timestamp createdAt;
+
+    public SheetResponseDto(Sheet sheet, Long likeCount, Boolean likeStatus) {
+
+        this.id = sheet.getId();
+        this.title = sheet.getTitle();
+        this.songTitle = sheet.getSong().getTitle();
+        this.songComposer = sheet.getSong().getComposer();
+        this.uploaderNickname = sheet.getUploader().getNickname();
+        this.fileName = sheet.getFileName();
+        this.songImgName = sheet.getSong().getImgName();
+        this.price = sheet.getPrice();
+        this.level = sheet.getLevel();
+        this.status = sheet.getStatus();
+        this.point = sheet.getPoint();
+        this.viewCount = sheet.getViewCount();
+        this.likeCount = likeCount;
+        this.likeStatus = likeStatus;
+    }
+
+    public SheetResponseDto(Sheet sheet, Long likeCount) {
+        this(sheet, likeCount, null);
+    }
 
 }

@@ -6,9 +6,11 @@ import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.sheet.model.repository.SheetRepository;
 import com.ssafy.los.backend.song.model.repository.SongRepository;
 import com.ssafy.los.backend.user.model.entity.User;
+import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +28,7 @@ public class SheetServiceImpl implements SheetService {
     private final FileUploadUtil fileUploadUtil;
     private final SheetRepository sheetRepository;
     private final SongRepository songRepository;
+    private final AuthService authService;
 
 
     public String saveSheetFile(MultipartFile file) throws IOException {
@@ -46,9 +49,21 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
+    public Sheet selectById(Long sheetId) {
+        return sheetRepository.findById(sheetId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 악보입니다."));
+    }
+
+    @Override
     public SheetResponseDto searchSheetById(Long sheetId) {
-        return toSheetResponseDto(sheetRepository.findById(sheetId).orElseThrow(
-                IllegalArgumentException::new));
+        Long loginUserId;
+        try {
+            loginUserId = authService.getLoginUser().getId();
+
+        } catch (Exception e) {
+            loginUserId = null;
+        }
+        return addSongImg(sheetRepository.findSheetById(sheetId, loginUserId));
+
     }
 
     @Override
@@ -57,42 +72,27 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
-    public List<SheetResponseDto> searchSheetListBySort(String sort) {
-        List<Sheet> sheetList = null;
-        if (sort.equals("new")) {  // sort : new
-            sheetList = sheetRepository.findByDeletedAtIsNullAndCreatedAtIsNotNullOrderByCreatedAtDesc();
-        } else if (sort.equals("popular")) { // sort : popular
-            // TODO : 메서드 고쳐야 함
-            sheetList = sheetRepository.findByDeletedAtIsNullAndCreatedAtIsNotNullOrderByCreatedAtDesc();
+    public List<SheetResponseDto> searchSheetByFilter(String keyword, String sort) {
+        Long loginUserId;
+        try {
+            loginUserId = authService.getLoginUser().getId();
+        } catch (Exception e) {
+            loginUserId = null;
         }
-
-        return sheetList.stream().map(this::toSheetResponseDto)
-                .collect(Collectors.toList());
+        return sheetRepository.findSheets(keyword, sort, loginUserId)
+                .stream().map(this::addSongImg).
+                collect(Collectors.toList());
     }
 
-    public SheetResponseDto toSheetResponseDto(Sheet sheet) {
-        String base64SongImg = null;
+    public SheetResponseDto addSongImg(SheetResponseDto sheetResponseDto) {
         try {
-            log.info("fileUploadUtil.getSomgImgPath(sheet.getFileName())"
-                    + fileUploadUtil.getSomgImgPath(sheet.getFileName()));
-            byte[] songImg = Files.readAllBytes(
-                    fileUploadUtil.getSomgImgPath(sheet.getSong().getImgName()));
-            base64SongImg = Base64.getEncoder().encodeToString(songImg);
+            Path path = fileUploadUtil.getSomgImgPath(sheetResponseDto.getSongImgName());
+            byte[] songImg = Files.readAllBytes(path);
+            String base64SongImg = Base64.getEncoder().encodeToString(songImg);
+            sheetResponseDto.setSongImg(base64SongImg);
         } catch (IOException e) {
             log.error(e.getMessage());
         }
-
-        return SheetResponseDto.builder()
-                .id(sheet.getId())
-                .title(sheet.getTitle())
-                .songTitle(sheet.getSong().getTitle())
-                .songComposer(sheet.getSong().getComposer())
-                .uploaderNickname(sheet.getUploader().getNickname())
-                .songImg(base64SongImg)
-                .price(sheet.getPrice())
-                .level(sheet.getLevel())
-                .point(sheet.getPoint())
-                .viewCount(sheet.getViewCount())
-                .build();
+        return sheetResponseDto;
     }
 }
