@@ -20,53 +20,8 @@ let email = ref("");
 
 const user = userStore
 
-// 웹소켓 연결
-// const connect = () => {
-//     const socket = new WebSocket('ws://localhost:8081/wait')
-
-//     socket.onopen = () => {
-//         console.log('Socket opened!');
-//     }
-
-//     socket.onmessage = (event) => {
-//         const data = JSON.parse(event.data);
-//         score.value = data;
-//         console.log(score.value);
-//     };
-
-//     socket.onclose = () => {
-//         console.log('Socket closed');
-//     }
-// }
-
-// // 화면이 로딩될 때 바로 웹소켓 연결이 이루어진다.
-// onMounted(() => {
-//     connect();
-// })
-
-// 로그인한 자신의 정보 가져오기.
-// session storage에서 access토큰 가져오기.
-
-// const accessToken = sessionStorage.getItem("accessToken");
-
-// userStore.getUserInfo(accessToken);
-
-// const decodeToken = jwtDecode(accessToken);
-
-// email = decodeToken.username;
 
 
-// pk가 있다면, pk를 이용해서 유저 닉네임 가져오기.
-// axios({
-//     url: `localhost:8080/users/${decodeToken.username}`,
-//     method: 'GET',
-//     headers: {
-//         'Authorization': `Bearer ${accessToken}`
-//     }
-// })
-// .then((response) => {
-//     console.log(response.data)
-// })
 
 onBeforeRouteLeave((to, from, next) => {
     console.log('이동할 라우트:', to);

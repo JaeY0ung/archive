@@ -97,7 +97,7 @@ function connect() {
                     if(message.content == "true"){
                         router.push({name:'battle'})
 
-                        window.addEventListener('beforeunload', unLoadEvent);
+                        // window.addEventListener('beforeunload', unLoadEvent);
                     }
                 }
 
@@ -232,7 +232,9 @@ onMounted(() => {
 
 })
 
-
+function quitButton () {
+    router.push('waitBattle');
+}
 
 </script>
 
@@ -263,7 +265,7 @@ onMounted(() => {
                 <button class="btn btn-primary w-24" v-if="route.name == 'waitBattle' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'battle'">
+                <button class="btn btn-primary w-24" v-if="route.name == 'battle'" @click="quitButton">
                     나가기
                 </button>
             </div>

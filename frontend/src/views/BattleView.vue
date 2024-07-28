@@ -95,17 +95,6 @@ onBeforeRouteLeave((to, from, next) => {
         next(false);
     }
 
-    // if(to.name == "battle" && from.name == "waitBattle"){
-    //     return;
-    // }else{
-    // }
-
-//   if (canLeaveSite.value) {
-//     next();
-//   } else if (confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle')) {
-//     next();
-//   }
-
 
 })
 
