@@ -4,7 +4,7 @@
 
 <template>
     <div>
-        
+        유저 프로필 뷰
     </div>
 </template>
 
