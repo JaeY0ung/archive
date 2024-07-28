@@ -79,19 +79,26 @@ onMounted(() => {
 const canLeaveSite = ref(false);
 
 onBeforeRouteLeave((to, from, next) => {
+    console.log('이동할 라우트:', to);
     console.log('이동할 라우트:', to.name);
+    console.log('현재 라우트:', from);
     console.log('현재 라우트:', from.name);
 
-
-    if(to.name == "battle" && from.name == "waitBattle"){
-        return;
+    if(confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle')){
+        // next(vm => {
+        //     vm.$router.replace({fullPath:'/'});
+        // });
+        console.log("확인2")
+        window.location.href = 'http://localhost:5173';
+        // next({fullPath:'http://localhost:5173'})
     }else{
-        if(confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle')){
-            next();
-        }else{
-            next(false);
-        }
+        next(false);
     }
+
+    // if(to.name == "battle" && from.name == "waitBattle"){
+    //     return;
+    // }else{
+    // }
 
 //   if (canLeaveSite.value) {
 //     next();

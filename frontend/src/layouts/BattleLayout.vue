@@ -215,17 +215,6 @@ function readyButton() {
 }
 
 
-// axios({
-//     url: `localhost:8080/users/${decodeToken.username}`,
-//     method: 'GET',
-//     headers: {
-//         'Authorization': `Bearer ${accessToken}`
-//     }
-// })
-// .then((response) => {
-//     console.log(response.data)
-// })
-
 
 function unLoadEvent (event) {
       if (canLeaveSite.value) return;
@@ -239,34 +228,9 @@ onMounted(() => {
     connect()
 
     // 페이지가 mounted 될 때 페이지를 벗어나면 경고창을 보여주는 unLoadEvent 생성
-    window.addEventListener('beforeunload', unLoadEvent);
+    // window.addEventListener('beforeunload', unLoadEvent);
 
 })
-
-
-
-// if(route.name == "waitBattle"){
-
-//     // 유저가 방을 나가려고 할 때 팝업창 띄우기
-//     onBeforeRouteLeave((to, from, next) => {
-//       if (canLeaveSite.value) {
-//         next();
-//       } else if (confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다.')) {
-//         next();
-//       }
-//     })
-// }
-
-// if(route.name == "battle"){
-//     // 유저가 게임을 나가려고 할 때 팝업창 띄우기
-//     onBeforeRouteLeave((to, from, next) => {
-//       if (canLeaveSite.value) {
-//         next();
-//       } else if (confirm('플레이를 멈추시겠습니까?\n페널티가 적용될 수 있습니다.')) {
-//         next();
-//       }
-//     })
-// }
 
 
 
