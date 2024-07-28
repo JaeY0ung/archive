@@ -12,11 +12,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.sql.Timestamp;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
+@NoArgsConstructor
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class LikeSheet {
@@ -37,4 +40,10 @@ public class LikeSheet {
 
     @CreatedDate
     private Timestamp createdAt;
+
+    @Builder
+    public LikeSheet(User user, Sheet sheet) {
+        this.user = user;
+        this.sheet = sheet;
+    }
 }
