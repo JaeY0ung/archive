@@ -24,6 +24,14 @@ async function userConfirm(param, success, fail) {
     }
 }
 
+async function logout(success, fail) {
+    await local.get(`http://localhost:8080/auth/logout`).then(success).catch(fail);
+}
+
+
+
+
+
 
 async function findById(username, success, fail) {
     local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
@@ -35,9 +43,7 @@ async function tokenRegeneration(user, success, fail) {
     await local.post(`/auth/refresh`, user).then(success).catch(fail);
 }
 
-async function logout(username, success, fail) {
-    await local.get(`/auth/logout/${username}`).then(success).catch(fail);
-}
+
 
 async function signout(success, fail) {
     local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
@@ -69,9 +75,12 @@ async function isUserExist(username, success, fail) {
 
 export {
     userConfirm,
+    logout,
+
+
+
     findById,
     tokenRegeneration,
-    logout,
     signout,
     insertUser,
     updateUser,

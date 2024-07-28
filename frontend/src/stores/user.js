@@ -119,18 +119,18 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const userLogout = async () => {
-    console.log("로그아웃 아이디 : " + userInfo.value.username)
     await logout(
-      userInfo.value.username,
       (response) => {
         if (response.status === httpStatusCode.OK) {
-          isLogin.value = false
+          // 스토어 유저 정보 초기화하기
           userInfo.value = null
+
+          // 스토어 유저 상태 변경하기
+          isLogin.value = false
           isValidToken.value = false
 
           sessionStorage.removeItem("accessToken")
-          sessionStorage.removeItem("refreshToken")
-          alert("로그아웃 되었습니다")
+          console.log("로그아웃이 되었습니다.")
         } else {
           console.error("유저 정보가 없습니다.")
         }
@@ -143,13 +143,17 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return {
+    userLogin,
+    userLogout,
+
+
+    
     isLogin,
+
     isLoginError,
     userInfo,
     isValidToken,
-    userLogin,
     getUserInfo,
     tokenRegenerate,
-    userLogout,
   }
 }, {persist : true})
