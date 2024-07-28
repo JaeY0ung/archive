@@ -80,32 +80,12 @@ onMounted(() => {
 
 <template>
 
-    <h1>배틀 대기방</h1>
-
-    <div id="userform">
-        <button @click="router.push({name:'signin'})">회원가입</button>
-        <button>로그인</button>
-    </div>
+    <h1>뮤직 배틀 플레이 화면</h1>
     
 
     <div>
         <div v-if="waitTime == 0 && countTime !== 0" class="time-count">{{ countTime }}</div>
         <!-- <SheetPage :isPlay/> -->
-    </div>
-
-    <div id="profiles">
-        <div>
-            <p>
-                인절미 프로필
-            </p>
-            <button>게임 준비</button>
-        </div>
-        <div>
-            <p>
-                팽귀니 프로필
-            </p>
-            <button>게임 준비</button>
-        </div>
     </div>
 
 </template>

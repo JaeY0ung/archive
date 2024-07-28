@@ -90,15 +90,18 @@ function connect() {
                 
                 const message = JSON.parse(socket.body);
 
+                // 게임 시작을 알리는 데이터가 온 경우
                 if(message.type == "start"){
                     if(message.content == "true"){
                         router.push({name:'battle'})
                     }
                 }
 
+                // 상대방이 나갔음을 알리는 데이터가 온 경우
                 if(message.type == "exit"){
                     opponent.value.name = "유저를 기다리는 중...";
                     opponent.value.isEmpty = true;
+                    opponentReady.value = "false";
                 }
 
 
