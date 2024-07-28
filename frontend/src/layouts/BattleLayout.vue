@@ -1,9 +1,9 @@
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
-import { ref, computed, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
 import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
 import { useUserStore } from '@/stores/user';
 import { jwtDecode } from "jwt-decode";
@@ -33,6 +33,8 @@ const opponent = ref({
     isEmpty: true
 })
 
+// 사이트를 벗어날 때 체크해주는 불리언 변수
+const canLeaveSite = ref(false);
 
 // 웹소켓 생성 후, 구독하기.
 function connect() {
@@ -94,6 +96,8 @@ function connect() {
                 if(message.type == "start"){
                     if(message.content == "true"){
                         router.push({name:'battle'})
+
+                        window.addEventListener('beforeunload', unLoadEvent);
                     }
                 }
 
@@ -130,6 +134,8 @@ onBeforeUnmount(() =>{
 
 
     sendExit();
+
+    window.removeEventListener('beforeunload', unLoadEvent);
 })
 
 function sendExit(){
@@ -159,6 +165,10 @@ const getLiveResult = computed(() => {
 
 const goToBattle = () => {
     router.push({name:'battle'})
+
+    // window.addEventListener('beforeunload', unLoadEvent);
+
+    canLeaveSite.value = true;
 
     console.log("goToBattle 메서드 실행")
 
@@ -217,10 +227,48 @@ function readyButton() {
 // })
 
 
+function unLoadEvent (event) {
+      if (canLeaveSite.value) return;
+
+      event.preventDefault();
+      event.returnValue = '';
+    }
+
 onMounted(() => {
+    // 페이지가 mounted 될 때 웹소켓 연결
     connect()
 
+    // 페이지가 mounted 될 때 페이지를 벗어나면 경고창을 보여주는 unLoadEvent 생성
+    window.addEventListener('beforeunload', unLoadEvent);
+
 })
+
+
+
+// if(route.name == "waitBattle"){
+
+//     // 유저가 방을 나가려고 할 때 팝업창 띄우기
+//     onBeforeRouteLeave((to, from, next) => {
+//       if (canLeaveSite.value) {
+//         next();
+//       } else if (confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다.')) {
+//         next();
+//       }
+//     })
+// }
+
+// if(route.name == "battle"){
+//     // 유저가 게임을 나가려고 할 때 팝업창 띄우기
+//     onBeforeRouteLeave((to, from, next) => {
+//       if (canLeaveSite.value) {
+//         next();
+//       } else if (confirm('플레이를 멈추시겠습니까?\n페널티가 적용될 수 있습니다.')) {
+//         next();
+//       }
+//     })
+// }
+
+
 
 </script>
 

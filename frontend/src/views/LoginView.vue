@@ -2,7 +2,7 @@
 import { useUserStore } from '@/stores/user'
 import { ref, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
-import { useRouter } from 'vue-router';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 import axios from 'axios';
 
 const router = useRouter();

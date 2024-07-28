@@ -2,7 +2,7 @@
 import SheetPage from '@/common/sheet/SheetPage.vue';
 
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 
 const router = useRouter();
 
@@ -72,6 +72,32 @@ onMounted(() => {
             clearInterval(wait);
         }
     }, 1000);
+
+
+})
+
+const canLeaveSite = ref(false);
+
+onBeforeRouteLeave((to, from, next) => {
+    console.log('이동할 라우트:', to.name);
+    console.log('현재 라우트:', from.name);
+
+
+    if(to.name == "battle" && from.name == "waitBattle"){
+        return;
+    }else{
+        if(confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle')){
+            next();
+        }else{
+            next(false);
+        }
+    }
+
+//   if (canLeaveSite.value) {
+//     next();
+//   } else if (confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle')) {
+//     next();
+//   }
 
 
 })
