@@ -8,8 +8,6 @@ import com.ssafy.los.backend.user.model.service.AuthService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -46,7 +44,7 @@ public class SheetController {
             @RequestPart("point") Integer point,
             @RequestPart("songId") Long songId) {
 
-        Optional<User> loginUser = authService.getLoginUser();
+        User loginUser = authService.getLoginUser();
 
         if (files.size() != 1) {
             return new ResponseEntity<>("하나의 파일만 올려주세요.", HttpStatus.BAD_REQUEST);
@@ -62,7 +60,7 @@ public class SheetController {
                 .build();
         try {
             String uuid = sheetService.saveSheetFile(files.get(0));
-            Sheet sheet = sheetService.saveSheetInfo(sheetUploadForm, loginUser.get(), uuid);
+            Sheet sheet = sheetService.saveSheetInfo(sheetUploadForm, loginUser, uuid);
             return new ResponseEntity<>(sheet, HttpStatus.CREATED);
             // TODO : mid -> mp3 변환한 파일 추가로 저장하는 로직 구현하기
         } catch (IOException e) {

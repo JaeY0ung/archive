@@ -67,12 +67,14 @@ public class JWTFilter extends OncePerRequestFilter {
         if (jwtUtil.isExpired(token)) {
             log.info("만료된 JWT 토큰입니다.");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("AccessTokenExpired"); // vue axios 인터셉터와 연동
+            // TODO : vue axios 인터셉터와 연동하기
+            response.getWriter().write("AccessTokenExpired"); 
             return;
         }
 
         log.info("인증이 되었고 만료되지 않은 JWT 토큰입니다.");
 
+        // 해당 정보를 SecurityContextHolder에 넣기 (반복)
         String email = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 

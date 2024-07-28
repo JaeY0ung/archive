@@ -19,13 +19,14 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public Optional<User> getLoginUser() {
+    public User getLoginUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof CustomUserDetails) {
             String email = ((CustomUserDetails) principal).getUsername();
             // 가져오기
-            Optional<User> findUser = userRepository.findByEmail(email);
+            User findUser = userRepository.findByEmail(email)
+                    .orElseThrow(); // 임시
             return findUser;
 //            return LoginUser.builder()
 //                    .id(findUser.getId())

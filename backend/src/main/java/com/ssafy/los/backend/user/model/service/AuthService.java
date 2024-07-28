@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface AuthService {
 
-    Optional<User> getLoginUser();
+    User getLoginUser();
 
 }
