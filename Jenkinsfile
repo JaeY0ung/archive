@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://lab.ssafy.com/s11-webmobile2-sub2/S11P12A507.git'
+                git credentialsId: 'gitlab-access-token', url: 'https://lab.ssafy.com/s11-webmobile2-sub2/S11P12A507.git'
             }
         }
         stage('Build Frontend') {
