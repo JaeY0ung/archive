@@ -4,7 +4,20 @@ pipeline {
     stages {
         stage('Cleanup') {
             steps {
-                cleanWs() // Clean the workspace before starting
+                cleanWs() // 작업공간을 초기화합니다.
+            }
+        }
+
+        stage('Prepare Workspace') {
+            steps {
+                script {
+                    // 작업공간 디렉터리를 명확히 생성하고 이동합니다.
+                    sh 'mkdir -p workspace'
+                    dir('workspace') {
+                        sh 'pwd'
+                        sh 'ls -la'
+                    }
+                }
             }
         }
 
@@ -16,7 +29,7 @@ pipeline {
                         try {
                             checkout([
                                 $class: 'GitSCM', 
-                                branches: [[name: '*/master']], 
+                                branches: [[name: 'origin/master']], 
                                 userRemoteConfigs: [[url: 'https://lab.ssafy.com/s11-webmobile2-sub2/S11P12A507.git', credentialsId: 'gitlab-access-token']]
                             ])
                         } catch (Exception e) {
