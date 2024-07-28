@@ -3,10 +3,10 @@ import SearchBar from '@/common/search-bar/CommonSearchBar.vue'
 </script>
 
 <template>
-    <div>
+    <div class="h-full w-full">
         <SearchBar class="search-bar "/>
         <div style="height: 30px;"></div>
-        <RouterView style="width:100%;"/>
+        <RouterView class="h-full w-full"/>
     </div>
 </template>
 

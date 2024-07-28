@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios';
 import { ref } from 'vue';
-import MainSheetCardInfo from '@/common/sheet/MainSheetCardInfo.vue';
+import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
 
 const popularSheets = ref([]); // 인기 악보 리스트
 const getPopularsheets = async () => {
@@ -15,7 +15,7 @@ getPopularsheets();
 
 const newSheets = ref([]); // 새로 나온(New) 악보 리스트
 const getnewsheets = async () => {
-	await axios.get("http://localhost:8080/sheets?sort=new")
+	await axios.get("http://localhost:8080/sheets?sort=latest")
 		.then(({ data }) => {
 			newSheets.value = data;
 			newSheets.value.map(sheet => sheet.songImg ? sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}` : '기본 이미지');
@@ -23,10 +23,9 @@ const getnewsheets = async () => {
 }
 getnewsheets();
 
-// TODO : 요청 url 바꾸기
 const recommendSheets = ref([]); // 추천 악보 리스트
 const getRecommendsheets = async () => {
-	await axios.get("http://localhost:8080/sheets?sort=new")
+	await axios.get("http://localhost:8080/sheets?sort=recommend")
 		.then(({ data }) => {
 			recommendSheets.value = data;
 			recommendSheets.value.map(sheet => sheet.songImg ? sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}` : '기본 이미지'); 
@@ -34,16 +33,15 @@ const getRecommendsheets = async () => {
 }
 getRecommendsheets();
 
-// TODO : 요청 url 바꾸기
 const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
-const getRecentChallengedsheets = async () => {
-	await axios.get("http://localhost:8080/sheets?sort=new")
-		.then(({ data }) => {
-			recentChallengedSheet.value = data;
-			recentChallengedSheet.imageUrl = recentChallengedSheet.songImg ? `data:image/jpeg;base64,${recentChallengedSheet.songImg}` : '기본 이미지'; 
-		}).catch((err)=> alert(err))
-}
-getRecentChallengedsheets();
+// const getRecentChallengedsheets = async () => {
+// 	await axios.get("http://localhost:8080/sheets/recent-challenge")
+// 		.then(({ data }) => {
+// 			recentChallengedSheet.value = data;
+// 			recentChallengedSheet.imageUrl = recentChallengedSheet.songImg ? `data:image/jpeg;base64,${recentChallengedSheet.songImg}` : '기본 이미지'; 
+// 		}).catch((err)=> alert(err))
+// }
+// getRecentChallengedsheets();
 </script>
 
 <template>
@@ -54,7 +52,7 @@ getRecentChallengedsheets();
 			</div>
 			<div class="scroll-x">
 				<template v-if="popularSheets">
-					<MainSheetCardInfo v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"/>
+					<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"/>
 				</template>
 			</div>
 
@@ -65,7 +63,7 @@ getRecentChallengedsheets();
 			</div>
 			<div class="scroll-x">
 				<template v-if="newSheets">
-					<MainSheetCardInfo v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" />
+					<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" />
 				</template>
 			</div>
 		</div>
@@ -77,7 +75,7 @@ getRecentChallengedsheets();
 				</div>
 				<div class="scroll-x">
 					<template v-if="recommendSheets">
-						<MainSheetCardInfo v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" />
+						<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" />
 					</template>
 				</div>
 			</div>
@@ -87,9 +85,7 @@ getRecentChallengedsheets();
 					<div><p class="bold">도전 중인 악보</p></div>
 				</div>
 
-				<div>
-					<div><p class="bold">도전 중인 악보</p></div>
-				</div>
+				
 			</div>
 		</div>
 	</div>

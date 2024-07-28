@@ -75,3 +75,7 @@ p {
 .bold {
 	font-weight:700;
 }
+
+.body {
+	background-image: url("../img/common/background.png")
+}
