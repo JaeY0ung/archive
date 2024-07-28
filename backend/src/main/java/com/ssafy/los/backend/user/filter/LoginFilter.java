@@ -5,9 +5,11 @@ import com.ssafy.los.backend.config.RefreshToken;
 import com.ssafy.los.backend.user.model.dto.CustomUserDetails;
 import com.ssafy.los.backend.user.model.dto.response.Response;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
+import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -34,12 +36,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private static UserStatusService userStatusService;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
+            RefreshTokenRepository refreshTokenRepository, UserStatusService userStatusService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/auth/login"); // Set the login endpoint to /auth/login
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userStatusService = userStatusService;
     }
 
     @Override
@@ -64,35 +69,53 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             throws IOException, ServletException {
         //UserDetails
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        log.info("로그인 이후 JWT를 발급 받을 유저입니다. = {}", customUserDetails.getUser().getEmail());
 
         String email = customUserDetails.getUsername();
-
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        // accessToken
+        // accessToken 발급하기
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
-        // refreshToken
+        // refreshToken 발급하기
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
-        response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
+        response.addCookie(createCookie("Authorization", refreshToken));
+        // redis 저장하기
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
+        userStatusService.setUserOnline(customUserDetails.getUser().getId());
+
         setTokenResponse(response, accessToken, refreshToken);
 
-        log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
-        log.info("accessToken - {}", accessToken);
-        log.info("refreshToken - {}", refreshToken);
+        log.info("발급한 accessToken - {}", accessToken);
+        log.info("발급한 refreshToken - {}", refreshToken);
     }
 
-    private String createHttpOnlyCookie(String name, String value, String path) {
-        return String.format("%s=%s; Path=%s; HttpOnly; SameSite=None;", name, value, path);
-//        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value, path);
+    private Cookie createCookie(String key, String value, String path) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        //cookie.setSecure(true);
+        cookie.setPath(path);
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        //cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
 
     private void setTokenResponse(HttpServletResponse response, String accessToken,
             String refreshToken) throws IOException {
@@ -110,7 +133,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     }
 
-    //로그인 실패시 실행하는 메소드
+    // 로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);

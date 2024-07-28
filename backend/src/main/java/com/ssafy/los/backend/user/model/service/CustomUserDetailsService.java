@@ -25,7 +25,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         log.info("요청한 유저 데이터: {}", userData.getEmail());
 
         return new CustomUserDetails(userData); // AuthenticationManger에게 보냄
-
-
     }
 }

@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.play.controller;
 
 import com.ssafy.los.backend.play.model.dto.PlayerReadyDto;
+import com.ssafy.los.backend.play.model.dto.PlayerStartDto;
 import com.ssafy.los.backend.user.model.dto.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -35,9 +36,17 @@ public class WaitRoomController {
 
     @MessageMapping("/wait/start")
     @SendTo("/wait/socket/start")
-    public String sendPlayerReady(String message) throws Exception {
-        // start 신호 전달
-        return message;
+    public PlayerStartDto sendPlayerReady(PlayerStartDto playerStartDto) throws Exception {
+        // start 신호 전송
+
+        System.out.println("메시지 전달받음");
+        log.info("들어왔습니다. {}", playerStartDto.toString());
+
+        return PlayerStartDto.builder()
+                .type(playerStartDto.getType())
+                .sender(playerStartDto.getSender())
+                .content(playerStartDto.getContent())
+                .build();
     }
 
 }

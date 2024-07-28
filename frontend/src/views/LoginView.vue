@@ -1,35 +1,52 @@
 <script setup>
 import { useUserStore } from '@/stores/user'
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
 const userStore = useUserStore();
-const { userLogin, getUserInfo } = userStore;
+const { userLogin } = userStore;
 const { isLogin, isLoginError } = storeToRefs(userStore);
-
-const goToRegister = () => {
-  router.push({ name: "register" });
-}
 
 const loginForm = ref({
   email: "",
   password: "",
 })
 
+const goToRegister = () => {
+  router.push({ name: 'register' });
+}
+
+// const login = async () => {
+//     await userLogin(loginForm.value);
+//     if (isLogin.value) {
+//         const token = sessionStorage.getItem("accessToken");
+//         if (token) {
+//             await getUserInfo(token);
+//             router.replace({ name: "main" });
+//         }
+//     } else {
+//         alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
+//     }
+// }
+
 const login = async () => {
     await userLogin(loginForm.value);
     if (isLogin.value) {
-        const token = sessionStorage.getItem("accessToken");
-        if (token) {
-            await getUserInfo(token);
-            router.replace({ name: "main" });
-        }
+      router.replace({ name: "main" });
     } else {
         alert("로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.");
     }
 }
+
+// OAuth2 - Naver
+const naverLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/naver"
+}
+
+
 </script>
 
 <template>
@@ -41,7 +58,7 @@ const login = async () => {
       <div class="label">
         <span class="label-text">이메일</span>
       </div>
-      <input v-model="loginForm.email" type="email" class="input input-bordered w-full" required />
+      <input v-model="loginForm.email" type="email" class="input input-bordered w-full" required/>
     </label>
 
     <label class="form-control w-full mb-10">
@@ -57,6 +74,12 @@ const login = async () => {
       </button>
       <button type="button" class="btn btn-secondary" @click="goToRegister">
         회원가입
+      </button>
+    </div>
+    
+    <div class="mt-5">
+      <button type="button" class="btn btn-success" @click="naverLogin">
+        네이버로 로그인
       </button>
     </div>
   </form>

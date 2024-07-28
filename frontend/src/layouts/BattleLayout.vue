@@ -3,7 +3,7 @@ import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
 const router = useRouter();
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
 import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
 import { useUserStore } from '@/stores/user';
 import { jwtDecode } from "jwt-decode";
@@ -37,7 +37,6 @@ const opponent = ref({
 // 웹소켓 생성 후, 구독하기.
 function connect() {
 
-        console.log("Connecting")
 
         var socket = new SockJS('http://localhost:8080/archive-websocket');
         stompClient = Stomp.over(socket);
@@ -46,7 +45,6 @@ function connect() {
 
             //구독
             stompClient.subscribe('/wait/socket', function (chatMessage) {
-                console.log("구독한 곳으로부터 정보 받아오는 과정")
                 const userLogin = JSON.parse(chatMessage.body);
                 // 정보 뿌리기
                 // 상대방 프로필 표시
@@ -77,12 +75,9 @@ function connect() {
             stompClient.subscribe('/wait/socket/ready', function (readyStatus){
                 const playerReady = JSON.parse(readyStatus.body);
             
-                console.log("구독 성공")
-                console.log(playerReady)
 
                 // ready 정보를 받아서 적용하기 위한 조건문
                 if(playerReady.sender != decodeToken.username){
-                    console.log("조건문 뚫기")
                     // 상대방이 ready를 누르면, type이 ready인 json 데이터가 온다.
                     // 그럼 이 조건문에 도달할 것이고, 여기서 준비하기 버튼을 바꿔주면 된다.
                     opponentReady.value = playerReady.isReady;
@@ -90,8 +85,26 @@ function connect() {
             
             })
 
+            stompClient.subscribe('/wait/socket/start', function(socket){
+                console.log("시작을 위한 구독 성공")
+                
+                const message = JSON.parse(socket.body);
 
-            console.log("들어왓습니다~~~~~~~~")
+                if(message.type == "start"){
+                    if(message.content == "true"){
+                        router.push({name:'battle'})
+                    }
+                }
+
+                if(message.type == "exit"){
+                    opponent.value.name = "유저를 기다리는 중...";
+                    opponent.value.isEmpty = true;
+                }
+
+
+            })
+
+
             
             // 자신의 유저 정보를 Controller에 보낸다.
             stompClient.send("/app/wait", {},   
@@ -106,7 +119,36 @@ function connect() {
         });
     }
 
+function disconnect() {
+    console.log("disconnect되었다")
+}
 
+onBeforeUnmount(() =>{
+
+
+    sendExit();
+})
+
+function sendExit(){
+
+    stompClient.send('/app/wait/start', {},
+        JSON.stringify({
+            'type': 'exit',
+            'sender': decodeToken.username,
+            'content': 'true'
+        })
+    )
+
+}
+
+onUnmounted(() => {
+    console.log("onUnmounted 실행");
+
+    sendExit();
+
+})
+
+window.addEventListener('beforeunload', sendExit);
 
 const getLiveResult = computed(() => {
     return me.value.score > opponent.value.score ? "win" : "lose"
@@ -115,7 +157,16 @@ const getLiveResult = computed(() => {
 const goToBattle = () => {
     router.push({name:'battle'})
 
+    console.log("goToBattle 메서드 실행")
+
     // send
+    stompClient.send("/app/wait/start", {}, 
+        JSON.stringify({
+            'type': 'start',
+            'sender': decodeToken.username,
+            'content': 'true'
+        })
+    )
 
 }
 // 로그인한 자신의 정보 가져오기.
@@ -140,8 +191,6 @@ function readyButton() {
     }else{
         isReady.value = "false";
     }
-    console.log("버튼을 눌렀다")
-    console.log(isReady.value);
 
     // send를 보내어서 상대방에게 나의 준비 변화를 알릴 것.
     // 준비 상태를 보내기 위한 다른 경로
@@ -186,10 +235,12 @@ onMounted(() => {
                     <div>{{ me.name }}</div>
                     <div>현재 스코어 : {{ me.score }}</div>
                 </div>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false'">대기중</button>
-                <button class="btn text-white" style="background-color: red;" @click=readyButton v-else>준비완료</button>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'battle'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'battle'">준비완료</button>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'battle'">게임중</button>
+                
             </div>
-
+            
             <div class="button-div">
                 <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'waitBattle' && (isReady == 'false' || opponentReady == 'false')">
                     시작하기
@@ -201,15 +252,16 @@ onMounted(() => {
                     나가기
                 </button>
             </div>
-
+            
             <div class="player-card">
                 <div class="player-img">{{ opponent.img }}</div>
                 <div class="player-info-text">
                     <div>{{ opponent.name }}</div>
                     <div>현재 스코어 : {{ opponent.score }}</div>
                 </div>
-                <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false'">대기중</button>
-                <button class="btn text-white" style="background-color: red;" v-else>준비완료</button>
+                <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false' && route.name != 'battle'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" v-if="opponentReady == 'true' && route.name != 'battle'">준비완료</button>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'battle'">게임중</button>
             </div>
         </div>
     </div>

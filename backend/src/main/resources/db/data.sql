@@ -25,7 +25,7 @@ VALUES (1, 'user1', '94eecf5b-b597-461a-8b50-4fd47f82cea5',
         'user6@ssafy.com', NULL, NOW(), NOW(), NULL),
        (7, 'wngud', 'e717f88e-9ece-4653-b1d2-ded3b9b5bea6',
         '$10$lIhmF0aBOAH96Z2qknbDyu2sMwQeUbgpBi2qv/d/TyzTPGwlQjJpK',
-        'wngud@naver.com.com', NULL, NOW(), NOW(), NULL);
+        'wngud1225@naver.com.com', NULL, NOW(), NOW(), NULL);
 
 
 # 팔로우 (follow)

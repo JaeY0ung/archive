@@ -8,42 +8,53 @@ import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user"
 export const useUserStore = defineStore('user', () => {
   const router = useRouter();
 
+  // 유저 정보 스토어에 저장
+  const userInfo = ref(null)
+
+  // 유저 상태 스토어에 저장
   const isLogin = ref(false)
   const isLoginError = ref(false)
-  const userInfo = ref(null)
   const isValidToken = ref(false)
 
   const userLogin = async (loginUser) => {
     await userConfirm(
       loginUser,
       (response) => {
-        console.log("loginUser: ")
-        console.log(loginUser)
-        // if (response.status === httpStatusCode.CREATE) {
-          let { data } = response
-          console.log("로그인 완료 후 data ", data)
-          let accessToken = data["data"]["accessToken"]
-          console.log("accessToke 저장 = ", accessToken)
-          let refreshToken = data["data"]["refreshToken"]
-          console.log("refreshToken 저장 = ", refreshToken)
-          isLogin.value = true
-          isLoginError.value = false
-          isValidToken.value = true
-          sessionStorage.setItem("accessToken", accessToken)
-          // sessionStorage.setItem("refreshToken", refreshToken)
-        // }
+        console.log("loginUser: ", loginUser);
+        
+        // 응답 헤더에서 Authorization 토큰 추출
+        const authHeader = response.headers['authorization'];
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          const accessToken = authHeader.substring(7);
+          // 세션 스토리지에 저장
+          sessionStorage.setItem("accessToken", accessToken);
+          console.log("accessToken을 세션 스토리에 저장합니다. = ", accessToken);
+        } else {
+          console.warn("Authorization 헤더가 없거나 Bearer 토큰이 아닙니다.");
+        }
+  
+        // 로그인 완료 후 데이터 처리
+        let { data } = response;
+        console.log("로그인 완료 후 data ", data);
+  
+        // TODO: 유저 정보 저장하기 (UserStore에 저장)
+
+  
+        // 로그인 상태 업데이트
+        isLogin.value = true;
+        isLoginError.value = false;
+        isValidToken.value = true;
       },
       (error) => {
-        console.log("loginUser: ")
-        console.log(loginUser)
-        console.log("로그인에 실패했습니다.")
-        isLogin.value = false
-        isLoginError.value = true
-        isValidToken.value = false
-        console.error(error)
+        console.log("loginUser: ", loginUser);
+        console.log("로그인에 실패했습니다.");
+        isLogin.value = false;
+        isLoginError.value = true;
+        isValidToken.value = false;
+        console.error(error);
       }
-    )
-  }
+    );
+  };
 
   const getUserInfo = async (token) => {
     let decodeToken = jwtDecode(token)
@@ -61,7 +72,7 @@ export const useUserStore = defineStore('user', () => {
         }
       },
       async (error) => {
-        console.error("g[토큰이 만료되어 사용 불가능합니다.] : ",)
+        console.error("토큰이 만료되어 사용 불가능합니다.",)
         console.error(error.response.status, error.response.statusText)
         isValidToken.value = false
 
@@ -123,7 +134,7 @@ export const useUserStore = defineStore('user', () => {
           sessionStorage.removeItem("refreshToken")
           alert("로그아웃 되었습니다")
         } else {
-          console.error("유저 정보 없음!!!!")
+          console.error("유저 정보가 없습니다.")
         }
       },
       (error) => {

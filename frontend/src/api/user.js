@@ -6,7 +6,6 @@ const local = localAxios();
 // }
 
 async function userConfirm(param, success, fail) {
-    // URLSearchParams 객체를 사용하여 데이터를 URL-encoded 형식으로 변환
     const formData = new URLSearchParams();
     formData.append('email', param.email);
     formData.append('password', param.password);
@@ -16,9 +15,9 @@ async function userConfirm(param, success, fail) {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            withCredentials: true // 자격 증명 포함
+            withCredentials: true
         });
-        console.log('전송', response);
+        console.log('유저 정보를 확인하는 정보를 백엔드로 전달합니다.', response);
         success(response);
     } catch (error) {
         fail(error);
