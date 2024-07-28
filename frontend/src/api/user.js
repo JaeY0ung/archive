@@ -30,7 +30,22 @@ async function logout(success, fail) {
 
 
 
+async function findByEmail(success, fail) {
+    try {
+        // accessToken을 세션에서 가져와서 Authorization 헤더에 추가
+        const accessToken = sessionStorage.getItem("accessToken");
+        const headers = {
+            'Authorization': `Bearer ${accessToken}`
+        };
 
+        // Axios 요청에 헤더 포함
+        const response = await local.get(`http://localhost:8080/auth/userInfo`, { headers });
+        console.log(response.data)
+        success(response);
+    } catch (error) {
+        fail(error);
+    }
+}
 
 
 async function findById(username, success, fail) {
@@ -76,9 +91,7 @@ async function isUserExist(username, success, fail) {
 export {
     userConfirm,
     logout,
-
-
-
+    findByEmail,
     findById,
     tokenRegeneration,
     signout,

@@ -3,7 +3,7 @@ import { httpStatusCode } from "@/util/http-status"
 import { useRouter } from "vue-router"
 import { defineStore } from 'pinia'
 import { jwtDecode } from "jwt-decode"
-import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user"
+import { userConfirm, findById, tokenRegeneration, logout, findByEmail } from "@/api/user"
 
 export const useUserStore = defineStore('user', () => {
   const router = useRouter();
@@ -19,7 +19,7 @@ export const useUserStore = defineStore('user', () => {
   const userLogin = async (loginUser) => {
     await userConfirm(
       loginUser,
-      (response) => {
+      async (response) => {
         console.log("loginUser: ", loginUser);
         
         // 응답 헤더에서 Authorization 토큰 추출
@@ -29,6 +29,25 @@ export const useUserStore = defineStore('user', () => {
           // 세션 스토리지에 저장
           sessionStorage.setItem("accessToken", accessToken);
           console.log("accessToken을 세션 스토리에 저장합니다. = ", accessToken);
+
+          // 유저 정보 가져오기
+            await getUserInfo(accessToken);
+            console.log("user 정보: = ", userInfo.value);
+            // console.log(userInfo.value.email);
+
+            console.log("User ID:", userInfo.value.id);
+            console.log("Role:", userInfo.value.role);
+            console.log("Email:", userInfo.value.email);
+            console.log("Nickname:", userInfo.value.nickname);
+            console.log("User Image:", userInfo.value.userImg);
+            console.log("Birth Date:", userInfo.value.birthDate);
+            console.log("Gender:", userInfo.value.gender);
+            console.log("Cash:", userInfo.value.cash);
+            console.log("Single Score:", userInfo.value.singleScore);
+            console.log("Multi Score:", userInfo.value.multiScore);
+            console.log("Deleted At:", userInfo.value.deletedAt);
+
+
         } else {
           console.warn("Authorization 헤더가 없거나 Bearer 토큰이 아닙니다.");
         }
@@ -60,15 +79,24 @@ export const useUserStore = defineStore('user', () => {
     let decodeToken = jwtDecode(token)
     console.log('token: ', token)
     console.log('decodeToken: ', decodeToken);
-    await findById(
-      decodeToken.username,
-      (response) => {
-        if (response.status === httpStatusCode.OK) {
-          userInfo.value = response.data.userInfo
-        } else {
-          console.log("해당 유저 정보가 없습니다.")
-        }
-      },
+      await findByEmail(
+          // decodeToken.username,
+          (response) => {
+              if (response.status === httpStatusCode.OK) {
+                  userInfo.value = response.data
+              } else {
+                  console.log("해당 유저 정보가 없습니다.")
+              }
+          },
+    // await findById(
+    //   decodeToken.username,
+    //   (response) => {
+    //     if (response.status === httpStatusCode.OK) {
+    //       userInfo.value = response.data.userInfo
+    //     } else {
+    //       console.log("해당 유저 정보가 없습니다.")
+    //     }
+    //   },
       async (error) => {
         console.error("토큰이 만료되어 사용 불가능합니다.",)
         console.error(error.response.status, error.response.statusText)
