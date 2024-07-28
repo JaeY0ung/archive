@@ -13,11 +13,20 @@ pipeline {
                 script {
                     // 명시적으로 체크아웃을 수행합니다.
                     dir('workspace') {
-                        checkout([
-                            $class: 'GitSCM', 
-                            branches: [[name: '*/master']], 
-                            userRemoteConfigs: [[url: 'https://lab.ssafy.com/s11-webmobile2-sub2/S11P12A507.git', credentialsId: 'gitlab-access-token']]
-                        ])
+                        try {
+                            checkout([
+                                $class: 'GitSCM', 
+                                branches: [[name: '*/master']], 
+                                userRemoteConfigs: [[url: 'https://lab.ssafy.com/s11-webmobile2-sub2/S11P12A507.git', credentialsId: 'gitlab-access-token']]
+                            ])
+                        } catch (Exception e) {
+                            echo "Git checkout failed: ${e}"
+                            sh 'pwd'
+                            sh 'ls -la'
+                            sh 'git config --list'
+                            sh 'git status'
+                            error("Git checkout failed")
+                        }
                     }
                 }
             }
