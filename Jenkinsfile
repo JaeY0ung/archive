@@ -4,8 +4,14 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the repository
-                git credentialsId: 'gitlab-access-token', url: 'https://lab.ssafy.com/s11-webmobile2-sub2/S11P12A507.git'
+                script {
+                    // 명시적으로 체크아웃을 수행합니다.
+                    checkout([
+                        $class: 'GitSCM', 
+                        branches: [[name: '*/master']], 
+                        userRemoteConfigs: [[url: 'https://lab.ssafy.com/s11-webmobile2-sub2/S11P12A507.git', credentialsId: 'gitlab-access-token']]
+                    ])
+                }
             }
         }
 
