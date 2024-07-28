@@ -54,7 +54,8 @@ public class JWTFilter extends OncePerRequestFilter {
             handleAccessToken(authorization, request, response);
         } else {
             log.info("access 토큰이 불가하여 refresh 토큰 인증을 시작합니다.");
-//            handleRefreshToken(request, response);
+            // TODO: 프론트에서 헤더를 포함해서 보내는 것 가능해지면 지우기
+            handleRefreshToken(request, response);
         }
 
         filterChain.doFilter(request, response);
