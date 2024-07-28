@@ -76,6 +76,7 @@ public class SecurityConfig {
 //                .requestMatchers("/register").authenticated()
                 .requestMatchers("/test/user").hasRole("USER")
                 .requestMatchers("/test/admin").hasRole("ADMIN")
+                .requestMatchers("/assets/**","/favicon.ico", "/index.html").permitAll()
                 .requestMatchers("/", "/oauth2/**", "/login/**").permitAll()
 //                .anyRequest().authenticated());
                 .anyRequest().permitAll());

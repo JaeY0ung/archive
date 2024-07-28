@@ -54,17 +54,19 @@ public class JWTFilter extends OncePerRequestFilter {
             handleAccessToken(authorization, request, response);
         } else {
             log.info("access 토큰이 불가하여 refresh 토큰 인증을 시작합니다.");
-            handleRefreshToken(request, response);
+//            handleRefreshToken(request, response);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void handleAccessToken(String authorization, HttpServletRequest request, HttpServletResponse response) {
+    private void handleAccessToken(String authorization, HttpServletRequest request, HttpServletResponse response) throws IOException {
         String token = authorization.split(" ")[1];
 
         if (jwtUtil.isExpired(token)) {
             log.info("만료된 JWT 토큰입니다.");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("AccessTokenExpired"); // vue axios 인터셉터와 연동
             return;
         }
 
@@ -111,14 +113,14 @@ public class JWTFilter extends OncePerRequestFilter {
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
-        log.info("발급한 accessToken - {}", accessToken);
+        log.info("발급한 accessToken 입니다. = {}", accessToken);
     }
 
     private String extractRefreshTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("RefreshToken")) {
+                if (cookie.getName().equals("refreshToken")) {
                     return cookie.getValue();
                 }
             }

@@ -39,7 +39,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        setFilterProcessesUrl("/auth/login"); // Set the login endpoint to /auth/login
+        setFilterProcessesUrl("/auth/login");
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
@@ -49,7 +49,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        log.info("로그인 시도: email - {}, pwd - {}", email, password);
+        log.info("로그인을 시도합니다. email = {}, pwd = {}", email, password);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
@@ -58,8 +58,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
 
-    //로그인 성공시 실행하는 메소드 (여기서 JWT 발급)
-    // authentication : Auth에 대한 결과
+    /**
+     * 로그인 성공시 실행되는 메서드
+     * JWT 2개를 반환한다.
+     * @param request
+     * @param response
+     * @param chain
+     * @param authentication
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication)
             throws IOException, ServletException {
@@ -84,19 +92,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
 
-        log.info("발급한 accessToken - {}", accessToken);
-        log.info("발급한 refreshToken - {}", refreshToken);
-    }
-
-    private Cookie createCookie(String key, String value, String path) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60*60*60);
-        //cookie.setSecure(true);
-        cookie.setPath(path);
-        cookie.setHttpOnly(true);
-
-        return cookie;
+        log.info("발급한 accessToken 입니다. = {}", accessToken);
+        log.info("발급한 refreshToken 입니다. = {}", refreshToken);
     }
 
     private Cookie createCookie(String key, String value) {
@@ -110,21 +107,21 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         return cookie;
     }
 
-    private void setTokenResponse(HttpServletResponse response, String accessToken,
-            String refreshToken) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-
-        Map<String, Object> result = new HashMap<>();
-
-        result.put("accessToken", accessToken);
-        result.put("refreshToken", refreshToken);
-
-        response.getWriter().println(
-                objectMapper.writeValueAsString(
-                        Response.success(result)));
-
-    }
+//    private void setTokenResponse(HttpServletResponse response, String accessToken,
+//            String refreshToken) throws IOException {
+//        response.setContentType("application/json;charset=UTF-8");
+//        response.setStatus(HttpServletResponse.SC_OK);
+//
+//        Map<String, Object> result = new HashMap<>();
+//
+//        result.put("accessToken", accessToken);
+//        result.put("refreshToken", refreshToken);
+//
+//        response.getWriter().println(
+//                objectMapper.writeValueAsString(
+//                        Response.success(result)));
+//
+//    }
 
     // 로그인 실패시 실행하는 메소드
     @Override

@@ -8,6 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -17,14 +19,13 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public User getLoginUser() {
+    public Optional<User> getLoginUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof CustomUserDetails) {
             String email = ((CustomUserDetails) principal).getUsername();
             // 가져오기
-            User findUser = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("해당하는 이메일의 유저를 찾을 수 없습니다. = {}" + email));
+            Optional<User> findUser = userRepository.findByEmail(email);
             return findUser;
 //            return LoginUser.builder()
 //                    .id(findUser.getId())

@@ -28,6 +28,55 @@ public class AuthController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
+    // TODO: POST mapping으로 바꾸기
+    @GetMapping("/refresh")
+    public ResponseEntity<?> getAccessToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = extractRefreshTokenFromCookie(request);
+
+        if (refreshToken == null) {
+            log.info("토큰이 없습니다.");
+            return new ResponseEntity<>("Refresh token이 없습니다.", HttpStatus.UNAUTHORIZED);
+        }
+
+        if (jwtUtil.isExpired(refreshToken)) {
+            log.info("만료된 JWT 토큰입니다.");
+            return new ResponseEntity<>("Refresh token이 만료되었습니다.", HttpStatus.UNAUTHORIZED);
+        }
+
+        log.info("인증이 되었고 만료되지 않은 JWT 토큰입니다.");
+
+        if (!refreshTokenRepository.existsById(refreshToken)) {
+            log.info("Redis에 존재하지 않는 Refresh 토큰입니다.");
+            return new ResponseEntity<>("Refresh token이 Redis에 존재하지 않습니다.", HttpStatus.UNAUTHORIZED);
+        }
+
+        log.info("Redis에서 해당하는 Refresh 토큰을 찾았습니다.");
+
+        // 새로운 accessToken 발행
+        // TODO : refreshToken Rotate 사용 가능
+        String email = jwtUtil.getUsername(refreshToken);
+        String role = jwtUtil.getRole(refreshToken);
+
+        String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
+        response.addHeader("Authorization", "Bearer " + accessToken);
+
+        log.info("발급한 accessToken 입니다. = {}", accessToken);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refreshToken")) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
     @GetMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         log.info("logout 요청이 들어왔습니다.");
@@ -53,11 +102,11 @@ public class AuthController {
 
             log.info("refreshToken 쿠키를 제거했습니다.");
 
-            // TODO: Redis에서 refreshToken 제거
+            // Redis에서 refreshToken 제거
             refreshTokenRepository.deleteById(refreshToken);
              log.info("Redis에서 refreshToken을 제거했습니다. = {}", refreshToken);
         } else {
-            log.info("refreshToken 쿠키를 찾을 수 없습니다.");
+            log.info("refreshToken을 쿠키에서 찾을 수 없습니다.");
         }
 
         return new ResponseEntity<>(HttpStatus.OK);
