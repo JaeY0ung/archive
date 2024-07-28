@@ -30,9 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final RefreshTokenRepository refreshTokenRepository;
-
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
 

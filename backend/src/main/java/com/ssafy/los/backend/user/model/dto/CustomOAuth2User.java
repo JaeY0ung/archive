@@ -40,4 +40,7 @@ public class CustomOAuth2User implements OAuth2User {
         return user.getEmail();
     }
 
+    public boolean hasNoRole() {
+        return user.getRole() == null || user.getRole().trim().isEmpty();
+    }
 }

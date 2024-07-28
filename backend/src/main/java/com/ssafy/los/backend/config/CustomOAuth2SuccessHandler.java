@@ -31,9 +31,10 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         String email = customOAuth2User.getEmail();
         
         // 회원가입
-        if (customOAuth2User.getAuthorities().isEmpty()) {
-            // TODO : 더 많은 정보를 회원가입에 제공하기
-            response.sendRedirect("http://localhost:5173/register?email=" + email);
+        // TODO : 현재 처음으로 소셜 로그인으로 가입한 것인지 판단하는 유무 만들기 (임시로 Role)
+        if (customOAuth2User.hasNoRole()) {
+            log.info("회원가입 창으로 이동합니다.");
+            response.sendRedirect("http://localhost:5173/auth/register/?email=" + email);
         } else {
             // 로그인
             Collection<? extends GrantedAuthority> authorities = customOAuth2User.getAuthorities();
@@ -45,7 +46,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             String token = jwtUtil.createJwt(email, role, 60*60*60L);
             log.info("OAuth2에서 임시 JWT를 발급한 뒤 쿠키에 담아 보냈습니다. = {} ", token);
 
-            response.addCookie(createCookie("Authorization", token));
+            response.addCookie(createCookie("OAuthAuthorization", token));
 
             // 프론트 엔드 주소 -> /auth/request
             response.sendRedirect("http://localhost:5173/auth-success");
