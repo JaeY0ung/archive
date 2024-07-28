@@ -2,9 +2,12 @@ package com.ssafy.los.backend.user.controller;
 
 
 import com.ssafy.los.backend.config.RefreshToken;
+import com.ssafy.los.backend.user.filter.JWTFilter;
+import com.ssafy.los.backend.user.model.dto.response.UserDetailDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
+import com.ssafy.los.backend.user.model.service.UserService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,6 +30,36 @@ public class AuthController {
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
+
+    @GetMapping("/userInfo")
+    public ResponseEntity<?> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            // "Bearer " 접두사를 제거하고 실제 토큰만 반환
+            String accessToken = bearerToken.substring(7);
+
+            String email = jwtUtil.getUsername(accessToken);
+            User user = userService.selectUserByEmail(email);
+
+            UserDetailDto userDetailDto = UserDetailDto.builder()
+                    .id(user.getId())
+                    .role(user.getRole())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .userImg(user.getUserImg())
+                    .birthDate(user.getBirthDate())
+                    .gender(user.getGender())
+                    .cash(user.getCash())
+                    .singleScore(user.getSingleScore())
+                    .multiScore(user.getMultiScore())
+                    .deletedAt(user.getDeletedAt())
+                    .build();
+            return new ResponseEntity<>(userDetailDto, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
+
 
     // TODO: POST mapping으로 바꾸기
     @GetMapping("/refresh")
@@ -176,4 +209,6 @@ public class AuthController {
 
         return cookie;
     }
+
+
 }
