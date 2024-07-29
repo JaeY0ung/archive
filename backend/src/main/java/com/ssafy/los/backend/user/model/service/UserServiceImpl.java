@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.user.model.service;
 
+import com.ssafy.los.backend.config.PasswordService;
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
 import com.ssafy.los.backend.user.model.entity.User;
@@ -18,13 +19,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final FileUploadUtil fileUploadUtil;
+//    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordService passwordService;
 
     @Override
     public Long selectUserInfoForMyPageById(Long id) {
         userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("잘못된 user id 입니다."));
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 user id 입니다." + id));
         return id;
     }
 
@@ -32,7 +34,7 @@ public class UserServiceImpl implements UserService {
     // 회원 등록
     @Override
     public Long saveUser(UserRegisterDto userRegisterDto) {
-        String hashPwd = bCryptPasswordEncoder.encode(userRegisterDto.getPassword());
+        String hashPwd = passwordService.encode(userRegisterDto.getPassword());
         String role = "ROLE_USER";
         User user = userRegisterDto.toEntity(hashPwd, role);
         return userRepository.save(user).getId();
@@ -49,7 +51,7 @@ public class UserServiceImpl implements UserService {
     public Long updateUser(Long id, UserUpdateDto userUpdateForm, String uuid) {
 
         User findUser = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이디 압니다. " + id));
+                .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이디 입니다. " + id));
 
         findUser.updateProfile(userUpdateForm.getNickname(), uuid);
         return id;

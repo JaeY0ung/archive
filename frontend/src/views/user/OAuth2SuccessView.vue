@@ -1,6 +1,5 @@
 <template>
     <div>
-      <p>인증 처리 중...</p>
     </div>
   </template>
   

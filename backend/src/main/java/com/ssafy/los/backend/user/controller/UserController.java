@@ -36,10 +36,10 @@ public class UserController {
 
     // 회원 등록
     @PostMapping
-    public ResponseEntity<?> saveUser(@RequestBody UserRegisterDto requestDto) {
-        log.info("회원 등록 요청을 한 DTO = {}" , requestDto.toString());
+    public ResponseEntity<?> saveUser(@RequestBody UserRegisterDto userRegisterDto) {
+        log.info("회원 등록 요청을 한 DTO = {}" , userRegisterDto.toString());
 
-        Long saveId = userService.saveUser(requestDto);
+        Long saveId = userService.saveUser(userRegisterDto);
 
         return new ResponseEntity<>(saveId, HttpStatus.CREATED);
     }
