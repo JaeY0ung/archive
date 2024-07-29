@@ -8,6 +8,7 @@ import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        setFilterProcessesUrl("/auth/login"); // Set the login endpoint to /auth/login
+        setFilterProcessesUrl("/auth/login");
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
@@ -48,7 +49,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        log.info("로그인 시도: email - {}, pwd - {}", email, password);
+        log.info("로그인을 시도합니다. email = {}, pwd = {}", email, password);
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
@@ -57,60 +58,72 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
 
-    //로그인 성공시 실행하는 메소드 (여기서 JWT 발급)
-    // authentication : Auth에 대한 결과
+    /**
+     * 로그인 성공시 실행되는 메서드
+     * JWT 2개를 반환한다.
+     * @param request
+     * @param response
+     * @param chain
+     * @param authentication
+     * @throws IOException
+     * @throws ServletException
+     */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication)
             throws IOException, ServletException {
         //UserDetails
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+        log.info("로그인 이후 JWT를 발급 받을 유저입니다. = {}", customUserDetails.getUser().getEmail());
 
         String email = customUserDetails.getUsername();
-
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        // accessToken
+        // accessToken 발급하기
         String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
-        // refreshToken
+        // refreshToken 발급하기
         String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
-        response.addHeader("Set-Cookie", createHttpOnlyCookie("refreshToken", refreshToken, "/auth/refresh"));
+        response.addCookie(createCookie("refreshToken", refreshToken));
+        // redis 저장하기
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
-        setTokenResponse(response, accessToken, refreshToken);
 
-        log.info("userDetails.getUser().getId() = {}", customUserDetails.getUser().getId());
-        log.info("accessToken - {}", accessToken);
-        log.info("refreshToken - {}", refreshToken);
+        log.info("발급한 accessToken 입니다. = {}", accessToken);
+        log.info("발급한 refreshToken 입니다. = {}", refreshToken);
     }
 
-    private String createHttpOnlyCookie(String name, String value, String path) {
-        return String.format("%s=%s; Path=%s; HttpOnly; SameSite=None;", name, value, path);
-//        return String.format("%s=%s; Path=%s; HttpOnly; Secure; SameSite=Strict;", name, value, path);
+    private Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60*60*60);
+        //cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
     }
 
+//    private void setTokenResponse(HttpServletResponse response, String accessToken,
+//            String refreshToken) throws IOException {
+//        response.setContentType("application/json;charset=UTF-8");
+//        response.setStatus(HttpServletResponse.SC_OK);
+//
+//        Map<String, Object> result = new HashMap<>();
+//
+//        result.put("accessToken", accessToken);
+//        result.put("refreshToken", refreshToken);
+//
+//        response.getWriter().println(
+//                objectMapper.writeValueAsString(
+//                        Response.success(result)));
+//
+//    }
 
-    private void setTokenResponse(HttpServletResponse response, String accessToken,
-            String refreshToken) throws IOException {
-        response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-
-        Map<String, Object> result = new HashMap<>();
-
-        result.put("accessToken", accessToken);
-        result.put("refreshToken", refreshToken);
-
-        response.getWriter().println(
-                objectMapper.writeValueAsString(
-                        Response.success(result)));
-
-    }
-
-    //로그인 실패시 실행하는 메소드
+    // 로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);

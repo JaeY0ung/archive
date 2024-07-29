@@ -6,7 +6,6 @@ const local = localAxios();
 // }
 
 async function userConfirm(param, success, fail) {
-    // URLSearchParams 객체를 사용하여 데이터를 URL-encoded 형식으로 변환
     const formData = new URLSearchParams();
     formData.append('email', param.email);
     formData.append('password', param.password);
@@ -16,9 +15,32 @@ async function userConfirm(param, success, fail) {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            withCredentials: true // 자격 증명 포함
+            withCredentials: true
         });
-        console.log('전송', response);
+        console.log('유저 정보를 확인하는 정보를 백엔드로 전달합니다.', response);
+        success(response);
+    } catch (error) {
+        fail(error);
+    }
+}
+
+async function logout(success, fail) {
+    await local.get(`http://localhost:8080/auth/logout`).then(success).catch(fail);
+}
+
+
+
+async function findByEmail(success, fail) {
+    try {
+        // accessToken을 세션에서 가져와서 Authorization 헤더에 추가
+        const accessToken = sessionStorage.getItem("accessToken");
+        const headers = {
+            'Authorization': `Bearer ${accessToken}`
+        };
+
+        // Axios 요청에 헤더 포함
+        const response = await local.get(`http://localhost:8080/auth/userInfo`, { headers });
+        console.log(response.data)
         success(response);
     } catch (error) {
         fail(error);
@@ -36,9 +58,7 @@ async function tokenRegeneration(user, success, fail) {
     await local.post(`/auth/refresh`, user).then(success).catch(fail);
 }
 
-async function logout(username, success, fail) {
-    await local.get(`/auth/logout/${username}`).then(success).catch(fail);
-}
+
 
 async function signout(success, fail) {
     local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
@@ -70,9 +90,10 @@ async function isUserExist(username, success, fail) {
 
 export {
     userConfirm,
+    logout,
+    findByEmail,
     findById,
     tokenRegeneration,
-    logout,
     signout,
     insertUser,
     updateUser,
