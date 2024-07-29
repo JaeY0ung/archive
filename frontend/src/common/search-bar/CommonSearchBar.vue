@@ -1,10 +1,14 @@
 <script setup>
 import { ref } from 'vue';
 import axios from 'axios';
+import { localAxios } from '@/util/http-common';
+
+const local = localAxios();
 
 const searchSheets = async () => {
+  // 테스트 용입니다.
   try {
-    const response = await axios.get(`http://localhost:8080/sheets/star-rates/1`, {
+    const response = await local.get(`/sheets/star-rates/1`, {
       withCredentials: true
     });
     console.log('검색 결과:', response.data);
