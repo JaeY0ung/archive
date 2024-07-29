@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -24,6 +25,9 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
     private final JWTUtil jwtUtil;
 
+    @Value("${cors.allowedOrigins}")
+    private String allowedOrigins;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
@@ -34,7 +38,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         // TODO : 현재 처음으로 소셜 로그인으로 가입한 것인지 판단하는 유무 만들기 (임시로 Role)
         if (customOAuth2User.hasNoRole()) {
             log.info("회원가입 창으로 이동합니다.");
-            response.sendRedirect("http://localhost:5173/auth/register/?email=" + email);
+            response.sendRedirect(allowedOrigins + "/auth/register/?email=" + email);
         } else {
             // 로그인
             Collection<? extends GrantedAuthority> authorities = customOAuth2User.getAuthorities();
@@ -49,7 +53,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             response.addCookie(createCookie("OAuthAuthorization", token));
 
             // 프론트 엔드 주소 -> /auth/request
-            response.sendRedirect("http://localhost:5173/auth-success");
+            response.sendRedirect(allowedOrigins + "/auth-success");
         }
 
     }
