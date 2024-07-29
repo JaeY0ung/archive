@@ -3,7 +3,6 @@ package com.ssafy.los.backend.user.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.los.backend.config.RefreshToken;
 import com.ssafy.los.backend.user.model.dto.CustomUserDetails;
-import com.ssafy.los.backend.user.model.dto.response.Response;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
@@ -14,9 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -48,14 +45,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     @Override
-    public Authentication attemptAuthentication(final HttpServletRequest request, final HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(final HttpServletRequest request,
+            final HttpServletResponse response) throws AuthenticationException {
 
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
         log.info("로그인을 시도합니다. email = {}, pwd = {}", email, password);
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                email, password, null);
 
         // token에 담은 검증을 위한 AuthenticationManager로 전달
         return authenticationManager.authenticate(authToken);
@@ -63,8 +62,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 
     /**
-     * 로그인 성공시 실행되는 메서드
-     * JWT 2개를 반환한다.
+     * 로그인 성공시 실행되는 메서드 JWT 2개를 반환한다.
+     *
      * @param request
      * @param response
      * @param chain
@@ -73,7 +72,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      * @throws ServletException
      */
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication)
+    protected void successfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response, FilterChain chain, Authentication authentication)
             throws IOException, ServletException {
         //UserDetails
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -86,7 +86,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         // accessToken 발급하기
-        String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
+        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // refreshToken 발급하기
@@ -97,7 +97,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         refreshTokenRepository.save(redis);
         userStatusService.setUserOnline(customUserDetails.getUser().getId());
 
-        setTokenResponse(response, accessToken, refreshToken);
+//        setTokenResponse(response, accessToken, refreshToken);
 
         log.info("발급한 accessToken 입니다. = {}", accessToken);
         log.info("발급한 refreshToken 입니다. = {}", refreshToken);
@@ -106,7 +106,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60*60*60);
+        cookie.setMaxAge(60 * 60 * 60);
         //cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
@@ -132,7 +132,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     // 로그인 실패시 실행하는 메소드
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
+    protected void unsuccessfulAuthentication(HttpServletRequest request,
+            HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);
     }
 
