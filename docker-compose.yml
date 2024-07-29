@@ -14,5 +14,38 @@ services:
       context: ./backend
     ports:
       - "8081:8080"
+    depends_on:
+      - mysql
+      - redis
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=archive
+      - MYSQL_USER=my_user
+      - MYSQL_PASSWORD=ssafy
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  mysql:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ssafy
+      MYSQL_DATABASE: archive
+      MYSQL_USER: ssafy
+      MYSQL_PASSWORD: ssafy
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  mysql-data:
+  redis-data:
