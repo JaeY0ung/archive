@@ -2,6 +2,7 @@ package com.ssafy.los.backend.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -44,8 +45,12 @@ public class FileUploadUtil {
         return saveOneFile(file, sheetFilePath);
     }
 
-    public Resource downloadSheet(String fileName) throws IOException {
-        return downloadOneFile(sheetFilePath, fileName, "mid");
+    public Resource downloadSheetFile(String fileName) throws IOException {
+        return downloadOneFile(sheetFilePath, fileName);
+    }
+
+    public Path getSomgImgPath(String fileName) {
+        return getPath(songImgPath, fileName);
     }
 
     public String uploadPlayRecord(MultipartFile file) throws IOException {
@@ -62,7 +67,6 @@ public class FileUploadUtil {
     private String saveOneFile(MultipartFile file, String filePath) throws IOException {
         String originalFilename = file.getOriginalFilename(); // 원본 파일명, 저장 될 파일명 생성
         validatePath(filePath);
-        log.info("저장 장소: " + filePath);
 
         if (originalFilename == null || originalFilename.isEmpty()) {
             throw new IllegalArgumentException("파일의 이름이 없습니다."); // NO_FILE_NAME_MESSAGE
@@ -74,25 +78,36 @@ public class FileUploadUtil {
 
         File saveFile = new File(filePath, saveFileName);
         file.transferTo(saveFile);
-        return uuid;
+        return saveFileName;
     }
 
-    private Resource downloadOneFile(String filePath, String fileName, String ext) throws IOException {
-        Path path = Paths.get(filePath, fileName + "." + ext);
-        UrlResource resource = new UrlResource(path.toUri());
+    private Resource downloadOneFile(String filePath, String fileName) {
+        Path path = getPath(filePath, fileName);
+
+        UrlResource resource = null;
+        try {
+            resource = new UrlResource(path.toUri());
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("파일을 가져올 수 없습니다.");
+        }
+
         if (resource.exists() || resource.isReadable()) {
             return resource;
         }
-        throw new IllegalArgumentException("파일을 가져올 수 없습니다.");
+        return null;
+    }
+
+    private Path getPath(String filePath, String fileName) {
+
+        return Paths.get(filePath, fileName);
     }
 
     private void validatePath(String filePath) throws IOException {
         File directory = new File(filePath);
-        if (!directory.exists()) {
-            if (!directory.mkdirs()) {
-                log.error("파일 저장 디렉토리 생성 실패: " + filePath);
-                throw new IOException("파일 저장 디렉토리 생성 실패");
-            }
+        if (directory.exists() || directory.mkdirs()) {
+            return;
         }
+        log.error("파일 저장 디렉토리 생성 실패: " + filePath);
+        throw new IOException("파일 저장 디렉토리 생성 실패");
     }
 }

@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.sheet.controller;
 
 import com.ssafy.los.backend.sheet.model.dto.request.SheetUploadForm;
+import com.ssafy.los.backend.sheet.model.dto.response.SheetResponseDto;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.sheet.model.service.SheetService;
 import com.ssafy.los.backend.user.model.entity.User;
@@ -10,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -66,22 +69,36 @@ public class SheetController {
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-//        return null;
+    }
 
-
+    @GetMapping
+    public ResponseEntity<?> getSheetListByFilter(@RequestParam String sort) {
+        return new ResponseEntity<>(sheetService.searchSheetListBySort(sort),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{sheet-id}")
+    public ResponseEntity<?> getSheetInfo(@PathVariable("sheet-id") Long sheetId) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sheetService.searchSheetById(sheetId));
+    }
+
+    @GetMapping("/{sheet-id}/download")
     public ResponseEntity<?> downloadSheet(@PathVariable("sheet-id") Long sheetId) {
         // TODO : 구매여부 확인
 
-        Sheet sheet = sheetService.searchSheetById(sheetId);
+        SheetResponseDto sheet = sheetService.searchSheetById(sheetId);
         try {
             Resource resource = sheetService.getSheetFileByName(sheet.getFileName());
+
             String encodedOriginalFileName = UriUtils.encode(sheet.getTitle(),
                     StandardCharsets.UTF_8);
+
+            String fileExtension = FilenameUtils.getExtension(sheet.getFileName());
             String contentDisposition =
-                    "attachment; filename=\"" + encodedOriginalFileName + ".mid\"";
+                    "attachment; filename=\"" + encodedOriginalFileName + "." + fileExtension
+                            + "\"";
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                     .body(resource);
@@ -89,7 +106,5 @@ public class SheetController {
             log.info(e.getMessage()); // 파일이 없습니다.
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
-//        return null;
     }
 }
