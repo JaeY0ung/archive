@@ -1,54 +1,9 @@
-<template>
-  <div class="register-container">
-    <h2>회원가입</h2>
-    <form @submit.prevent="register">
-      <div class="form-group">
-        <label for="email">이메일:</label>
-        <input type="text" id="email" v-model="email" required disabled>
-      </div>
-      
-      <div class="form-group">
-        <label for="password">비밀번호:</label>
-        <input type="password" id="password" v-model="password" required @input="checkPasswordMatch">
-      </div>
-      
-      <div class="form-group">
-        <label for="confirmPassword">비밀번호 확인:</label>
-        <input type="password" id="confirmPassword" v-model="confirmPassword" required @input="checkPasswordMatch">
-        <p v-if="passwordMessage" :class="{ 'success': passwordsMatch, 'error': !passwordsMatch }">
-          {{ passwordMessage }}
-        </p>
-      </div>
-      
-      <div class="form-group">
-        <label for="birthDate">생년월일:</label>
-        <input type="date" id="birthDate" v-model="birthDate" required>
-      </div>
-      
-      <div class="form-group">
-        <label for="nickname">닉네임:</label>
-        <input type="text" id="nickname" v-model="nickname" required>
-      </div>
-      
-      <div class="form-group">
-        <label>성별:</label>
-        <div>
-          <input type="radio" id="male" v-model="gender" :value="true">
-          <label for="male">남성</label>
-          <input type="radio" id="female" v-model="gender" :value="false">
-          <label for="female">여성</label>
-        </div>
-      </div>
-      
-      <button type="submit" :disabled="!passwordsMatch">가입하기</button>
-    </form>
-  </div>
-</template>
-
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import axios from 'axios';
+import { localAxios } from '@/util/http-common';
+
+const local = localAxios();
 
 const router = useRouter();
 const route = useRoute();
@@ -99,7 +54,7 @@ const register = async () => {
   }
 
   try {
-    const response = await axios.post('http://localhost:8080/auth/users', user.value, {
+    const response = await local.post('/auth/users', user.value, {
       withCredentials: true
     });
     console.log('회원가입 성공:', response.data);
@@ -111,6 +66,53 @@ const register = async () => {
   }
 };
 </script>
+
+<template>
+  <div class="register-container">
+    <h2>회원가입</h2>
+    <form @submit.prevent="register">
+      <div class="form-group">
+        <label for="email">이메일:</label>
+        <input type="text" id="email" v-model="email" required disabled>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">비밀번호:</label>
+        <input type="password" id="password" v-model="password" required @input="checkPasswordMatch">
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmPassword">비밀번호 확인:</label>
+        <input type="password" id="confirmPassword" v-model="confirmPassword" required @input="checkPasswordMatch">
+        <p v-if="passwordMessage" :class="{ 'success': passwordsMatch, 'error': !passwordsMatch }">
+          {{ passwordMessage }}
+        </p>
+      </div>
+      
+      <div class="form-group">
+        <label for="birthDate">생년월일:</label>
+        <input type="date" id="birthDate" v-model="birthDate" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="nickname">닉네임:</label>
+        <input type="text" id="nickname" v-model="nickname" required>
+      </div>
+      
+      <div class="form-group">
+        <label>성별:</label>
+        <div>
+          <input type="radio" id="male" v-model="gender" :value="true">
+          <label for="male">남성</label>
+          <input type="radio" id="female" v-model="gender" :value="false">
+          <label for="female">여성</label>
+        </div>
+      </div>
+      
+      <button type="submit" :disabled="!passwordsMatch">가입하기</button>
+    </form>
+  </div>
+</template>
 
 <style scoped>
 .register-container {

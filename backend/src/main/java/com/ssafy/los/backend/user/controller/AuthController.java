@@ -3,10 +3,12 @@ package com.ssafy.los.backend.user.controller;
 
 import com.ssafy.los.backend.config.RefreshToken;
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
+import com.ssafy.los.backend.user.model.dto.response.UserDetailDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
 import com.ssafy.los.backend.user.model.service.OAuth2UserService;
+import com.ssafy.los.backend.user.model.service.UserService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,8 +17,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController

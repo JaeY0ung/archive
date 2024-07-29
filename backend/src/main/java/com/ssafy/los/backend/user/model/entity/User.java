@@ -115,6 +115,7 @@ public class User extends BaseEntity {
         this.nickname = TempOAuthUser.getNickname();
         this.pwdHash = TempOAuthUser.getPwdHash();
         this.gender = TempOAuthUser.getGender();
+        this.birthDate = TempOAuthUser.getBirthDate();
     }
 
     //=== 유저 스코어 관련 ===//
