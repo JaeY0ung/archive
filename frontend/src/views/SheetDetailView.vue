@@ -5,11 +5,13 @@ import SheetPage from '@/common/sheet/SheetPage.vue';
 import SheetPlayNavigation from '@/common/sheet/SheetPlayNavigation.vue';
 import { ref } from 'vue';
 import BigSheetCard from '@/common/sheet/BigSheetCard.vue';
+import { localAxios } from '@/util/http-common';
 const route = useRoute();
+const local = localAxios();
 
 const sheet = ref({})
 const searchSheetDetailById = () => {
-    axios.get("http://localhost:8080/sheets/" + route.params.sheetId)
+    local.get("/sheets/" + route.params.sheetId)
         .then(({data}) => {
             sheet.value = data;
             sheet.value.imageUrl =`data:image/jpeg;base64,${data.songImg}`

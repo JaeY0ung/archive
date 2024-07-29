@@ -1,9 +1,10 @@
 import axios from "axios";
 import store from "../stores";
-import {useUserStore} from "@/stores/user.js"; // Vuex 스토어가 있는 위치
+import { useUserStore } from "@/stores/user.js"; // Vuex 스토어가 있는 위치
+import { VUE_APP_REQUEST_URL } from process.env;
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: VUE_APP_REQUEST_URL,
   withCredentials: true, // 쿠키 전송 허용
 });
 

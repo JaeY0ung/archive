@@ -1,35 +1,36 @@
 <script setup>
-import axios from 'axios';
 import { ref } from 'vue';
+import { localAxios } from '@/util/http-common';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
 
+const local = localAxios();
 const popularSheets = ref([]); // 인기 악보 리스트
 const getPopularsheets = async () => {
-	await axios.get("http://localhost:8080/sheets?sort=popular")
+	await local.get("/sheets?sort=popular")
 		.then(({ data }) => {
 			popularSheets.value = data;
 			popularSheets.value.map(sheet => sheet.songImg ? sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}` : '기본 이미지'); // TODO: songImg가 없으면 기본 로고로.
-		}).catch((err)=> alert(err))
+		}).catch((err)=> console.log(err))
 }
 getPopularsheets();
 
 const newSheets = ref([]); // 새로 나온(New) 악보 리스트
 const getnewsheets = async () => {
-	await axios.get("http://localhost:8080/sheets?sort=latest")
+	await local.get("/sheets?sort=latest")
 		.then(({ data }) => {
 			newSheets.value = data;
 			newSheets.value.map(sheet => sheet.songImg ? sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}` : '기본 이미지');
-		}).catch((err)=> alert(err))
+		}).catch((err)=> console.log(err))
 }
 getnewsheets();
 
 const recommendSheets = ref([]); // 추천 악보 리스트
 const getRecommendsheets = async () => {
-	await axios.get("http://localhost:8080/sheets?sort=recommend")
+	await local.get("/sheets?sort=recommend")
 		.then(({ data }) => {
 			recommendSheets.value = data;
 			recommendSheets.value.map(sheet => sheet.songImg ? sheet.imageUrl = `data:image/jpeg;base64,${sheet.songImg}` : '기본 이미지'); 
-		}).catch((err)=> alert(err))
+		}).catch((err)=> console.log(err))
 }
 getRecommendsheets();
 

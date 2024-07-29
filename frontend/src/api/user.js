@@ -1,4 +1,5 @@
 import { localAxios } from '@/util/http-common';
+
 const local = localAxios();
 
 // async function userConfirm(param, success, fail) {
@@ -11,7 +12,7 @@ async function userConfirm(param, success, fail) {
     formData.append('password', param.password);
 
     try {
-        const response = await local.post(`http://localhost:8080/auth/login`, formData, {
+        const response = await local.post(`/auth/login`, formData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
@@ -25,7 +26,7 @@ async function userConfirm(param, success, fail) {
 }
 
 async function logout(success, fail) {
-    await local.get(`http://localhost:8080/auth/logout`).then(success).catch(fail);
+    await local.get(`/auth/logout`).then(success).catch(fail);
 }
 
 
@@ -39,7 +40,7 @@ async function findByEmail(success, fail) {
         };
 
         // Axios 요청에 헤더 포함
-        const response = await local.get(`http://localhost:8080/auth/userInfo`, { headers });
+        const response = await local.get(`/auth/userInfo`, { headers });
         console.log(response.data)
         success(response);
     } catch (error) {
