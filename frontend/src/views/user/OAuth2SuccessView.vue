@@ -7,12 +7,14 @@
   import { onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   import axios from 'axios'
-  
+  import { localAxios } from '@/util/http-common';
+
   const router = useRouter();
+  const local = localAxios();
   
   onMounted(async () => {
     try {
-      const response = await axios.get('http://localhost:8080/auth/token', {
+      const response = await local.get('/auth/token', {
         withCredentials: true // 쿠키 포함
       })
       
