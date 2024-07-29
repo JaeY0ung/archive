@@ -2,6 +2,7 @@ package com.ssafy.los.backend.user.controller;
 
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
+import com.ssafy.los.backend.user.model.dto.response.UserDetailDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.user.model.service.UserService;
@@ -92,5 +93,25 @@ public class UserController {
         Long getId = userService.selectUserInfoForMyPageById(userId);
         return new ResponseEntity<>(getId, HttpStatus.OK);
     }
+
+//    @GetMapping("/{email}")
+//    public ResponseEntity<?> getUserInfo() {
+//        User user = userService.selectUserByEmail(email);
+//
+//        UserDetailDto userDetailDto = UserDetailDto.builder()
+//                .id(user.getId())
+//                .role(user.getRole())
+//                .email(user.getEmail())
+//                .nickname(user.getNickname())
+//                .userImg(user.getUserImg())
+//                .birthDate(user.getBirthDate())
+//                .gender(user.getGender())
+//                .cash(user.getCash())
+//                .singleScore(user.getSingleScore())
+//                .multiScore(user.getMultiScore())
+//                .deletedAt(user.getDeletedAt())
+//                .build();
+//        return new ResponseEntity<>(userDetailDto, HttpStatus.OK);
+//    }
 
 }

@@ -61,6 +61,11 @@ public class UserServiceImpl implements UserService {
         return fileUploadUtil.uploadUserImg(profileImg);
     }
 
+    @Override
+    public User selectUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("email에 해당하는 유저가 없습니다."));
+    }
+
     // 회원 삭제
     @Override
     public Long deleteUser(Long id) {

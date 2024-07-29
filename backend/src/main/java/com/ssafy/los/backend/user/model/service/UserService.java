@@ -21,4 +21,6 @@ public interface UserService {
     User selectUserById(Long id);
 
     String saveUserImgFile(MultipartFile profileImg) throws IOException;
+
+    User selectUserByEmail(String email);
 }

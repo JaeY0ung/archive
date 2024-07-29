@@ -24,9 +24,9 @@ VALUES (1, 'user1', '94eecf5b-b597-461a-8b50-4fd47f82cea5',
        (6, 'user6', 'e717f88e-9ece-4653-b1d2-ded3b9b5bea6',
         'ecb48a1cc94f951252ec462fe9ecc55c3ef123fadfe935661396c26a45a5809d',
         'user6@ssafy.com', NULL, NOW(), NOW(), NULL),
-       (7, 'user6', 'e717f88e-9ece-4653-b1d2-ded3b9b5bea6',
-        'ecb48a1cc94f951252ec462fe9ecc55c3ef123fadfe935661396c26a45a5809d',
-        'wngud1225@naver.com', NULL, NOW(), NOW(), NULL);
+       (7, 'wngud', 'e717f88e-9ece-4653-b1d2-ded3b9b5bea6',
+        '$10$lIhmF0aBOAH96Z2qknbDyu2sMwQeUbgpBi2qv/d/TyzTPGwlQjJpK',
+        'wngud1225@naver.com.com', NULL, NOW(), NOW(), NULL);
 
 UPDATE user
 SET user_img = 'user1.png'
@@ -149,14 +149,12 @@ VALUES (1, 1, 1, 1, NOW()),
        (3, 3, 1, 1, NOW());
 
 # 별점
-TRUNCATE TABLE sheet_star_rate;
 INSERT INTO sheet_star_rate(sheet_star_rate_id, sheet_id, user_id, content, star_rate)
-VALUES (1, 1, 1, "평가1", 1),
-       (2, 1, 2, "평가2", 2),
-       (3, 1, 3, "평가3", 3);
+VALUES (1, 1, 1, '평가1', 1),
+       (2, 1, 2, '평가2', 2),
+       (3, 1, 3, '평가3', 3);
 
 # 난이도 평가
-TRUNCATE TABLE difficulty;
 INSERT INTO difficulty(user_id, sheet_id, level, content)
 VALUES (1, 1, 4, "너무 쉬워요!"),
        (2, 1, 3, "너무 어려워요!"),
