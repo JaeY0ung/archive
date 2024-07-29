@@ -2,11 +2,12 @@ package com.ssafy.los.backend.user.controller;
 
 
 import com.ssafy.los.backend.config.RefreshToken;
-import com.ssafy.los.backend.user.filter.JWTFilter;
+import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.dto.response.UserDetailDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
+import com.ssafy.los.backend.user.model.service.OAuth2UserService;
 import com.ssafy.los.backend.user.model.service.UserService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.Cookie;
@@ -16,8 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
+    private final OAuth2UserService oAuth2UserService;
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
@@ -61,6 +64,16 @@ public class AuthController {
     }
 
 
+    // OAuth2로 유저 등록하기
+    @PostMapping("/users")
+    public ResponseEntity<?> register(@RequestBody UserRegisterDto userRegisterDto) {
+        log.info("OAuth2로 회원 등록 요청을 한 DTO = {}" , userRegisterDto.toString());
+        Long saveId = oAuth2UserService.saveOAuth2User(userRegisterDto);
+
+        return new ResponseEntity<>(saveId, HttpStatus.OK);
+    }
+
+    // refresh 토큰 발급받기
     // TODO: POST mapping으로 바꾸기
     @GetMapping("/refresh")
     public ResponseEntity<?> getAccessToken(HttpServletRequest request, HttpServletResponse response) {
@@ -154,12 +167,20 @@ public class AuthController {
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 log.info("cookie : {}", cookie.getName());
-                if (cookie.getName().equals("Authorization")) {
+                if (cookie.getName().equals("OAuthAuthorization")) {
                     authorization = cookie.getValue();
                     log.info("쿠키에서 임시 JWT 토큰을 찾았습니다. = {}", authorization);
                 }
             }
         }
+
+        // OAuth 임시 쿠키 제거
+        Cookie cookie = new Cookie("OAuthAuthorization", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+        log.info("refreshToken 쿠키를 제거했습니다.");
 
         if (authorization == null) {
             log.info("토큰이 없습니다. ");

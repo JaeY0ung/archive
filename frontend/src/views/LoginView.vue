@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia';
 import { useRouter, onBeforeRouteLeave } from 'vue-router';
-import axios from 'axios';
+const { VUE_APP_REQUEST_URL } = process.env;
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -43,7 +43,7 @@ const login = async () => {
 
 // OAuth2 - Naver
 const naverLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/naver"
+    window.location.href = `${VUE_APP_REQUEST_URL}/oauth2/authorization/naver`;
 }
 
 

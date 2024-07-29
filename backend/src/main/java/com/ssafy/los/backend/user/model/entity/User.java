@@ -55,10 +55,15 @@ public class User extends BaseEntity {
 
     private String token;
 
+    private String provider;
+
     @ColumnDefault("0")
     private int cash;
 
+    @ColumnDefault("0")
     private Integer singleScore;
+
+    @ColumnDefault("0")
     private Integer multiScore;
 
     private LocalDateTime deletedAt;
@@ -71,7 +76,7 @@ public class User extends BaseEntity {
     @Builder
     public User(String email, String pwdHash, LocalDateTime birthDate, String nickname,
             Boolean gender,
-            String userImg, String role, Integer singleScore, Integer multiScore, String token) {
+            String userImg, String role, Integer singleScore, Integer multiScore, String provider) {
         this.email = email;
         this.pwdHash = pwdHash;
         this.birthDate = birthDate;
@@ -81,14 +86,14 @@ public class User extends BaseEntity {
         this.role = role;
         this.singleScore = singleScore;
         this.multiScore = multiScore;
-        this.token = token;
+        this.provider = provider;
     }
 
-    @Builder
-    public User(String userImg, String email) {
-        this.userImg = userImg;
-        this.email = email;
-    }
+//    @Builder
+//    public User(String userImg, String email) {
+//        this.userImg = userImg;
+//        this.email = email;
+//    }
 
     //=== 메서드 ===//
     public void updateProfile(String nickname, String uuid) {
@@ -99,11 +104,21 @@ public class User extends BaseEntity {
             this.uuid = uuid;
         }
     }
-
+    
     public void updateEmail(String email) {
         this.email = email;
     }
 
+    //=== OAuth2 관련 ===///
+    public void OAuth2Update(User TempOAuthUser) {
+        this.role = TempOAuthUser.getRole();
+        this.nickname = TempOAuthUser.getNickname();
+        this.pwdHash = TempOAuthUser.getPwdHash();
+        this.gender = TempOAuthUser.getGender();
+        this.birthDate = TempOAuthUser.getBirthDate();
+    }
+
+    //=== 유저 스코어 관련 ===//
     public void increaseSingleScore(int amount) {
         this.singleScore += amount;
     }
