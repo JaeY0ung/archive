@@ -28,27 +28,16 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                         JPAExpressions.select(ls.count())
                                 .from(ls)
                                 .where(ls.sheet.eq(s)),
+
                         createLikeStatusExpression(userId)
                 ))
                 .from(s)
-                .where(s.deletedAt.isNull(), s.createdAt.isNotNull(), containKeyword(keyword)) // 현재 존재하는
-                .orderBy(createOrderSpecifier(sort)) // 날짜.
+                .where(s.deletedAt.isNull(), s.createdAt.isNotNull(),
+                        containKeyword(keyword)) // 현재 존재하는
+                .orderBy(createOrderSpecifier(sort))
                 .fetch();
     }
 
-    @Override
-    public List<SheetResponseDto> findSheets(String keyword, String sort) {
-        return queryFactory.select(Projections.constructor(SheetResponseDto.class,
-                        s,
-                        JPAExpressions.select(ls.count())
-                                .from(ls)
-                                .where(ls.sheet.eq(s))
-                ))
-                .from(s)
-                .where(s.deletedAt.isNull(), s.createdAt.isNotNull(), containKeyword(keyword)) // 현재 존재하는
-                .orderBy(createOrderSpecifier(sort)) // 날짜.
-                .fetch();
-    }
 
     @Override
     public SheetResponseDto findSheetById(Long sheetId, Long userId) {
@@ -64,18 +53,6 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .fetchOne();
     }
 
-    @Override
-    public SheetResponseDto findSheetById(Long sheetId) {
-        return queryFactory.select(Projections.constructor(SheetResponseDto.class,
-                        s,
-                        JPAExpressions.select(ls.count())
-                                .from(ls)
-                                .where(ls.sheet.eq(s))
-                ))
-                .from(s)
-                .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
-                .fetchOne();
-    }
 
     private BooleanExpression createLikeStatusExpression(Long userId) {
         if (userId == null) {
@@ -90,7 +67,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         if (keyword == null || keyword.isEmpty()) {
             return null;
         }
-        return s.title.eq(keyword);
+        return s.title.contains(keyword);
     }
 
     private OrderSpecifier createOrderSpecifier(String sort) {
@@ -106,7 +83,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
             );
             case "oldest" -> new OrderSpecifier<>(Order.ASC, s.createdAt);
             case "cheapest" -> new OrderSpecifier<>(Order.ASC, s.price);
-            case "viewHighest" -> new OrderSpecifier<>(Order.ASC, s.viewCount);
+            case "viewHighest" -> new OrderSpecifier<>(Order.DESC, s.viewCount);
             case "latest" -> new OrderSpecifier<>(Order.DESC, s.createdAt);
             default -> new OrderSpecifier<>(Order.DESC, s.createdAt);
         };

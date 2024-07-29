@@ -236,10 +236,22 @@ function quitButton () {
     router.push('waitBattle');
 }
 
+const inviteModalStatus = ref(false);
+
+const openInviteModalStatus = () => {
+    inviteModalStatus.value = true;
+}
+const closeInviteModalStatus = () => {
+    inviteModalStatus.value = false;
+}
 </script>
 
 <template>
     <div class="container">
+
+        <div class="w-[400px] h-[400px] bg-white fixed left-20 top-20" v-if="inviteModalStatus">
+            친구 초대
+        </div>
         <div class="up">
             <RouterView/>
         </div>

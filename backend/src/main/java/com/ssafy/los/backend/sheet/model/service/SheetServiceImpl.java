@@ -39,9 +39,8 @@ public class SheetServiceImpl implements SheetService {
         Sheet sheet = Sheet.builder()
                 .uploader(loginUser)
                 .level(sheetUploadForm.getLevel())
-                .point(sheetUploadForm.getPoint()).title(sheetUploadForm.getTitle())
+                .title(sheetUploadForm.getTitle())
                 .song(songRepository.findById(sheetUploadForm.getSongId()).orElse(null))
-                .price(sheetUploadForm.getPrice())
                 .fileName(fileName)
                 .build();
 
@@ -50,7 +49,8 @@ public class SheetServiceImpl implements SheetService {
 
     @Override
     public Sheet selectById(Long sheetId) {
-        return sheetRepository.findById(sheetId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 악보입니다."));
+        return sheetRepository.findById(sheetId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 악보입니다."));
     }
 
     @Override

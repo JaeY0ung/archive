@@ -42,9 +42,7 @@ public class SheetController {
     public ResponseEntity<?> uploadSheet(
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @RequestPart("title") String title,
-            @RequestPart("price") Integer price,
             @RequestPart("level") Integer level,
-            @RequestPart("point") Integer point,
             @RequestPart("songId") Long songId) {
 
         User loginUser = authService.getLoginUser();
@@ -57,9 +55,7 @@ public class SheetController {
         SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
                 .files(files)
                 .title(title)
-                .price(price)
                 .level(level)
-                .point(point)
                 .songId(songId)
                 .build();
         try {

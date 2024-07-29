@@ -7,10 +7,6 @@ public interface CustomSheetRepository {
 
     List<SheetResponseDto> findSheets(String keyword, String sort, Long userId);
 
-    List<SheetResponseDto> findSheets(String keyword, String sort);
-
     SheetResponseDto findSheetById(Long sheetId, Long userId);
-
-    SheetResponseDto findSheetById(Long sheetId);
 
 }
