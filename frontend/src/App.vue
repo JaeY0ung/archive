@@ -10,7 +10,7 @@ const leftNavigationStore = useLeftNavigationStore();
 </script>
 
 <template>
-  <div style="z-index: 1;">
+  <div class="h-screen bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200">
     <div class="left-and-hamburger" :class="{ 'show' : leftNavigationStore.navVisibility }">
       <LeftNavigation class="left-nav"/>
       <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
@@ -18,11 +18,11 @@ const leftNavigationStore = useLeftNavigationStore();
     <div style="height:50px; display:flex; justify-content:end;">
       <MyProfile style="height:40px;"/>
     </div>
+
     <div class="router-view-parent">
-      <RouterView @click="leftNavigationStore.closeNav" class="router-view" />
+      <RouterView @click="leftNavigationStore.closeNav"/>
     </div>
   </div>
-  <img src="@/assets/img/common/background.png" class="background-image">
 </template>
 
 <style scoped>
@@ -72,9 +72,7 @@ const leftNavigationStore = useLeftNavigationStore();
 
 .router-view-parent {
   margin: 0 20px;
+  height: calc(100% - 100px);
 }
-.router-view {
-  position: relative;
-  z-index: 2; /* 배경 이미지보다 높은 z-index 설정 */
-}
+
 </style>

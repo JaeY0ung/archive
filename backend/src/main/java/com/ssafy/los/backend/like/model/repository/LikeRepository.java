@@ -16,4 +16,8 @@ public interface LikeRepository extends JpaRepository<LikeSheet, Long> {
     boolean existsByUserAndSheet(User user, Sheet sheet);
 
     List<LikeSheet> findBySheet(Sheet sheet);
+    
+    Optional<LikeSheet> deleteByUserEqualsAndSheetEquals(User user, Sheet sheet);
+
+    Optional<LikeSheet> findByUserEqualsAndSheetEquals(User user, Sheet sheet);
 }

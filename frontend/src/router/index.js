@@ -22,6 +22,11 @@ const router = createRouter({
           name: 'sheetDetail',
           component: () => import('@/views/SheetDetailView.vue')
         },
+        {
+          path: 'user/:nickName/profile',
+          name: 'userProfile',
+          component: () => import('@/views/UserProfileView.vue')
+        },
       ]
     },
     // -----------------------------------------------
@@ -40,11 +45,6 @@ const router = createRouter({
           component: () => import('@/views/BattleView.vue')
         },
       ]
-    },
-    {
-      path: "/user/:userId/profile",
-      name: "userProfile",
-      component: () => import('@/views/ProfileView.vue'),
     },
     // -----------------------------------------------
     {

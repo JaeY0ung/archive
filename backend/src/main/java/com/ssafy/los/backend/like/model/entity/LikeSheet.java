@@ -16,9 +16,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.sql.Timestamp;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
+@NoArgsConstructor
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
@@ -40,10 +43,12 @@ public class LikeSheet extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Sheet sheet;
 
+    @CreatedDate
+    private Timestamp createdAt;
+
     @Builder
     public LikeSheet(User user, Sheet sheet) {
         this.user = user;
         this.sheet = sheet;
     }
-
 }

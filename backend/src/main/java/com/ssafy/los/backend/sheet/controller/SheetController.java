@@ -48,6 +48,7 @@ public class SheetController {
             @RequestPart("songId") Long songId) {
 
         User loginUser = authService.getLoginUser();
+        log.info(loginUser.toString());
 
         if (files.size() != 1) {
             return new ResponseEntity<>("하나의 파일만 올려주세요.", HttpStatus.BAD_REQUEST);
@@ -72,8 +73,10 @@ public class SheetController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getSheetListByFilter(@RequestParam String sort) {
-        return new ResponseEntity<>(sheetService.searchSheetListBySort(sort),
+    public ResponseEntity<?> getSheetListByFilter(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam String sort) {
+        return new ResponseEntity<>(sheetService.searchSheetByFilter(keyword, sort),
                 HttpStatus.OK);
     }
 

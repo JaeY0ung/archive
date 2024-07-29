@@ -1,10 +1,11 @@
 <!-- 파일 업로드 multiple : true, 모든 확장자 다 받음 -->
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
+import { useRouter } from 'vue-router';
 import { localAxios } from '@/util/http-common';
 
 const local = localAxios();
-
+const router = useRouter();
 const fileInfo = ref({
     files: "",
     title: "",
@@ -57,60 +58,62 @@ const uploadFile = async () => {
 </script>
 
 <template>
-    <form class="container" @submit.prevent="uploadFile">
+    <form class="h-full w-[500px] text-center m-auto" @submit.prevent="uploadFile">
         <div class="text-5xl mb-10">
             파일 업로드
         </div>
-        <label class="form-control w-full mb-5">
-            <div class="label">
-                <span class="label-text">악보 제목</span>
-            </div>
-            <input  @change="handleFileChange" type="file"  class="file-input input-bordered w-full" multiple />
-        </label>
+        <div class="scroll-x h-[90%] flex flex-col gap-1">
+            <label class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">악보 파일</span>
+                </div>
+                <input  @change="handleFileChange" type="file"  class="file-input input-bordered w-full" multiple />
+            </label>
+    
+            <label class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">악보 제목</span>
+                </div>
+                <input v-model="fileInfo.title" type="text"  class="input input-bordered w-full" />
+            </label>
+    
+            <label class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">악보 가격</span>
+                </div>
+                <input v-model="fileInfo.price" type="text"  class="input input-bordered w-full" />
+            </label>
+    
+            <label class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">악보 티어</span>
+                </div>
+                <input v-model="fileInfo.level" type="text"  class="input input-bordered w-full" />
+            </label>
+    
+            <label class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">악보 경험치</span>
+                </div>
+                <input v-model="fileInfo.point" type="text"  class="input input-bordered w-full" />
+            </label>
+    
+            <label class="form-control w-full mb-5">
+                <div class="label">
+                    <span class="label-text">이 악보의 곡</span>
+                </div>
+                <input v-model="fileInfo.songId" type="text"  class="input input-bordered w-full" />
+            </label>
 
-        <label class="form-control w-full mb-5">
-            <div class="label">
-                <span class="label-text">악보 제목</span>
-            </div>
-            <input v-model="fileInfo.title" type="text"  class="input input-bordered w-full" />
-        </label>
+            <div class="flex flex-row gap-10 justify-end items-center">
+                <div class="cursor-pointer" @click="router.go(-1)">취소하기</div>
+                <button class="btn btn-primary ">제출하기</button>
 
-        <label class="form-control w-full mb-5">
-            <div class="label">
-                <span class="label-text">악보 가격</span>
             </div>
-            <input v-model="fileInfo.price" type="text"  class="input input-bordered w-full" />
-        </label>
+        </div>
 
-        <label class="form-control w-full mb-5">
-            <div class="label">
-                <span class="label-text">악보 티어</span>
-            </div>
-            <input v-model="fileInfo.level" type="text"  class="input input-bordered w-full" />
-        </label>
-
-        <label class="form-control w-full mb-5">
-            <div class="label">
-                <span class="label-text">악보 경험치</span>
-            </div>
-            <input v-model="fileInfo.point" type="text"  class="input input-bordered w-full" />
-        </label>
-
-        <label class="form-control w-full mb-10">
-            <div class="label">
-                <span class="label-text">이 악보의 곡</span>
-            </div>
-            <input v-model="fileInfo.songId" type="text"  class="input input-bordered w-full" />
-        </label>
-
-        <button class="btn btn-primary">제출하기</button>
     </form>
 </template>
 
 <style scoped>
-.container {
-    width: 500px;
-    margin: 50px auto;
-    text-align: center;
-}
 </style>

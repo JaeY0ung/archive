@@ -5,8 +5,8 @@ const emit = defineEmits(['measure-changed']);
 
 const props = defineProps({
   isPlay: {type: String, required : false, default: false},
-  width: {type: String, required : false, default: '100%'},
-  height: {type: String, required : false, default: '70vh'},
+  // width: {type: String, required : false, default: '100%'},
+  // height: {type: String, required : false, default: '70vh'},
 })
 
 const osmd = ref(null);
@@ -129,8 +129,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="w-full h-full min-h-full min-w-full">
-    <div class="osmd-container" :style="{'height':height, 'width':width}" ref="osmdContainer"></div>
+  <div class="w-full h-full">
+    <!-- 연주 X : scroll -->
+    <div class="rounded-xl h-[94%] w-full overflow-hidden" ref="osmdContainer"></div>
   </div>
 </template>
 
@@ -142,9 +143,5 @@ onMounted(async () => {
   top: 50vh;
   left:50vw;
   z-index: 50;
-}
-
-.osmd-container {
-  overflow-y: hidden;
 }
 </style>

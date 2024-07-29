@@ -75,3 +75,14 @@ p {
 .bold {
 	font-weight:700;
 }
+
+.scroll-x {
+	overflow-x: scroll;
+
+	-ms-overflow-style: none; /* 인터넷 익스플로러 */
+  	scrollbar-width: none; /* 파이어폭스 */
+}
+
+.scroll-x::-webkit-scrollbar {
+    display: none; /* 웹킷 브라우저에서 스크롤바 숨기기 */
+}
