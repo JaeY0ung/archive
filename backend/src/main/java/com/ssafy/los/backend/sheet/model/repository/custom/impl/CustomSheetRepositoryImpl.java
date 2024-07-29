@@ -79,7 +79,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
 
     private BooleanExpression createLikeStatusExpression(Long userId) {
         if (userId == null) {
-            return Expressions.TRUE;
+            return Expressions.FALSE;
         }
         return JPAExpressions.selectOne()
                 .from(ls)
@@ -88,7 +88,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
 
     private BooleanExpression containKeyword(String keyword) {
         if (keyword == null || keyword.isEmpty()) {
-            return Expressions.TRUE;
+            return null;
         }
         return s.title.eq(keyword);
     }

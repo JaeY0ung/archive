@@ -1,5 +1,4 @@
 <script setup>
-import { faL } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useRouter } from 'vue-router'
 
@@ -13,7 +12,7 @@ const props = defineProps({
             level: Number,
             uploaderNickname: String,
             likeCount: Number,
-            isLike: Boolean,
+            likeStatus: Boolean,
         }
     }
 })
@@ -25,13 +24,13 @@ const goToUserProfile = () => {
 
 const likeSheet = () => {
     axios.post(`http://localhost:8080/likes/sheets/${props.sheet.id}`)
-        .then((res) => props.sheet.isLike = false)
+        .then((res) => props.sheet.likeStatus = false)
         .catch((err) => console.log(err))
 }
 
 const dislikeSheet = () => {
     axios.delete(`http://localhost:8080/likes/sheets/${props.sheet.id}`)
-        .then((res) => props.sheet.isLike = true)
+        .then((res) => props.sheet.likeStatus = true)
         .catch((err) => console.log(err))
 }
 </script>
@@ -76,13 +75,14 @@ const dislikeSheet = () => {
                 </div>
             </div>
         </div>
+
         <div>
             <div class="flex">
                 <img :src="require('@/assets/img/view.svg')" alt="">
                 <p>{{ sheet.viewCount }}</p>
             </div>
             <div class="cursor-pointer">
-                <img v-if="sheet.isLike" :src="require('@/assets/img/heart-fill.svg')" alt="꽉 찬 하트" @click="likeSheet">
+                <img v-if="sheet.likeStatus" :src="require('@/assets/img/heart-fill.svg')" alt="꽉 찬 하트" @click="likeSheet">
                 <img v-else :src="require('@/assets/img/heart-empty.svg')" alt="빈 하트" @click="dislikeSheet">
             </div>
         </div>
