@@ -80,7 +80,6 @@ export const useUserStore = defineStore('user', () => {
     console.log('token: ', token)
     console.log('decodeToken: ', decodeToken);
       await findByEmail(
-          // decodeToken.username,
           (response) => {
               if (response.status === httpStatusCode.OK) {
                   userInfo.value = response.data
@@ -88,21 +87,10 @@ export const useUserStore = defineStore('user', () => {
                   console.log("해당 유저 정보가 없습니다.")
               }
           },
-    // await findById(
-    //   decodeToken.username,
-    //   (response) => {
-    //     if (response.status === httpStatusCode.OK) {
-    //       userInfo.value = response.data.userInfo
-    //     } else {
-    //       console.log("해당 유저 정보가 없습니다.")
-    //     }
-    //   },
-      async (error) => {
-        console.error("토큰이 만료되어 사용 불가능합니다.",)
-        console.error(error.response.status, error.response.statusText)
-        isValidToken.value = false
 
-        await tokenRegenerate()
+      (error) => {
+        // refresh 토큰 발급 가능
+
       }
     )
   }
@@ -118,30 +106,7 @@ export const useUserStore = defineStore('user', () => {
         }
       },
       async (error) => {
-        // HttpStatus.UNAUTHORIZE(401) : RefreshToken 기간 만료 >> 다시 로그인!!!!
-        if (error.response.status === httpStatusCode.UNAUTHORIZED) {
-          // 다시 로그인 전 DB에 저장된 RefreshToken 제거.
-          await logout(
-            userInfo.value.username,
-            (response) => {
-              if (response.status === httpStatusCode.OK) {
-                console.log("리프레시 토큰 제거 성공")
-              } else {
-                console.log("리프레시 토큰 제거 실패")
-              }
-              alert("RefreshToken 기간 만료!!! 다시 로그인해 주세요.")
-              isLogin.value = false
-              userInfo.value = null
-              isValidToken.value = false
-              router.push({ name: "login" })
-            },
-            (error) => {
-              console.error(error)
-              isLogin.value = false
-              userInfo.value = null
-            }
-          )
-        }
+
       }
     )
   }
@@ -173,10 +138,10 @@ export const useUserStore = defineStore('user', () => {
   return {
     userLogin,
     userLogout,
+    isLogin,
 
 
     
-    isLogin,
 
     isLoginError,
     userInfo,

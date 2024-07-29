@@ -2,6 +2,7 @@ import './assets/css/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 
 import App from './App.vue'
 import router from './router'
@@ -20,8 +21,11 @@ const app = createApp(App)
 
 app.component('font-awesome-icon', FontAwesomeIcon)
 
-app.use(createPinia())
-app.use(router)
+// Pinia 스토어 생성 및 플러그인 추가
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 
+app.use(pinia)
+app.use(router)
 
 app.mount('#app')

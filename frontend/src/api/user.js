@@ -2,9 +2,6 @@ import { localAxios } from '@/util/http-common';
 
 const local = localAxios();
 
-// async function userConfirm(param, success, fail) {
-//     await local.post(`/auth/login`, param).then(success).catch(fail);
-// }
 
 async function userConfirm(param, success, fail) {
     const formData = new URLSearchParams();
@@ -30,10 +27,8 @@ async function logout(success, fail) {
 }
 
 
-
 async function findByEmail(success, fail) {
     try {
-        // accessToken을 세션에서 가져와서 Authorization 헤더에 추가
         const accessToken = sessionStorage.getItem("accessToken");
         const headers = {
             'Authorization': `Bearer ${accessToken}`
@@ -70,33 +65,15 @@ async function insertUser(param, success, fail) {
     await local.post(`/users`, param).then(success).catch(fail);
 }
 
-// async function updateUser(param, success, fail) {
-//   local.defaults.headers["refreshToken"] = sessionStorage.getItem("refreshToken");
-//   await local.put(`/users`, param).then(success).catch(fail);
-// }
-async function updateUser(formData, success, fail) {
-    const config = {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': sessionStorage.getItem('refreshToken')
-        }
-    };
-    await local.put('/users', formData, config).then(success).catch(fail);
-}
-
-// 존재하면 1 반환
-async function isUserExist(username, success, fail) {
-    await local.get(`/auth/exists/${username}`).then(success).catch(fail);
-}
 
 export {
     userConfirm,
     logout,
     findByEmail,
     findById,
+    
     tokenRegeneration,
     signout,
     insertUser,
-    updateUser,
-    isUserExist,
+
 };
