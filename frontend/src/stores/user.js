@@ -21,31 +21,14 @@ export const useUserStore = defineStore('user', () => {
       loginUser,
       async (response) => {
         console.log("loginUser: ", loginUser);
-        
+        let accessToken = "";
         // 응답 헤더에서 Authorization 토큰 추출
         const authHeader = response.headers['authorization'];
         if (authHeader && authHeader.startsWith('Bearer ')) {
-          const accessToken = authHeader.substring(7);
+          accessToken = authHeader.substring(7);
           // 세션 스토리지에 저장
           sessionStorage.setItem("accessToken", accessToken);
           console.log("accessToken을 세션 스토리에 저장합니다. = ", accessToken);
-
-          // 유저 정보 가져오기
-            await getUserInfo(accessToken);
-            console.log("user 정보: = ", userInfo.value);
-            // console.log(userInfo.value.email);
-
-            console.log("User ID:", userInfo.value.id);
-            console.log("Role:", userInfo.value.role);
-            console.log("Email:", userInfo.value.email);
-            console.log("Nickname:", userInfo.value.nickname);
-            console.log("User Image:", userInfo.value.userImg);
-            console.log("Birth Date:", userInfo.value.birthDate);
-            console.log("Gender:", userInfo.value.gender);
-            console.log("Cash:", userInfo.value.cash);
-            console.log("Single Score:", userInfo.value.singleScore);
-            console.log("Multi Score:", userInfo.value.multiScore);
-            console.log("Deleted At:", userInfo.value.deletedAt);
 
 
         } else {
@@ -63,6 +46,23 @@ export const useUserStore = defineStore('user', () => {
         isLogin.value = true;
         isLoginError.value = false;
         isValidToken.value = true;
+
+          // 유저 정보 가져오기
+          await getUserInfo(accessToken);
+          console.log("user 정보: = ", userInfo.value);
+          // console.log(userInfo.value.email);
+
+          console.log("User ID:", userInfo.value.id);
+          console.log("Role:", userInfo.value.role);
+          console.log("Email:", userInfo.value.email);
+          console.log("Nickname:", userInfo.value.nickname);
+          console.log("User Image:", userInfo.value.userImg);
+          console.log("Birth Date:", userInfo.value.birthDate);
+          console.log("Gender:", userInfo.value.gender);
+          console.log("Cash:", userInfo.value.cash);
+          console.log("Single Score:", userInfo.value.singleScore);
+          console.log("Multi Score:", userInfo.value.multiScore);
+          console.log("Deleted At:", userInfo.value.deletedAt);
       },
       (error) => {
         console.log("loginUser: ", loginUser);
