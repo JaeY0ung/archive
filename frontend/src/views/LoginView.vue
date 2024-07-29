@@ -44,7 +44,7 @@ const login = async () => {
 
 // OAuth2 - Naver
 const naverLogin = () => {
-    window.location.href = `${VITE_REQUEST_URL}/oauth2/authorization/naver`;
+    window.location.href = `http://localhost:8081/oauth2/authorization/naver`;
 }
 
 

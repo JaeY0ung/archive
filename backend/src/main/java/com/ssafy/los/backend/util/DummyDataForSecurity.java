@@ -1,20 +1,20 @@
 package com.ssafy.los.backend.util;
 
+import com.ssafy.los.backend.config.PasswordService;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 
 //@Component
 @RequiredArgsConstructor
 public class DummyDataForSecurity implements ApplicationRunner {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordService passwordService;
+//    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -28,7 +28,7 @@ public class DummyDataForSecurity implements ApplicationRunner {
     private void createDummyUser(String email, String password) {
         User user = User.builder()
                 .email(email)
-                .pwdHash(passwordEncoder.encode(password))
+                .pwdHash(passwordService.encode(password))
                 .build();
         userRepository.save(user);
     }
