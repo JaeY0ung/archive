@@ -1,7 +1,8 @@
 <script setup>
-import axios from 'axios';
+import { localAxios } from '@/util/http-common';
 import { useRouter } from 'vue-router'
 
+const local = localAxios();
 const props = defineProps({
     sheet: {
         type: Object, required: true, default: {
@@ -23,13 +24,13 @@ const goToUserProfile = () => {
 }
 
 const likeSheet = () => {
-    axios.post(`http://localhost:8080/likes/sheets/${props.sheet.id}`)
+    local.post(`/likes/sheets/${props.sheet.id}`)
         .then((res) => props.sheet.likeStatus = false)
         .catch((err) => console.log(err))
 }
 
 const dislikeSheet = () => {
-    axios.delete(`http://localhost:8080/likes/sheets/${props.sheet.id}`)
+    local.delete(`/likes/sheets/${props.sheet.id}`)
         .then((res) => props.sheet.likeStatus = true)
         .catch((err) => console.log(err))
 }
