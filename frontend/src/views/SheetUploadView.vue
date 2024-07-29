@@ -9,9 +9,7 @@ const router = useRouter();
 const fileInfo = ref({
     files: "",
     title: "",
-    price: "",
     level: "",
-    point: "",
     songId: "",
 })
 // 파일이 바뀔 때마다 파일 ref값 변경
@@ -36,13 +34,11 @@ const uploadFile = async () => {
     }
     
     formData.append('title', new Blob([fileInfo.value.title], { type: "application/json" }));
-    formData.append('price', new Blob([fileInfo.value.price], { type: "application/json" }));
     formData.append('level', new Blob([fileInfo.value.level], { type: "application/json" }));
-    formData.append('point', new Blob([fileInfo.value.point], { type: "application/json" }));
     formData.append('songId', new Blob([fileInfo.value.songId], { type: "application/json" }));
 
     await local.post(
-        "http://localhost:8080/sheets", formData, {
+        "/sheets", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -79,23 +75,9 @@ const uploadFile = async () => {
     
             <label class="form-control w-full">
                 <div class="label">
-                    <span class="label-text">악보 가격</span>
-                </div>
-                <input v-model="fileInfo.price" type="text"  class="input input-bordered w-full" />
-            </label>
-    
-            <label class="form-control w-full">
-                <div class="label">
                     <span class="label-text">악보 티어</span>
                 </div>
                 <input v-model="fileInfo.level" type="text"  class="input input-bordered w-full" />
-            </label>
-    
-            <label class="form-control w-full">
-                <div class="label">
-                    <span class="label-text">악보 경험치</span>
-                </div>
-                <input v-model="fileInfo.point" type="text"  class="input input-bordered w-full" />
             </label>
     
             <label class="form-control w-full mb-5">
