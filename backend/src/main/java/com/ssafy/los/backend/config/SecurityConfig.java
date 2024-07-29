@@ -4,6 +4,7 @@ import com.ssafy.los.backend.user.filter.JWTFilter;
 import com.ssafy.los.backend.user.filter.LoginFilter;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.model.service.OAuth2UserService;
+import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     private final RefreshTokenRepository refreshTokenRepository;
     private final OAuth2UserService oauth2UserService;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final UserStatusService userStatusService;
 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
@@ -86,11 +88,13 @@ public class SecurityConfig {
                 .anyRequest().permitAll());
 
         // 필터 추가
+
         http.addFilterBefore(new JWTFilter(jwtUtil, refreshTokenRepository),
                 UsernamePasswordAuthenticationFilter.class);
         http.addFilterAt(
                 new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-                        refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
+                        refreshTokenRepository, userStatusService),
+                UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정
         http.sessionManagement((session) -> session

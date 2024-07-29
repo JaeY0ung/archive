@@ -1,7 +1,7 @@
 # DROP SCHEMA IF EXISTS archive;
 # CREATE SCHEMA IF NOT EXISTS archive DEFAULT CHARACTER SET UTF8mb4;
 USE archive;
-#==================================-============================================================
+
 # user
 INSERT INTO archive.user (user_id, cash, gender, role, birth_date, created_at, deleted_at,
                           modified_at, email, nickname, pwd_hash, token, user_img, uuid,
@@ -50,65 +50,29 @@ INSERT INTO archive.user (user_id, cash, gender, role, birth_date, created_at, d
                           multi_score, single_score)
 VALUES (7, 0, true, 'ROLE_USER', '1998-05-28 15:00:00.000000', '2024-07-29 01:21:33.468404', null,
         '2024-07-29 01:21:33.468404', 'ssafy@ssafy.com', 'ssafy',
-        '$2a$10$oxOGMt3r0MwpxsdVePPC5OivtlNkYF1Rcu6f2BovY/LveJu/FLd.m', null, null,
+        '$2a$10$oxOGMt3r0MwpxsdVePPC5OivtlNkYF1Rcu6f2BovY/LveJu/FLd.m', null, 'user7.png',
         'cbcfe839-7031-481e-a2d4-3a1cfbfed90f', null, null);
 INSERT INTO archive.user (user_id, cash, gender, role, birth_date, created_at, deleted_at,
                           modified_at, email, nickname, pwd_hash, token, user_img, uuid,
                           multi_score, single_score)
 VALUES (8, 0, true, 'ROLE_USER', '2024-07-28 15:00:00.000000', '2024-07-29 01:45:52.226517', null,
         '2024-07-29 01:45:52.226517', 'ssafy1@ssafy.com', 'user1',
-        '$2a$10$he2lmt.dSoQ15YfSe64aGu12Hi3ukiiC6U3Xypo8WMXruS8CCDyce', null, null,
+        '$2a$10$he2lmt.dSoQ15YfSe64aGu12Hi3ukiiC6U3Xypo8WMXruS8CCDyce', null, 'user8.png',
         'c6c6d147-11ad-4803-b164-6260ea0e8f69', null, null);
 INSERT INTO archive.user (user_id, cash, gender, role, birth_date, created_at, deleted_at,
                           modified_at, email, nickname, pwd_hash, token, user_img, uuid,
                           multi_score, single_score)
 VALUES (9, 0, true, 'ROLE_USER', '2024-07-28 15:00:00.000000', '2024-07-29 01:46:11.558280', null,
         '2024-07-29 01:46:11.558280', 'ssafy2@ssafy.com', 'ssafy2',
-        '$2a$10$LE3hdry2pBXO8XZ.i6F6S.KVGCvNmZFkeEVnEgh1VbBa.ev5xg0n6', null, null,
+        '$2a$10$LE3hdry2pBXO8XZ.i6F6S.KVGCvNmZFkeEVnEgh1VbBa.ev5xg0n6', null, 'user9.png',
         'f7f23ed4-0ba6-4f45-9874-9634165453b1', null, null);
 INSERT INTO archive.user (user_id, cash, gender, role, birth_date, created_at, deleted_at,
                           modified_at, email, nickname, pwd_hash, token, user_img, uuid,
                           multi_score, single_score)
 VALUES (10, 0, true, 'ROLE_USER', '2024-07-28 15:00:00.000000', '2024-07-29 01:46:33.909071', null,
         '2024-07-29 01:46:33.909071', 'ssafy3@ssafy.com', 'ssafy3',
-        '$2a$10$E2epoNr8RBjL0jNc8sAbSuqMT20pU0ZYa21WUJpKI/xgF0vlyhCfK', null, null,
+        '$2a$10$E2epoNr8RBjL0jNc8sAbSuqMT20pU0ZYa21WUJpKI/xgF0vlyhCfK', null, 'user10.png',
         '8ee4baae-c512-49c2-bfc6-c61364e9c292', null, null);
-
-
-UPDATE user
-SET user_img = 'user1.png'
-WHERE user_id = 1;
-UPDATE user
-SET user_img = 'user2.png'
-WHERE user_id = 2;
-UPDATE user
-SET user_img = 'user3.png'
-WHERE user_id = 3;
-UPDATE user
-SET user_img = 'user4.png'
-WHERE user_id = 4;
-UPDATE user
-SET user_img = 'user5.png'
-WHERE user_id = 5;
-UPDATE user
-SET user_img = 'user6.png'
-WHERE user_id = 6;
-
-UPDATE user
-SET user_img = 'user7.png'
-WHERE user_id = 7;
-
-UPDATE user
-SET user_img = 'user8.png'
-WHERE user_id = 8;
-
-UPDATE user
-SET user_img = 'user9.png'
-WHERE user_id = 3;
-
-UPDATE user
-SET user_img = 'user10.png'
-WHERE user_id = 10;
 
 
 #==================================-============================================================
@@ -133,7 +97,7 @@ VALUES (1, 1, 2),
        (15, 4, 2),
 
        (16, 3, 1);
-#==================================-============================================================
+
 # 장르(Genre)
 INSERT INTO genre(genre_id, title)
 VALUES (1, '클래식'),
@@ -142,31 +106,19 @@ VALUES (1, '클래식'),
        (4, '힙합'),
        (5, '가요'),
        (6, '기타');
-#==================================-============================================================
+
 # 곡 (Song)
 INSERT INTO song(song_id, genre_id, composer, title, img_name)
 VALUES (1, 1, 'Max Vogrich', '체르니 100번 1', 'Max Vogrich.jpg'),
        (2, 5, '아이브', 'after like', 'after_like.jpg');
 
-UPDATE song
-SET img_name = 'Max Vogrich.jpg'
-WHERE song_id = 1;
-UPDATE song
-SET img_name = 'after_like.jpg'
-WHERE song_id = 2;
-#==================================-============================================================
 # 악보(sheet)
 INSERT INTO sheet(sheet_id, song_id, level, point, price, uploader_id, status, title, file_name,
                   created_at,
                   modified_at,
                   deleted_at)
-VALUES (1, 1, 5, 5, 500, 1, 0, '체르니 100 1번', '체르니 100 1번.mid', NOW(), NOW(), NULL),
-       (2, 2, 5, 5, 500, 1, 0, 'after like', 'after_like.mid', NOW(), NOW(), NULL);
+VALUES (1, 1, 5, 5, 500, 1, 0, '체르니 100 1번', '체르니 100 1번', NOW(), NOW(), NULL);
 
-UPDATE sheet
-SET file_name = '체르니 100 1번.mid'
-WHERE sheet_id = 1;
-#==================================-============================================================
 # 악보 좋아요 (like_sheet)
 INSERT INTO like_sheet(like_sheet_id, user_id, sheet_id, created_at)
 VALUES (1, 1, 1, NOW()),
@@ -175,7 +127,7 @@ VALUES (1, 1, 1, NOW()),
        (4, 4, 1, NOW()),
        (5, 5, 1, NOW()),
        (6, 6, 1, NOW());
-#==================================-============================================================
+
 # 알림 타입 (AlertType)
 INSERT INTO alert_type(alert_type_id, alert_table_name)
 VALUES (1, 'sheet'),
@@ -184,19 +136,19 @@ VALUES (1, 'sheet'),
        (4, 'board'),
        (5, 'battle'),
        (6, 'report_sheet');
-#==================================-============================================================
+
 # 실시간 알람 (Alert)
 INSERT INTO alert(alert_id, receiver_id, alert_type_id, reference_id, read_status, created_at)
 VALUES (1, 1, 1, 1, 0, NOW()),
        (2, 2, 2, 1, 0, NOW()),
        (3, 3, 3, 1, 0, NOW());
-#==================================-============================================================
+
 # 결제 (payment)
 INSERT INTO payment(payment_id, name)
 VALUES (1, '카카오 페이'),
        (2, '토스'),
        (3, '신용카드');
-#==================================-============================================================
+
 # 결제 (payment)
 INSERT INTO sheet_order(sheet_order_id, user_id, sheet_id, payment_id, created_at)
 VALUES (1, 1, 1, 1, NOW()),

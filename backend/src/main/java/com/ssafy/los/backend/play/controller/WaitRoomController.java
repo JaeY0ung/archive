@@ -1,0 +1,52 @@
+package com.ssafy.los.backend.play.controller;
+
+import com.ssafy.los.backend.play.model.dto.PlayerReadyDto;
+import com.ssafy.los.backend.play.model.dto.PlayerStartDto;
+import com.ssafy.los.backend.user.model.dto.LoginUser;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
+
+@Slf4j
+@Controller
+public class WaitRoomController {
+
+    @MessageMapping("/wait")
+    @SendTo("/wait/socket")
+    public LoginUser sendPlayer(LoginUser loginUser) throws Exception {
+        // LoginUser 전송
+        log.info("들어왔습니다. {}", loginUser.toString());
+        return LoginUser.builder()
+                .id(loginUser.getId())
+                .email(loginUser.getEmail())
+                .build();
+    }
+
+    @MessageMapping("/wait/ready")
+    @SendTo("/wait/socket/ready")
+    public PlayerReadyDto sendPlayerReady(PlayerReadyDto playerReadyDto) throws Exception {
+        // LoginUser 전송
+        log.info("들어왔습니다. {}", playerReadyDto.toString());
+        return PlayerReadyDto.builder()
+                .sender(playerReadyDto.getSender())
+                .isReady(playerReadyDto.getIsReady())
+                .build();
+    }
+
+    @MessageMapping("/wait/start")
+    @SendTo("/wait/socket/start")
+    public PlayerStartDto sendPlayerReady(PlayerStartDto playerStartDto) throws Exception {
+        // start 신호 전송
+
+        System.out.println("메시지 전달받음");
+        log.info("들어왔습니다. {}", playerStartDto.toString());
+
+        return PlayerStartDto.builder()
+                .type(playerStartDto.getType())
+                .sender(playerStartDto.getSender())
+                .content(playerStartDto.getContent())
+                .build();
+    }
+
+}

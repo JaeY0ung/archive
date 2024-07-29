@@ -2,6 +2,7 @@ import axios from "axios";
 
 const { VUE_APP_REQUEST_URL } = process.env;
 
+
 function localAxios() {
   const instance = axios.create({
     baseURL: VUE_APP_REQUEST_URL,

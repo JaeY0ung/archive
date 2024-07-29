@@ -5,6 +5,7 @@ import com.ssafy.los.backend.config.RefreshToken;
 import com.ssafy.los.backend.user.model.dto.CustomUserDetails;
 import com.ssafy.los.backend.user.model.dto.response.Response;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
+import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -35,12 +36,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private static UserStatusService userStatusService;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshTokenRepository refreshTokenRepository) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
+            RefreshTokenRepository refreshTokenRepository, UserStatusService userStatusService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/auth/login");
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userStatusService = userStatusService;
     }
 
     @Override
@@ -91,6 +95,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // redis 저장하기
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
+        userStatusService.setUserOnline(customUserDetails.getUser().getId());
+
+        setTokenResponse(response, accessToken, refreshToken);
 
         log.info("발급한 accessToken 입니다. = {}", accessToken);
         log.info("발급한 refreshToken 입니다. = {}", refreshToken);

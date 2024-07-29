@@ -1,35 +1,147 @@
 <script setup>
 import SheetPage from '@/common/sheet/SheetPage.vue';
-import { ref } from 'vue';
 
-const isPlay = ref("stop");
-const waitTime = ref(2);
-const countTime = ref(5);
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useRouter, onBeforeRouteLeave } from 'vue-router';
 
-const wait = setInterval(() => {
-    waitTime.value--;
-    if (waitTime.value === 0) {
+const router = useRouter();
 
-        const countdown = setInterval(() => {
-        countTime.value--;
-        if (countTime.value === 0) {
-            isPlay.value = "play";
-            clearInterval(countdown);
-        }
-        }, 1000);
+let eventSource;
 
-        clearInterval(wait);
+let score = ref(0);
+
+const connect = () => {
+    const socket = new WebSocket('ws://localhost:8081/battle')
+
+    socket.onopen = () => {
+        console.log('Socket opened!');
     }
-}, 1000);
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        score.value = data;
+        console.log(score.value);
+    };
+
+    socket.onclose = () => {
+        console.log('Socket closed');
+    }
+}
+
+onMounted(() => {
+
+    connect();
+
+    // eventSource = new EventSource("http://localhost:8080/battle"); // 해당 엔드포인트에 SSE 연결을 생성하는 객체
+
+    // eventSource.onopen = () => {
+    //     console.log('sse opened!');
+    // }
+
+    // eventSource.onmessage = (event) => {
+    //     const data = JSON.parse(event.data);
+    //     score.value = data;
+    //     console.log(score.value);
+    // };
+
+    // eventSource.onerror = () => {
+    //     console.error('EventSource failed');
+    //     eventSource.close();
+    // };
+
+    // onBeforeUnmount(() => {
+    //     eventSource.close();
+    // });
+
+    const isPlay = ref("stop");
+    const waitTime = ref(2);
+    const countTime = ref(5);
+
+    const wait = setInterval(() => {
+        waitTime.value--;
+        if (waitTime.value === 0) {
+
+            const countdown = setInterval(() => {
+            countTime.value--;
+            if (countTime.value === 0) {
+                isPlay.value = "play";
+                clearInterval(countdown);
+            }
+            }, 1000);
+
+            clearInterval(wait);
+        }
+    }, 1000);
+
+
+})
+
+const canLeaveSite = ref(false);
+
+onBeforeRouteLeave((to, from, next) => {
+    console.log('이동할 라우트:', to);
+    console.log('이동할 라우트:', to.name);
+    console.log('현재 라우트:', from);
+    console.log('현재 라우트:', from.name);
+
+    if(confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle')){
+        // next(vm => {
+        //     vm.$router.replace({fullPath:'/'});
+        // });
+        console.log("확인2")
+        window.location.href = 'http://localhost:5173';
+        // next({fullPath:'http://localhost:5173'})
+    }else{
+        next(false);
+    }
+
+
+})
+
 </script>
 
 <template>
+
+    <h1>뮤직 배틀 플레이 화면</h1>
+    
+
     <div>
         <div v-if="waitTime == 0 && countTime !== 0" class="time-count">{{ countTime }}</div>
-        <SheetPage :isPlay/>
+        <!-- <SheetPage :isPlay/> -->
     </div>
+
 </template>
 
-<style scoped>
+<style>
+    
+    #userform{
+        display:flex;
+        justify-content: space-around;
+        margin-bottom: 5%;
+    }
+    
+    #profiles{
+        display: flex;
+        justify-content: space-around;
+        height: 10vh;
+        /* border: 1px solid orange; */
+    }
 
+
+    button{
+        height: 5vh;
+        border: 1px solid white ;
+    }
+
+    #profiles div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    p {
+        margin-bottom: 10%;
+    }
+
+    
 </style>
