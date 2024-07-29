@@ -19,13 +19,14 @@ services:
       - redis
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - MYSQL_HOST=mysql
-      - MYSQL_PORT=3306
-      - MYSQL_DATABASE=archive
-      - MYSQL_USER=my_user
-      - MYSQL_PASSWORD=ssafy
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/archive?serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=ssafy
+      - SPRING_DATASOURCE_PASSWORD=ssafy
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - SPRING_JWT_REDIS_HOST=redis
+      - SPRING_JWT_REDIS_PORT=6379
 
   mysql:
     image: mysql:latest
