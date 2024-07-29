@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -10,6 +11,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    @Value("${cors.allowedOrigins}")
+    private String allowedOrigins;
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.enableSimpleBroker("/wait"); // 발행자가 /room 경로로 준비완료 신호를 보내면 구독자들에게 전달.
@@ -19,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
 //        registry.addEndpoint("archive-websocket").setAllowedOrigins("http://localhost:8081").setAllowedOriginPatterns("*").withSockJS(); // 커넥션을 맺는 경로 설정
-        registry.addEndpoint("archive-websocket").setAllowedOrigins("http://localhost:5173").withSockJS(); // 커넥션을 맺는 경로 설정
+        registry.addEndpoint("archive-websocket").setAllowedOrigins(allowedOrigins).withSockJS(); // 커넥션을 맺는 경로 설정
         // Front에서 /battle 페이지로 들어갔을 때, 해당 엔드포인트로 연결되도록 설정해야 한다.
     }
 
