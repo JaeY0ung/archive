@@ -50,7 +50,7 @@ const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 			<div>
 				<p class="bold">인기</p>
 			</div>
-			<div class="scroll-x">
+			<div class="scroll-x flex">
 				<template v-if="popularSheets">
 					<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"/>
 				</template>
@@ -61,7 +61,7 @@ const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 			<div>
 				<p class="bold">최신</p>
 			</div>
-			<div class="scroll-x">
+			<div class="scroll-x flex">
 				<template v-if="newSheets">
 					<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" />
 				</template>
@@ -73,7 +73,7 @@ const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 				<div>
 					<p class="bold">추천</p>
 				</div>
-				<div class="scroll-x">
+				<div class="scroll-x flex">
 					<template v-if="recommendSheets">
 						<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" />
 					</template>
@@ -123,18 +123,6 @@ const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 .down-div {
 	display: flex;
 	justify-content: space-between;
-}
-
-.scroll-x {
-	display: flex;
-	overflow-x: scroll;
-
-	-ms-overflow-style: none; /* 인터넷 익스플로러 */
-  	scrollbar-width: none; /* 파이어폭스 */
-}
-
-.scroll-x::-webkit-scrollbar {
-    display: none; /* 웹킷 브라우저에서 스크롤바 숨기기 */
 }
 
 </style>
