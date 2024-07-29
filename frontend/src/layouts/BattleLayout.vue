@@ -16,8 +16,8 @@ const userStore = new useUserStore();
 var stompClient = null;
 
 // 준비하기를 동적으로 변화시켜주기 위한 불리언 변수
-let isReady = ref("false");
-let opponentReady = ref("false");
+const isReady = ref("false");
+const opponentReady = ref("false");
 
 const me = ref({
     img: "이미지1",
@@ -121,6 +121,12 @@ function connect() {
             }));
 
             
+            // 자신의 ready 정보를 Controller에 보낸다.
+            stompClient.send("/app/wait/ready", {},   
+            JSON.stringify({
+                'sender': decodeToken.username,
+                'isReady' : isReady.value
+            }));
             
 
         });
