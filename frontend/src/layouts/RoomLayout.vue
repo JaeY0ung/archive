@@ -6,12 +6,14 @@ const router = useRouter();
 import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
 import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
 import { useUserStore } from '@/stores/user';
+import { usePlayStore } from '@/stores/play';
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
 const userStore = new useUserStore();
+const playStore = new usePlayStore();
 
 var stompClient = null;
 
@@ -250,6 +252,7 @@ const openInviteModalStatus = () => {
 const closeInviteModalStatus = () => {
     inviteModalStatus.value = false;
 }
+const currentMode = computed(() => playStore.getMode);
 </script>
 
 <template>
@@ -288,7 +291,7 @@ const closeInviteModalStatus = () => {
                 </button>
             </div>
             
-            <div class="player-card">
+            <div class="player-card" v-if="currentMode=='multi'">
                 <div class="player-img">{{ opponent.img }}</div>
                 <div class="player-info-text">
                     <div>{{ opponent.name }}</div>
@@ -296,7 +299,7 @@ const closeInviteModalStatus = () => {
                 </div>
                 <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false' && route.name != 'play'">대기중</button>
                 <button class="btn text-white" style="background-color: red;" v-if="opponentReady == 'true' && route.name != 'play'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton>게임중</button>
+                <button class="btn text-white" style="background-color: gray;" v-if="route.name == 'play'" @click=readyButton>게임중</button>
             </div>
         </div>
     </div>

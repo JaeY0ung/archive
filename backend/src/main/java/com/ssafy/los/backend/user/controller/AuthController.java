@@ -17,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -85,8 +84,6 @@ public class AuthController {
     @GetMapping("/refresh")
     public ResponseEntity<?> getAccessToken(HttpServletRequest request,
             HttpServletResponse response) {
-    public ResponseEntity<?> getAccessToken(HttpServletRequest request,
-            HttpServletResponse response) {
         String refreshToken = extractRefreshTokenFromCookie(request);
 
         if (refreshToken == null) {
@@ -103,8 +100,6 @@ public class AuthController {
 
         if (!refreshTokenRepository.existsById(refreshToken)) {
             log.info("Redis에 존재하지 않는 Refresh 토큰입니다.");
-            return new ResponseEntity<>("Refresh token이 Redis에 존재하지 않습니다.",
-                    HttpStatus.UNAUTHORIZED);
             return new ResponseEntity<>("Refresh token이 Redis에 존재하지 않습니다.",
                     HttpStatus.UNAUTHORIZED);
         }
@@ -192,8 +187,6 @@ public class AuthController {
     @GetMapping("/token")
     public ResponseEntity<?> requestAccess(HttpServletRequest request,
             HttpServletResponse response) {
-    public ResponseEntity<?> requestAccess(HttpServletRequest request,
-            HttpServletResponse response) {
 
         // 임시 JWT 검증하기
         String authorization = null;
@@ -246,8 +239,7 @@ public class AuthController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException(
                         String.format("해당하는 이메일의 유저가 없습니다. = %s", email)));
-                .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("해당하는 이메일의 유저가 없습니다. = %s", email)));
+
         RefreshToken redis = new RefreshToken(refreshToken, user.getId()); // 임시
         refreshTokenRepository.save(redis);
 
