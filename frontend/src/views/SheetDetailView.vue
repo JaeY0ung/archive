@@ -1,32 +1,100 @@
-<script>
-export default {
-  data() {
-    return {
-      currentSheet: {}, // Ensure this is defined
-      sameLevelSheets: [], // Ensure this is populated with data
-      starRateAvg: 0, // Ensure this is calculated
-      starRateStatistic: [], // Ensure this is populated with data
-      starRateRegisterForm: {
-        content: "",
-        starRate: 1,
-      },
-      starRateList: [], // Ensure this is populated with data
-      isPlay: "stop", // Ensure this is set correctly
-    };
-  },
-  methods: {
-    registerStarRate() {
-      // Implement the method to handle star rate registration
-    },
-  },
-};
+<script setup>
+import { useRoute } from 'vue-router'
+import { ref } from 'vue';
+import { localAxios } from '@/util/http-common';
+import Sheet from '@/common/sheet/Sheet.vue';
+import SheetPlayNavigation from '@/common/sheet/SheetPlayNavigation.vue';
+import BigSheetCard from '@/common/sheet/BigSheetCard.vue';
+
+const route = useRoute();
+const local = localAxios();
+const isPlay = ref("stop")
+
+const sheet = ref({})
+const sameLevelSheets = ref([])
+const starRateList = ref([])
+const starRateAvg = ref(0.0); // 별점 평균
+const starRateStatistic = ref([0, 0, 0, 0, 0, 0]) // 별점 0,1,2,3,4,5 인 리뷰들의 수
+const starRateRegisterForm = ref({
+    content: "",
+    starRate: 3,
+})
+
+// 악보 세부 정보 가져오기
+const searchSheetDetail = () => {
+    local.get(`/sheets/${ route.params.sheetId }`)
+        .then(({ data }) => {
+            sheet.value = data;
+            sheet.value.imageUrl = `data:image/jpeg;base64,${data.songImg}`
+        }).catch((err) => {
+            alert(err)
+        })
+}
+
+// 같은 수준의 악보 랜덤으로 가져오기
+const searchRandomSameLevelSheets = () => {
+    let params = {
+        level: sheet.value.level,
+        sort: 'RANDOM',
+    }
+
+    local.get("/sheets", { params })
+        .then(({ data }) => {
+            sameLevelSheets.value = data;
+            sameLevelSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지')
+        }).catch((err) => {
+            alert(err)
+        })
+}
+
+// 별점 가져오기
+const searchStarRateList = () => {
+    local.get(`/sheets/${ route.params.sheetId }/star-rates`)
+        .then(({ data }) => {
+            console.log("starRateList: ", data);
+            starRateList.value = data;
+            let sum = 0;
+            starRateList.value.map(starRateInfo => {
+                sum += starRateInfo.starRate;
+                starRateStatistic.value[starRateInfo.starRate]++;
+            });
+            starRateAvg.value = round(sum / starRateList.value.length, 2);
+        }).catch((err) => {
+            alert(err)
+        })
+}
+
+// 별점 등록하기
+const registerStarRate = () => {
+    local.post(`/sheets/${ route.params.sheetId }/star-rates`, starRateRegisterForm)
+        .then(({ data }) => {
+            console.log("starRateList: ", data);
+            starRateList.value = data;
+            let sum = 0;
+            starRateList.value.map(starRateInfo => {
+                sum += starRateInfo.starRate;
+                starRateStatistic.value[starRateInfo.starRate]++;
+            });
+            starRateAvg.value = round(sum / starRateList.value.length, 2);
+        }).catch((err) => {
+            alert(err)
+        })
+}
+
+function round(number, place) {
+    return Math.round(number * 10 ** place) / (10 ** place);
+}
+
+searchSheetDetail()
+searchRandomSameLevelSheets()
+searchStarRateList()
 </script>
 
 <template>
   <div class="flex justify-between flex-margin h-full">
     <!-- 왼쪽 -->
     <div class="flex flex-col gap-10 w-[49%] h-full rounded-xl">
-      <BigSheetCard :sheet="currentSheet" />
+      <BigSheetCard :sheet />
 
       <div>
         <div>비슷한 수준의 악보 추천</div>
@@ -98,7 +166,7 @@ export default {
         @stop="isPlay = 'stop'"
       />
       <div class="bg-black rounded-xl h-full"></div>
-      <!-- <SheetPage class="rounded-xl h-full" :isPlay="isPlay" /> -->
+      <!-- <Sheet class="rounded-xl h-full" :isPlay="isPlay" /> -->
     </div>
   </div>
 </template>
