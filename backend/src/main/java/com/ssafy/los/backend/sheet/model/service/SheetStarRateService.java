@@ -4,12 +4,11 @@ import com.ssafy.los.backend.sheet.model.dto.request.SheetStarRateCreateDto;
 import com.ssafy.los.backend.sheet.model.dto.request.SheetStarRateUpdateDto;
 import com.ssafy.los.backend.sheet.model.dto.response.SheetStarRateResponseDto;
 import com.ssafy.los.backend.sheet.model.entity.SheetStarRate;
-import com.ssafy.los.backend.user.model.entity.User;
 import java.util.List;
 
 public interface SheetStarRateService {
 
-    Long saveStarRate(SheetStarRateCreateDto sheetStarRateCreateDto, User user);
+    Long saveStarRate(SheetStarRateCreateDto sheetStarRateCreateDto, Long sheetId);
 
     Long updateStarRate(Long sheetStarSheetStarId, SheetStarRateUpdateDto sheetStarRateUpdateDto);
 

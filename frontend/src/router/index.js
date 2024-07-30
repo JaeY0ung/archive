@@ -96,6 +96,13 @@ const router = createRouter({
       component: () => import('@/views/PaymentView.vue')
     },
     // -----------------------------------------------
+    // 난이도 기여 페이지
+    {
+      path: '/difficulty/:sheetId',
+      name: 'sheetDifficultyRating',
+      component: () => import('@/views/SheetDifficultyRatingView.vue')
+    },
+    // -----------------------------------------------
   ]
 })
 
