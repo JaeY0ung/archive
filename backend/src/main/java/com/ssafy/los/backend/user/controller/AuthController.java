@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,12 @@ public class AuthController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+
+    @Value("${jwt.accessToken.expireTime}")
+    private long accessTokenExpireTime;
+
+    @Value("${jwt.refreshToken.expireTime}")
+    private long refreshTokenExpireTime;
 
     @GetMapping("/userInfo")
     public ResponseEntity<?> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
@@ -67,7 +74,7 @@ public class AuthController {
     // OAuth2로 유저 등록하기
     @PostMapping("/users")
     public ResponseEntity<?> register(@RequestBody UserRegisterDto userRegisterDto) {
-        log.info("OAuth2로 회원 등록 요청을 한 DTO = {}" , userRegisterDto.toString());
+        log.info("OAuth2로 회원 등록 요청을 한 DTO = {}", userRegisterDto.toString());
         Long saveId = oAuth2UserService.saveOAuth2User(userRegisterDto);
 
         return new ResponseEntity<>(saveId, HttpStatus.OK);
@@ -76,7 +83,8 @@ public class AuthController {
     // refresh 토큰 발급받기
     // TODO: POST mapping으로 바꾸기
     @GetMapping("/refresh")
-    public ResponseEntity<?> getAccessToken(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> getAccessToken(HttpServletRequest request,
+            HttpServletResponse response) {
         String refreshToken = extractRefreshTokenFromCookie(request);
 
         if (refreshToken == null) {
@@ -93,7 +101,8 @@ public class AuthController {
 
         if (!refreshTokenRepository.existsById(refreshToken)) {
             log.info("Redis에 존재하지 않는 Refresh 토큰입니다.");
-            return new ResponseEntity<>("Refresh token이 Redis에 존재하지 않습니다.", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Refresh token이 Redis에 존재하지 않습니다.",
+                    HttpStatus.UNAUTHORIZED);
         }
 
         log.info("Redis에서 해당하는 Refresh 토큰을 찾았습니다.");
@@ -103,7 +112,7 @@ public class AuthController {
         String email = jwtUtil.getUsername(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
-        String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
+        String accessToken = jwtUtil.createJwt(email, role, accessTokenExpireTime);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         log.info("발급한 accessToken 입니다. = {}", accessToken);
@@ -150,7 +159,7 @@ public class AuthController {
 
             // Redis에서 refreshToken 제거
             refreshTokenRepository.deleteById(refreshToken);
-             log.info("Redis에서 refreshToken을 제거했습니다. = {}", refreshToken);
+            log.info("Redis에서 refreshToken을 제거했습니다. = {}", refreshToken);
         } else {
             log.info("refreshToken을 쿠키에서 찾을 수 없습니다.");
         }
@@ -159,7 +168,8 @@ public class AuthController {
     }
 
     @GetMapping("/token")
-    public ResponseEntity<?> requestAccess(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> requestAccess(HttpServletRequest request,
+            HttpServletResponse response) {
 
         // 임시 JWT 검증하기
         String authorization = null;
@@ -202,15 +212,16 @@ public class AuthController {
         String role = jwtUtil.getRole(token);
 
         // accessToken 발급하기
-        String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
+        String accessToken = jwtUtil.createJwt(email, role, accessTokenExpireTime);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // refreshToken 발급하기
-        String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
+        String refreshToken = jwtUtil.createJwt(email, role, refreshTokenExpireTime);
         response.addCookie(createCookie("refreshToken", refreshToken));
         // redis 저장하기
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("해당하는 이메일의 유저가 없습니다. = %s", email)));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("해당하는 이메일의 유저가 없습니다. = %s", email)));
         RefreshToken redis = new RefreshToken(refreshToken, user.getId()); // 임시
         refreshTokenRepository.save(redis);
 
@@ -223,7 +234,7 @@ public class AuthController {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60*60*60);
+        cookie.setMaxAge(60 * 60 * 60);
         //cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
