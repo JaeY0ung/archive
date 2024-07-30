@@ -89,8 +89,7 @@ export const useUserStore = defineStore('user', () => {
           },
 
       (error) => {
-        // refresh 토큰 발급 가능
-
+        console.log('유저 정보를 가져오는데 오류 발생')
       }
     )
   }
@@ -138,15 +137,14 @@ export const useUserStore = defineStore('user', () => {
   return {
     userLogin,
     userLogout,
-    isLogin,
-
-
-    
-
-    isLoginError,
-    userInfo,
-    isValidToken,
     getUserInfo,
+
+    userInfo,
+    isLogin,
+    isLoginError,
+
+
+    isValidToken,
     tokenRegenerate,
   }
 }, {persist : true})

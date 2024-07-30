@@ -46,6 +46,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsByEmail(email);
     }
 
+    // 닉네임 중복 확인
+    @Override
+    public Boolean validateNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
+    }
+
     // 회원 수정
     @Override
     public Long updateUser(Long id, UserUpdateDto userUpdateForm, String uuid) {
