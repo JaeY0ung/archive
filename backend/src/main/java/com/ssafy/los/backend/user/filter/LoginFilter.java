@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,6 +33,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private static UserStatusService userStatusService;
+    private static final Logger LOGGER = Logger.getLogger(LoginFilter.class.getName());
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
             RefreshTokenRepository refreshTokenRepository, UserStatusService userStatusService) {
@@ -94,6 +96,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
         userStatusService.setUserOnline(customUserDetails.getUser().getId());
+        LOGGER.info("userStatusService.getOnlineUsers(): " + userStatusService.getOnlineUsers()
+                .toString());
 
 //        setTokenResponse(response, accessToken, refreshToken);
 
