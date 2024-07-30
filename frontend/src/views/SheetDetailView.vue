@@ -1,3 +1,27 @@
+<script>
+export default {
+  data() {
+    return {
+      currentSheet: {}, // Ensure this is defined
+      sameLevelSheets: [], // Ensure this is populated with data
+      starRateAvg: 0, // Ensure this is calculated
+      starRateStatistic: [], // Ensure this is populated with data
+      starRateRegisterForm: {
+        content: "",
+        starRate: 1,
+      },
+      starRateList: [], // Ensure this is populated with data
+      isPlay: "stop", // Ensure this is set correctly
+    };
+  },
+  methods: {
+    registerStarRate() {
+      // Implement the method to handle star rate registration
+    },
+  },
+};
+</script>
+
 <template>
   <div class="flex justify-between flex-margin h-full">
     <!-- 왼쪽 -->
@@ -78,30 +102,6 @@
     </div>
   </div>
 </template>
-
-<script>
-export default {
-  data() {
-    return {
-      currentSheet: {}, // Ensure this is defined
-      sameLevelSheets: [], // Ensure this is populated with data
-      starRateAvg: 0, // Ensure this is calculated
-      starRateStatistic: [], // Ensure this is populated with data
-      starRateRegisterForm: {
-        content: "",
-        starRate: 1,
-      },
-      starRateList: [], // Ensure this is populated with data
-      isPlay: "stop", // Ensure this is set correctly
-    };
-  },
-  methods: {
-    registerStarRate() {
-      // Implement the method to handle star rate registration
-    },
-  },
-};
-</script>
 
 <style scoped>
 .line::before {
