@@ -31,18 +31,24 @@ const router = createRouter({
     },
     // -----------------------------------------------
     {
-      path: "/battleroom",
-      component: () => import('@/layouts/BattleLayout.vue'),
+    path: "/pianosaurus",
+    name: "pianoSaurus",
+    component: () => import('@/views/play/PianoSaurusView.vue')
+    },
+    // -----------------------------------------------
+    {
+      path: "/room",
+      component: () => import('@/layouts/RoomLayout.vue'),
       children: [
         {
           path: 'wait',
-          name: 'waitBattle',
-          component: () => import('@/views/BattleWaitView.vue')
+          name: 'wait',
+          component: () => import('@/views/play/WaitView.vue')
         },
         {
-          path: 'battle',
-          name: 'battle',
-          component: () => import('@/views/BattleView.vue')
+          path: 'play',
+          name: 'play',
+          component: () => import('@/views/play/PlayingView.vue')
         },
       ]
     },
