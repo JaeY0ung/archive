@@ -65,7 +65,11 @@ services:
       - mysql
       - redis
       - music-engine
-
+    volumes:
+      - ./host_temp:/app/temp
+    environment:
+      UPLOAD_DIR: "/app/temp"
+      
 volumes:
   mysql-data:
   redis-data:
