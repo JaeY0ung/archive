@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -104,6 +105,23 @@ const router = createRouter({
     },
     // -----------------------------------------------
   ]
+})
+
+// 전역 네비게이션 가드 추가
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+
+  // '/login' 경로로 이동 관리
+  if (to.path === '/login') {
+    if (userStore.isLogin) {
+      alert('이미 로그인이 되었습니다.')
+      next({ name: 'main' })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
 
 export default router
