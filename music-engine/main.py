@@ -1,6 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from service.midi_to_mp3_service import MidiToMp3Service
+from service.convert_service import ConvertService
 import os
 import shutil
 
@@ -23,17 +23,9 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 async def root():
     return {"message": "Hello World"}
 
-
 @app.get("/hello/{name}")
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}
-
-
-@app.get("/convert/{filename}")
-async def say_hello(filename: str):
-    midi_to_mp3_service = MidiToMp3Service()
-    midi_to_mp3_service.convert_midi_to_mp3()
-    return {"message": f"{filename} 생성 완료"}
 
 @app.post("/playing")
 async def upload_file(file: UploadFile = File(...)):
@@ -45,6 +37,13 @@ async def upload_file(file: UploadFile = File(...)):
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        return {"filename": file.filename, "content_type": file.content_type}
+        # 파일 변환
+        convert_service = ConvertService()
+        wav_file = convert_service.webm_to_wav(file_location, UPLOAD_DIR)
+        
+        # 원본 webm 파일 삭제 함수
+        os.remove(file_location)
+        
+        return {"filename": file.filename, "wav_file": wav_file, "content_type": file.content_type}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
