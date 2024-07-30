@@ -71,7 +71,7 @@ public class SheetController {
     @GetMapping
     public ResponseEntity<?> getSheetListByFilter(
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam String sort) {
+            @RequestParam(defaultValue = "") String sort) {
         return new ResponseEntity<>(sheetService.searchSheetByFilter(keyword, sort),
                 HttpStatus.OK);
     }
