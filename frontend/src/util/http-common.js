@@ -68,8 +68,13 @@ function localAxios() {
 
                 try {
                     // 리프레시 토큰 다시 요청
+                    // 리프레시 토큰으로 검증하므로 accessToken 불필요, 이후 삭제 예상
+                    const accessToken = sessionStorage.getItem("accessToken");
                     const response = await axios.get(`${VUE_APP_REQUEST_URL}/auth/refresh`, {
-                        withCredentials: true
+                        withCredentials: true,
+                        headers: {
+                            Authorization: accessToken ? `Bearer ${accessToken}` : ''
+                        }
                     });
 
                     console.log("리프레시 토큰 응답:", response.data);  // 전체 응답 로깅
