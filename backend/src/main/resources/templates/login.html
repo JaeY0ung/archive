@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .login-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .login-container h2 {
+      margin-bottom: 20px;
+    }
+    .login-container label {
+      display: block;
+      margin-bottom: 8px;
+    }
+    .login-container input[type="text"], .login-container input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007BFF;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .login-container button:hover {
+      background-color: #0056b3;
+    }
+    .error-message {
+      color: red;
+      display: none;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<div class="login-container">
+  <h2>Login</h2>
+  <div class="error-message" id="error-message">Invalid username or password</div>
+  <label for="email">Username</label>
+  <input type="text" id="email" name="email" required>
+
+  <label for="password">Password</label>
+  <input type="password" id="password" name="password" required>
+
+  <button onclick="login()">Login</button>
+</div>
+
+<script>
+  async function login() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include', // 쿠키를 포함하여 요청
+        body: JSON.stringify({ email, password })
+      });
+
+      if (response.ok) {
+        // 로그인 성공 처리
+        window.location.href = '/dashboard'; // 예: 대시보드 페이지로 리디렉션
+      } else {
+        // 로그인 실패 처리
+        document.getElementById('error-message').style.display = 'block';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      document.getElementById('error-message').style.display = 'block';
+    }
+  }
+</script>
+</body>
+</html>

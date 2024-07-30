@@ -4,11 +4,12 @@ import axios from 'axios';
 import { localAxios } from '@/util/http-common';
 
 const local = localAxios();
+const keyword = ref('');
 
 const searchSheets = async () => {
   // 테스트 용입니다.
   try {
-    const response = await local.get(`/sheets/star-rates/1`, {
+    const response = await local.get(`/sheets?keyword=${keyword.value}&sort=RANDOM`, {
       withCredentials: true
     });
     console.log('검색 결과:', response.data);
@@ -36,7 +37,7 @@ const searchSheets = async () => {
     <div>
       <label class="input input-bordered flex items-center gap-2 rounded-badge">
         <input
-          v-model="searchQuery"
+          v-model="keyword"
           @keyup.enter="searchSheets"
           type="text"
           class="grow"

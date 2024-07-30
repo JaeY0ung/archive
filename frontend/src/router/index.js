@@ -98,11 +98,11 @@ const router = createRouter({
     },
     // -----------------------------------------------
     // 난이도 기여 페이지
-    {
-      path: '/difficulty/:sheetId',
-      name: 'sheetDifficulty',
-      component: () => import('@/views/SheetDifficultyView.vue')
-    },
+    // {
+    //   path: '/difficulty/:sheetId',
+    //   name: 'sheetDifficulty',
+    //   component: () => import('@/views/SheetDifficultyView.vue')
+    // },
     // -----------------------------------------------
   ]
 })
