@@ -23,7 +23,7 @@ const pages = ref([
   { name: 'sheetSearch', title: '악보 검색' },
   { name: 'payment', title: '충전하기' },
   { name: 'sheetUpload', title: '악보 업로드' },
-  { name: 'waitBattle', title: '배틀하기' },
+  { name: 'pianoSaurus', title: '배틀하기' },
 ])
 
 const goLogout = async () => {
@@ -51,7 +51,7 @@ const goLogout = async () => {
 					<Search v-if="page.name == 'sheetSearch'"/>
 					<Card v-if="page.name == 'payment'"/>
 					<Upload v-if="page.name == 'sheetUpload'"/>
-					<NotePixel v-if="page.name == 'waitBattle'"/>
+					<NotePixel v-if="page.name == 'pianoSaurus'"/>
 				</div>
 				<span>{{ page.title }}</span>
 			</RouterLink>

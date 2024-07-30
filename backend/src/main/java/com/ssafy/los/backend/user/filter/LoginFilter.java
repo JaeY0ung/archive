@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,9 +37,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private static UserStatusService userStatusService;
+    private static final Logger LOGGER = Logger.getLogger(LoginFilter.class.getName());
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
-            RefreshTokenRepository refreshTokenRepository, UserStatusService userStatusService) {
+                       RefreshTokenRepository refreshTokenRepository, UserStatusService userStatusService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/auth/login");
@@ -44,7 +50,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(final HttpServletRequest request,
-            final HttpServletResponse response) throws AuthenticationException {
+                                                final HttpServletResponse response) throws AuthenticationException {
 
         String email = request.getParameter("email");
         String password = request.getParameter("password");
@@ -71,7 +77,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
      */
     @Override
     protected void successfulAuthentication(HttpServletRequest request,
-            HttpServletResponse response, FilterChain chain, Authentication authentication)
+                                            HttpServletResponse response, FilterChain chain, Authentication authentication)
             throws IOException, ServletException {
         //UserDetails
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -84,7 +90,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         // accessToken 발급하기
-        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
+        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 1000L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // refreshToken 발급하기
@@ -94,6 +100,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
         refreshTokenRepository.save(redis);
         userStatusService.setUserOnline(customUserDetails.getUser().getId());
+        LOGGER.info("userStatusService.getOnlineUsers(): " + userStatusService.getOnlineUsers()
+                .toString());
 
 //        setTokenResponse(response, accessToken, refreshToken);
 
@@ -131,7 +139,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 로그인 실패시 실행하는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationException failed) {
+                                              HttpServletResponse response, AuthenticationException failed) {
         response.setStatus(401);
     }
 

@@ -9,6 +9,7 @@ import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
 import com.ssafy.los.backend.user.model.service.OAuth2UserService;
 import com.ssafy.los.backend.user.model.service.UserService;
+import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,17 +31,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
+    @Value("${spring.jwt.secret}")
+    String jwtSecret;
     private final OAuth2UserService oAuth2UserService;
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
     private final UserService userService;
-
-    @Value("${jwt.accessToken.expireTime}")
-    private long accessTokenExpireTime;
-
-    @Value("${jwt.refreshToken.expireTime}")
-    private long refreshTokenExpireTime;
+    private final UserStatusService userStatusService;
 
     @GetMapping("/userInfo")
     public ResponseEntity<?> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
@@ -74,6 +72,7 @@ public class AuthController {
     // OAuth2로 유저 등록하기
     @PostMapping("/users")
     public ResponseEntity<?> register(@RequestBody UserRegisterDto userRegisterDto) {
+        log.info("OAuth2로 회원 등록 요청을 한 DTO = {}", userRegisterDto.toString());
         log.info("OAuth2로 회원 등록 요청을 한 DTO = {}", userRegisterDto.toString());
         Long saveId = oAuth2UserService.saveOAuth2User(userRegisterDto);
 
@@ -112,7 +111,7 @@ public class AuthController {
         String email = jwtUtil.getUsername(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
-        String accessToken = jwtUtil.createJwt(email, role, accessTokenExpireTime);
+        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         log.info("발급한 accessToken 입니다. = {}", accessToken);
@@ -149,6 +148,20 @@ public class AuthController {
         }
 
         if (refreshToken != null) {
+
+            // refreshToken에서 사용자 이메일 추출
+            String email = jwtUtil.getUsername(refreshToken);
+            System.out.println("userEmail = " + email);
+
+            // 이메일로 사용자 조회 및 ID 추출
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            String.format("해당하는 이메일의 유저가 없습니다.")));
+            String userId = user.getId().toString();
+            System.out.println("------------userId:--------------- " + userId); // null
+
+            // _________________________________________________________________________
+
             // refreshToken 쿠키 제거
             Cookie cookie = new Cookie("refreshToken", null);
             cookie.setMaxAge(0);
@@ -160,6 +173,10 @@ public class AuthController {
             // Redis에서 refreshToken 제거
             refreshTokenRepository.deleteById(refreshToken);
             log.info("Redis에서 refreshToken을 제거했습니다. = {}", refreshToken);
+            // Redis 에서 user을 offline으로 설정 (online key 제거)
+            userStatusService.setUserOffline(Long.parseLong(userId));
+            log.info("User ID {}를 offline으로 설정 완료했습니다.", userId);
+            log.info("갱신된 online user 목록: " + userStatusService.getOnlineUsers());
         } else {
             log.info("refreshToken을 쿠키에서 찾을 수 없습니다.");
         }
@@ -212,16 +229,17 @@ public class AuthController {
         String role = jwtUtil.getRole(token);
 
         // accessToken 발급하기
-        String accessToken = jwtUtil.createJwt(email, role, accessTokenExpireTime);
+        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // refreshToken 발급하기
-        String refreshToken = jwtUtil.createJwt(email, role, refreshTokenExpireTime);
+        String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
         response.addCookie(createCookie("refreshToken", refreshToken));
         // redis 저장하기
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException(
                         String.format("해당하는 이메일의 유저가 없습니다. = %s", email)));
+
         RefreshToken redis = new RefreshToken(refreshToken, user.getId()); // 임시
         refreshTokenRepository.save(redis);
 
@@ -234,6 +252,7 @@ public class AuthController {
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(60 * 60 * 60);
         cookie.setMaxAge(60 * 60 * 60);
         //cookie.setSecure(true);
         cookie.setPath("/");

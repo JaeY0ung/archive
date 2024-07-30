@@ -1,25 +1,23 @@
 <script setup>
 import Sheet from "@/common/sheet/Sheet.vue";
-
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { jwtDecode } from "jwt-decode";
 
+const { VUE_APP_REQUEST_URL } = process.env;
 const router = useRouter();
 
 const myPoint = ref(0);
 const opponentPoint = ref(0);
+const score = ref(0);
 
-var stompClient = null;
-
+let stompClient = null;
 let eventSource;
 
-let score = ref(0);
-
 const connect = () => {
-  var socket = new SockJS("http://localhost:8080/archive-websocket");
+  let socket = new SockJS(`${VUE_APP_REQUEST_URL}/archive-websocket`);
   stompClient = Stomp.over(socket);
 
   stompClient.connect({}, function (frame) {
@@ -63,7 +61,7 @@ const decodeToken = jwtDecode(accessToken);
 onMounted(() => {
   connect();
 
-  // eventSource = new EventSource("http://localhost:8080/battle"); // 해당 엔드포인트에 SSE 연결을 생성하는 객체
+  // eventSource = new EventSource(`${VUE_APP_REQUEST_URL}/battle`); // 해당 엔드포인트에 SSE 연결을 생성하는 객체
 
   // eventSource.onopen = () => {
   //     console.log('sse opened!');
@@ -130,11 +128,8 @@ onBeforeRouteLeave((to, from, next) => {
   console.log("현재 라우트:", from.name);
 
   if (confirm("방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle")) {
-    // next(vm => {
-    //     vm.$router.replace({fullPath:'/'});
-    // });
     console.log("확인2");
-    window.location.href = "http://localhost:5173";
+    router.push({name: 'main'});
   } else {
     next(false);
   }
@@ -149,8 +144,8 @@ onBeforeRouteLeave((to, from, next) => {
     <!-- <SheetPage :isPlay/> -->
   </div>
 
-  <div class="score">내점수 {{ myPoint }}점!!!!!!!!!!!!!!!!</div>
-  <div class="score">상대방 {{ opponentPoint }}점!!!!!!!!!!!!!!!!</div>
+  <div class="score">내점수 {{ myPoint }}점!!</div>
+  <div class="score">상대방 {{ opponentPoint }}점!!</div>
 </template>
 
 <style>
