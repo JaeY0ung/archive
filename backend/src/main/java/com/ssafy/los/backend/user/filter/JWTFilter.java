@@ -5,6 +5,8 @@ import com.ssafy.los.backend.user.model.dto.CustomUserDetails;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.util.JWTUtil;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -30,7 +32,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
             "/users", "/users/check-email",
             "/auth/login", "/auth/token",
-            "/sheets"
+            "/sheets", "/auth/refresh"
     );
 
     @Override
@@ -48,35 +50,49 @@ public class JWTFilter extends OncePerRequestFilter {
         log.info("Servlet 경로: {}", request.getServletPath());
 
         String authorization = request.getHeader("Authorization");
-        // TODO : 프론트에서 헤더를 포함해서 요청보내기
         log.info("헤더에서 찾은 Authorization 정보입니다. = {}", authorization);
 
-        if (authorization != null && authorization.startsWith("Bearer ")) {
-            log.info("access 토큰 인증을 시작합니다.");
-            handleAccessToken(authorization, request, response);
-        } else {
-            log.info("access 토큰이 불가하여 refresh 토큰 인증을 시작합니다.");
-            // TODO: 프론트에서 헤더를 포함해서 보내는 것 가능해지면 지우기
-            handleRefreshToken(request, response);
+        try {
+            if (authorization != null && authorization.startsWith("Bearer ")) {
+                log.info("Access 토큰 인증을 시작합니다.");
+                handleAccessToken(authorization, request, response);
+            } else {
+                log.info("유효한 Authorization 헤더가 없습니다.");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("No Authorization Header");
+                return; // 필터 체인 중단
+            }
+            filterChain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            log.error("만료된 JWT 토큰입니다.", e);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("AccessTokenExpired");
+        } catch (JwtException e) {
+            log.error("유효하지 않은 JWT 토큰입니다.", e);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Invalid JWT Token");
+        } catch (Exception e) {
+            log.error("JWT 필터 처리 중 예외 발생", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Internal Server Error");
         }
-
-        filterChain.doFilter(request, response);
     }
 
-    private void handleAccessToken(String authorization, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void handleAccessToken(String authorization, HttpServletRequest request, HttpServletResponse response) throws ExpiredJwtException, JwtException, IOException {
         String token = authorization.split(" ")[1];
 
         if (jwtUtil.isExpired(token)) {
             log.info("만료된 JWT 토큰입니다.");
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            // TODO : vue axios 인터셉터와 연동하기
-            response.getWriter().write("AccessTokenExpired"); 
-            return;
+            throw new ExpiredJwtException(null, null, "AccessTokenExpired");
         }
 
-        log.info("인증이 되었고 만료되지 않은 JWT 토큰입니다.");
+        log.info("유효한 JWT 토큰입니다.");
 
-        // 해당 정보를 SecurityContextHolder에 넣기 (반복)
+        // 유저 정보 저장하기
+        setAuthenticationToContext(token);
+    }
+
+    private void setAuthenticationToContext(String token) {
         String email = jwtUtil.getUsername(token);
         String role = jwtUtil.getRole(token);
 

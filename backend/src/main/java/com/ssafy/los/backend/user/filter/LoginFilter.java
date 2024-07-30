@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,6 +39,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final JWTUtil jwtUtil;
     private static UserStatusService userStatusService;
     private static final Logger LOGGER = Logger.getLogger(LoginFilter.class.getName());
+//    @Value("${jwt.accessToken.expireTime}")
+//    private Long accessExpired;
+//    @Value("${jwt.refreshToken.expireTime}")
+//    private Long refreshExpired;
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
                        RefreshTokenRepository refreshTokenRepository, UserStatusService userStatusService) {
@@ -90,11 +95,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String role = auth.getAuthority();
 
         // accessToken 발급하기
-        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 1000L);
+        String accessToken = jwtUtil.createJwt(email, role, 10 * 1000L);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // refreshToken 발급하기
-        String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
+        String refreshToken = jwtUtil.createJwt(email, role, 10 * 60* 1000L);
         response.addCookie(createCookie("refreshToken", refreshToken));
         // redis 저장하기
         RefreshToken redis = new RefreshToken(refreshToken, customUserDetails.getUser().getId());
