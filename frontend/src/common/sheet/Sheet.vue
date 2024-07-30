@@ -1,27 +1,3 @@
-<template>
-  <div>
-    <Controller
-      v-if="showController"
-      :playbackManager="playbackManager"
-      @music-started="musicStarted"
-      @set-volume="setVolume"
-    />
-    <ScrollContainer
-      :playbackManager="playbackManager"
-      :width="width"
-      :height="height"
-      @measure-changed="handleMeasureChanged"
-      @music-finished="musicFinished"
-    />
-    <RecordButton
-      v-if="isRecording"
-      ref="recordComponent"
-      :triggerSplit="triggerSplit"
-      :isPlay="isPlay"
-    />
-  </div>
-</template>
-
 <script setup>
 import Controller from "@/common/sheet/Controller.vue";
 import ScrollContainer from "@/common/sheet/ScrollContainer.vue";
@@ -32,6 +8,12 @@ import {
   PlaybackManager,
   BasicAudioPlayer,
 } from "@/assets/js/opensheetmusicdisplay.min.js";
+
+const props = defineProps({
+  showController: Boolean,
+  width: Number,
+  height: Number,
+});
 
 const playbackManager = ref(null);
 const isPlay = ref(false);
@@ -71,6 +53,29 @@ onMounted(() => {
   );
 });
 </script>
+<template>
+  <div>
+    <Controller
+      v-if="showController"
+      :playbackManager="playbackManager"
+      @music-started="musicStarted"
+      @set-volume="setVolume"
+    />
+    <ScrollContainer
+      :playbackManager="playbackManager"
+      :width="props.width"
+      :height="props.height"
+      @measure-changed="handleMeasureChanged"
+      @music-finished="musicFinished"
+    />
+    <RecordButton
+      v-if="isRecording"
+      ref="recordComponent"
+      :triggerSplit="triggerSplit"
+      :isPlay="isPlay"
+    />
+  </div>
+</template>
 
 <style scoped>
 /* Add your styles here */
