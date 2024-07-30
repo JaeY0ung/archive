@@ -1,24 +1,21 @@
 <script setup>
-import { ref, onMounted } from "vue";
 import Controller from "@/common/sheet/Controller.vue";
 import ScrollContainer from "@/common/sheet/ScrollContainer.vue";
 import RecordButton from "@/common/sheet/RecordButton.vue";
+import { ref, onMounted } from "vue";
+import {
+  LinearTimingSource,
+  PlaybackManager,
+  BasicAudioPlayer,
+} from "@/assets/js/opensheetmusicdisplay.min.js";
 
 const props = defineProps({
   showController: Boolean,
-  isRecording: Boolean,
-  width: {
-    type: Number,
-    default: 800,
-  },
-  height: {
-    type: Number,
-    default: 600,
-  },
+  width: Number,
+  height: Number,
 });
 
 const playbackManager = ref(null);
-const recordComponent = ref(null);
 const isPlay = ref(false);
 const triggerSplit = ref(0);
 
@@ -47,16 +44,15 @@ const setVolume = (volume) => {
 };
 
 onMounted(() => {
-  const timingSource = new window.opensheetmusicdisplay.LinearTimingSource();
-  playbackManager.value = new window.opensheetmusicdisplay.PlaybackManager(
+  const timingSource = new LinearTimingSource();
+  playbackManager.value = new PlaybackManager(
     timingSource,
     undefined,
-    new window.opensheetmusicdisplay.BasicAudioPlayer(),
+    new BasicAudioPlayer(),
     undefined
   );
 });
 </script>
-
 <template>
   <div>
     <Controller
@@ -67,8 +63,8 @@ onMounted(() => {
     />
     <ScrollContainer
       :playbackManager="playbackManager"
-      :width="width"
-      :height="height"
+      :width="props.width"
+      :height="props.height"
       @measure-changed="handleMeasureChanged"
       @music-finished="musicFinished"
     />
@@ -80,3 +76,7 @@ onMounted(() => {
     />
   </div>
 </template>
+
+<style scoped>
+/* Add your styles here */
+</style>

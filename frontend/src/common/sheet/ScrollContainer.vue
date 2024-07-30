@@ -10,7 +10,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from "vue";
-
+import { OpenSheetMusicDisplay } from "@/assets/js/opensheetmusicdisplay.min.js";
 const props = defineProps({
   playbackManager: Object,
   width: Number,
@@ -69,7 +69,7 @@ const setupPlaybackManager = () => {
 };
 
 onMounted(async () => {
-  osmd = new window.opensheetmusicdisplay.OpenSheetMusicDisplay(osmdContainer.value);
+  osmd = new OpenSheetMusicDisplay(osmdContainer.value);
   osmd.setOptions({
     pageFormat: "A4 P",
     pageBackgroundColor: "white",

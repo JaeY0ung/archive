@@ -1,10 +1,10 @@
 <script setup>
-import SheetPage from '@/common/sheet/SheetPage.vue';
+import Sheet from "@/common/sheet/Sheet.vue";
 
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { useRouter, onBeforeRouteLeave } from 'vue-router';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import { useRouter, onBeforeRouteLeave } from "vue-router";
+import SockJS from "sockjs-client";
+import Stomp from "stompjs";
 import { jwtDecode } from "jwt-decode";
 
 const router = useRouter();
@@ -19,187 +19,170 @@ let eventSource;
 let score = ref(0);
 
 const connect = () => {
-    var socket = new SockJS('http://localhost:8080/archive-websocket');
-    stompClient = Stomp.over(socket);
+  var socket = new SockJS("http://localhost:8080/archive-websocket");
+  stompClient = Stomp.over(socket);
 
-    stompClient.connect({}, function(frame) {
-        console.log("들어왔습니다~")
+  stompClient.connect({}, function (frame) {
+    console.log("들어왔습니다~");
 
-        // 여기서 구독
-        stompClient.subscribe('/wait/socket/start', function(message) {
-            const data = JSON.parse(message.body);
+    // 여기서 구독
+    stompClient.subscribe("/wait/socket/start", function (message) {
+      const data = JSON.parse(message.body);
 
-            console.log(data);
+      console.log(data);
 
-            // sender 구분을 해줘야 함.
+      // sender 구분을 해줘야 함.
 
-            if(data.type === 'point' && data.sender != decodeToken.username) {
-                opponentPoint.value = data.content;
-            }
+      if (data.type === "point" && data.sender != decodeToken.username) {
+        opponentPoint.value = data.content;
+      }
+    });
+  });
 
-        });
-    })
+  // 소켓이 열렸을 때
+  // socket.onopen = () => {
+  //     console.log('Socket opened!');
+  // }
 
-    // 소켓이 열렸을 때
-    // socket.onopen = () => {
-    //     console.log('Socket opened!');
-    // }
+  // 메시지를 보냈을 때
+  // socket.onmessage = (event) => {
+  //     const data = JSON.parse(event.data);
+  //     score.value = data;
+  //     console.log(score.value);
+  // };
 
-    // 메시지를 보냈을 때
-    // socket.onmessage = (event) => {
-    //     const data = JSON.parse(event.data);
-    //     score.value = data;
-    //     console.log(score.value);
-    // };
-
-    // 소켓이 닫혔을 때
-    // socket.onclose = () => {
-    //     console.log('Socket closed');
-    // }
-}
+  // 소켓이 닫혔을 때
+  // socket.onclose = () => {
+  //     console.log('Socket closed');
+  // }
+};
 
 const accessToken = sessionStorage.getItem("accessToken");
 const decodeToken = jwtDecode(accessToken);
 
 onMounted(() => {
+  connect();
 
-    connect();
+  // eventSource = new EventSource("http://localhost:8080/battle"); // 해당 엔드포인트에 SSE 연결을 생성하는 객체
 
-    // eventSource = new EventSource("http://localhost:8080/battle"); // 해당 엔드포인트에 SSE 연결을 생성하는 객체
+  // eventSource.onopen = () => {
+  //     console.log('sse opened!');
+  // }
 
-    // eventSource.onopen = () => {
-    //     console.log('sse opened!');
-    // }
+  // eventSource.onmessage = (event) => {
+  //     const data = JSON.parse(event.data);
+  //     score.value = data;
+  //     console.log(score.value);
+  // };
 
-    // eventSource.onmessage = (event) => {
-    //     const data = JSON.parse(event.data);
-    //     score.value = data;
-    //     console.log(score.value);
-    // };
+  // eventSource.onerror = () => {
+  //     console.error('EventSource failed');
+  //     eventSource.close();
+  // };
 
-    // eventSource.onerror = () => {
-    //     console.error('EventSource failed');
-    //     eventSource.close();
-    // };
+  // onBeforeUnmount(() => {
+  //     eventSource.close();
+  // });
 
-    // onBeforeUnmount(() => {
-    //     eventSource.close();
-    // });
+  const isPlay = ref("stop");
+  const waitTime = ref(2);
+  const countTime = ref(5);
 
-    const isPlay = ref("stop");
-    const waitTime = ref(2);
-    const countTime = ref(5);
-
-    const wait = setInterval(() => {
-        waitTime.value--;
-        if (waitTime.value === 0) {
-
-            const countdown = setInterval(() => {
-            countTime.value--;
-            if (countTime.value === 0) {
-                isPlay.value = "play";
-                clearInterval(countdown);
-            }
-            }, 1000);
-
-            clearInterval(wait);
+  const wait = setInterval(() => {
+    waitTime.value--;
+    if (waitTime.value === 0) {
+      const countdown = setInterval(() => {
+        countTime.value--;
+        if (countTime.value === 0) {
+          isPlay.value = "play";
+          clearInterval(countdown);
         }
-    }, 1000);
+      }, 1000);
 
-    // setInterval 설정
-    const plusPoint = setInterval(() => {
-        myPoint.value += Math.floor(Math.random() * 10);
-        stompClient.send("/app/wait/start", {},
-            JSON.stringify({
-                'type': 'point',
-                'sender': decodeToken.username,
-                'content': myPoint.value
-            })
-        )
-    }, 100);
+      clearInterval(wait);
+    }
+  }, 1000);
 
-    // 5초 후에 setInterval 멈추기
-    setTimeout(() => {
-        clearInterval(plusPoint);
-      }, 5000);
+  // setInterval 설정
+  const plusPoint = setInterval(() => {
+    myPoint.value += Math.floor(Math.random() * 10);
+    stompClient.send(
+      "/app/wait/start",
+      {},
+      JSON.stringify({
+        type: "point",
+        sender: decodeToken.username,
+        content: myPoint.value,
+      })
+    );
+  }, 100);
 
-})
-
+  // 5초 후에 setInterval 멈추기
+  setTimeout(() => {
+    clearInterval(plusPoint);
+  }, 5000);
+});
 
 onBeforeRouteLeave((to, from, next) => {
-    console.log('이동할 라우트:', to);
-    console.log('이동할 라우트:', to.name);
-    console.log('현재 라우트:', from);
-    console.log('현재 라우트:', from.name);
+  console.log("이동할 라우트:", to);
+  console.log("이동할 라우트:", to.name);
+  console.log("현재 라우트:", from);
+  console.log("현재 라우트:", from.name);
 
-    if(confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle')){
-        // next(vm => {
-        //     vm.$router.replace({fullPath:'/'});
-        // });
-        console.log("확인2")
-        window.location.href = 'http://localhost:5173';
-    }else{
-        next(false);
-    }
-
-
-})
-
+  if (confirm("방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle")) {
+    // next(vm => {
+    //     vm.$router.replace({fullPath:'/'});
+    // });
+    console.log("확인2");
+    window.location.href = "http://localhost:5173";
+  } else {
+    next(false);
+  }
+});
 </script>
 
 <template>
+  <h1>뮤직 배틀 플레이 화면</h1>
 
-    <h1>뮤직 배틀 플레이 화면</h1>
-    
+  <div>
+    <div v-if="waitTime == 0 && countTime !== 0" class="time-count">{{ countTime }}</div>
+    <!-- <SheetPage :isPlay/> -->
+  </div>
 
-    <div>
-        <div v-if="waitTime == 0 && countTime !== 0" class="time-count">{{ countTime }}</div>
-        <!-- <SheetPage :isPlay/> -->
-    </div>
-
-    <div class="score">
-        내점수 {{myPoint}}점!!!!!!!!!!!!!!!!
-    </div>
-    <div class="score">
-        상대방 {{opponentPoint}}점!!!!!!!!!!!!!!!!
-    </div>
-
+  <div class="score">내점수 {{ myPoint }}점!!!!!!!!!!!!!!!!</div>
+  <div class="score">상대방 {{ opponentPoint }}점!!!!!!!!!!!!!!!!</div>
 </template>
 
 <style>
-    
-    #userform{
-        display:flex;
-        justify-content: space-around;
-        margin-bottom: 5%;
-    }
-    
-    #profiles{
-        display: flex;
-        justify-content: space-around;
-        height: 10vh;
-        /* border: 1px solid orange; */
-    }
+#userform {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 5%;
+}
 
+#profiles {
+  display: flex;
+  justify-content: space-around;
+  height: 10vh;
+  /* border: 1px solid orange; */
+}
 
-    button{
-        height: 5vh;
-        border: 1px solid white ;
-    }
+button {
+  height: 5vh;
+  border: 1px solid white;
+}
 
-    #profiles div {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
+#profiles div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
-    p {
-        margin-bottom: 10%;
-    }
+p {
+  margin-bottom: 10%;
+}
 
-    .score{
-        font-size:30px;
-    }
-
-    
+.score {
+  font-size: 30px;
+}
 </style>
