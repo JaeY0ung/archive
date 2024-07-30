@@ -48,13 +48,23 @@ services:
       - redis-data:/data
 
   music-engine:
-    image: mctlab/omnizart:latest  # Omnizart Docker image
+    image: mctlab/omnizart:latest
     container_name: omnizart_container
     volumes:
-      - ./music-engine:/app  # Mount your local directory to the container
-    entrypoint: /bin/bash  # Start the container with a bash shell
-    stdin_open: true  # Keep the container open for input
-    tty: true  # Allocate a pseudo-TTY
+      - ./music-engine:/app
+    entrypoint: /bin/bash
+    stdin_open: true
+    tty: true
+
+  fastapi:
+    build:
+      context: ./fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - redis
+      - music-engine
 
 volumes:
   mysql-data:
