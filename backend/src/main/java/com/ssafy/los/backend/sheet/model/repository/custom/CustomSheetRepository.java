@@ -9,4 +9,6 @@ public interface CustomSheetRepository {
 
     SheetResponseDto findSheetById(Long sheetId, Long userId);
 
+    List<SheetResponseDto> findSheetsByLevelRandomly(Integer level, Long userId);
+
 }

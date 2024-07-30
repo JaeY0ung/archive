@@ -1,8 +1,9 @@
 <script setup>
-import { ref, reactive,watch} from "vue";
+import { ref, reactive, watch } from "vue";
 
 const props = defineProps({
-  triggerSplit: Boolean,
+  triggerSplit: Number,
+  isPlay: Boolean,
 });
 
 const isRecording = ref(false);
@@ -13,6 +14,7 @@ let startTime = 0;
 
 // 시작 버튼을 눌렀을때 작동하는 함수
 const startRecording = async () => {
+  console.log("Record Started");
   // 기존 블롭 초기화
   audioBlobs.value = [];
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -38,15 +40,12 @@ const startRecording = async () => {
     // 녹음을 다시 시작합니다.
     if (isRecording.value) {
       mediaRecorder.value.start();
-      //    splitRecording();
     }
   };
 
   mediaRecorder.value.start();
   isRecording.value = true;
   startTime = performance.now();
-  //splitRecording(); // 3초뒤에 끊어서 저장하고 stop()호출 => 위에있는 onstop이 작동해 무한반복한다
-  //splitRecording2();
 };
 
 // 녹음기를 3초마다 초기화시켜주는 함수
@@ -65,6 +64,7 @@ const splitRecording2 = () => {
 
 // 녹음 중에 stop->start 상태가 무한반복이기 때문에 종료 조건을 알려줘야 한다.
 const stopRecording = () => {
+  console.log("recording ended");
   isRecording.value = false;
   if (mediaRecorder.value.state === "recording") {
     mediaRecorder.value.stop();
@@ -72,22 +72,30 @@ const stopRecording = () => {
 };
 
 // watch를 사용하여 props 변경 감지 및 함수 실행
-watch(() => props.triggerSplit, (newValue) => {
-  if (newValue) {
-    splitRecording2();
+watch(
+  () => props.triggerSplit,
+  (newValue) => {
+    if (newValue) {
+      splitRecording2();
+    }
   }
-});
+);
 
+// isPlay 상태 변경에 따라 녹음 시작 및 종료
+watch(
+  () => props.isPlay,
+  (newValue) => {
+    if (newValue) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  }
+);
 </script>
 
 <template>
   <div>
-    <button @click="startRecording" :disabled="isRecording">
-      Start Recording
-    </button>
-    <button @click="stopRecording" :disabled="!isRecording">
-      Stop Recording
-    </button>
     <ul>
       <li v-for="(blob, index) in audioBlobs" :key="index">
         <a :href="blob.url" :download="`audio-part-${index + 1}.webm`"

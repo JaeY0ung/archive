@@ -20,6 +20,7 @@ public class RedisConfig {
     @Value("${spring.jwt.redis.port}")
     private int redisPort;
 
+
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(
@@ -37,4 +38,5 @@ public class RedisConfig {
         template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
         return template;
     }
+
 }
