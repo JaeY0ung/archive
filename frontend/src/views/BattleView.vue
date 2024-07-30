@@ -19,7 +19,7 @@ let eventSource;
 let score = ref(0);
 
 const connect = () => {
-    var socket = new SockJS('http://localhost:8080/archive-websocket');
+    var socket = new SockJS('http://localhost:8081/archive-websocket');
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, function(frame) {
