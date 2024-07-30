@@ -2,20 +2,21 @@ package com.ssafy.los.backend.play.model.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class PlayerReadyDto {
-    private String sender;
+    private String senderNickname;
     private String isReady;
+    private String profileImg;
 
-    // 기본 생성자
-    public PlayerReadyDto() {
-    }
 
     // 빌더 패턴
     @Builder
-    public PlayerReadyDto(String sender, String isReady) {
-        this.sender = sender;
+    public PlayerReadyDto(String senderNickname, String isReady, String profileImg) {
+        this.senderNickname = senderNickname;
         this.isReady = isReady;
+        this.profileImg = profileImg;
     }
 }

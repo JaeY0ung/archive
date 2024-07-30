@@ -4,7 +4,6 @@ import com.ssafy.los.backend.sheet.model.dto.request.SheetStarRateCreateDto;
 import com.ssafy.los.backend.sheet.model.dto.request.SheetStarRateUpdateDto;
 import com.ssafy.los.backend.sheet.model.dto.response.SheetStarRateResponseDto;
 import com.ssafy.los.backend.sheet.model.service.SheetStarRateService;
-import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/sheets/star-rates")
+@RequestMapping("/sheets")
 public class SheetStarRateController {
 
     private final SheetStarRateService sheetStarRateService;
@@ -31,38 +30,40 @@ public class SheetStarRateController {
 
 
     // 리뷰 생성하기
-    @PostMapping
-    public ResponseEntity<?> saveSheetStarRate(@RequestBody SheetStarRateCreateDto sheetStarRateCreateDto) {
-        User user = authService.getLoginUser();
-        Long findId = sheetStarRateService.saveStarRate(sheetStarRateCreateDto, user);
+    @PostMapping("{sheet-id}/star-rates")
+    public ResponseEntity<?> saveSheetStarRate(@PathVariable("sheet-id") Long sheetId,
+            @RequestBody SheetStarRateCreateDto sheetStarRateCreateDto) {
+        Long findId = sheetStarRateService.saveStarRate(sheetStarRateCreateDto, sheetId);
         return new ResponseEntity<>(findId, HttpStatus.OK);
     }
 
     // 리뷰 수정하기
-    @PutMapping("/{sheet-star-rate-id}")
-    public ResponseEntity<?> updateStarRate(@PathVariable Long sheetStarRateId, @RequestBody SheetStarRateUpdateDto sheetStarRateUpdateDto) {
+    @PutMapping("/star-rates/{sheet-star-rate-id}")
+    public ResponseEntity<?> updateStarRate(@PathVariable("sheet-star-rate-id") Long sheetStarRateId,
+            @RequestBody SheetStarRateUpdateDto sheetStarRateUpdateDto) {
         Long updateId = sheetStarRateService.updateStarRate(sheetStarRateId, sheetStarRateUpdateDto);
         return new ResponseEntity<>(updateId, HttpStatus.OK);
     }
 
     // 리뷰 삭제하기
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteStarRate(@PathVariable Long id) {
-        sheetStarRateService.deleteStarRate(id);
+    @DeleteMapping("/star-rates/{star-rate-id}")
+    public ResponseEntity<?> deleteStarRate(@PathVariable("star-rate-id") Long starRateId) {
+        sheetStarRateService.deleteStarRate(starRateId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 리뷰 하나 가져오기
-//    @GetMapping("/{id}")
+//    @GetMapping("/star-rates/{id}")
 //    public ResponseEntity<?> findStarRate(@PathVariable Long id) {
 //        SheetStarRate sheetStarRate = sheetStarRateService.findStarRateById(id);
 //        return new ResponseEntity<>(sheetStarRate, HttpStatus.OK);
 //    }
 
     // 특정 악보 리뷰 조회하기
-    @GetMapping("/{sheet-id}")
+    @GetMapping("/{sheet-id}/star-rates")
     public ResponseEntity<?> findStarRateBySheetId(@PathVariable("sheet-id") Long sheetId) {
-        List<SheetStarRateResponseDto> SheetStarRateResponseDtoList = sheetStarRateService.findStarRateBySheetId(sheetId);
+        List<SheetStarRateResponseDto> SheetStarRateResponseDtoList = sheetStarRateService.findStarRateBySheetId(
+                sheetId);
         return new ResponseEntity<>(SheetStarRateResponseDtoList, HttpStatus.OK);
 
     }

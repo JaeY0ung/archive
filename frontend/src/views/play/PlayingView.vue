@@ -3,30 +3,63 @@ import SheetPage from '@/common/sheet/SheetPage.vue';
 
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import { jwtDecode } from "jwt-decode";
 
 const router = useRouter();
+
+const myPoint = ref(0);
+const opponentPoint = ref(0);
+
+var stompClient = null;
 
 let eventSource;
 
 let score = ref(0);
 
 const connect = () => {
-    const socket = new WebSocket('ws://localhost:8081/play')
+    var socket = new SockJS('http://localhost:8081/archive-websocket');
+    stompClient = Stomp.over(socket);
 
-    socket.onopen = () => {
-        console.log('Socket opened!');
-    }
+    stompClient.connect({}, function(frame) {
+        console.log("들어왔습니다~")
 
-    socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        score.value = data;
-        console.log(score.value);
-    };
+        // 여기서 구독
+        stompClient.subscribe('/wait/socket/start', function(message) {
+            const data = JSON.parse(message.body);
 
-    socket.onclose = () => {
-        console.log('Socket closed');
-    }
+            console.log(data);
+
+            // sender 구분을 해줘야 함.
+
+            if(data.type === 'point' && data.sender != decodeToken.username) {
+                opponentPoint.value = data.content;
+            }
+
+        });
+    })
+
+    // 소켓이 열렸을 때
+    // socket.onopen = () => {
+    //     console.log('Socket opened!');
+    // }
+
+    // 메시지를 보냈을 때
+    // socket.onmessage = (event) => {
+    //     const data = JSON.parse(event.data);
+    //     score.value = data;
+    //     console.log(score.value);
+    // };
+
+    // 소켓이 닫혔을 때
+    // socket.onclose = () => {
+    //     console.log('Socket closed');
+    // }
 }
+
+const accessToken = sessionStorage.getItem("accessToken");
+const decodeToken = jwtDecode(accessToken);
 
 onMounted(() => {
 
@@ -73,10 +106,25 @@ onMounted(() => {
         }
     }, 1000);
 
+    // setInterval 설정
+    const plusPoint = setInterval(() => {
+        myPoint.value += Math.floor(Math.random() * 10);
+        stompClient.send("/app/wait/start", {},
+            JSON.stringify({
+                'type': 'point',
+                'sender': decodeToken.username,
+                'content': myPoint.value
+            })
+        )
+    }, 100);
+
+    // 5초 후에 setInterval 멈추기
+    setTimeout(() => {
+        clearInterval(plusPoint);
+      }, 5000);
 
 })
 
-const canLeaveSite = ref(false);
 
 onBeforeRouteLeave((to, from, next) => {
     console.log('이동할 라우트:', to);
@@ -90,7 +138,6 @@ onBeforeRouteLeave((to, from, next) => {
         // });
         console.log("확인2")
         window.location.href = 'http://localhost:5173';
-        // next({fullPath:'http://localhost:5173'})
     }else{
         next(false);
     }
@@ -108,6 +155,13 @@ onBeforeRouteLeave((to, from, next) => {
     <div>
         <div v-if="waitTime == 0 && countTime !== 0" class="time-count">{{ countTime }}</div>
         <!-- <SheetPage :isPlay/> -->
+    </div>
+
+    <div class="score">
+        내점수 {{myPoint}}점!!!!!!!!!!!!!!!!
+    </div>
+    <div class="score">
+        상대방 {{opponentPoint}}점!!!!!!!!!!!!!!!!
     </div>
 
 </template>
@@ -141,6 +195,10 @@ onBeforeRouteLeave((to, from, next) => {
 
     p {
         margin-bottom: 10%;
+    }
+
+    .score{
+        font-size:30px;
     }
 
     

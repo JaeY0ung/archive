@@ -9,18 +9,19 @@ import lombok.Getter;
 @Builder
 public class SheetStarRateResponseDto {
 
-    private String username;
+    private String nickname;
     private String userImg;
     private String content;
     private int starRate;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     public static SheetStarRateResponseDto toEntity(SheetStarRate sheetStarRate) {
         return SheetStarRateResponseDto.builder()
-                .username(sheetStarRate.getUser().getNickname())
+                .nickname(sheetStarRate.getUser().getNickname())
                 .userImg(sheetStarRate.getUser().getUserImg())
                 .content(sheetStarRate.getContent())
                 .starRate(sheetStarRate.getStarRate())
+                .createdAt(sheetStarRate.getCreatedAt())
                 .build();
     }
 

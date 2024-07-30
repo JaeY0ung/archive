@@ -27,6 +27,9 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
+    @Value("${jwt.oauth.token.expireTime}")
+    long jwtOAuthTokenExpireTime;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
@@ -47,7 +50,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             String role = authority.getAuthority();
 
             // JWT 토큰 발급
-            String token = jwtUtil.createJwt(email, role, 60 * 60 * 60L);
+            String token = jwtUtil.createJwt(email, role, jwtOAuthTokenExpireTime);
             log.info("OAuth2에서 임시 JWT를 발급한 뒤 쿠키에 담아 보냈습니다. = {} ", token);
 
             response.addCookie(createCookie("OAuthAuthorization", token));
@@ -61,7 +64,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     private Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60 * 60 * 60);
+        cookie.setMaxAge((int) jwtOAuthTokenExpireTime);
         //cookie.setSecure(true);
         cookie.setPath("/");
         cookie.setHttpOnly(true);

@@ -22,4 +22,6 @@ public interface SheetService {
     Resource getSheetFileByName(String fileName) throws IOException;
 
     List<SheetResponseDto> searchSheetByFilter(String keyword, String sort);
+
+    List<SheetResponseDto> searchSheetByLevelRandomly(Integer level);
 }

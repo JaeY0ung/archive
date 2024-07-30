@@ -53,8 +53,6 @@ public class User extends BaseEntity {
 
     private Boolean gender;
 
-    private String token;
-
     private String provider;
 
     @ColumnDefault("0")
@@ -104,7 +102,7 @@ public class User extends BaseEntity {
             this.uuid = uuid;
         }
     }
-    
+
     public void updateEmail(String email) {
         this.email = email;
     }

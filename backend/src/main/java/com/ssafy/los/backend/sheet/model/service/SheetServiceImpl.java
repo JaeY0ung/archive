@@ -80,8 +80,21 @@ public class SheetServiceImpl implements SheetService {
             loginUserId = null;
         }
         return sheetRepository.findSheets(keyword, sort, loginUserId)
-                .stream().map(this::addSongImg).
-                collect(Collectors.toList());
+                .stream().map(this::addSongImg)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SheetResponseDto> searchSheetByLevelRandomly(Integer level) {
+        Long loginUserId;
+        try {
+            loginUserId = authService.getLoginUser().getId();
+        } catch (Exception e) {
+            loginUserId = null;
+        }
+        return sheetRepository.findSheetsByLevelRandomly(level, loginUserId)
+                .stream().map(this::addSongImg)
+                .collect(Collectors.toList());
     }
 
     public SheetResponseDto addSongImg(SheetResponseDto sheetResponseDto) {

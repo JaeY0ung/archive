@@ -21,31 +21,14 @@ export const useUserStore = defineStore('user', () => {
       loginUser,
       async (response) => {
         console.log("loginUser: ", loginUser);
-        
+        let accessToken = "";
         // 응답 헤더에서 Authorization 토큰 추출
         const authHeader = response.headers['authorization'];
         if (authHeader && authHeader.startsWith('Bearer ')) {
-          const accessToken = authHeader.substring(7);
+          accessToken = authHeader.substring(7);
           // 세션 스토리지에 저장
           sessionStorage.setItem("accessToken", accessToken);
           console.log("accessToken을 세션 스토리에 저장합니다. = ", accessToken);
-
-          // 유저 정보 가져오기
-            await getUserInfo(accessToken);
-            console.log("user 정보: = ", userInfo.value);
-            // console.log(userInfo.value.email);
-
-            console.log("User ID:", userInfo.value.id);
-            console.log("Role:", userInfo.value.role);
-            console.log("Email:", userInfo.value.email);
-            console.log("Nickname:", userInfo.value.nickname);
-            console.log("User Image:", userInfo.value.userImg);
-            console.log("Birth Date:", userInfo.value.birthDate);
-            console.log("Gender:", userInfo.value.gender);
-            console.log("Cash:", userInfo.value.cash);
-            console.log("Single Score:", userInfo.value.singleScore);
-            console.log("Multi Score:", userInfo.value.multiScore);
-            console.log("Deleted At:", userInfo.value.deletedAt);
 
 
         } else {
@@ -63,6 +46,23 @@ export const useUserStore = defineStore('user', () => {
         isLogin.value = true;
         isLoginError.value = false;
         isValidToken.value = true;
+
+          // 유저 정보 가져오기
+          await getUserInfo(accessToken);
+          console.log("user 정보: = ", userInfo.value);
+          // console.log(userInfo.value.email);
+
+          console.log("User ID:", userInfo.value.id);
+          console.log("Role:", userInfo.value.role);
+          console.log("Email:", userInfo.value.email);
+          console.log("Nickname:", userInfo.value.nickname);
+          console.log("User Image:", userInfo.value.userImg);
+          console.log("Birth Date:", userInfo.value.birthDate);
+          console.log("Gender:", userInfo.value.gender);
+          console.log("Cash:", userInfo.value.cash);
+          console.log("Single Score:", userInfo.value.singleScore);
+          console.log("Multi Score:", userInfo.value.multiScore);
+          console.log("Deleted At:", userInfo.value.deletedAt);
       },
       (error) => {
         console.log("loginUser: ", loginUser);
@@ -80,7 +80,6 @@ export const useUserStore = defineStore('user', () => {
     console.log('token: ', token)
     console.log('decodeToken: ', decodeToken);
       await findByEmail(
-          // decodeToken.username,
           (response) => {
               if (response.status === httpStatusCode.OK) {
                   userInfo.value = response.data
@@ -88,21 +87,10 @@ export const useUserStore = defineStore('user', () => {
                   console.log("해당 유저 정보가 없습니다.")
               }
           },
-    // await findById(
-    //   decodeToken.username,
-    //   (response) => {
-    //     if (response.status === httpStatusCode.OK) {
-    //       userInfo.value = response.data.userInfo
-    //     } else {
-    //       console.log("해당 유저 정보가 없습니다.")
-    //     }
-    //   },
-      async (error) => {
-        console.error("토큰이 만료되어 사용 불가능합니다.",)
-        console.error(error.response.status, error.response.statusText)
-        isValidToken.value = false
 
-        await tokenRegenerate()
+      (error) => {
+        // refresh 토큰 발급 가능
+
       }
     )
   }
@@ -118,30 +106,7 @@ export const useUserStore = defineStore('user', () => {
         }
       },
       async (error) => {
-        // HttpStatus.UNAUTHORIZE(401) : RefreshToken 기간 만료 >> 다시 로그인!!!!
-        if (error.response.status === httpStatusCode.UNAUTHORIZED) {
-          // 다시 로그인 전 DB에 저장된 RefreshToken 제거.
-          await logout(
-            userInfo.value.username,
-            (response) => {
-              if (response.status === httpStatusCode.OK) {
-                console.log("리프레시 토큰 제거 성공")
-              } else {
-                console.log("리프레시 토큰 제거 실패")
-              }
-              alert("RefreshToken 기간 만료!!! 다시 로그인해 주세요.")
-              isLogin.value = false
-              userInfo.value = null
-              isValidToken.value = false
-              router.push({ name: "login" })
-            },
-            (error) => {
-              console.error(error)
-              isLogin.value = false
-              userInfo.value = null
-            }
-          )
-        }
+
       }
     )
   }
@@ -173,10 +138,10 @@ export const useUserStore = defineStore('user', () => {
   return {
     userLogin,
     userLogout,
+    isLogin,
 
 
     
-    isLogin,
 
     isLoginError,
     userInfo,

@@ -51,8 +51,6 @@ public class QUser extends EntityPathBase<User> {
 
     public final NumberPath<Integer> singleScore = createNumber("singleScore", Integer.class);
 
-    public final StringPath token = createString("token");
-
     public final StringPath userImg = createString("userImg");
 
     public final StringPath uuid = createString("uuid");

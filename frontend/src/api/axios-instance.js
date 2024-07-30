@@ -29,9 +29,9 @@ api.interceptors.response.use(
   },
   async (error) => {
     if (error.response.status === 401 && error.response.data === 'AccessTokenExpired') {
-      try {
+      try { 
         // 401 에러 발생 시 리프레시 토큰을 사용하여 액세스 토큰 갱신 시도
-          const response = await axios.get('http://localhost:8080/auth/refresh', {withCredentials: true});
+          const response = await axios.get('http://localhost:8081/auth/refresh', {withCredentials: true});
           const newAccessToken = response.data.accessToken;
 
         // 새 토큰을 저장하고, 원래 요청 재시도
