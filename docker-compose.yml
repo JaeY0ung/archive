@@ -47,6 +47,15 @@ services:
     volumes:
       - redis-data:/data
 
+  music-engine:
+    image: mctlab/omnizart:latest  # Omnizart Docker image
+    container_name: omnizart_container
+    volumes:
+      - ./music-engine:/app  # Mount your local directory to the container
+    entrypoint: /bin/bash  # Start the container with a bash shell
+    stdin_open: true  # Keep the container open for input
+    tty: true  # Allocate a pseudo-TTY
+
 volumes:
   mysql-data:
   redis-data:
