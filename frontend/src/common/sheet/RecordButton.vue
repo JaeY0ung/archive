@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, watch } from "vue";
-
+import axios from "axios";
 const props = defineProps({
   triggerSplit: Number,
   isPlay: {
