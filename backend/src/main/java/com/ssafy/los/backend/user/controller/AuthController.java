@@ -216,7 +216,7 @@ public class AuthController {
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // refreshToken 발급하기
-        String refreshToken = jwtUtil.createJwt(email, role, refreshTokenExpireTime);
+        String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
         response.addCookie(createCookie("refreshToken", refreshToken));
         // redis 저장하기
         User user = userRepository.findByEmail(email)
