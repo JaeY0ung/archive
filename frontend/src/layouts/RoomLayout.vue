@@ -6,14 +6,12 @@ const router = useRouter();
 import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
 import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
 import { useUserStore } from '@/stores/user';
-import { usePlayStore } from '../stores/play';
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
 const userStore = new useUserStore();
-const playStore = new usePlayStore();
 
 var stompClient = null;
 
@@ -97,7 +95,7 @@ function connect() {
                 // 게임 시작을 알리는 데이터가 온 경우
                 if(message.type == "start"){
                     if(message.content == "true"){
-                        router.push({name:'battle'})
+                        router.push({name:'play'})
 
                         // window.addEventListener('beforeunload', unLoadEvent);
                     }
@@ -172,7 +170,7 @@ const getLiveResult = computed(() => {
 })
 
 const goToBattle = () => {
-    router.push({name:'battle'})
+    router.push({name:'play'})
 
     // window.addEventListener('beforeunload', unLoadEvent);
 
@@ -205,6 +203,7 @@ const email = decodeToken.username;
 
 me.value.name = email;
 
+
 function readyButton() {
     // 이곳에서 할 것.
     if(isReady.value == "false"){
@@ -221,7 +220,6 @@ function readyButton() {
             'isReady' : isReady.value
         }));
 }
-
 
 
 function unLoadEvent (event) {
@@ -241,7 +239,7 @@ onMounted(() => {
 })
 
 function quitButton () {
-    router.push('waitBattle');
+    router.push('wait');
 }
 
 const inviteModalStatus = ref(false);
@@ -252,9 +250,6 @@ const openInviteModalStatus = () => {
 const closeInviteModalStatus = () => {
     inviteModalStatus.value = false;
 }
-
-// 현재 선택된 모드를 확인하는 computed 프로퍼티
-const currentMode = computed(() => playStore.getMode);
 </script>
 
 <template>
@@ -275,40 +270,33 @@ const currentMode = computed(() => playStore.getMode);
                     <div>{{ me.name }}</div>
                     <div>현재 스코어 : {{ me.score }}</div>
                 </div>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'battle'">대기중</button>
-                <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'battle'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'battle'">게임중</button>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'play'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
                 
             </div>
             
             <div class="button-div">
-                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'waitBattle' && (isReady == 'false' || opponentReady == 'false')">
+                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'wait' && (isReady == 'false' || opponentReady == 'false')">
                     시작하기
                 </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'waitBattle' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
+                <button class="btn btn-primary w-24" v-if="route.name == 'wait' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'battle'" @click="quitButton">
+                <button class="btn btn-primary w-24" v-if="route.name == 'play'" @click="quitButton">
                     나가기
                 </button>
             </div>
             
-            
-            <div v-if="currentMode !== 'single'" class="player-card">
+            <div class="player-card">
                 <div class="player-img">{{ opponent.img }}</div>
                 <div class="player-info-text">
                     <div>{{ opponent.name }}</div>
                     <div>현재 스코어 : {{ opponent.score }}</div>
                 </div>
-<<<<<<< Updated upstream:frontend/src/layouts/BattleLayout.vue
-                <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false' && route.name != 'battle'">대기중</button>
-                <button class="btn text-white" style="background-color: red;" v-if="opponentReady == 'true' && route.name != 'battle'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'battle'">게임중</button>
-=======
                 <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false' && route.name != 'play'">대기중</button>
                 <button class="btn text-white" style="background-color: red;" v-if="opponentReady == 'true' && route.name != 'play'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" v-if="route.name =='play'"  @click=readyButton>게임중</button>
->>>>>>> Stashed changes:frontend/src/layouts/RoomLayout.vue
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton>게임중</button>
             </div>
         </div>
     </div>
