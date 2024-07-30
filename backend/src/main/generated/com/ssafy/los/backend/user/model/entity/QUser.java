@@ -43,13 +43,13 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath nickname = createString("nickname");
 
+    public final StringPath provider = createString("provider");
+
     public final StringPath pwdHash = createString("pwdHash");
 
     public final StringPath role = createString("role");
 
     public final NumberPath<Integer> singleScore = createNumber("singleScore", Integer.class);
-
-    public final StringPath token = createString("token");
 
     public final StringPath userImg = createString("userImg");
 

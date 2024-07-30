@@ -9,6 +9,7 @@ import com.ssafy.los.backend.sheet.model.repository.SheetRepository;
 import com.ssafy.los.backend.sheet.model.repository.SheetStarRateRepository;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
+import com.ssafy.los.backend.user.model.service.AuthService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,18 +24,20 @@ public class SheetStarRateServiceImpl implements SheetStarRateService {
     private final SheetStarRateRepository sheetStarRateRepository;
     private final UserRepository userRepository;
     private final SheetRepository sheetRepository;
+    private final AuthService authService;
 
     // 별점 생성
     @Override
-    public Long saveStarRate(SheetStarRateCreateDto request, User user) {
-        Sheet findSheet = sheetRepository.findById(request.getSheetId())
-                .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + request.getSheetId()));
+    public Long saveStarRate(SheetStarRateCreateDto sheetStarRateCreateDto, Long sheetId) {
+        User user = authService.getLoginUser();
+        Sheet findSheet = sheetRepository.findById(sheetId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
 
         SheetStarRate sheetStarRate = SheetStarRate.builder()
                 .user(user)
                 .sheet(findSheet)
-                .content(request.getContent())
-                .starRate(request.getStarRate())
+                .content(sheetStarRateCreateDto.getContent())
+                .starRate(sheetStarRateCreateDto.getStarRate())
                 .build();
 
         return sheetStarRateRepository.save(sheetStarRate).getId();

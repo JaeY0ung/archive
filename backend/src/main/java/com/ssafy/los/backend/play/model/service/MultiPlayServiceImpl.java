@@ -10,7 +10,6 @@ import com.ssafy.los.backend.sheet.model.repository.SheetRepository;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
 import com.ssafy.los.backend.user.model.service.AuthService;
-
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,8 @@ public class MultiPlayServiceImpl implements MultiPlayService {
 
     // 게임이 종료되었을 떄, 결과 테이블 가져오기
     @Override
-    public Long completeMultiPlayResult(Long multiResultId, MultiPlayResultAfterDto multiResultAfterDto) {
+    public Long completeMultiPlayResult(Long multiResultId,
+            MultiPlayResultAfterDto multiResultAfterDto) {
 
         MultiPlayResult multiPlayResult = multiPlayResultRepository.findById(multiResultId)
                 .orElseThrow(() -> new RuntimeException("multi play result not found"));
@@ -58,7 +58,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
 
             if (myScore > otherScore) {
                 multiPlayResult.update(myUser, myScore, otherUser, otherScore);
-            } else if (myScore.equals(otherScore)){
+            } else if (myScore.equals(otherScore)) {
                 multiPlayResult.update(myUser, myScore, otherUser, otherScore);
                 multiPlayResult.updateDraw(true);
             } else {
@@ -79,7 +79,8 @@ public class MultiPlayServiceImpl implements MultiPlayService {
     // 로그인한 유저에 대하여 멀티 결과 기록들을 모두 반환한다.
     @Override
     public List<MultiPlayResultListDto> getMultiPlayResultList(User user) {
-        List<MultiPlayResult> resultList = multiPlayResultRepository.findAllByUserOrderByCreatedAt(user);
+        List<MultiPlayResult> resultList = multiPlayResultRepository.findAllByUserOrderByCreatedAt(
+                user);
 
         List<MultiPlayResultListDto> resultListDtoList = new ArrayList<>();
 
@@ -88,11 +89,14 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             User loser = multiPlayResult.getLoser();
             boolean isWinner = winner.equals(user);
             MultiPlayResultListDto result = MultiPlayResultListDto.builder()
-                    .myUsername(isWinner ? winner.getNickname() : loser.getNickname())
-                    .myProfileUrl(isWinner ? winner.getUserImg() : loser.getUserImg())
-                    .myScore(isWinner ? multiPlayResult.getWinnerScore() : multiPlayResult.getLoserScore())
-                    .otherUsername(isWinner ? loser.getNickname() : winner.getNickname())
-                    .otherScore(isWinner ? multiPlayResult.getLoserScore() : multiPlayResult.getWinnerScore())
+                    .myNickname(isWinner ? winner.getNickname() : loser.getNickname())
+                    .myProfileImg(isWinner ? winner.getUserImg() : loser.getUserImg())
+                    .myScore(isWinner ? multiPlayResult.getWinnerScore()
+                            : multiPlayResult.getLoserScore())
+                    .otherNickname(isWinner ? loser.getNickname() : winner.getNickname())
+                    .otherProfileImg(isWinner ? loser.getUserImg() : winner.getUserImg())
+                    .otherScore(isWinner ? multiPlayResult.getLoserScore()
+                            : multiPlayResult.getWinnerScore())
                     .sheetTitle(multiPlayResult.getSheet().getTitle())
                     .sheetUrl(multiPlayResult.getSheet().getFileName())
                     .level(multiPlayResult.getSheet().getLevel()).build();
@@ -104,12 +108,10 @@ public class MultiPlayServiceImpl implements MultiPlayService {
 
     // TODO: ADMIN 만 멀티 결과에 대해 삭제할 수 있다.
     @Override
-    public Long removeMultiPlayResult(Long multiPlayResultId)
-    {
+    public Long removeMultiPlayResult(Long multiPlayResultId) {
         multiPlayResultRepository.deleteById(multiPlayResultId);
         return multiPlayResultId;
     }
-
 
 
 }

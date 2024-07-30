@@ -1,10 +1,13 @@
 package com.ssafy.los.backend.user.model.service;
 
+import com.ssafy.los.backend.config.PasswordService;
 import com.ssafy.los.backend.user.model.dto.CustomOAuth2User;
 import com.ssafy.los.backend.user.model.dto.NaverResponse;
 import com.ssafy.los.backend.user.model.dto.OAuth2Response;
+import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +20,24 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional // 문제 없겠지?
 public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+//    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordService passwordService;
+
+    // OAuth2로 유저 등록하기
+    public Long saveOAuth2User(UserRegisterDto userRegisterDto) {
+        User findUser = userRepository.findByEmail(userRegisterDto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 이메일입니다. " + userRegisterDto.getEmail()));
+
+        String hashPwd = passwordService.encode(userRegisterDto.getPassword());
+        String role = "ROLE_USER";
+        User TempOAuthUser = userRegisterDto.toEntity(hashPwd, role);
+        findUser.OAuth2Update(TempOAuthUser);
+        return findUser.getId();
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -29,24 +47,28 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         OAuth2Response oAuth2Response = getOAuth2Response(userRequest, oAuth2User);
 
         // 유저 정보 처리하기
+        String provider = oAuth2Response.getProvider() + "-" + oAuth2Response.getProviderId();
         String email = oAuth2Response.getEmail();
         log.info("OAuth2에서 받은 email입니다. = {}", email);
         Optional<User> findUser = userRepository.findByEmail(email);
 
-        // 해당 이메일이 있는 경우 -> 로그인 진행하기
-        if (findUser.isPresent()) {
-            log.info("해당 이메일로 가입된 계정이 있습니다. = {}", oAuth2Response.getEmail());
-            return new CustomOAuth2User(findUser.get()); // Provider에게 제공
-        } else {
+        // 추가 회원가입 처리 유무 판단
+        // TODO : 임시로 ROlE의 유무로 계정 로그인 판단하기
+        if (findUser.isEmpty()) {
             // 해당 이메일이 없는 경우 -> 회원가입 진행하기
-            log.info("해당 이메일로 가입된 계정이 있습니다. = {}", oAuth2Response.getEmail());
+            log.info("해당 이메일로 가입된 계정이 없습니다. = {}", oAuth2Response.getEmail());
             User newUser = User.builder()
                     // TODO : 추가 정보 있으면 넘기기
                     .email(oAuth2Response.getEmail())
 //                    .role("ROLE_TEMP") // 없으면 회원가입 필요
+                    .provider(provider)
                     .build();
             userRepository.save(newUser); // 이후에 가입으로 추가 업데이트 하기
-            return new CustomOAuth2User(newUser); 
+            return new CustomOAuth2User(newUser);
+
+        } else {
+            log.info("해당 이메일로 가입된 계정이 있습니다. = {}", oAuth2Response.getEmail());
+            return new CustomOAuth2User(findUser.get()); // Provider에게 제공
         }
     }
 

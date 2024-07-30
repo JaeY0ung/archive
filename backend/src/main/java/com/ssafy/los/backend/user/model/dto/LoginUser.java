@@ -4,10 +4,18 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
 public class LoginUser {
-
-    private Long id;
+    private String id;
     private String email;
 
+    // 기본 생성자
+    public LoginUser() {
+    }
+
+    // 빌더 패턴
+    @Builder
+    public LoginUser(String id, String email) {
+        this.id = id;
+        this.email = email;
+    }
 }

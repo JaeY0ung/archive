@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -31,18 +32,24 @@ const router = createRouter({
     },
     // -----------------------------------------------
     {
-      path: "/battleroom",
-      component: () => import('@/layouts/BattleLayout.vue'),
+    path: "/pianosaurus",
+    name: "pianoSaurus",
+    component: () => import('@/views/play/PianoSaurusView.vue')
+    },
+    // -----------------------------------------------
+    {
+      path: "/room",
+      component: () => import('@/layouts/RoomLayout.vue'),
       children: [
         {
           path: 'wait',
-          name: 'waitBattle',
-          component: () => import('@/views/BattleWaitView.vue')
+          name: 'wait',
+          component: () => import('@/views/play/WaitView.vue')
         },
         {
-          path: 'battle',
-          name: 'battle',
-          component: () => import('@/views/BattleView.vue')
+          path: 'play',
+          name: 'play',
+          component: () => import('@/views/play/PlayingView.vue')
         },
       ]
     },
@@ -69,6 +76,11 @@ const router = createRouter({
       component: () => import('@/views/RegisterView.vue')
     },
     {
+      path: '/auth/register',
+      name: 'auth-register',
+      component: () => import('@/views/user/OAuth2RegisterView.vue')
+    },
+    {
       path: '/auth-success',
       name: 'auth-success',
       component: () => import('@/views/user/OAuth2SuccessView.vue')
@@ -91,7 +103,31 @@ const router = createRouter({
       component: () => import('@/views/PaymentView.vue')
     },
     // -----------------------------------------------
+    // 난이도 기여 페이지
+    {
+      path: '/difficulty/:sheetId',
+      name: 'sheetDifficultyRating',
+      component: () => import('@/views/SheetDifficultyRatingView.vue')
+    },
+    // -----------------------------------------------
   ]
+})
+
+// 전역 네비게이션 가드 추가
+router.beforeEach((to, from, next) => {
+  const userStore = useUserStore()
+
+  // '/login' 경로로 이동 관리
+  if (to.path === '/login') {
+    if (userStore.isLogin) {
+      alert('이미 로그인이 되었습니다.')
+      next({ name: 'main' })
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

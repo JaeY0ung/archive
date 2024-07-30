@@ -4,6 +4,7 @@ import com.ssafy.los.backend.user.filter.JWTFilter;
 import com.ssafy.los.backend.user.filter.LoginFilter;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.user.model.service.OAuth2UserService;
+import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
@@ -16,7 +17,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -27,15 +27,16 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationConfiguration authenticationConfiguration;
-    private final JWTUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final OAuth2UserService oauth2UserService;
-    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
-
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
 
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final OAuth2UserService oauth2UserService;
+    private final JWTUtil jwtUtil;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+    private final UserStatusService userStatusService;
+    
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
             throws Exception {
@@ -86,11 +87,13 @@ public class SecurityConfig {
                 .anyRequest().permitAll());
 
         // 필터 추가
+
         http.addFilterBefore(new JWTFilter(jwtUtil, refreshTokenRepository),
                 UsernamePasswordAuthenticationFilter.class);
         http.addFilterAt(
                 new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-                        refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
+                        refreshTokenRepository, userStatusService),
+                UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정
         http.sessionManagement((session) -> session
@@ -105,10 +108,10 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
 
 }

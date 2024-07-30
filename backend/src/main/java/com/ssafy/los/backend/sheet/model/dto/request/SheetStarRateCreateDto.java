@@ -7,8 +7,6 @@ import lombok.Getter;
 @Builder
 public class SheetStarRateCreateDto {
 
-    private Long sheetId;
     private String content;
     private int starRate;
-
 }

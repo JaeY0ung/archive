@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 
-@Builder
 @Getter
 public class SheetUploadForm {
 
@@ -15,9 +14,13 @@ public class SheetUploadForm {
 
     private Long songId;
 
-    private Integer price;
-
     private Integer level; // 1,2,3,4,5,6,7,8,9
 
-    private Integer point;
+    @Builder
+    public SheetUploadForm(List<MultipartFile> files, String title, Long songId, Integer level) {
+        this.files = files;
+        this.title = title;
+        this.songId = songId;
+        this.level = level;
+    }
 }
