@@ -99,7 +99,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
 
     private OrderSpecifier createOrderSpecifier(String sort) {
         if (sort == null || sort.isEmpty()) {
-            return null;
+            return new OrderSpecifier<>(Order.ASC,
+                    Expressions.numberTemplate(Double.class, "function('RAND')"));
         }
         return switch (sort) {
             // TODO : LikeSheet과 join해서 가져오는것을 엔티티에서 OneToMany로 설정하는게 맞는지?...
@@ -112,8 +113,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
             case "CHEAPEST" -> new OrderSpecifier<>(Order.ASC, s.price);
             case "HIGHEST_VIEW" -> new OrderSpecifier<>(Order.DESC, s.viewCount);
             case "LATEST" -> new OrderSpecifier<>(Order.DESC, s.createdAt);
-            case "RANDOM" ->
-                    new OrderSpecifier<>(Order.ASC, Expressions.numberTemplate(Double.class, "function('RAND')"));
+            case "RANDOM" -> new OrderSpecifier<>(Order.ASC,
+                    Expressions.numberTemplate(Double.class, "function('RAND')"));
             default -> new OrderSpecifier<>(Order.DESC, s.createdAt);
         };
     }

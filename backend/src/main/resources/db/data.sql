@@ -83,26 +83,21 @@ VALUES (1, '클래식'),
 # 곡 (Song)
 INSERT INTO song(song_id, genre_id, composer, title, img_name)
 VALUES (1, 1, 'Max Vogrich', '체르니 100번 1', 'Max Vogrich.jpg'),
-       (2, 5, '아이브', 'after like', 'after_like.jpg');
+       (2, 5, '아이브', 'after like', 'after_like.jpg'),
+       (3, 5, '멜로망스', '사랑인가 봐', '사랑인가 봐.jpg'),
+       (4, 5, '조정석', '아로하', '아로하.jpg');
 
-UPDATE song
-SET img_name = 'Max Vogrich.jpg'
-WHERE song_id = 1;
-UPDATE song
-SET img_name = 'after_like.jpg'
-WHERE song_id = 2;
 #==================================-============================================================
 # 악보(sheet)
-INSERT INTO sheet(sheet_id, song_id, level, point, price, uploader_id, status, title, file_name,
+INSERT INTO sheet(sheet_id, song_id, level, price, uploader_id, status, title, file_name,
                   created_at,
                   modified_at,
                   deleted_at)
-VALUES (1, 1, 5, 5, 500, 1, 0, '체르니 100 1번', '체르니 100 1번.mid', NOW(), NOW(), NULL),
-       (2, 2, 5, 5, 500, 1, 0, 'after like', 'after_like.mid', NOW(), NOW(), NULL);
+VALUES (1, 1, 1, 500, 1, 0, '체르니 100 1번', '체르니 100 1번.mid', NOW(), NOW(), NULL),
+       (2, 2, 2, 500, 2, 0, 'after like', 'after_like.mid', NOW(), NOW(), NULL),
+       (3, 3, 3, 500, 3, 0, '사랑인가 봐', '사랑인가 봐.mid', NOW(), NOW(), NULL),
+       (4, 4, 4, 500, 4, 0, '아로하', '아로하.mid', NOW(), NOW(), NULL);
 
-UPDATE sheet
-SET file_name = '체르니 100 1번.mid'
-WHERE sheet_id = 1;
 #==================================-============================================================
 # 악보 좋아요 (like_sheet)
 INSERT INTO like_sheet(like_sheet_id, user_id, sheet_id, created_at)
