@@ -28,8 +28,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
             "/users", "/users/check-email",
-            "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh",
-            "/sheets"
+            "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh"
     );
 
     @Override
