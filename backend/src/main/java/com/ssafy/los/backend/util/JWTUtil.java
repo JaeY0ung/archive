@@ -13,6 +13,13 @@ public class JWTUtil {
 
     private SecretKey secretKey;
 
+    @Value("${jwt.accessToken.expireTime}")
+    private Long accessExpired;
+    @Value("${jwt.refreshToken.expireTime}")
+    private Long refreshExpired;
+    @Value("${jwt.oauth.token.expireTime}")
+    private Long oAuthExpired;
+
     public JWTUtil(@Value("${spring.jwt.secret}")String secret) {
 
 
@@ -34,13 +41,34 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
-    public String createJwt(String username, String role, Long expiredMs) {
+    public String createAccessJwt(String username, String role) {
 
         return Jwts.builder()
                 .claim("username", username)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiredMs))
+                .expiration(new Date(System.currentTimeMillis() + accessExpired))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String createRefreshJwt(String username, String role) {
+
+        return Jwts.builder()
+                .claim("username", username)
+                .claim("role", role)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + refreshExpired))
+                .signWith(secretKey)
+                .compact();
+    }
+    public String createOauthJwt(String username, String role) {
+
+        return Jwts.builder()
+                .claim("username", username)
+                .claim("role", role)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + oAuthExpired))
                 .signWith(secretKey)
                 .compact();
     }
