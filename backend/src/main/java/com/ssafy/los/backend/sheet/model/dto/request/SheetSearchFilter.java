@@ -9,9 +9,9 @@ public class SheetSearchFilter {
 
     private String keyword;
 
-    private String sort; // "popular", "new"
+    private String sort;
 
-    private Integer count;
-
-    private Integer page;
+//    private Integer count;
+//
+//    private Integer page;
 }

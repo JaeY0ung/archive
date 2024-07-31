@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Slf4j
 
-public class SheetResponseDto {
+public class SheetDetailViewDto {
 
     private Long id;
 
@@ -50,7 +50,7 @@ public class SheetResponseDto {
 
     private Timestamp createdAt;
 
-    public SheetResponseDto(Sheet sheet, Long likeCount, Boolean likeStatus) {
+    public SheetDetailViewDto(Sheet sheet, Long likeCount, Boolean likeStatus) {
 
         this.id = sheet.getId();
         this.title = sheet.getTitle();
@@ -68,7 +68,7 @@ public class SheetResponseDto {
         this.likeStatus = likeStatus;
     }
 
-    public SheetResponseDto(Sheet sheet, Long likeCount) {
+    public SheetDetailViewDto(Sheet sheet, Long likeCount) {
         this(sheet, likeCount, null);
     }
 

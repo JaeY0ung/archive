@@ -1,27 +1,24 @@
 package com.ssafy.los.backend.sheet.model.service;
 
 import com.ssafy.los.backend.sheet.model.dto.request.SheetUploadForm;
-import com.ssafy.los.backend.sheet.model.dto.response.SheetResponseDto;
+import com.ssafy.los.backend.sheet.model.dto.response.SheetDetailViewDto;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
-import com.ssafy.los.backend.user.model.entity.User;
-import java.io.IOException;
 import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface SheetService {
 
-    String saveSheetFile(MultipartFile file) throws IOException;
+    Sheet registerSheetAndFile(MultipartFile file, SheetUploadForm sheetUploadForm)
+            throws IllegalArgumentException;
 
-    Sheet saveSheetInfo(SheetUploadForm sheetUploadForm, User loginUser, String fileName);
+    Sheet searchById(Long sheetId);
 
-    Sheet selectById(Long sheetId);
+    SheetDetailViewDto searchSheetById(Long sheetId);
 
-    SheetResponseDto searchSheetById(Long sheetId);
+    Resource getSheetFileByName(String fileName) throws IllegalArgumentException;
 
-    Resource getSheetFileByName(String fileName) throws IOException;
+    List<SheetDetailViewDto> searchSheetByFilter(String keyword, String sort);
 
-    List<SheetResponseDto> searchSheetByFilter(String keyword, String sort);
-
-    List<SheetResponseDto> searchSheetByLevelRandomly(Integer level);
+    List<SheetDetailViewDto> searchSheetByLevelRandomly(Integer level);
 }

@@ -1,12 +1,10 @@
 package com.ssafy.los.backend.sheet.controller;
 
 import com.ssafy.los.backend.sheet.model.dto.request.SheetUploadForm;
-import com.ssafy.los.backend.sheet.model.dto.response.SheetResponseDto;
+import com.ssafy.los.backend.sheet.model.dto.response.SheetDetailViewDto;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.sheet.model.service.SheetService;
-import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +43,6 @@ public class SheetController {
             @RequestPart("level") Integer level,
             @RequestPart("songId") Long songId) {
 
-        User loginUser = authService.getLoginUser();
-
         if (files.size() != 1) {
             return new ResponseEntity<>("하나의 파일만 올려주세요.", HttpStatus.BAD_REQUEST);
         }
@@ -58,12 +54,11 @@ public class SheetController {
                 .songId(songId)
                 .build();
         try {
-            String uuid = sheetService.saveSheetFile(files.get(0));
-            Sheet sheet = sheetService.saveSheetInfo(sheetUploadForm, loginUser, uuid);
+            // 악보 데이터 및 파일 저장
+            Sheet sheet = sheetService.registerSheetAndFile(files.get(0), sheetUploadForm);
             return new ResponseEntity<>(sheet, HttpStatus.CREATED);
-            // TODO : mid -> mp3 변환한 파일 추가로 저장하는 로직 구현하기
-        } catch (IOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -72,7 +67,7 @@ public class SheetController {
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "") String sort,
             @RequestParam(defaultValue = "0") Integer level) {
-        log.info(level.toString() + "  " + sort);
+
         if (sort.equals("RANDOM")) {
             return new ResponseEntity<>(sheetService.searchSheetByLevelRandomly(level),
                     HttpStatus.OK);
@@ -92,7 +87,7 @@ public class SheetController {
     public ResponseEntity<?> downloadSheet(@PathVariable("sheet-id") Long sheetId) {
         // TODO : 구매여부 확인
 
-        SheetResponseDto sheet = sheetService.searchSheetById(sheetId);
+        SheetDetailViewDto sheet = sheetService.searchSheetById(sheetId);
         try {
             Resource resource = sheetService.getSheetFileByName(sheet.getFileName());
 
@@ -106,9 +101,8 @@ public class SheetController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
                     .body(resource);
-        } catch (IOException e) {
-            log.info(e.getMessage()); // 파일이 없습니다.
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }
     }
 }

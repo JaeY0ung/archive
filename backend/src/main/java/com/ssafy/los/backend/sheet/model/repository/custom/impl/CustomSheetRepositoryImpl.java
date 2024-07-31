@@ -8,7 +8,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.los.backend.like.model.entity.QLikeSheet;
-import com.ssafy.los.backend.sheet.model.dto.response.SheetResponseDto;
+import com.ssafy.los.backend.sheet.model.dto.response.SheetDetailViewDto;
 import com.ssafy.los.backend.sheet.model.entity.QSheet;
 import com.ssafy.los.backend.sheet.model.repository.custom.CustomSheetRepository;
 import java.util.List;
@@ -22,8 +22,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     QSheet s = QSheet.sheet;
     QLikeSheet ls = QLikeSheet.likeSheet;
 
-    public List<SheetResponseDto> findSheets(String keyword, String sort, Long userId) {
-        return queryFactory.select(Projections.constructor(SheetResponseDto.class,
+    public List<SheetDetailViewDto> findSheets(String keyword, String sort, Long userId) {
+        return queryFactory.select(Projections.constructor(SheetDetailViewDto.class,
                         s,
                         JPAExpressions.select(ls.count())
                                 .from(ls)
@@ -40,8 +40,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
 
 
     @Override
-    public SheetResponseDto findSheetById(Long sheetId, Long userId) {
-        return queryFactory.select(Projections.constructor(SheetResponseDto.class,
+    public SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId, Long userId) {
+        return queryFactory.select(Projections.constructor(SheetDetailViewDto.class,
                         s,
                         JPAExpressions.select(ls.count())
                                 .from(ls)
@@ -54,8 +54,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     }
 
     @Override
-    public List<SheetResponseDto> findSheetsByLevelRandomly(Integer level, Long userId) {
-        return queryFactory.select(Projections.constructor(SheetResponseDto.class,
+    public List<SheetDetailViewDto> findSheetsByLevelRandomly(Integer level, Long userId) {
+        return queryFactory.select(Projections.constructor(SheetDetailViewDto.class,
                         s,
                         JPAExpressions.select(ls.count())
                                 .from(ls)
