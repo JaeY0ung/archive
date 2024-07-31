@@ -36,7 +36,7 @@ public class UserController {
     // 회원 등록
     @PostMapping
     public ResponseEntity<?> saveUser(@RequestBody UserRegisterDto userRegisterDto) {
-        log.info("회원 등록 요청을 한 DTO = {}", userRegisterDto.toString());
+        log.info("회원 등록 요청을 한 DTO = {}" , userRegisterDto.toString());
         Long saveId = userService.saveUser(userRegisterDto);
 
         return new ResponseEntity<>(saveId, HttpStatus.CREATED);
@@ -50,7 +50,7 @@ public class UserController {
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
-    // 회원 이메일 중복 여부 체크
+    // 회원 닉네임 중복 여부 체크
     @GetMapping("/check-nickname")
     public ResponseEntity<?> validateNickname(@RequestParam("nickname") String nickname) {
         boolean isDuplicated = userService.validateNickname(nickname);
@@ -99,25 +99,5 @@ public class UserController {
         Long getId = userService.selectUserInfoForMyPageById(userId);
         return new ResponseEntity<>(getId, HttpStatus.OK);
     }
-
-//    @GetMapping("/{email}")
-////    public ResponseEntity<?> getUserInfo() {
-////        User user = userService.selectUserByEmail(email);
-////
-////        UserDetailDto userDetailDto = UserDetailDto.builder()
-////                .id(user.getId())
-////                .role(user.getRole())
-////                .email(user.getEmail())
-////                .nickname(user.getNickname())
-////                .userImg(user.getUserImg())
-////                .birthDate(user.getBirthDate())
-////                .gender(user.getGender())
-////                .cash(user.getCash())
-////                .singleScore(user.getSingleScore())
-////                .multiScore(user.getMultiScore())
-////                .deletedAt(user.getDeletedAt())
-////                .build();
-////        return new ResponseEntity<>(userDetailDto, HttpStatus.OK);
-////    }
 
 }

@@ -13,7 +13,7 @@ services:
     build:
       context: ./backend
     ports:
-      - "8081:8080"
+      - "8081:8081"
     depends_on:
       - mysql
       - redis
@@ -47,11 +47,12 @@ services:
     volumes:
       - redis-data:/data
 
-  music-engine:
+  omnizart:
     image: mctlab/omnizart:latest
     container_name: omnizart_container
     volumes:
       - ./music-engine:/app
+      - shared_data:/app/temp  # 볼륨 공유 설정
     entrypoint: /bin/bash
     stdin_open: true
     tty: true
@@ -64,8 +65,15 @@ services:
     depends_on:
       - mysql
       - redis
-      - music-engine
-
+      - omnizart
+    volumes:
+      - ./host_temp:/app/temp
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker 소켓 공유
+      - shared_data:/app/temp  # 볼륨 공유 설정
+    environment:
+      UPLOAD_DIR: "/app/temp"
+      
 volumes:
   mysql-data:
   redis-data:
+  shared_data:  # 볼륨 정의
