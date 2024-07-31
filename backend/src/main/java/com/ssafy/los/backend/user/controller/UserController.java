@@ -2,7 +2,6 @@ package com.ssafy.los.backend.user.controller;
 
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
-import com.ssafy.los.backend.user.model.dto.response.UserDetailDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.user.model.service.UserService;
@@ -38,7 +37,6 @@ public class UserController {
     @PostMapping
     public ResponseEntity<?> saveUser(@RequestBody UserRegisterDto userRegisterDto) {
         log.info("회원 등록 요청을 한 DTO = {}" , userRegisterDto.toString());
-
         Long saveId = userService.saveUser(userRegisterDto);
 
         return new ResponseEntity<>(saveId, HttpStatus.CREATED);
@@ -49,6 +47,14 @@ public class UserController {
     public ResponseEntity<?> validateEmail(@RequestParam("email") String email) {
         boolean isDuplicated = userService.validateEmail(email);
         log.info("이메일 중복 여부 검사 data = {}", isDuplicated);
+        return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
+    }
+
+    // 회원 이메일 중복 여부 체크
+    @GetMapping("/check-nickname")
+    public ResponseEntity<?> validateNickname(@RequestParam("nickname") String nickname) {
+        boolean isDuplicated = userService.validateNickname(nickname);
+        log.info("닉네임 중복 여부 검사 data = {}", isDuplicated);
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
@@ -93,25 +99,5 @@ public class UserController {
         Long getId = userService.selectUserInfoForMyPageById(userId);
         return new ResponseEntity<>(getId, HttpStatus.OK);
     }
-
-//    @GetMapping("/{email}")
-//    public ResponseEntity<?> getUserInfo() {
-//        User user = userService.selectUserByEmail(email);
-//
-//        UserDetailDto userDetailDto = UserDetailDto.builder()
-//                .id(user.getId())
-//                .role(user.getRole())
-//                .email(user.getEmail())
-//                .nickname(user.getNickname())
-//                .userImg(user.getUserImg())
-//                .birthDate(user.getBirthDate())
-//                .gender(user.getGender())
-//                .cash(user.getCash())
-//                .singleScore(user.getSingleScore())
-//                .multiScore(user.getMultiScore())
-//                .deletedAt(user.getDeletedAt())
-//                .build();
-//        return new ResponseEntity<>(userDetailDto, HttpStatus.OK);
-//    }
 
 }

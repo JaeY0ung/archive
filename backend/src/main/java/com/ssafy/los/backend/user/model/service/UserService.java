@@ -12,6 +12,8 @@ public interface UserService {
 
     Boolean validateEmail(String email);
 
+    Boolean validateNickname(String email);
+
     Long saveUser(UserRegisterDto userRegisterDto);
 
     Long updateUser(Long id, UserUpdateDto userUpdateForm, String uuid);

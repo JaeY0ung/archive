@@ -9,7 +9,6 @@ import com.ssafy.los.backend.util.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +19,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final FileUploadUtil fileUploadUtil;
-//    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    //    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PasswordService passwordService;
 
     @Override
@@ -44,6 +43,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean validateEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    // 닉네임 중복 확인
+    @Override
+    public Boolean validateNickname(String nickname) {
+        return userRepository.existsByNickname(nickname);
     }
 
     // 회원 수정
