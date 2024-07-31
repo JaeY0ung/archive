@@ -111,7 +111,7 @@ public class AuthController {
         String email = jwtUtil.getUsername(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
-        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
+        String accessToken = jwtUtil.createAccessJwt(email, role);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         log.info("발급한 accessToken 입니다. = {}", accessToken);
@@ -229,11 +229,11 @@ public class AuthController {
         String role = jwtUtil.getRole(token);
 
         // accessToken 발급하기
-        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
+        String accessToken = jwtUtil.createAccessJwt(email, role);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // refreshToken 발급하기
-        String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
+        String refreshToken = jwtUtil.createRefreshJwt(email, role);
         response.addCookie(createCookie("refreshToken", refreshToken));
         // redis 저장하기
         User user = userRepository.findByEmail(email)

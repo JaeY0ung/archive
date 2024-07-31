@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,7 +29,11 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    @Value("${jwt.accessToken.expireTime}")
+    Long accessExpired;
 
+    @Value("${jwt.refreshToken.expireTime}")
+    Long refreshExpired;
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
             "/users", "/users/check-email",
             "/auth/login", "/auth/token",
@@ -131,7 +136,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String email = jwtUtil.getUsername(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
 
-        String accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
+        String accessToken = jwtUtil.createAccessJwt(email, role);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         log.info("발급한 accessToken 입니다. = {}", accessToken);
