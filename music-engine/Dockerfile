@@ -1,8 +1,9 @@
-# 베이스 이미지 설정
+# 기존의 Dockerfile 내용 시작
+
 FROM python:3.9-slim
 
-# 시스템 패키지 업데이트 및 ffmpeg 설치
-RUN apt-get update && apt-get install -y ffmpeg
+# 시스템 패키지 업데이트 및 Docker CLI 설치
+RUN apt-get update && apt-get install -y ffmpeg docker.io
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -19,3 +20,5 @@ EXPOSE 8000
 
 # 애플리케이션 실행 명령
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+# 기존의 Dockerfile 내용 끝

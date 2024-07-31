@@ -67,6 +67,7 @@ services:
       - omnizart
     volumes:
       - ./host_temp:/app/temp
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker 소켓 공유
     environment:
       UPLOAD_DIR: "/app/temp"
       
