@@ -53,7 +53,7 @@ async def upload_file(file: UploadFile = File(...)):
         # WAV 파일을 MIDI로 변환
         logger.info(f"WAV 파일 {wav_file}을 MIDI로 변환합니다.")
         midi_file = convert_service.wav_to_midi(wav_file, UPLOAD_DIR)
-
+        
         # 원본 webm 파일 삭제
         os.remove(file_location)
         logger.info(f"원본 파일 {file_location}을 삭제했습니다.")

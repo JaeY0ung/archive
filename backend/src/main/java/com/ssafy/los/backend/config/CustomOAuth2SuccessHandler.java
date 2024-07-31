@@ -50,7 +50,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
             String role = authority.getAuthority();
 
             // JWT 토큰 발급
-            String token = jwtUtil.createJwt(email, role, jwtOAuthTokenExpireTime);
+            String token = jwtUtil.createOauthJwt(email, role);
             log.info("OAuth2에서 임시 JWT를 발급한 뒤 쿠키에 담아 보냈습니다. = {} ", token);
 
             response.addCookie(createCookie("OAuthAuthorization", token));
