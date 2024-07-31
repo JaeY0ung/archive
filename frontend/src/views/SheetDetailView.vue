@@ -17,8 +17,12 @@ const starRateAvg = ref(0.0); // 별점 평균
 const starRateStatistic = ref([0, 0, 0, 0, 0, 0]); // 별점 0,1,2,3,4,5 인 리뷰들의 수
 const starRateRegisterForm = ref({
 	content: "",
-	starRate: 3,
+	starRate: 0,
 });
+
+const updateStarRate = (starRate) => {
+	starRateRegisterForm.value.starRate = starRate;
+}
 
 // 악보 세부 정보 가져오기
 const searchSheetDetail = () => {
@@ -124,33 +128,8 @@ searchStarRateList();
 				<div class="line"></div>
 				<div class="h-full bg-white/50 rounded-xl flex justify-between">
 					<div class="flex flex-1 justify-center items-center">
-						<!-- <div>
+						<div>
 							<img :src="require('@/assets/img/star-fill.svg')" alt="별" width="30px" />
-						</div> -->
-						<div class="starpoint_wrap">
-							<div class="starpoint_box">
-								<label for="starpoint_1" class="label_star" title="0.5"><span class="blind">0.5점</span></label>
-								<label for="starpoint_2" class="label_star" title="1"><span class="blind">1점</span></label>
-								<label for="starpoint_3" class="label_star" title="1.5"><span class="blind">1.5점</span></label>
-								<label for="starpoint_4" class="label_star" title="2"><span class="blind">2점</span></label>
-								<label for="starpoint_5" class="label_star" title="2.5"><span class="blind">2.5점</span></label>
-								<label for="starpoint_6" class="label_star" title="3"><span class="blind">3점</span></label>
-								<label for="starpoint_7" class="label_star" title="3.5"><span class="blind">3.5점</span></label>
-								<label for="starpoint_8" class="label_star" title="4"><span class="blind">4점</span></label>
-								<label for="starpoint_9" class="label_star" title="4.5"><span class="blind">4.5점</span></label>
-								<label for="starpoint_10" class="label_star" title="5"><span class="blind">5점</span></label>
-								<input type="radio" name="starpoint" id="starpoint_1" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_2" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_3" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_4" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_5" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_6" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_7" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_8" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_9" class="star_radio">
-								<input type="radio" name="starpoint" id="starpoint_10" class="star_radio">
-								<span class="starpoint_bg"></span>
-							</div>
 						</div>
 						<div>{{ starRateAvg }} / 5.00</div>
 					</div>
@@ -162,14 +141,40 @@ searchStarRateList();
 					</div>
 				</div>
 				<div class="flex">
-					<input v-model="starRateRegisterForm.content" type="text" class="input input-bordered w-full"
-						placeholder="평가" />
-					<input v-model="starRateRegisterForm.starRate" type="range" min="1" max="5" step="1"
-						class="input input-bordered w-full" />
-					{{ starRateRegisterForm.starRate }}
-					<button @click="registerStarRate" class="btn btn-primary">등록</button>
-				</div>
+					<div class="w-[60%]">
+						<input v-model="starRateRegisterForm.content" type="text" class="input input-bordered w-full" placeholder="평가" />
+					</div>
+					<div class="starpoint_wrap w-[30%]">
+						<div class="starpoint_box w-full">
+							<label for="starpoint_1" class="label_star" title="0.5"><span class="blind">0.5점</span></label>
+							<label for="starpoint_2" class="label_star" title="1"><span class="blind">1점</span></label>
+							<label for="starpoint_3" class="label_star" title="1.5"><span class="blind">1.5점</span></label>
+							<label for="starpoint_4" class="label_star" title="2"><span class="blind">2점</span></label>
+							<label for="starpoint_5" class="label_star" title="2.5"><span class="blind">2.5점</span></label>
+							<label for="starpoint_6" class="label_star" title="3"><span class="blind">3점</span></label>
+							<label for="starpoint_7" class="label_star" title="3.5"><span class="blind">3.5점</span></label>
+							<label for="starpoint_8" class="label_star" title="4"><span class="blind">4점</span></label>
+							<label for="starpoint_9" class="label_star" title="4.5"><span class="blind">4.5점</span></label>
+							<label for="starpoint_10" class="label_star" title="5"><span class="blind">5점</span></label>
 
+							<input type="radio" name="starpoint" id="starpoint_1" class="star_radio" @change="updateStarRate(0.5)">
+							<input type="radio" name="starpoint" id="starpoint_2" class="star_radio" @change="updateStarRate(1)">
+							<input type="radio" name="starpoint" id="starpoint_3" class="star_radio" @change="updateStarRate(1.5)">
+							<input type="radio" name="starpoint" id="starpoint_4" class="star_radio" @change="updateStarRate(2)">
+							<input type="radio" name="starpoint" id="starpoint_5" class="star_radio" @change="updateStarRate(2.5)">
+							<input type="radio" name="starpoint" id="starpoint_6" class="star_radio" @change="updateStarRate(3)">
+							<input type="radio" name="starpoint" id="starpoint_7" class="star_radio" @change="updateStarRate(3.5)">
+							<input type="radio" name="starpoint" id="starpoint_8" class="star_radio" @change="updateStarRate(4)">
+							<input type="radio" name="starpoint" id="starpoint_9" class="star_radio" @change="updateStarRate(4.5)">
+							<input type="radio" name="starpoint" id="starpoint_10" class="star_radio" @change="updateStarRate(5)">
+							<span class="starpoint_bg"></span>
+						</div>
+					</div>
+					<div>
+						<button @click="registerStarRate" class="btn btn-primary">등록</button>
+					</div>
+				</div>
+				<span>{{ starRateRegisterForm.starRate }}</span>
 				<div class="flex flex-col gap-3">
 					<div class="flex gap-10" v-for="(starRateInfo, index) in starRateList" :key="index">
 						<div>{{ starRateInfo.nickname }}</div>
