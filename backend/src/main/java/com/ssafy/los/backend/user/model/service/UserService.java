@@ -2,13 +2,12 @@ package com.ssafy.los.backend.user.model.service;
 
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
+import com.ssafy.los.backend.user.model.dto.response.UserProfileResponseDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
-
-    Long selectUserInfoForMyPageById(Long id);
 
     Boolean validateEmail(String email);
 
@@ -25,4 +24,6 @@ public interface UserService {
     String saveUserImgFile(MultipartFile profileImg) throws IOException;
 
     User selectUserByEmail(String email);
+
+    UserProfileResponseDto searchUserPofile(String userNickname);
 }

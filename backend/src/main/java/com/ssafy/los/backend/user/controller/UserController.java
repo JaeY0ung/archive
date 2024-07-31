@@ -2,6 +2,7 @@ package com.ssafy.los.backend.user.controller;
 
 import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
 import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
+import com.ssafy.los.backend.user.model.dto.response.UserProfileResponseDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.user.model.service.UserService;
@@ -93,11 +94,10 @@ public class UserController {
     }
 
     // 회원 조회
-    @GetMapping("/{user-id}")
-    public ResponseEntity<?> getUser(@PathVariable("user-id") Long userId) {
-        // TODO : 로그인 유저랑 비교하여 내 정보 찾아올 때와 다른 유저 찾아올 때로 로직 나누기
-        Long getId = userService.selectUserInfoForMyPageById(userId);
-        return new ResponseEntity<>(getId, HttpStatus.OK);
+    @GetMapping("/{user-nickname}")
+    public ResponseEntity<?> getUser(@PathVariable("user-nickname") String userNickname) {
+        UserProfileResponseDto userProfileResponseDto = userService.searchUserPofile(userNickname);
+        return new ResponseEntity<>(userProfileResponseDto, HttpStatus.OK);
     }
 
 }
