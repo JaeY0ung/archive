@@ -11,7 +11,6 @@ public interface UserService {
     Long selectUserInfoForMyPageById(Long id);
 
     Boolean validateEmail(String email);
-    Boolean validateNickname(String email);
 
     Boolean validateNickname(String email);
 

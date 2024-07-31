@@ -50,7 +50,7 @@ public class UserController {
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
-    // 회원 이메일 중복 여부 체크
+    // 회원 닉네임 중복 여부 체크
     @GetMapping("/check-nickname")
     public ResponseEntity<?> validateNickname(@RequestParam("nickname") String nickname) {
         boolean isDuplicated = userService.validateNickname(nickname);

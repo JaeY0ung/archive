@@ -123,7 +123,7 @@ public class AuthController {
 
             String accessToken;
             try {
-                accessToken = jwtUtil.createJwt(email, role, 60*60*10L);
+                accessToken = jwtUtil.createAccessJwt(email, role);
             } catch (Exception e) {
                 log.error("새로운 Access token 생성 중 오류 발생", e);
                 return new ResponseEntity<>("새로운 Access token을 생성할 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -183,6 +183,8 @@ public class AuthController {
                             String.format("해당하는 이메일의 유저가 없습니다.")));
             String userId = user.getId().toString();
             System.out.println("------------userId:--------------- " + userId); // null
+
+            // _________________________________________________________________________
 
             // refreshToken 쿠키 제거
             Cookie cookie = new Cookie("refreshToken", null);
