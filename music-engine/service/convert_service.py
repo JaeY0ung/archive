@@ -21,7 +21,7 @@ class ConvertService:
         wav_file = os.path.join(output_dir, f"{base_filename}.wav")
 
         # ffmpeg를 사용하여 변환
-        subprocess.run(['ffmpeg', '-i', file_path, wav_file], check=True)
+        subprocess.run(['ffmpeg','-y', '-i', file_path, wav_file], check=True)
         return wav_file
 
     def wav_to_mp3(self, wav_file, output_dir="temp"):
