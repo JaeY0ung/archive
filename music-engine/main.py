@@ -47,14 +47,19 @@ async def upload_file(file: UploadFile = File(...)):
 
         # 파일 변환
         convert_service = ConvertService()
-        logger.info(f"파일 {file_location}을 변환합니다.")
+        logger.info(f"파일 {file_location}을 WAV로 변환합니다.")
         wav_file = convert_service.webm_to_wav(file_location, UPLOAD_DIR)
+
+        # WAV 파일을 MIDI로 변환
+        logger.info(f"WAV 파일 {wav_file}을 MIDI로 변환합니다.")
+        midi_file = convert_service.wav_to_midi(wav_file, UPLOAD_DIR)
 
         # 원본 webm 파일 삭제
         os.remove(file_location)
         logger.info(f"원본 파일 {file_location}을 삭제했습니다.")
 
-        return {"filename": file.filename, "wav_file": wav_file, "content_type": file.content_type}
+        return {"filename": file.filename, "wav_file": wav_file, "midi_file": midi_file, "content_type": file.content_type}
+
     except Exception as e:
         logger.error(f"파일 업로드 또는 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="내부 서버 오류")

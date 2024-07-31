@@ -47,7 +47,7 @@ services:
     volumes:
       - redis-data:/data
 
-  music-engine:
+  omnizart:
     image: mctlab/omnizart:latest
     container_name: omnizart_container
     volumes:
@@ -64,7 +64,7 @@ services:
     depends_on:
       - mysql
       - redis
-      - music-engine
+      - omnizart
     volumes:
       - ./host_temp:/app/temp
     environment:
