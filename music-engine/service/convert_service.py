@@ -43,8 +43,9 @@ class ConvertService:
 
         cmd = [
             "docker", "exec", "omnizart_container",
-            "omnizart", "transcribe", "music",
+            "omnizart", "music", "transcribe",
             wav_file, "-o", output_dir
         ]
+        
         subprocess.run(cmd, check=True)
         return os.path.join(output_dir, f"{base_filename}.mid")
