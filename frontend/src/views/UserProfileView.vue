@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
@@ -8,24 +9,65 @@ import { storeToRefs } from "pinia";
 const local = localAxios();
 const userStore = useUserStore();
 const { userInfo } = storeToRefs(userStore);
+const route = useRoute();
+const router = useRouter();
 
-const nickname = ref("");
-const singleScore = ref(0);
+// 유저 정보
+const userProfile = ref(null);
 const followersCount = ref(0);
 const followingsCount = ref(0);
 
+const isOwnProfile = computed(() => {
+    return userInfo.value?.nickname === route.params.nickName;
+});
+
+const fetchUserProfile = async () => {
+    try {
+        const response = await local.get(`/users/${route.params.nickName}`);
+        userProfile.value = response.data;
+        console.log("가져온 유저 데이터입니다.", response.data);
+    } catch (error) {
+        console.error("사용자 프로필을 가져오는데 실패했습니다:", error);
+    }
+};
+
+// 악보 정보
 const mockRecentPlayedSheets = ref([
-    { id: 1, title: "곡 제목 1", artist: "아티스트 1", imageUrl: "placeholder-image-1.jpg" },
-    { id: 2, title: "곡 제목 2", artist: "아티스트 2", imageUrl: "placeholder-image-2.jpg" },
-    { id: 3, title: "곡 제목 3", artist: "아티스트 3", imageUrl: "placeholder-image-3.jpg" },
-    { id: 4, title: "곡 제목 4", artist: "아티스트 4", imageUrl: "placeholder-image-4.jpg" },
-    { id: 5, title: "곡 제목 5", artist: "아티스트 5", imageUrl: "placeholder-image-5.jpg" },
+    {
+        id: 1,
+        title: "곡 제목 1",
+        songComposer: "아티스트 1",
+        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    },
+    {
+        id: 2,
+        title: "곡 제목 2",
+        songComposer: "아티스트 2",
+        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    },
+    {
+        id: 3,
+        title: "곡 제목 3",
+        songComposer: "아티스트 3",
+        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    },
+    {
+        id: 4,
+        title: "곡 제목 4",
+        songComposer: "아티스트 4",
+        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    },
+    {
+        id: 5,
+        title: "곡 제목 5",
+        songComposer: "아티스트 5",
+        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    },
 ]);
 
 const mockRecentBattleSheets = ref([...mockRecentPlayedSheets.value]);
 const mockLikedSheets = ref([...mockRecentPlayedSheets.value]);
 
-// 팔로워와 팔로잉 정보를 가져오는 함수
 const fetchFollowInfo = async () => {
     try {
         const [followersResponse, followingsResponse] = await Promise.all([
@@ -37,134 +79,83 @@ const fetchFollowInfo = async () => {
         followingsCount.value = followingsResponse.data.length;
     } catch (error) {
         console.error("팔로우 정보를 가져오는 데 실패했습니다:", error);
+        followersCount.value = 0;
+        followingsCount.value = 0;
     }
+};
+
+const followUser = async () => {
+    if (!userInfo.value || !userInfo.value.id) {
+        console.error("로그인한 사용자 정보가 없습니다.");
+        return;
+    }
+
+    try {
+        await local.post(`/follows/followings/${userInfo.value.id}`);
+        console.log("팔로우 성공");
+        // 팔로우 성공 후 팔로워 수 업데이트
+        await fetchFollowInfo();
+    } catch (error) {
+        console.error("팔로우에 실패했습니다:", error);
+    }
+};
+
+const goToEditPage = () => {
+    router.push("/mypage");
 };
 
 onMounted(async () => {
-    if (userInfo.value) {
-        nickname.value = userInfo.value.nickname;
-        singleScore.value = userInfo.value.singleScore;
-    }
+    await fetchUserProfile();
     await fetchFollowInfo();
-
-    // 스크롤 이벤트 리스너 추가
-    const scrollContainers = document.querySelectorAll(".scroll-x");
-    scrollContainers.forEach((container) => {
-        container.addEventListener("mousedown", (e) => startDragging(e, container));
-        container.addEventListener("mouseleave", () => stopDragging(container));
-        container.addEventListener("mouseup", () => stopDragging(container));
-        container.addEventListener("mousemove", (e) => doDrag(e, container));
-    });
 });
-
-onUnmounted(() => {
-    cancelMomentumTracking();
-});
-
-// 개선된 드래그 스크롤 기능
-let isDragging = false;
-let startX, scrollLeft;
-let momentumID;
-
-const startDragging = (e, el) => {
-    isDragging = true;
-    startX = e.pageX - el.offsetLeft;
-    scrollLeft = el.scrollLeft;
-    cancelMomentumTracking();
-};
-
-const stopDragging = (el) => {
-    isDragging = false;
-    beginMomentumTracking(el);
-};
-
-const doDrag = (e, el) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const x = e.pageX - el.offsetLeft;
-    const walk = (x - startX) * 2;
-    el.scrollLeft = scrollLeft - walk;
-};
-
-// 관성 스크롤
-let velX = 0;
-let amplitude = 0;
-let frame = 0;
-let timestamp = 0;
-
-const beginMomentumTracking = (el) => {
-    cancelMomentumTracking();
-    timestamp = Date.now();
-    frame = el.scrollLeft;
-    momentumID = requestAnimationFrame(() => autoScroll(el));
-};
-
-const cancelMomentumTracking = () => {
-    cancelAnimationFrame(momentumID);
-};
-
-const autoScroll = (el) => {
-    const elapsed = Date.now() - timestamp;
-    if (elapsed > 1000) return; // 1초 후 자동 스크롤 중지
-
-    const delta = el.scrollLeft - frame;
-    frame = el.scrollLeft;
-
-    const v = (1000 * delta) / (1 + elapsed);
-    velX = 0.8 * v + 0.2 * velX;
-
-    if (Math.abs(velX) > 0.1) {
-        el.scrollLeft += (velX * 16) / 1000;
-        momentumID = requestAnimationFrame(() => autoScroll(el));
-    }
-};
 </script>
 
 <template>
     <div class="profile-container">
         <div class="user-profile">
             <img src="placeholder-profile-image.jpg" alt="User Profile" class="profile-image" />
-            <span class="user-name">{{ nickname }}</span>
-            <span class="single-score">Score: {{ singleScore }}</span>
+            <span class="user-name">{{ userProfile?.nickname }}</span>
+            <span class="single-score">Score: {{ userProfile?.singleScore }}</span>
             <span class="followers">Followers: {{ followersCount }}</span>
             <span class="following">Following: {{ followingsCount }}</span>
-            <button class="fight-btn">Fight</button>
-            <button class="follow-btn">Follow</button>
+            <template v-if="!isOwnProfile">
+                <button class="follow-btn" @click="followUser">Follow</button>
+                <button class="fight-btn">Fight</button>
+            </template>
+            <button v-else class="edit-btn" @click="goToEditPage">Edit</button>
         </div>
 
         <div class="sheets-container">
             <div class="sheet-section">
                 <h3>최근 싱글 플레이</h3>
                 <div class="scroll-x">
-                    <div
+                    <SmallSheetCard
                         v-for="sheet in mockRecentPlayedSheets"
                         :key="sheet.id"
-                        class="card-wrapper"
-                    >
-                        <SmallSheetCard :sheet="sheet" />
-                    </div>
+                        :sheet="sheet"
+                    />
                 </div>
             </div>
 
             <div class="sheet-section">
                 <h3>최근 대결 플레이</h3>
                 <div class="scroll-x">
-                    <div
+                    <SmallSheetCard
                         v-for="sheet in mockRecentBattleSheets"
                         :key="sheet.id"
-                        class="card-wrapper"
-                    >
-                        <SmallSheetCard :sheet="sheet" />
-                    </div>
+                        :sheet="sheet"
+                    />
                 </div>
             </div>
 
             <div class="sheet-section">
                 <h3>좋아요한 악보</h3>
                 <div class="scroll-x">
-                    <div v-for="sheet in mockLikedSheets" :key="sheet.id" class="card-wrapper">
-                        <SmallSheetCard :sheet="sheet" />
-                    </div>
+                    <SmallSheetCard
+                        v-for="sheet in mockLikedSheets"
+                        :key="sheet.id"
+                        :sheet="sheet"
+                    />
                 </div>
             </div>
         </div>
@@ -246,44 +237,28 @@ const autoScroll = (el) => {
 .scroll-x {
     display: flex;
     overflow-x: auto;
-    gap: 15px;
     padding: 10px 0;
-    cursor: grab;
-    user-select: none;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-}
-
-.scroll-x:active {
-    cursor: grabbing;
 }
 
 .card-wrapper {
     flex: 0 0 auto;
-    width: 200px; /* Adjust this value based on your SmallSheetCard width */
-}
-
-.scroll-x::-webkit-scrollbar {
-    height: 8px;
-}
-
-.scroll-x::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.scroll-x::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.scroll-x::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    width: 180px;
+    margin-right: 15px;
 }
 
 h3 {
     margin-bottom: 10px;
     font-size: 1.2em;
     color: #333;
+}
+
+.edit-btn {
+    padding: 5px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #44ff44;
+    color: white;
 }
 </style>
