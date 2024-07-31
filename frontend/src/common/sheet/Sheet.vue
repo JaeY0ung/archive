@@ -11,6 +11,10 @@ import {
 
 const props = defineProps({
   showController: Boolean,
+  isRecording: {
+    type: Boolean,
+    default: false,
+  },
   width: Number,
   height: Number,
 });
@@ -27,11 +31,13 @@ const handleMeasureChanged = (measureIndex) => {
 const musicStarted = () => {
   console.log("Music started event");
   isPlay.value = true;
+  console.log(isPlay.value);
 };
 
 const musicFinished = () => {
   console.log("Music finished event");
   isPlay.value = false;
+  console.log(isPlay.value);
 };
 
 const setVolume = (volume) => {

@@ -46,7 +46,7 @@ const setupPlaybackManager = () => {
       const currentMeasureIndex = data.CurrentMeasureIndex;
       if (
         currentMeasureIndex >= 0 &&
-        currentMeasureIndex - lastEmittedMeasureIndex >= 4
+        currentMeasureIndex - lastEmittedMeasureIndex >= 8
       ) {
         lastEmittedMeasureIndex = currentMeasureIndex;
         emit("measure-changed", currentMeasureIndex);

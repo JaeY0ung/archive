@@ -1,17 +1,21 @@
 package com.ssafy.los.backend.util;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class JWTUtil {
 
-    private SecretKey secretKey;
+    private final SecretKey secretKey;
 
     @Value("${jwt.accessToken.expireTime}")
     private Long accessExpired;
@@ -21,9 +25,9 @@ public class JWTUtil {
     private Long oAuthExpired;
 
     public JWTUtil(@Value("${spring.jwt.secret}")String secret) {
-
-
-        secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+//        this.secretKey = new SecretKeySpec(secret.getBytes(), Jwts.SIG.HS256.key().build().getAlgorithm());
+//        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String getUsername(String token) {
@@ -36,9 +40,38 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
 
-    public Boolean isExpired(String token) {
+//    public Boolean isExpired(String token) {
+//
+//        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+//    }
 
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+    public Boolean isExpired(String token) {
+        try {
+            Date expirationDate = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration();
+
+            boolean isExpired = expirationDate.before(new Date());
+            if (isExpired) {
+                log.info("Token is expired. Expiration date: {}", expirationDate);
+            }
+            return isExpired;
+        } catch (ExpiredJwtException e) {
+            log.warn("Token is already expired", e);
+            return true;
+        } catch (IllegalArgumentException e) {
+            log.error("JWT claims string is empty", e);
+            return true;
+        } catch (JwtException e) {
+            log.error("JWT validation error", e);
+            return true;
+        } catch (Exception e) {
+            log.error("Unexpected error during JWT validation", e);
+            return true;
+        }
     }
 
     public String createAccessJwt(String username, String role) {
