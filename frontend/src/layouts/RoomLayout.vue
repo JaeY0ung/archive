@@ -1,8 +1,5 @@
 <script setup>
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
-
-const route = useRoute();
-const router = useRouter();
 import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
 import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
 import { useUserStore } from '@/stores/user';
@@ -12,232 +9,130 @@ import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
+const route = useRoute();
+const router = useRouter();
 const userStore = new useUserStore();
 const playStore = new usePlayStore();
 
 var stompClient = null;
 
-// 준비하기를 동적으로 변화시켜주기 위한 불리언 변수
 const isReady = ref("false");
 const opponentReady = ref("false");
+const isInvited = ref("false");
+const defaultProfileImage = require('@/assets/img/common/default_profile.png');
+
 
 const me = ref({
-    img: "이미지1",
+    img: defaultProfileImage,
     name: "악카이브1",
     score: "0",
     isEmpty: true
-})  
+});
+
 
 const opponent = ref({
-    img: "이미지2",
+    img: defaultProfileImage,
     name: "유저를 기다리는 중...", 
     score: "0",
     isEmpty: true
 })
 
-// 사이트를 벗어날 때 체크해주는 불리언 변수
 const canLeaveSite = ref(false);
 
-// 웹소켓 생성 후, 구독하기.
 function connect() {
+    var socket = new SockJS('http://localhost:8081/archive-websocket');
+    stompClient = Stomp.over(socket);
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
 
-
-        var socket = new SockJS('http://localhost:8081/archive-websocket');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function (frame) {
-            console.log('Connected: ' + frame);
-
-            //구독
-            stompClient.subscribe('/wait/socket', function (chatMessage) {
-                const userLogin = JSON.parse(chatMessage.body);
-                // 정보 뿌리기
-                // 상대방 프로필 표시
-
-                if (userLogin.id == "profile" && opponent.value.isEmpty && decodeToken.username != userLogin.email) {
-                    
-                    stompClient.send("/app/wait", {},   
-                    JSON.stringify({
-                        'id': "profile",
-                        'email' : decodeToken.username
-                    }));
-                    
-                    opponent.value.name = userLogin.email;
-                    opponent.value.isEmpty = false;
-
-                    // 자신의 ready 정보를 Controller에 보낸다.
-                    stompClient.send("/app/wait/ready", {},   
-                    JSON.stringify({
-                        'sender': decodeToken.username,
-                        'isReady' : isReady.value
-                    }));
-                
-                }
- 
-            });
-
-            // 준비 상태를 받기 위한 또 다른 구독.
-            stompClient.subscribe('/wait/socket/ready', function (readyStatus){
-                const playerReady = JSON.parse(readyStatus.body);
-            
-
-                // ready 정보를 받아서 적용하기 위한 조건문
-                if(playerReady.sender != decodeToken.username){
-                    // 상대방이 ready를 누르면, type이 ready인 json 데이터가 온다.
-                    // 그럼 이 조건문에 도달할 것이고, 여기서 준비하기 버튼을 바꿔주면 된다.
-                    opponentReady.value = playerReady.isReady;
-                }
-            
-            })
-
-            stompClient.subscribe('/wait/socket/start', function(socket){
-                console.log("시작을 위한 구독 성공")
-                
-                const message = JSON.parse(socket.body);
-
-                // 게임 시작을 알리는 데이터가 온 경우
-                if(message.type == "start"){
-                    if(message.content == "true"){
-                        router.push({name:'play'})
-
-                        // window.addEventListener('beforeunload', unLoadEvent);
-                    }
-                }
-
-                // 상대방이 나갔음을 알리는 데이터가 온 경우
-                if(message.type == "exit"){
-                    opponent.value.name = "유저를 기다리는 중...";
-                    opponent.value.isEmpty = true;
-                    opponentReady.value = "false";
-                }
-
-
-            })
-
-
-            
-            // 자신의 유저 정보를 Controller에 보낸다.
-            stompClient.send("/app/wait", {},   
-            JSON.stringify({
-                'id': "profile",
-                'email' : decodeToken.username
-            }));
-
-            
-            // 자신의 ready 정보를 Controller에 보낸다.
-            stompClient.send("/app/wait/ready", {},   
-            JSON.stringify({
-                'sender': decodeToken.username,
-                'isReady' : isReady.value
-            }));
-            
-
+        stompClient.subscribe('/wait/socket', function (chatMessage) {
+            const userLogin = JSON.parse(chatMessage.body);
+            if (userLogin.id == "profile" && opponent.value.isEmpty && decodeToken.username != userLogin.email) {
+                stompClient.send("/app/wait", {}, JSON.stringify({ 'id': "profile", 'email': decodeToken.username }));
+                opponent.value.name = userLogin.email;
+                opponent.value.isEmpty = false;
+                stompClient.send("/app/wait/ready", {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
+            }
         });
-    }
+
+        stompClient.subscribe('/wait/socket/ready', function (readyStatus) {
+            const playerReady = JSON.parse(readyStatus.body);
+            if(playerReady.sender != decodeToken.username){
+                opponentReady.value = playerReady.isReady;
+            }
+        })
+
+        stompClient.subscribe('/wait/socket/start', function(socket){
+            const message = JSON.parse(socket.body);
+            if(message.type == "start" && message.content == "true"){
+                router.push({name:'play'});
+            }
+            if(message.type == "exit"){
+                opponent.value.name = "유저를 기다리는 중...";
+                opponent.value.isEmpty = true;
+                opponentReady.value = "false";
+            }
+        })
+
+        stompClient.send("/app/wait", {}, JSON.stringify({ 'id': "profile", 'email': decodeToken.username }));
+        stompClient.send("/app/wait/ready", {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
+    });
+}
 
 function disconnect() {
     console.log("disconnect되었다")
 }
 
-onBeforeUnmount(() =>{
-
-
+onBeforeUnmount(() => {
     sendExit();
-
     window.removeEventListener('beforeunload', unLoadEvent);
 })
 
 function sendExit(){
-
-    stompClient.send('/app/wait/start', {},
-        JSON.stringify({
-            'type': 'exit',
-            'sender': decodeToken.username,
-            'content': 'true'
-        })
-    )
-
+    stompClient.send('/app/wait/start', {}, JSON.stringify({ 'type': 'exit', 'sender': decodeToken.username, 'content': 'true' }));
 }
 
 onUnmounted(() => {
     console.log("onUnmounted 실행");
-
     sendExit();
-
 })
 
 window.addEventListener('beforeunload', sendExit);
 
 const getLiveResult = computed(() => {
-    return me.value.score > opponent.value.score ? "win" : "lose"
+    return me.value.score > opponent.value.score ? "win" : "lose";
 })
 
 const goToBattle = () => {
-    router.push({name:'play'})
-
-    // window.addEventListener('beforeunload', unLoadEvent);
-
+    router.push({name:'play'});
     canLeaveSite.value = true;
-
-    console.log("goToBattle 메서드 실행")
-
-    // send
-    stompClient.send("/app/wait/start", {}, 
-        JSON.stringify({
-            'type': 'start',
-            'sender': decodeToken.username,
-            'content': 'true'
-        })
-    )
-
+    stompClient.send("/app/wait/start", {}, JSON.stringify({ 'type': 'start', 'sender': decodeToken.username, 'content': 'true' }));
 }
-// 로그인한 자신의 정보 가져오기.
-// session storage에서 access토큰 가져오기.
-// 닉네임 정보를 가져오려 했으나, 아직 pk를 가져올 수 없어서 decodeToken의 이메일 정보를 대신 넣었다.
-const accessToken = sessionStorage.getItem("accessToken");
 
+const accessToken = sessionStorage.getItem("accessToken");
 
 userStore.getUserInfo(accessToken);
 
 const decodeToken = jwtDecode(accessToken);
 
-
 const email = decodeToken.username;
 
 me.value.name = email;
 
-
 function readyButton() {
-    // 이곳에서 할 것.
-    if(isReady.value == "false"){
-        isReady.value = "true";
-    }else{
-        isReady.value = "false";
-    }
-
-    // send를 보내어서 상대방에게 나의 준비 변화를 알릴 것.
-    // 준비 상태를 보내기 위한 다른 경로
-    stompClient.send("/app/wait/ready", {},   
-        JSON.stringify({
-            'sender': decodeToken.username,
-            'isReady' : isReady.value
-        }));
+    isReady.value = isReady.value == "false" ? "true" : "false";
+    stompClient.send("/app/wait/ready", {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
 }
 
-
 function unLoadEvent (event) {
-      if (canLeaveSite.value) return;
-
-      event.preventDefault();
-      event.returnValue = '';
-    }
+    if (canLeaveSite.value) return;
+    event.preventDefault();
+    event.returnValue = '';
+}
 
 onMounted(() => {
-    // 페이지가 mounted 될 때 웹소켓 연결
-    connect()
-
-    // 페이지가 mounted 될 때 페이지를 벗어나면 경고창을 보여주는 unLoadEvent 생성
-    // window.addEventListener('beforeunload', unLoadEvent);
-
+    connect();
+    playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
 })
 
 function quitButton () {
@@ -245,38 +140,56 @@ function quitButton () {
 }
 
 const inviteModalStatus = ref(false);
+const selectedFriend = ref(null);
 
 const openInviteModalStatus = () => {
     inviteModalStatus.value = true;
 }
+
 const closeInviteModalStatus = () => {
     inviteModalStatus.value = false;
 }
+
+
+const toggleFriendSelection = (user) => {
+    if (selectedFriend.value && selectedFriend.value.id === user.id) {
+        selectedFriend.value = null;
+    } else {
+        selectedFriend.value = user;
+    }
+}
+
+const isFriendSelected = (user) => {
+    return selectedFriend.value && selectedFriend.value.id === user.id;
+}
+
 const currentMode = computed(() => playStore.getMode);
+const onlineUsers = computed(() => playStore.getOnlineUsers);
+
+const inviteSelectedFriends = () => {
+    if (selectedFriend.value) {
+        // 친구 초대 로직을 여기에 추가
+        console.log("Invite selected friend:", selectedFriend.value);
+    }
+    closeInviteModalStatus();
+}
 </script>
 
 <template>
     <div class="container">
-
-        <div class="w-[400px] h-[400px] bg-white fixed left-20 top-20" v-if="inviteModalStatus">
-            친구 초대
-        </div>
         <div class="up">
             <RouterView/>
         </div>
-
         <div class="down">
-            <!-- 아래 -->
             <div class="player-card">
-                <div class="player-img">{{ me.img }}</div>
+                <div class="player-img"><img :src="me.img" alt="Profile Image" /></div>
                 <div class="player-info-text">
                     <div>{{ me.name }}</div>
                     <div>현재 스코어 : {{ me.score }}</div>
+                    <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'play'">대기중</button>
+                    <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
+                    <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
                 </div>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'play'">대기중</button>
-                <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
-                
             </div>
             
             <div class="button-div">
@@ -292,14 +205,33 @@ const currentMode = computed(() => playStore.getMode);
             </div>
             
             <div class="player-card" v-if="currentMode=='multi'">
-                <div class="player-img">{{ opponent.img }}</div>
+                <div class="player-img"><img :src="opponent.img" alt="Profile Image" /></div>
                 <div class="player-info-text">
                     <div>{{ opponent.name }}</div>
                     <div>현재 스코어 : {{ opponent.score }}</div>
+                    <button class="btn text-white" style="background-color: gray;" @click="openInviteModalStatus" v-if="isInvited == 'false'">친구 초대하기</button>
+                    <button class="btn text-white" style="background-color: gray;" v-if="isInvited == 'true' && opponentReady == 'false' && route.name != 'play'">대기중</button>
+                    <button class="btn text-white" style="background-color: red;" v-if="isInvited == 'true' && opponentReady == 'true' && route.name != 'play'">준비완료</button>
+                    <button class="btn text-white" style="background-color: gray;" v-if="isInvited == 'true' && route.name == 'play'" @click=readyButton>게임중</button>
                 </div>
-                <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false' && route.name != 'play'">대기중</button>
-                <button class="btn text-white" style="background-color: red;" v-if="opponentReady == 'true' && route.name != 'play'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" v-if="route.name == 'play'" @click=readyButton>게임중</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div v-if="inviteModalStatus" class="invite-modal">
+        <div class="modal-content">
+            <h2 class="modal-title">친구 초대하기</h2>
+            <ul>
+                <li v-for="user in onlineUsers" :key="user.id" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
+                    <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" />
+                    <span>{{ user.nickname }}</span>
+                    <span>{{ user.singleScore }}</span>
+                </li>
+            </ul>
+            <div class="modal-button">
+                <button @click="inviteSelectedFriends" >선택한 친구 초대하기</button>
+                <button @click="closeInviteModalStatus">닫기</button>
             </div>
         </div>
     </div>
@@ -307,50 +239,143 @@ const currentMode = computed(() => playStore.getMode);
 
 <style scoped>
 .container {
-    margin: 10px auto; /*  상하 좌우 */
-    width: 70vw;
+    margin: 10px auto;
+    width: 90vw;
+    background-color: #f0f0f0;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0.8;
 }
 .up {
-    background-color: rgb(194, 161, 161);
-    height: 70vh;
-    margin-bottom: 50px;
+    background-color: #fff;
+    height: 50vh;
+    margin-bottom: 20px;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .down {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .button-div {
-    width: 20vw;
     display: flex;
     justify-content: center;
-    align-items: end;
+    align-items: center;
 }
 
 .player-card {
     display: flex;
-    width: 40vw;
-    border: 3px solid rgb(51, 117, 71);
-    border-radius: 15px;
+    flex-direction: row;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 40%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .player-img {
     width: 100px;
     height: 100px; 
     background-color: white;
-    border-radius: 15px;
-    
+    border-radius: 50%;
+    margin-bottom: 10px;
 }
+
 .player-info-text {
-    width: 200px;
-    margin-left: 10px;
+    text-align: center;
+    margin-bottom: 10px;
 }
 
 button {
     border: 1px solid black;
-    width: 30%;
-    height: 100%;
+    width: 100px;
+    height: 40px;
+    margin: 5px;
+    background-color: #2196f3;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
+.invite-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-title{
+    padding-bottom: 20px;
+}
+
+.modal-button {
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50vw;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.modal-content li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.modal-content li.selected {
+    background-color: #ccc;
+}
+
+.modal-content li img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.modal-content .status {
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.modal-content .status.online {
+    background-color: green;
+    color: white;
+}
+
+.modal-content .status.busy {
+    background-color: red;
+    color: white;
+}
+
+.modal-content .status.offline {
+    background-color: gray;
+    color: white;
+}
 </style>
