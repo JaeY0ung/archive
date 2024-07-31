@@ -55,8 +55,6 @@ public class Sheet {
     // TODO : Default : (0: waiting)
     private Integer status; // "waiting: 0, accepted: 1, rejected: 2"
 
-    private Integer point;
-
     @ColumnDefault("0")
     private Integer viewCount;
 
@@ -78,7 +76,6 @@ public class Sheet {
             User uploader, String fileName) {
         this.uploader = uploader;
         this.level = level;
-        this.point = point;
         this.title = title;
         this.song = song;
         this.price = price;

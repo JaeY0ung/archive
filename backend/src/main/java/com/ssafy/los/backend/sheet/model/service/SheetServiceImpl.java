@@ -1,11 +1,11 @@
 package com.ssafy.los.backend.sheet.model.service;
 
+import com.ssafy.los.backend.sheet.model.dto.request.SheetSearchFilter;
 import com.ssafy.los.backend.sheet.model.dto.request.SheetUploadForm;
 import com.ssafy.los.backend.sheet.model.dto.response.SheetDetailViewDto;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
 import com.ssafy.los.backend.sheet.model.repository.SheetRepository;
 import com.ssafy.los.backend.song.model.repository.SongRepository;
-import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.io.IOException;
@@ -31,10 +31,10 @@ public class SheetServiceImpl implements SheetService {
     private final AuthService authService;
 
     @Override
-    public Sheet registerSheetAndFile(MultipartFile file, SheetUploadForm sheetUploadForm)
+    public Sheet registerSheetAndFile(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
         // TODO : mid -> mp3 변환한 파일 추가로 저장하는 로직 구현하기
-        return registerSheet(sheetUploadForm, saveSheetFile(file));
+        return registerSheet(sheetUploadForm, saveSheetFile(sheetUploadForm.getFile()));
     }
 
     @Override
@@ -44,46 +44,25 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
-    public SheetDetailViewDto searchSheetById(Long sheetId) {
+    public SheetDetailViewDto searchSheetById(Long sheetId) throws IllegalArgumentException {
         try {
             return addSongImg(sheetRepository.findSheetDetailViewDtoById(sheetId,
                     authService.getLoginUser().getId()));
         } catch (Exception e) {
-            return addSongImg(sheetRepository.findSheetDetailViewDtoById(sheetId, null));
+            throw new IllegalArgumentException();
         }
-
     }
 
     @Override
-    public Resource getSheetFileByName(String fileName) throws IllegalArgumentException {
+    public Resource getSheetFileByFileName(String fileName) throws IllegalArgumentException {
         return fileUploadUtil.downloadSheetFile(fileName);
     }
 
     @Override
-    public List<SheetDetailViewDto> searchSheetByFilter(String keyword, String sort) {
-        try {
-            return sheetRepository.findSheets(keyword, sort, authService.getLoginUser().getId())
-                    .stream().map(this::addSongImg)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            return sheetRepository.findSheets(keyword, sort, null)
-                    .stream().map(this::addSongImg)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    @Override
-    public List<SheetDetailViewDto> searchSheetByLevelRandomly(Integer level) {
-        try {
-            return sheetRepository.findSheetsByLevelRandomly(level,
-                            authService.getLoginUser().getId())
-                    .stream().map(this::addSongImg)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            return sheetRepository.findSheetsByLevelRandomly(level, null)
-                    .stream().map(this::addSongImg)
-                    .collect(Collectors.toList());
-        }
+    public List<SheetDetailViewDto> searchSheetByFilter(SheetSearchFilter sheetSearchFilter) {
+        return sheetRepository.findSheetsByFilter(sheetSearchFilter)
+                .stream().map(this::addSongImg)
+                .collect(Collectors.toList());
     }
 
     private String saveSheetFile(MultipartFile file) throws IllegalArgumentException {
@@ -93,9 +72,8 @@ public class SheetServiceImpl implements SheetService {
     private Sheet registerSheet(SheetUploadForm sheetUploadForm, String fileName)
             throws IllegalArgumentException {
         try {
-            User loginUser = authService.getLoginUser();
             Sheet sheet = Sheet.builder()
-                    .uploader(loginUser)
+                    .uploader(authService.getLoginUser())
                     .level(sheetUploadForm.getLevel())
                     .title(sheetUploadForm.getTitle())
                     .song(songRepository.findById(sheetUploadForm.getSongId()).orElse(null))
@@ -103,7 +81,7 @@ public class SheetServiceImpl implements SheetService {
                     .build();
             return sheetRepository.save(sheet);
         } catch (Exception e) {
-            throw new IllegalArgumentException("저장 실패");
+            throw new IllegalArgumentException("악보 저장 실패");
         }
     }
 

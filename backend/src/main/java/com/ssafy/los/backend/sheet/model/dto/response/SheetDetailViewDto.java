@@ -62,7 +62,6 @@ public class SheetDetailViewDto {
         this.price = sheet.getPrice();
         this.level = sheet.getLevel();
         this.status = sheet.getStatus();
-        this.point = sheet.getPoint();
         this.viewCount = sheet.getViewCount();
         this.likeCount = likeCount;
         this.likeStatus = likeStatus;

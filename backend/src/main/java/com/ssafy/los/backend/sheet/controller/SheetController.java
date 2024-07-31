@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.sheet.controller;
 
+import com.ssafy.los.backend.sheet.model.dto.request.SheetSearchFilter;
 import com.ssafy.los.backend.sheet.model.dto.request.SheetUploadForm;
 import com.ssafy.los.backend.sheet.model.dto.response.SheetDetailViewDto;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
@@ -10,16 +11,15 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -48,31 +48,23 @@ public class SheetController {
         }
 
         SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
-                .files(files)
+                .file(files.get(0))
                 .title(title)
                 .level(level)
                 .songId(songId)
                 .build();
-        try {
-            // 악보 데이터 및 파일 저장
-            Sheet sheet = sheetService.registerSheetAndFile(files.get(0), sheetUploadForm);
+        try { // 악보 데이터 및 파일 저장
+            Sheet sheet = sheetService.registerSheetAndFile(sheetUploadForm);
             return new ResponseEntity<>(sheet, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("파일 업로드에 실패했습니다.", HttpStatus.BAD_REQUEST);
         }
     }
 
     @GetMapping
     public ResponseEntity<?> getSheetListByFilter(
-            @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "") String sort,
-            @RequestParam(defaultValue = "0") Integer level) {
-
-        if (sort.equals("RANDOM")) {
-            return new ResponseEntity<>(sheetService.searchSheetByLevelRandomly(level),
-                    HttpStatus.OK);
-        }
-        return new ResponseEntity<>(sheetService.searchSheetByFilter(keyword, sort),
+            @ModelAttribute SheetSearchFilter sheetSearchFilter) {
+        return new ResponseEntity<>(sheetService.searchSheetByFilter(sheetSearchFilter),
                 HttpStatus.OK);
     }
 
@@ -86,21 +78,17 @@ public class SheetController {
     @GetMapping("/{sheet-id}/download")
     public ResponseEntity<?> downloadSheet(@PathVariable("sheet-id") Long sheetId) {
         // TODO : 구매여부 확인
-
         SheetDetailViewDto sheet = sheetService.searchSheetById(sheetId);
         try {
-            Resource resource = sheetService.getSheetFileByName(sheet.getFileName());
-
-            String encodedOriginalFileName = UriUtils.encode(sheet.getTitle(),
-                    StandardCharsets.UTF_8);
-
-            String fileExtension = FilenameUtils.getExtension(sheet.getFileName());
-            String contentDisposition =
-                    "attachment; filename=\"" + encodedOriginalFileName + "." + fileExtension
-                            + "\"";
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
-                    .body(resource);
+                    .header(
+                            HttpHeaders.CONTENT_DISPOSITION,
+                            String.format("attachment; filename=\"%s.%s\"",
+                                    UriUtils.encode(sheet.getTitle(),
+                                            StandardCharsets.UTF_8),
+                                    FilenameUtils.getExtension(sheet.getFileName()))
+                    )
+                    .body(sheetService.getSheetFileByFileName(sheet.getFileName()));
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }

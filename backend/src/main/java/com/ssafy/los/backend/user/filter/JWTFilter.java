@@ -28,8 +28,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
             "/users", "/users/check-email",
-            "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh",
-            "/sheets"
+            "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh"
     );
 
     @Override
@@ -39,7 +38,8 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
         log.info("----- JWT 필터에 검증요청이 왔습니다. -----");
@@ -68,7 +68,8 @@ public class JWTFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean handleAccessToken(String authorization, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private boolean handleAccessToken(String authorization, HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
         String token = authorization.split(" ")[1];
 
         try {
@@ -79,7 +80,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 return false; // 필터 체인 중단
             }
             log.info("유효한 JWT 토큰입니다.");
-            
+
             // 유저 정보 저장하기
             setAuthenticationToContext(token);
             return true; // 필터 체인 계속 진행
@@ -102,7 +103,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 .build();
 
         CustomUserDetails customUserDetails = new CustomUserDetails(user);
-        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null,
+                customUserDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }
 }
