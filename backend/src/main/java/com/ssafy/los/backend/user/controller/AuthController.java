@@ -11,7 +11,6 @@ import com.ssafy.los.backend.user.model.service.OAuth2UserService;
 import com.ssafy.los.backend.user.model.service.UserService;
 import com.ssafy.los.backend.user.model.service.UserStatusService;
 import com.ssafy.los.backend.util.JWTUtil;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -83,74 +82,51 @@ public class AuthController {
     // refresh 토큰 발급받기
     // TODO: POST mapping으로 바꾸기
     @GetMapping("/refresh")
-    public ResponseEntity<?> getAccessToken(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            String refreshToken = extractRefreshTokenFromCookie(request);
-            log.info("/auth/refresh로 받은 refreshToken 입니다. = {}", refreshToken);
+    public ResponseEntity<?> getAccessToken(HttpServletRequest request,
+            HttpServletResponse response) {
+        String refreshToken = extractRefreshTokenFromCookie(request);
 
-            if (refreshToken == null) {
-                log.info("토큰이 없습니다.");
-                return new ResponseEntity<>("Refresh token이 없습니다.", HttpStatus.UNAUTHORIZED);
-            }
-
-            try {
-                if (jwtUtil.isExpired(refreshToken)) {
-                    log.info("만료된 JWT 토큰입니다.");
-                    return new ResponseEntity<>("Refresh token이 만료되었습니다.", HttpStatus.UNAUTHORIZED);
-                }
-            } catch (JwtException e) {
-                log.error("JWT 토큰 검증 중 오류 발생", e);
-                return new ResponseEntity<>("유효하지 않은 Refresh token입니다.", HttpStatus.UNAUTHORIZED);
-            }
-
-            log.info("인증이 되었고 만료되지 않은 JWT 토큰입니다.");
-
-            if (!refreshTokenRepository.existsById(refreshToken)) {
-                log.info("Redis에 존재하지 않는 Refresh 토큰입니다.");
-                return new ResponseEntity<>("Refresh token이 Redis에 존재하지 않습니다.", HttpStatus.UNAUTHORIZED);
-            }
-
-            log.info("Redis에서 해당하는 Refresh 토큰을 찾았습니다.");
-
-            String email, role;
-            try {
-                email = jwtUtil.getUsername(refreshToken);
-                role = jwtUtil.getRole(refreshToken);
-            } catch (JwtException e) {
-                log.error("Refresh token에서 정보 추출 중 오류 발생", e);
-                return new ResponseEntity<>("Refresh token에서 정보를 추출할 수 없습니다.", HttpStatus.UNAUTHORIZED);
-            }
-
-            String accessToken;
-            try {
-                accessToken = jwtUtil.createAccessJwt(email, role);
-            } catch (Exception e) {
-                log.error("새로운 Access token 생성 중 오류 발생", e);
-                return new ResponseEntity<>("새로운 Access token을 생성할 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
-            response.addHeader("Authorization", "Bearer " + accessToken);
-            log.info("발급한 accessToken 입니다. = {}", accessToken);
-
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Refresh token 처리 중 예상치 못한 오류 발생", e);
-            return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+        if (refreshToken == null) {
+            log.info("토큰이 없습니다.");
+            return new ResponseEntity<>("Refresh token이 없습니다.", HttpStatus.UNAUTHORIZED);
         }
+
+        if (jwtUtil.isExpired(refreshToken)) {
+            log.info("만료된 JWT 토큰입니다.");
+            return new ResponseEntity<>("Refresh token이 만료되었습니다.", HttpStatus.UNAUTHORIZED);
+        }
+
+        log.info("인증이 되었고 만료되지 않은 JWT 토큰입니다.");
+
+        if (!refreshTokenRepository.existsById(refreshToken)) {
+            log.info("Redis에 존재하지 않는 Refresh 토큰입니다.");
+            return new ResponseEntity<>("Refresh token이 Redis에 존재하지 않습니다.",
+                    HttpStatus.UNAUTHORIZED);
+        }
+
+        log.info("Redis에서 해당하는 Refresh 토큰을 찾았습니다.");
+
+        // 새로운 accessToken 발행
+        // TODO : refreshToken Rotate 사용 가능
+        String email = jwtUtil.getUsername(refreshToken);
+        String role = jwtUtil.getRole(refreshToken);
+
+        String accessToken = jwtUtil.createAccessJwt(email, role);
+        response.addHeader("Authorization", "Bearer " + accessToken);
+
+        log.info("발급한 accessToken 입니다. = {}", accessToken);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private String extractRefreshTokenFromCookie(HttpServletRequest request) {
-        try {
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if (cookie.getName().equals("refreshToken")) {
-                        return cookie.getValue();
-                    }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("refreshToken")) {
+                    return cookie.getValue();
                 }
             }
-        } catch (Exception e) {
-            log.error("쿠키에서 Refresh token 추출 중 오류 발생", e);
         }
         return null;
     }
@@ -253,11 +229,11 @@ public class AuthController {
         String role = jwtUtil.getRole(token);
 
         // accessToken 발급하기
-        String accessToken = jwtUtil.createJwt(email, role, 60 * 60 * 10L);
+        String accessToken = jwtUtil.createAccessJwt(email, role);
         response.addHeader("Authorization", "Bearer " + accessToken);
 
         // refreshToken 발급하기
-        String refreshToken = jwtUtil.createJwt(email, role, 7 * 24 * 60 * 60 * 1000L);
+        String refreshToken = jwtUtil.createRefreshJwt(email, role);
         response.addCookie(createCookie("refreshToken", refreshToken));
         // redis 저장하기
         User user = userRepository.findByEmail(email)
