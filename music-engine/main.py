@@ -28,6 +28,7 @@ app.add_middleware(
 
 # 임시 폴더 설정
 UPLOAD_DIR = "temp"
+DUMMY_OUTPUTS_DIR = "dummyOutputs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 로깅 설정
@@ -73,8 +74,6 @@ async def upload_file(file: UploadFile = File(...)):
             wav_file_name = "converted.wav"
             midi_file_name = "converted.mid"
 
-        
-
         # WAV 데이터를 임시 파일로 저장
         wav_file_location = os.path.join(UPLOAD_DIR, wav_file_name)
         with open(wav_file_location, "wb") as wav_file:
@@ -95,11 +94,23 @@ async def upload_file(file: UploadFile = File(...)):
         os.remove(file_location)
         logger.info(f"원본 파일 {file_location}을 삭제했습니다.")
 
+        # 비교할 dummyOutputs 파일 결정
+        output_file_number = int(file_number) + 1
+        output_file_name = f"output_{output_file_number}.mid"
+        output_file_location = os.path.join(DUMMY_OUTPUTS_DIR, output_file_name)
+
+        if not os.path.exists(output_file_location):
+            raise FileNotFoundError(f"dummyOutputs 폴더에 {output_file_location} 파일이 존재하지 않습니다.")
+
+        # 유사도 계산
+        similarity_scores = calculate_similarity(midi_file_location, output_file_location)
+        
         return {
             "filename": file.filename,
             "wav_file": wav_file_location,
             "midi_file": midi_file_location,
-            "content_type": file.content_type
+            "content_type": file.content_type,
+            "similarity_scores": similarity_scores
         }
 
     except Exception as e:
