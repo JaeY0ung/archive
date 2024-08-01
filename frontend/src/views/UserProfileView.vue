@@ -5,6 +5,7 @@ import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import FollowModal from "@/common/modal/FollowModal.vue";
 
 const local = localAxios();
 const userStore = useUserStore();
@@ -19,6 +20,11 @@ const isFollowing = ref(false);
 const isOwnProfile = computed(() => {
     return userInfo.value?.nickname === route.params.nickName;
 });
+
+const showFollowersModal = ref(false);
+const showFollowingsModal = ref(false);
+const followList = ref([]);
+const followModalTitle = ref("");
 
 // 유저 프로필 정보
 const fetchUserProfile = async () => {
@@ -79,9 +85,8 @@ const fetchFollowInfo = async () => {
         followersCount.value = followersResponse.data.length;
         followingsCount.value = followingsResponse.data.length;
 
-        // 현재 프로필 페이지의 사용자가 팔로워 목록에 있는지 확인
         isFollowing.value = followersResponse.data.some(
-            follower => follower.nickname === userInfo.value.nickname
+            (follower) => follower.nickname === userInfo.value.nickname
         );
     } catch (error) {
         console.error("팔로우 정보를 가져오는 데 실패했습니다:", error);
@@ -99,27 +104,41 @@ const toggleFollow = async () => {
 
     try {
         if (isFollowing.value) {
-            // 언팔로우
             await local.delete(`/follows/followings/${userProfile.value.userId}`);
             console.log("언팔로우 성공");
         } else {
-            // 팔로우
             await local.post(`/follows/followings/${userProfile.value.userId}`);
             console.log("팔로우 성공");
         }
-        // 팔로우 상태 즉시 토글
         isFollowing.value = !isFollowing.value;
-        // 팔로우 정보 새로고침
         await fetchFollowInfo();
     } catch (error) {
         console.error("팔로우/언팔로우에 실패했습니다:", error);
-        // 에러 발생 시 상태를 원래대로 되돌림
         isFollowing.value = !isFollowing.value;
     }
 };
 
 const goToEditPage = () => {
     router.push("/mypage");
+};
+
+const openFollowModal = async (type) => {
+    console.log("모달창을 엽니다.")
+    try {
+        const response = await local.get(`/follows/${type}/${route.params.nickName}`);
+        followList.value = response.data;
+        followModalTitle.value = type === "followers" ? "Followers" : "Following";
+        type === "followers"
+            ? (showFollowersModal.value = true)
+            : (showFollowingsModal.value = true);
+    } catch (error) {
+        console.error(`${type} 목록을 가져오는데 실패했습니다:`, error);
+    }
+};
+
+const closeModal = () => {
+    showFollowersModal.value = false;
+    showFollowingsModal.value = false;
 };
 
 onMounted(async () => {
@@ -134,14 +153,18 @@ onMounted(async () => {
             <img src="placeholder-profile-image.jpg" alt="User Profile" class="profile-image" />
             <span class="user-name">{{ userProfile?.nickname }}</span>
             <span class="single-score">Score: {{ userProfile?.singleScore }}</span>
-            <span class="followers">Followers: {{ followersCount }}</span>
-            <span class="following">Following: {{ followingsCount }}</span>
+            <span class="followers" @click="openFollowModal('followers')"
+                >Followers: {{ followersCount }}</span
+            >
+            <span class="following" @click="openFollowModal('followings')"
+                >Following: {{ followingsCount }}</span
+            >
             <template v-if="!isOwnProfile">
-                <button 
-                    :class="['follow-btn', { 'unfollow-btn': isFollowing }]" 
+                <button
+                    :class="['follow-btn', { 'unfollow-btn': isFollowing }]"
                     @click="toggleFollow"
                 >
-                    {{ isFollowing ? 'Unfollow' : 'Follow' }}
+                    {{ isFollowing ? "Unfollow" : "Follow" }}
                 </button>
                 <button class="fight-btn">Fight</button>
             </template>
@@ -182,6 +205,13 @@ onMounted(async () => {
                 </div>
             </div>
         </div>
+
+        <FollowModal
+            v-if="showFollowersModal || showFollowingsModal"
+            :title="followModalTitle"
+            :follow-list="followList"
+            @close="closeModal"
+        />
     </div>
 </template>
 
@@ -221,6 +251,16 @@ onMounted(async () => {
 .followers,
 .following {
     color: #555;
+}
+
+.followers,
+.following {
+    cursor: pointer;
+}
+
+.followers:hover,
+.following:hover {
+    text-decoration: underline;
 }
 
 .fight-btn,
