@@ -2,7 +2,7 @@ package com.ssafy.los.backend.user.controller;
 
 
 import com.ssafy.los.backend.config.RefreshToken;
-import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
+import com.ssafy.los.backend.user.model.dto.request.UserCreateDto;
 import com.ssafy.los.backend.user.model.dto.response.UserDetailDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
@@ -48,7 +48,7 @@ public class AuthController {
             String accessToken = bearerToken.substring(7);
 
             String email = jwtUtil.getUsername(accessToken);
-            User user = userService.selectUserByEmail(email);
+            User user = userService.searchUserByEmail(email);
 
             UserDetailDto userDetailDto = UserDetailDto.builder()
                     .id(user.getId())
@@ -71,10 +71,10 @@ public class AuthController {
 
     // OAuth2로 유저 등록하기
     @PostMapping("/users")
-    public ResponseEntity<?> register(@RequestBody UserRegisterDto userRegisterDto) {
-        log.info("OAuth2로 회원 등록 요청을 한 DTO = {}", userRegisterDto.toString());
-        log.info("OAuth2로 회원 등록 요청을 한 DTO = {}", userRegisterDto.toString());
-        Long saveId = oAuth2UserService.saveOAuth2User(userRegisterDto);
+    public ResponseEntity<?> register(@RequestBody UserCreateDto userCreateDto) {
+        log.info("OAuth2로 회원 등록 요청을 한 DTO = {}", userCreateDto.toString());
+        log.info("OAuth2로 회원 등록 요청을 한 DTO = {}", userCreateDto.toString());
+        Long saveId = oAuth2UserService.saveOAuth2User(userCreateDto);
 
         return new ResponseEntity<>(saveId, HttpStatus.OK);
     }

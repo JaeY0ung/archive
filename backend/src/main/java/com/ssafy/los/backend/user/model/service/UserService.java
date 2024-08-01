@@ -1,29 +1,27 @@
 package com.ssafy.los.backend.user.model.service;
 
-import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
+import com.ssafy.los.backend.user.model.dto.request.UserCreateDto;
 import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
-import com.ssafy.los.backend.user.model.dto.response.UserProfileResponseDto;
+import com.ssafy.los.backend.user.model.dto.response.UserProfileDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
 
+    Long saveUser(UserCreateDto userCreateDto);
+
     Boolean validateEmail(String email);
 
     Boolean validateNickname(String email);
 
-    Long saveUser(UserRegisterDto userRegisterDto);
-
-    Long updateUser(Long id, UserUpdateDto userUpdateForm, String uuid);
+    Long updateUser(Long id, UserUpdateDto userUpdateDto, String uuid);
 
     Long deleteUser(Long id);
 
-    User selectUserById(Long id);
+    String saveUserImgFile(MultipartFile userImg) throws IOException;
 
-    String saveUserImgFile(MultipartFile profileImg) throws IOException;
+    User searchUserByEmail(String email);
 
-    User selectUserByEmail(String email);
-
-    UserProfileResponseDto searchUserPofile(String userNickname);
+    UserProfileDto searchUserProfileByNickname(String nickname);
 }
