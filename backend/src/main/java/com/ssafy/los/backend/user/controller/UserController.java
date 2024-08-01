@@ -70,7 +70,7 @@ public class UserController {
         // 파일 처리
         String uuid = null;
         if (files.size() == 1) {
-            uuid = userService.saveUserImgFile(files.get(0));
+            uuid = userService.registerUserImgFile(files.get(0));
         }
 
         // 닉네임 처리

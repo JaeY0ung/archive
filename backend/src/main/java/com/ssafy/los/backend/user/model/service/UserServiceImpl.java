@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
 
     // 회원 수정 파일 업로드
     @Override
-    public String saveUserImgFile(MultipartFile profileImg) throws IOException {
+    public String registerUserImgFile(MultipartFile profileImg) throws IOException {
         return fileUploadUtil.uploadUserImg(profileImg);
     }
 
