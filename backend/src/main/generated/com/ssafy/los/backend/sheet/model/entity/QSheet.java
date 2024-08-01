@@ -36,8 +36,6 @@ public class QSheet extends EntityPathBase<Sheet> {
 
     public final DateTimePath<java.sql.Timestamp> modifiedAt = createDateTime("modifiedAt", java.sql.Timestamp.class);
 
-    public final NumberPath<Integer> point = createNumber("point", Integer.class);
-
     public final NumberPath<Integer> price = createNumber("price", Integer.class);
 
     public final com.ssafy.los.backend.song.model.entity.QSong song;
