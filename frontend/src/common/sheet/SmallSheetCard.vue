@@ -1,27 +1,31 @@
 <script setup>
 import { getTitleByLen } from '@/util/string-util'
+import { useRouter } from 'vue-router';
 
-defineProps({
+const router = useRouter();
+
+const props = defineProps({
     sheet: Object
 })
 
+const goToSheetDetail = () => {
+    router.push({ name: 'sheetDetail', params: { sheetId: props.sheet.id } });
+}
 
 </script>
 
 <template>
-    <div class="card">
-        <!-- {{ sheet }} -->
+    <div class="card" @click="goToSheetDetail">
+        <!-- (왼쪽) 악보 사진 -->
         <div class="img">
             <img class="song-img" :src="sheet.imageUrl" alt="원본 곡 이미지" >
         </div>
-
+        <!-- (오른쪽) 악보 정보 -->
         <div class="sheet-info">
             <div>
-                <RouterLink :to="{ name: 'sheetDetail', params: { sheetId :  sheet.id} }">
-                    <span>
-                        <p class="bold" style="font-size: 18px;">{{ getTitleByLen(sheet.title, 10) }}</p>
-                    </span>
-                </RouterLink>
+                <div>
+                    <p class="bold" style="font-size: 18px;">{{ getTitleByLen(sheet.title, 10) }}</p>
+                </div>
                 <div>
                     <p class="medium" style="font-size: 12px;">{{ sheet.songComposer }}</p>
                 </div>

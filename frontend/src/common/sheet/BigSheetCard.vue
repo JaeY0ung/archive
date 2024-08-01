@@ -1,11 +1,14 @@
 <script setup>
+import { ref, watch } from 'vue';
 import { localAxios } from '@/util/http-common';
 import { useRouter } from 'vue-router'
 
 const local = localAxios();
 const props = defineProps({
     sheet: {
-        type: Object, required: true, default: {
+        type: Object,
+        required: true,
+        default: {
             id: Number,
             imageUrl: String,
             title: String,
@@ -19,6 +22,11 @@ const props = defineProps({
     }
 })
 
+const sheetInfo = ref(props.sheet)
+watch(() => props.sheet, (newSheet) => {
+    sheetInfo.value = newSheet 
+})
+
 const router = useRouter();
 const goToUserProfile = () => {
     router.push({ name: 'userProfile', params: { nickName: props.sheet.uploaderNickname} })
@@ -26,14 +34,20 @@ const goToUserProfile = () => {
 // 좋아요 기능
 const likeSheet = () => {
     local.post(`/likes/sheets/${props.sheet.id}`)
-        .then((res) => props.sheet.likeStatus = false)
+        .then((res) => {
+            sheetInfo.value.likeStatus = true;
+            sheetInfo.value.likeCount++;
+        })
         .catch((err) => console.log(err))
 }
 
 // 좋아요 해제 기능
 const dislikeSheet = () => {
     local.delete(`/likes/sheets/${props.sheet.id}`)
-        .then((res) => props.sheet.likeStatus = true)
+        .then((res) => {
+            sheetInfo.value.likeStatus = false
+            sheetInfo.value.likeCount--;
+        })
         .catch((err) => console.log(err))
 }
 
@@ -81,9 +95,9 @@ const addSheetToCart = () => {
                         <p>{{ sheet.viewCount }}</p>
                     </div>
                     <div class="flex items-center cursor-pointer">
-                        <img v-if="sheet.likeStatus" :src="require('@/assets/img/heart-fill.svg')" alt="꽉 찬 하트" @click="likeSheet">
-                        <img v-else :src="require('@/assets/img/heart-empty.svg')" alt="빈 하트" @click="dislikeSheet">
-                        {{ sheet.likeCount  }}
+                        <img v-if="sheetInfo.likeStatus === true" :src="require('@/assets/img/heart-fill.svg')" alt="꽉 찬 하트" @click="dislikeSheet">
+                        <img v-else :src="require('@/assets/img/heart-empty.svg')" alt="빈 하트" @click="likeSheet">
+                        {{ sheetInfo.likeCount  }}
                     </div>
                 </div>
             </div>
