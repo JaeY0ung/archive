@@ -1,4 +1,5 @@
 import subprocess
+from music21 import converter
 import os
 
 class ConvertService:
@@ -20,7 +21,11 @@ class ConvertService:
         wav_file = os.path.join(output_dir, f"{base_filename}.wav")
 
         subprocess.run(['ffmpeg', '-y', '-i', file_path, wav_file], check=True)
-        return wav_file
+        
+        with open(wav_file, 'rb') as f:
+            wav_data = f.read()
+        
+        return wav_data
 
     def wav_to_mp3(self, wav_file, output_dir="temp"):
         base_filename = os.path.splitext(os.path.basename(wav_file))[0]
@@ -29,7 +34,11 @@ class ConvertService:
         subprocess.run(['ffmpeg', '-i', wav_file, '-y', '-f', 'mp3', '-ab',
                         f'{self.mp3_bitrate}k', '-ac', str(self.channels),
                         '-ar', str(self.sample_rate), '-vn', mp3_file], check=True)
-        return mp3_file
+        
+        with open(mp3_file, 'rb') as f:
+            mp3_data = f.read()
+        
+        return mp3_data
 
     def wav_to_midi(self, wav_file, output_dir="temp"):
         base_filename = os.path.splitext(os.path.basename(wav_file))[0]
@@ -42,4 +51,30 @@ class ConvertService:
             "-o", "/app/temp"
         ]
         subprocess.run(cmd, check=True)
-        return os.path.join(output_dir, f"{base_filename}.mid")
+        
+        with open(midi_file, 'rb') as f:
+            midi_data = f.read()
+        
+        return midi_data
+
+    def xml_to_midi(self, musicxml_path, output_dir="temp"):
+        base_filename = os.path.splitext(os.path.basename(musicxml_path))[0]
+        midi_output_path = os.path.join(output_dir, f"{base_filename}.mid")
+        score = converter.parse(musicxml_path)
+        score.write('midi', fp=midi_output_path)
+        
+        with open(midi_output_path, 'rb') as f:
+            midi_data = f.read()
+        
+        return midi_data
+
+    def midi_to_xml(self, midi_file_path, output_dir="temp"):
+        base_filename = os.path.splitext(os.path.basename(midi_file_path))[0]
+        musicxml_output_path = os.path.join(output_dir, f"{base_filename}.musicxml")
+        midi_stream = converter.parse(midi_file_path)
+        midi_stream.write('musicxml', fp=musicxml_output_path)
+        
+        with open(musicxml_output_path, 'rb') as f:
+            musicxml_data = f.read()
+        
+        return musicxml_data
