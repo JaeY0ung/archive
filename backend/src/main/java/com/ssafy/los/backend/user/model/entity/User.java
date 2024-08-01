@@ -66,6 +66,8 @@ public class User extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
+    private String firebaseToken;
+
     @PrePersist
     public void prePersist() {
         this.uuid = UUID.randomUUID().toString();
@@ -74,7 +76,8 @@ public class User extends BaseEntity {
     @Builder
     public User(String email, String pwdHash, LocalDateTime birthDate, String nickname,
             Boolean gender,
-            String userImg, String role, Integer singleScore, Integer multiScore, String provider) {
+            String userImg, String role, Integer singleScore, Integer multiScore, String provider,
+            String firebaseToken) {
         this.email = email;
         this.pwdHash = pwdHash;
         this.birthDate = birthDate;
@@ -85,6 +88,7 @@ public class User extends BaseEntity {
         this.singleScore = singleScore;
         this.multiScore = multiScore;
         this.provider = provider;
+        this.firebaseToken = firebaseToken;
     }
 
 //    @Builder
@@ -105,6 +109,10 @@ public class User extends BaseEntity {
 
     public void updateEmail(String email) {
         this.email = email;
+    }
+
+    public void updateFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
     }
 
     //=== OAuth2 관련 ===///

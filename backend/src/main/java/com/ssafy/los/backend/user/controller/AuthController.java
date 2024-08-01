@@ -173,6 +173,8 @@ public class AuthController {
             // Redis에서 refreshToken 제거
             refreshTokenRepository.deleteById(refreshToken);
             log.info("Redis에서 refreshToken을 제거했습니다. = {}", refreshToken);
+            // 알림 전송용 firebaseToken 제거
+            userService.deleteFirebaseTokenByUserId(Long.parseLong(userId));
             // Redis 에서 user을 offline으로 설정 (online key 제거)
             userStatusService.setUserOffline(Long.parseLong(userId));
             log.info("User ID {}를 offline으로 설정 완료했습니다.", userId);

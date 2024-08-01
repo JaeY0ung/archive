@@ -68,7 +68,7 @@ public class UserController {
 
         // 파일 처리
         String uuid = null;
-        if  (files.size() == 1) {
+        if (files.size() == 1) {
             uuid = userService.saveUserImgFile(files.get(0));
         }
 

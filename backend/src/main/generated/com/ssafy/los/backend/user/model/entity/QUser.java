@@ -32,6 +32,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath email = createString("email");
 
+    public final StringPath firebaseToken = createString("firebaseToken");
+
     public final BooleanPath gender = createBoolean("gender");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
