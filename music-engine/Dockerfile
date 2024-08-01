@@ -1,3 +1,4 @@
+# Python 3.9-slim 이미지 사용
 FROM python:3.9-slim
 
 # 시스템 패키지 업데이트 및 Docker CLI 설치
