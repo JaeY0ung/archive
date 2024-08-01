@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.sheet.model.dto.request;
 
+import com.ssafy.los.backend.sheet.model.constant.Sort;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,8 +16,8 @@ public class SheetSearchFilter {
 
     private String keyword;
 
-    private String sort;
+    private Sort sort;
 
-    private Integer level;
+    private Integer[] level;
 
 }
