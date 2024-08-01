@@ -57,7 +57,7 @@ public class SheetController {
             Sheet sheet = sheetService.registerSheetAndFile(sheetUploadForm);
             return new ResponseEntity<>(sheet, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("파일 업로드에 실패했습니다.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("파일 업로드에 실패했습니다."+e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
