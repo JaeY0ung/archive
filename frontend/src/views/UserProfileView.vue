@@ -80,10 +80,6 @@ const fetchFollowInfo = async () => {
         followingsCount.value = followingsResponse.data.length;
 
         // 현재 프로필 페이지의 사용자가 팔로워 목록에 있는지 확인
-        console.log(">>>>>>>>>" + userInfo.value.nickname)
-        console.log(">>>>>>>>>", followersResponse.data)
-        
-
         isFollowing.value = followersResponse.data.some(
             follower => follower.nickname === userInfo.value.nickname
         );

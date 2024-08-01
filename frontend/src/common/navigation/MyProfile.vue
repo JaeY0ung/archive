@@ -12,7 +12,13 @@ const { isLogin, userInfo } = storeToRefs(userStore);
 const userNickname = computed(() => userInfo.value?.nickname || '사용자');
 
 const goToMyPage = () => {
-  router.push({ name: 'mypage' });
+  if (router.currentRoute.value.name === 'mypage') {
+    // 현재 페이지가 mypage인 경우 이전 페이지로 이동
+    router.go(-1);
+  } else {
+    // 그 외의 경우 mypage로 이동
+    router.push({ name: 'mypage' });
+  }
 };
 </script>
 
