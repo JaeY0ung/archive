@@ -26,13 +26,11 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     // 난이도 평가 생성
     @Override
-    public Long saveDifficultyRating(Long sheetId, DifficultyCreateRequestDto difficultyCreateRequestDto) {
-        User user = userRepository.findById(difficultyCreateRequestDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "해당 유저가 없습니다. id = " + difficultyCreateRequestDto.getUserId()));
+    public Long saveDifficultyRating(Long sheetId, Long userId, DifficultyCreateRequestDto difficultyCreateRequestDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. id = " + userId));
         Sheet sheet = sheetRepository.findById(sheetId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "해당 악보가 없습니다. id = " + sheetId));
+                .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
 
         Difficulty difficultyRating = Difficulty.builder()
                 .user(user)

@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface DifficultyService {
 
-    Long saveDifficultyRating(Long sheetId, DifficultyCreateRequestDto difficultyCreateRequestDto);
+    Long saveDifficultyRating(Long sheetId, Long userId, DifficultyCreateRequestDto difficultyCreateRequestDto);
 
     Long updateDifficultyRating(Long id, DifficultyUpdateRequestDto difficultyUpdateRequestDto);
 

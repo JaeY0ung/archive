@@ -4,6 +4,7 @@ import com.ssafy.los.backend.sheet.model.dto.request.DifficultyCreateRequestDto;
 import com.ssafy.los.backend.sheet.model.dto.request.DifficultyUpdateRequestDto;
 import com.ssafy.los.backend.sheet.model.dto.response.DifficultyResponseDto;
 import com.ssafy.los.backend.sheet.model.service.DifficultyService;
+import com.ssafy.los.backend.user.model.service.AuthService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,13 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class DifficultyController {
 
     private final DifficultyService difficultyRatingService;
+    private final AuthService authService;
 
 
     // 난이도 평가 생성
     @PostMapping("/{sheet-id}/difficulties")
     public ResponseEntity<?> saveDifficultyRating(@PathVariable("sheet-id") Long sheetId,
             @RequestBody DifficultyCreateRequestDto difficultyCreateRequestDto) {
-        Long saveId = difficultyRatingService.saveDifficultyRating(sheetId, difficultyCreateRequestDto);
+        Long userId = authService.getLoginUser().getId();
+        Long saveId = difficultyRatingService.saveDifficultyRating(sheetId, userId, difficultyCreateRequestDto);
         return new ResponseEntity<>(saveId, HttpStatus.OK);
     }
 
