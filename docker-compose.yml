@@ -28,7 +28,7 @@ services:
       - SPRING_JWT_REDIS_HOST=redis
       - SPRING_JWT_REDIS_PORT=6379
     volumes:
-      - shared_data:/app  # 공용 볼륨 설정
+      - shared_data:/app/shared  # 공용 볼륨 설정
 
   mysql:
     image: mysql:latest
@@ -53,7 +53,7 @@ services:
     image: mctlab/omnizart:latest
     container_name: omnizart_container
     volumes:
-      - shared_data:/app  # 공용 볼륨 설정
+      - shared_data:/app/shared  # 공용 볼륨 설정
     entrypoint: /bin/bash
     stdin_open: true
     tty: true
@@ -69,9 +69,9 @@ services:
       - omnizart
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Docker 소켓 공유
-      - shared_data:/app  # 공용 볼륨 설정
+      - shared_data:/app/shared  # 공용 볼륨 설정
     environment:
-      UPLOAD_DIR: "/app/temp"
+      UPLOAD_DIR: "/app/shared/temp"
 
 volumes:
   mysql-data:
