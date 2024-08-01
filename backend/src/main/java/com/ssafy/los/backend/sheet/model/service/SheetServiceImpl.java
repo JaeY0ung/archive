@@ -93,6 +93,8 @@ public class SheetServiceImpl implements SheetService {
             sheetDetailViewDto.setSongImg(base64SongImg);
         } catch (IOException e) {
             log.error(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            log.error("곡의 이미지를 찾아올 수 없습니다");
         }
         return sheetDetailViewDto;
     }
