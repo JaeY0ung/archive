@@ -1,5 +1,3 @@
-# 기존의 Dockerfile 내용 시작
-
 FROM python:3.9-slim
 
 # 시스템 패키지 업데이트 및 Docker CLI 설치
@@ -20,5 +18,3 @@ EXPOSE 8000
 
 # 애플리케이션 실행 명령
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-
-# 기존의 Dockerfile 내용 끝
