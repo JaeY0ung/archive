@@ -36,7 +36,7 @@ public class SecurityConfig {
     private final RefreshTokenRepository refreshTokenRepository;
     private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
     private final UserStatusService userStatusService;
-    
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
             throws Exception {

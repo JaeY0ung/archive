@@ -166,9 +166,10 @@ const isFriendSelected = (user) => {
 const currentMode = computed(() => playStore.getMode);
 const onlineUsers = computed(() => playStore.getOnlineUsers);
 
-const inviteSelectedFriends = () => {
+const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
-        // 친구 초대 로직을 여기에 추가
+         // 친구 초대 알림 보내기
+         await playStore.sendInviteAlert(selectedFriend.value.id);
         console.log("Invite selected friend:", selectedFriend.value);
     }
     closeInviteModalStatus();

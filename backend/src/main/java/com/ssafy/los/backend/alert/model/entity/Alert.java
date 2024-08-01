@@ -11,13 +11,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.sql.Timestamp;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Alert {
 
     @Id
@@ -33,10 +39,14 @@ public class Alert {
     @ManyToOne(cascade = CascadeType.REMOVE)
     private AlertType alertType;
 
+//    @Column(name = "alert_type_id")
+//    private Long alertTypeId;
+
     private Long referenceId;
 
     private Boolean readStatus;
 
     @CreatedDate
     private Timestamp createdAt;
+
 }

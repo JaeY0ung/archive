@@ -25,4 +25,8 @@ public interface UserService {
     String saveUserImgFile(MultipartFile profileImg) throws IOException;
 
     User selectUserByEmail(String email);
+
+    String findFirebaseTokenByUserId(Long userId);
+    
+    void deleteFirebaseTokenByUserId(Long userId);
 }

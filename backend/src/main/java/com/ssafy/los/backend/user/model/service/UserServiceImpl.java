@@ -70,7 +70,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User selectUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("email에 해당하는 유저가 없습니다."));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("email에 해당하는 유저가 없습니다."));
     }
 
     // 회원 삭제
@@ -84,6 +85,23 @@ public class UserServiceImpl implements UserService {
     public User selectUserById(Long id) {
         return userRepository.findUserById(id)
                 .orElseThrow(() -> new IllegalArgumentException("잘못된 user id 입니다."));
+    }
+
+    // Firebase 토큰 조회
+    @Override
+    public String findFirebaseTokenByUserId(Long userId) {
+        User user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 user id 입니다."));
+        return user.getFirebaseToken();
+    }
+
+    //  firebase 토큰 삭제 (로그아웃 시 활용)
+    @Override
+    public void deleteFirebaseTokenByUserId(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 user id 입니다."));
+        user.updateFirebaseToken(null); // 토큰을 null로 설정
+        userRepository.save(user);
     }
 
 

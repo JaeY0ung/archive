@@ -20,6 +20,22 @@ export const usePlayStore = defineStore('playMode', {
         console.error('온라인 유저 목록을 불러오는 것에 실패했습니다', error);
       }
     },
+    async sendInviteAlert(userId) {
+      try {
+        const alertDto = {
+          receiver: { id: userId },
+          alertType: { id: 1 }, // 대결 초대 알림 타입
+          referenceId: 123, // 관련 ID, 필요에 따라 설정
+          readStatus: false,
+          createdAt: new Date().toISOString()
+        };
+        console.log('Sending alertDto:', alertDto); // 디버깅을 위한 로그
+        const response = await axios.post(`${baseURL}/alert`, alertDto);
+        console.log('초대 알림 전송 성공:', response.data);
+      } catch (error) {
+        console.error('초대 알림 전송 실패:', error);
+      }
+    }
   },
   getters: {
     getMode: (state) => state.mode,

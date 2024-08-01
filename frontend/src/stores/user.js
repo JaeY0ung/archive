@@ -4,11 +4,14 @@ import { useRouter } from "vue-router"
 import { defineStore } from 'pinia'
 import { jwtDecode } from "jwt-decode"
 import { userConfirm, findById, tokenRegeneration, logout, findByEmail } from "@/api/user"
+import firebase from 'firebase/app';
+import 'firebase/messaging';
+import { localAxios } from '@/util/http-common';
 
 export const useUserStore = defineStore('user', () => {
   const router = useRouter();
 
-  // 유저 정보 스토어에 저장
+  // 유저 정보 스토어에 저장.
   const userInfo = ref(null)
 
   // 유저 상태 스토어에 저장
@@ -16,7 +19,50 @@ export const useUserStore = defineStore('user', () => {
   const isLoginError = ref(false)
   const isValidToken = ref(false)
 
+    // Firebase 초기화 설정 (Firebase 프로젝트 설정에서 가져온 구성 객체)
+    const firebaseConfig = {
+      apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
+      authDomain: process.env.VUE_APP_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.VUE_APP_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.VUE_APP_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.VUE_APP_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.VUE_APP_FIREBASE_APP_ID,
+      measurementId: process.env.VUE_APP_FIREBASE_MEASUREMENT_ID,
+    };
+
+  
+    // Firebase 초기화
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  
+  const messaging = firebase.messaging();
+  
+  // Foreground 메시지 핸들러
+  messaging.onMessage((payload) => {
+    console.log('Message received. ', payload);
+    // 알림을 브라우저에 표시
+    new Notification(payload.notification.title, {
+      body: payload.notification.body,
+      icon: payload.notification.icon
+    });
+  });
+  
+    async function requestFirebaseToken() {
+      try {
+        await Notification.requestPermission();
+        const token = await messaging.getToken();
+        return token;
+      } catch (error) {
+        console.error('Unable to get permission to notify.', error);
+        return null;
+      }
+    }
+
+
   const userLogin = async (loginUser) => {
+    
+
     await userConfirm(
       loginUser,
       async (response) => {
@@ -47,10 +93,13 @@ export const useUserStore = defineStore('user', () => {
         isLoginError.value = false;
         isValidToken.value = true;
 
-          // 유저 정보 가져오기
-          await getUserInfo(accessToken);
-          console.log("user 정보: = ", userInfo.value);
-          // console.log(userInfo.value.email);
+        // 유저 정보 가져오기
+        await getUserInfo(accessToken);
+        console.log("user 정보: = ", userInfo.value);
+        // console.log(userInfo.value.email);
+
+        // Firebase 토큰 발급 및 저장
+        await sendFirebaseTokenToServer(accessToken);
 
           console.log("User ID:", userInfo.value.id);
           console.log("Role:", userInfo.value.role);
@@ -73,6 +122,41 @@ export const useUserStore = defineStore('user', () => {
         console.error(error);
       }
     );
+  };
+
+  // const sendFirebaseTokenToServer = async (accessToken) => {
+  //   const local = localAxios();
+  //   const firebaseToken = await requestFirebaseToken();
+  //   if (!firebaseToken) {
+  //     console.error('Firebase token 요청이 정상적으로 처리되지 않았습니다.');
+  //     return;
+  //   }
+  //   console.log("firebase token 요청 정상 처리: " + firebaseToken);
+
+  //   // Firebase 토큰을 서버로 전송
+  //   await local.post('/alert/saveFirebaseToken', { firebaseToken }, {
+  //     headers: {
+  //       'Authorization': `Bearer ${accessToken}`,
+  //       'Content-Type': 'application/json'
+  //     }
+  //   });
+  // };
+
+  const sendFirebaseTokenToServer = async () => {
+    const local = localAxios();
+    const firebaseToken = await requestFirebaseToken();
+    if (!firebaseToken) {
+      console.error('Firebase token 요청이 정상적으로 처리되지 않았습니다.');
+      return;
+    }
+    console.log("firebase token 요청 정상 처리: " + firebaseToken);
+
+    // Firebase 토큰을 서버로 전송
+    await local.post('/alert/saveFirebaseToken', { firebaseToken, userId: userInfo.value.id }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
   };
 
   const getUserInfo = async (token) => {

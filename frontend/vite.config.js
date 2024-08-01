@@ -19,8 +19,7 @@ export default defineConfig({
   },
   server: {
     // port: 8081
-    port: 5173
-
+    port: 5173,
   },
   define : {
     __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false',
@@ -28,4 +27,3 @@ export default defineConfig({
     'process.env.SOME_KEY': JSON.stringify(env.SOME_KEY)
   }
 })
-

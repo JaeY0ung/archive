@@ -11,6 +11,7 @@ const selectMode = (mode) => {
   router.push({ name: "wait" });
 };
 
+
 const rankings = ref([
   { rank: 1, name: "User1", wins: 60, losses: 20 },
   { rank: 2, name: "User2", wins: 55, losses: 25 },
