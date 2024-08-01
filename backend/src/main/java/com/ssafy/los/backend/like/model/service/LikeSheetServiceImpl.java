@@ -3,10 +3,8 @@ package com.ssafy.los.backend.like.model.service;
 import com.ssafy.los.backend.like.model.entity.LikeSheet;
 import com.ssafy.los.backend.like.model.repository.LikeRepository;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
-import com.ssafy.los.backend.sheet.model.repository.SheetRepository;
 import com.ssafy.los.backend.sheet.model.service.SheetService;
 import com.ssafy.los.backend.user.model.entity.User;
-import com.ssafy.los.backend.user.model.repository.UserRepository;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +16,6 @@ import org.springframework.stereotype.Service;
 public class LikeSheetServiceImpl implements LikeService {
 
     private final LikeRepository likeRepository;
-    private final UserRepository userRepository;
-    private final SheetRepository sheetRepository;
     private final AuthService authService;
     private final SheetService sheetService;
 
@@ -27,10 +23,14 @@ public class LikeSheetServiceImpl implements LikeService {
     public void likeSheetById(Long sheetId) {
         User user = authService.getLoginUser();
         Sheet sheet = sheetService.searchById(sheetId);
+
         if (isExistByUserAndSheet(user, sheet)) {
             throw new IllegalArgumentException("이미 좋아요한 악보입니다");
         }
-        LikeSheet likeSheet = LikeSheet.builder().user(user).sheet(sheet).build();
+        LikeSheet likeSheet = LikeSheet.builder()
+                .user(user)
+                .sheet(sheet)
+                .build();
         likeRepository.save(likeSheet);
     }
 

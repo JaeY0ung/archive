@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.sheet.model.dto.response;
 
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
+import com.ssafy.los.backend.util.FileUploadUtil;
 import java.sql.Timestamp;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,7 +52,6 @@ public class SheetDetailViewDto {
     private Timestamp createdAt;
 
     public SheetDetailViewDto(Sheet sheet, Long likeCount, Boolean likeStatus) {
-
         this.id = sheet.getId();
         this.title = sheet.getTitle();
         if (sheet.getSong() != null) {
@@ -72,6 +72,12 @@ public class SheetDetailViewDto {
 
     public SheetDetailViewDto(Sheet sheet, Long likeCount) {
         this(sheet, likeCount, null);
+    }
+
+    public void loadSongImg(FileUploadUtil fileUploadUtil) {
+        if (this.songImgName != null) {
+            this.songImg = fileUploadUtil.getImg(this.songImgName);
+        }
     }
 
 }
