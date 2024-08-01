@@ -1,7 +1,7 @@
 package com.ssafy.los.backend.sheet.controller;
 
-import com.ssafy.los.backend.sheet.model.dto.request.DifficultyCreateRequestDto;
-import com.ssafy.los.backend.sheet.model.dto.request.DifficultyUpdateRequestDto;
+import com.ssafy.los.backend.sheet.model.dto.request.DifficultyCreateDto;
+import com.ssafy.los.backend.sheet.model.dto.request.DifficultyUpdateDto;
 import com.ssafy.los.backend.sheet.model.dto.response.DifficultyResponseDto;
 import com.ssafy.los.backend.sheet.model.service.DifficultyService;
 import com.ssafy.los.backend.user.model.service.AuthService;
@@ -29,33 +29,35 @@ public class DifficultyController {
 
     // 난이도 평가 생성
     @PostMapping("/{sheet-id}/difficulties")
-    public ResponseEntity<?> saveDifficultyRating(@PathVariable("sheet-id") Long sheetId,
-            @RequestBody DifficultyCreateRequestDto difficultyCreateRequestDto) {
+    public ResponseEntity<?> crateDifficulty(@PathVariable("sheet-id") Long sheetId,
+            @RequestBody DifficultyCreateDto difficultyCreateDto) {
         Long userId = authService.getLoginUser().getId();
-        Long saveId = difficultyRatingService.saveDifficultyRating(sheetId, userId, difficultyCreateRequestDto);
+        Long saveId = difficultyRatingService.saveDifficulty(sheetId, userId,
+                difficultyCreateDto);
         return new ResponseEntity<>(saveId, HttpStatus.OK);
     }
 
     // 난이도 평가 수정
     @PutMapping("/difficulties/{difficulty-id}")
-    public ResponseEntity<?> updateDifficultyRating(@PathVariable("difficulty-id") Long difficultyId,
-            @RequestBody DifficultyUpdateRequestDto difficultyUpdateRequestDto) {
-        Long updateId = difficultyRatingService.updateDifficultyRating(difficultyId, difficultyUpdateRequestDto);
+    public ResponseEntity<?> updateDifficulty(@PathVariable("difficulty-id") Long difficultyId,
+            @RequestBody DifficultyUpdateDto difficultyUpdateDto) {
+        Long updateId = difficultyRatingService.updateDifficulty(difficultyId,
+                difficultyUpdateDto);
 
         return new ResponseEntity<>(updateId, HttpStatus.OK);
     }
 
     // 난이도 평가 삭제
     @DeleteMapping("/difficulties/{difficulty-id}")
-    public ResponseEntity<?> deleteDifficultyRating(@PathVariable("difficulty-id") Long difficultyId) {
+    public ResponseEntity<?> deleteDifficulty(@PathVariable("difficulty-id") Long difficultyId) {
         difficultyRatingService.deleteDifficulty(difficultyId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 악보 난이도 평가 목록 조회
     @GetMapping("/{sheet-id}/difficulties")
-    public ResponseEntity<?> findDifficultyRating(@PathVariable("sheet-id") Long sheetId) {
-        List<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.findDifficultyRating(sheetId);
+    public ResponseEntity<?> findDifficulty(@PathVariable("sheet-id") Long sheetId) {
+        List<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyBySheetId(sheetId);
         return new ResponseEntity<>(difficultyResponseDto, HttpStatus.OK);
     }
 }

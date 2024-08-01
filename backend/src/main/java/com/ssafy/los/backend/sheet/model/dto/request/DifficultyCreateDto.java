@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class DifficultyCreateRequestDto {
+public class DifficultyCreateDto {
     private Integer level;
     private String contents;
 }

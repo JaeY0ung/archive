@@ -1,7 +1,7 @@
 package com.ssafy.los.backend.sheet.model.service;
 
-import com.ssafy.los.backend.sheet.model.dto.request.DifficultyCreateRequestDto;
-import com.ssafy.los.backend.sheet.model.dto.request.DifficultyUpdateRequestDto;
+import com.ssafy.los.backend.sheet.model.dto.request.DifficultyCreateDto;
+import com.ssafy.los.backend.sheet.model.dto.request.DifficultyUpdateDto;
 import com.ssafy.los.backend.sheet.model.dto.response.DifficultyResponseDto;
 import com.ssafy.los.backend.sheet.model.entity.Difficulty;
 import com.ssafy.los.backend.sheet.model.entity.Sheet;
@@ -26,7 +26,7 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     // 난이도 평가 생성
     @Override
-    public Long saveDifficultyRating(Long sheetId, Long userId, DifficultyCreateRequestDto difficultyCreateRequestDto) {
+    public Long saveDifficulty(Long sheetId, Long userId, DifficultyCreateDto difficultyCreateDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다. id = " + userId));
         Sheet sheet = sheetRepository.findById(sheetId)
@@ -35,8 +35,8 @@ public class DifficultyServiceImpl implements DifficultyService {
         Difficulty difficultyRating = Difficulty.builder()
                 .user(user)
                 .sheet(sheet)
-                .contents(difficultyCreateRequestDto.getContents())
-                .level(difficultyCreateRequestDto.getLevel())
+                .contents(difficultyCreateDto.getContents())
+                .level(difficultyCreateDto.getLevel())
                 .build();
 
         return difficultyRatingRepository.save(difficultyRating).getId();
@@ -44,11 +44,12 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     // 난이도 평가 수정
     @Override
-    public Long updateDifficultyRating(Long difficultyId, DifficultyUpdateRequestDto difficultyUpdateRequestDto) {
+    public Long updateDifficulty(Long difficultyId, DifficultyUpdateDto difficultyUpdateDto) {
         Difficulty findDifficultyRating = difficultyRatingRepository.findById(difficultyId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 난이도 평가가 없습니다. id = " + difficultyId));
 
-        findDifficultyRating.update(difficultyUpdateRequestDto.getLevel(), difficultyUpdateRequestDto.getContents());
+        findDifficultyRating.update(difficultyUpdateDto.getLevel(), difficultyUpdateDto.getContents());
+
         return difficultyId;
     }
 
@@ -56,12 +57,13 @@ public class DifficultyServiceImpl implements DifficultyService {
     @Override
     public Long deleteDifficulty(Long difficultyId) {
         difficultyRatingRepository.deleteById(difficultyId);
+
         return difficultyId;
     }
 
     // 악보 난이도 평가 목록 조회
     @Override
-    public List<DifficultyResponseDto> findDifficultyRating(Long sheetId) {
+    public List<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId) {
         Sheet sheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
         List<Difficulty> difficultyList = difficultyRatingRepository.findAllBySheet(sheet);

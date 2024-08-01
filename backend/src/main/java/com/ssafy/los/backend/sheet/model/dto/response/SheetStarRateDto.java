@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SheetStarRateResponseDto {
+public class SheetStarRateDto {
 
     private String nickname;
     private String userImg;
@@ -15,8 +15,8 @@ public class SheetStarRateResponseDto {
     private int starRate;
     private LocalDateTime createdAt;
 
-    public static SheetStarRateResponseDto toEntity(SheetStarRate sheetStarRate) {
-        return SheetStarRateResponseDto.builder()
+    public static SheetStarRateDto toEntity(SheetStarRate sheetStarRate) {
+        return SheetStarRateDto.builder()
                 .nickname(sheetStarRate.getUser().getNickname())
                 .userImg(sheetStarRate.getUser().getUserImg())
                 .content(sheetStarRate.getContent())
