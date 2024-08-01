@@ -4,6 +4,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.ssafy.los.backend.alert.model.dto.AlertDto;
+import com.ssafy.los.backend.alert.model.entity.Alert;
 import com.ssafy.los.backend.alert.model.repository.AlertRepository;
 import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class AlertServiceImpl implements AlertService {
         // 알림 유형에 따라 제목 설정
         String title;
         Long alertTypeId = alertDto.getAlertType().getId();
+        logger.info("alertTypeId: " + alertTypeId);
         switch (alertTypeId.intValue()) {
             case 1:
                 title = "대결 초대 알림";
@@ -79,6 +81,19 @@ public class AlertServiceImpl implements AlertService {
         redisTemplate.opsForValue().set("firebaseToken:" + userId, firebaseToken);
         logger.info(
                 "Firebase Token 저장 완료: userId = " + userId + " firebaseToken = " + firebaseToken);
+    }
+
+    @Override
+    public String saveAlertAndSendMessage(AlertDto alertDto) {
+        // AlertDto를 Alert 엔티티로 변환
+        Alert alertEntity = alertDto.toEntity();
+
+        // Alert 엔티티를 데이터베이스에 저장
+        Alert savedAlert = alertRepository.save(alertEntity);
+        logger.info("savedAlert.toDto(): " + savedAlert.toDto());
+
+        // 저장된 Alert 엔티티의 정보를 이용하여 알림 전송
+        return sendMessage(savedAlert.toDto());
     }
 
 }

@@ -7,4 +7,6 @@ public interface AlertService {
     String sendMessage(AlertDto alertDto);
 
     void saveFirebaseToken(Long userId, String firebaseToken);
+
+    String saveAlertAndSendMessage(AlertDto alertDto);
 }

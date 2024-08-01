@@ -51,6 +51,7 @@ export const useUserStore = defineStore('user', () => {
     async function requestFirebaseToken() {
       try {
         await Notification.requestPermission();
+        console.log("알림 권한 요청을 보냈습니다.")
         const token = await messaging.getToken();
         return token;
       } catch (error) {
@@ -124,23 +125,6 @@ export const useUserStore = defineStore('user', () => {
     );
   };
 
-  // const sendFirebaseTokenToServer = async (accessToken) => {
-  //   const local = localAxios();
-  //   const firebaseToken = await requestFirebaseToken();
-  //   if (!firebaseToken) {
-  //     console.error('Firebase token 요청이 정상적으로 처리되지 않았습니다.');
-  //     return;
-  //   }
-  //   console.log("firebase token 요청 정상 처리: " + firebaseToken);
-
-  //   // Firebase 토큰을 서버로 전송
-  //   await local.post('/alert/saveFirebaseToken', { firebaseToken }, {
-  //     headers: {
-  //       'Authorization': `Bearer ${accessToken}`,
-  //       'Content-Type': 'application/json'
-  //     }
-  //   });
-  // };
 
   const sendFirebaseTokenToServer = async () => {
     const local = localAxios();
@@ -152,7 +136,7 @@ export const useUserStore = defineStore('user', () => {
     console.log("firebase token 요청 정상 처리: " + firebaseToken);
 
     // Firebase 토큰을 서버로 전송
-    await local.post('/alert/saveFirebaseToken', { firebaseToken, userId: userInfo.value.id }, {
+    await local.post('/alert/save-firebaseToken', { firebaseToken, userId: userInfo.value.id }, {
       headers: {
         'Content-Type': 'application/json'
       }

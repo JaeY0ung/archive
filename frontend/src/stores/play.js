@@ -25,7 +25,7 @@ export const usePlayStore = defineStore('playMode', {
         const alertDto = {
           receiver: { id: userId },
           alertType: { id: 1 }, // 대결 초대 알림 타입
-          referenceId: 123, // 관련 ID, 필요에 따라 설정
+          referenceId: 1, // 관련 ID, 필요에 따라 설정
           readStatus: false,
           createdAt: new Date().toISOString()
         };

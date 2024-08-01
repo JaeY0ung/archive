@@ -22,13 +22,12 @@ public class AlertController {
 
     @PostMapping("")
     public ResponseEntity<String> sendAlert(@RequestBody AlertDto alertDto) {
-        String response = alertService.sendMessage(alertDto);
-        LOGGER.info("alertDto: " + alertDto.toString());
+        String response = alertService.saveAlertAndSendMessage(alertDto);
         LOGGER.info("알람이 전송되었습니다.");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/saveFirebaseToken")
+    @PostMapping("/save-firebaseToken")
     public ResponseEntity<String> saveFirebaseToken(@RequestBody FirebaseTokenRequestDto request) {
         alertService.saveFirebaseToken(request.getUserId(), request.getFirebaseToken());
         LOGGER.info("Firebase Token이 저장되었습니다. UserID: " + request.getUserId() + ", Token: "

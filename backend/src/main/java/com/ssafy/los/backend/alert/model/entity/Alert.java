@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.alert.model.entity;
 
+import com.ssafy.los.backend.alert.model.dto.AlertDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -48,5 +49,16 @@ public class Alert {
 
     @CreatedDate
     private Timestamp createdAt;
+
+    public AlertDto toDto() {
+        return AlertDto.builder()
+                .id(id)
+                .receiver(receiver)
+                .alertType(alertType)
+                .referenceId(referenceId)
+                .readStatus(readStatus)
+                .createdAt(createdAt)
+                .build();
+    }
 
 }
