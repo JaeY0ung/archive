@@ -39,7 +39,7 @@ public class Sheet {
     private String title;
 
     @JoinColumn(name = "song_id")
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne(cascade = CascadeType.REMOVE, optional = true)
     private Song song;
 
     @JoinColumn(name = "uploader_id")
@@ -50,7 +50,7 @@ public class Sheet {
 
     private Integer price;
 
-    private Integer level; // 1,2,3,4,5,6,7,8,9
+    private Integer level; // 1,2,3,4,5
 
     // TODO : Default : (0: waiting)
     private Integer status; // "waiting: 0, accepted: 1, rejected: 2"
@@ -70,16 +70,17 @@ public class Sheet {
     @OneToMany(mappedBy = "sheet")
     private List<LikeSheet> likeSheets = new ArrayList<>();
 
-    // 저장할 때
     @Builder
-    public Sheet(Integer level, Integer point, String title, Song song, Integer price,
+    public Sheet(Long id, Integer level, String title, Song song, Integer price,
             User uploader, String fileName) {
+        this.id = id;
         this.uploader = uploader;
         this.level = level;
         this.title = title;
         this.song = song;
         this.price = price;
         this.fileName = fileName;
+        this.status = 0;
+        this.viewCount = 0;
     }
-
 }

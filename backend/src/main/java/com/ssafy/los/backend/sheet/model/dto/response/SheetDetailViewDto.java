@@ -54,11 +54,14 @@ public class SheetDetailViewDto {
 
         this.id = sheet.getId();
         this.title = sheet.getTitle();
-        this.songTitle = sheet.getSong().getTitle();
-        this.songComposer = sheet.getSong().getComposer();
-        this.uploaderNickname = sheet.getUploader().getNickname();
+        if (sheet.getSong() != null) {
+            this.songTitle = sheet.getSong().getTitle();
+            this.songComposer = sheet.getSong().getComposer();
+            this.uploaderNickname = sheet.getUploader().getNickname();
+            this.songImgName = sheet.getSong().getImgName();
+        }
+
         this.fileName = sheet.getFileName();
-        this.songImgName = sheet.getSong().getImgName();
         this.price = sheet.getPrice();
         this.level = sheet.getLevel();
         this.status = sheet.getStatus();

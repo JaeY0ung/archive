@@ -58,6 +58,9 @@ public class FileUploadUtil {
     }
 
     public Path getSomgImgPath(String fileName) throws IllegalArgumentException {
+        if (fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("악보에 연결된 곡의 이미지 파일이 없습니다");
+        }
         return getPath(songImgFolderPath, fileName);
     }
 
