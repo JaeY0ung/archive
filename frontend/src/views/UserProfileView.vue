@@ -12,15 +12,15 @@ const { userInfo } = storeToRefs(userStore);
 const route = useRoute();
 const router = useRouter();
 
-// 유저 정보
 const userProfile = ref(null);
 const followersCount = ref(0);
 const followingsCount = ref(0);
-
+const isFollowing = ref(false);
 const isOwnProfile = computed(() => {
     return userInfo.value?.nickname === route.params.nickName;
 });
 
+// 유저 프로필 정보
 const fetchUserProfile = async () => {
     try {
         const response = await local.get(`/users/${route.params.nickName}`);
@@ -68,35 +68,57 @@ const mockRecentPlayedSheets = ref([
 const mockRecentBattleSheets = ref([...mockRecentPlayedSheets.value]);
 const mockLikedSheets = ref([...mockRecentPlayedSheets.value]);
 
+// 팔로우 정보
 const fetchFollowInfo = async () => {
     try {
         const [followersResponse, followingsResponse] = await Promise.all([
-            local.get("/follows/followers"),
-            local.get("/follows/followings"),
+            local.get(`/follows/followers/${route.params.nickName}`),
+            local.get(`/follows/followings/${route.params.nickName}`),
         ]);
 
         followersCount.value = followersResponse.data.length;
         followingsCount.value = followingsResponse.data.length;
+
+        // 현재 프로필 페이지의 사용자가 팔로워 목록에 있는지 확인
+        console.log(">>>>>>>>>" + userInfo.value.nickname)
+        console.log(">>>>>>>>>", followersResponse.data)
+        
+
+        isFollowing.value = followersResponse.data.some(
+            follower => follower.nickname === userInfo.value.nickname
+        );
     } catch (error) {
         console.error("팔로우 정보를 가져오는 데 실패했습니다:", error);
         followersCount.value = 0;
         followingsCount.value = 0;
+        isFollowing.value = false;
     }
 };
 
-const followUser = async () => {
+const toggleFollow = async () => {
     if (!userInfo.value || !userInfo.value.id) {
         console.error("로그인한 사용자 정보가 없습니다.");
         return;
     }
 
     try {
-        await local.post(`/follows/followings/${userInfo.value.id}`);
-        console.log("팔로우 성공");
-        // 팔로우 성공 후 팔로워 수 업데이트
+        if (isFollowing.value) {
+            // 언팔로우
+            await local.delete(`/follows/followings/${userProfile.value.userId}`);
+            console.log("언팔로우 성공");
+        } else {
+            // 팔로우
+            await local.post(`/follows/followings/${userProfile.value.userId}`);
+            console.log("팔로우 성공");
+        }
+        // 팔로우 상태 즉시 토글
+        isFollowing.value = !isFollowing.value;
+        // 팔로우 정보 새로고침
         await fetchFollowInfo();
     } catch (error) {
-        console.error("팔로우에 실패했습니다:", error);
+        console.error("팔로우/언팔로우에 실패했습니다:", error);
+        // 에러 발생 시 상태를 원래대로 되돌림
+        isFollowing.value = !isFollowing.value;
     }
 };
 
@@ -119,7 +141,12 @@ onMounted(async () => {
             <span class="followers">Followers: {{ followersCount }}</span>
             <span class="following">Following: {{ followingsCount }}</span>
             <template v-if="!isOwnProfile">
-                <button class="follow-btn" @click="followUser">Follow</button>
+                <button 
+                    :class="['follow-btn', { 'unfollow-btn': isFollowing }]" 
+                    @click="toggleFollow"
+                >
+                    {{ isFollowing ? 'Unfollow' : 'Follow' }}
+                </button>
                 <button class="fight-btn">Fight</button>
             </template>
             <button v-else class="edit-btn" @click="goToEditPage">Edit</button>
@@ -216,6 +243,11 @@ onMounted(async () => {
 
 .follow-btn {
     background-color: #4444ff;
+    color: white;
+}
+
+.unfollow-btn {
+    background-color: #333333;
     color: white;
 }
 

@@ -2,16 +2,17 @@ package com.ssafy.los.backend.like.controller;
 
 import com.ssafy.los.backend.like.model.dto.FollowSimpleListDto;
 import com.ssafy.los.backend.like.model.service.FollowService;
-import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
-import com.ssafy.los.backend.user.model.service.UserService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,13 +20,11 @@ import java.util.List;
 public class FollowController {
 
     private final FollowService followService;
-    private final UserService userService;
     private final AuthService authService;
 
     // 유저 팔로우
     @PostMapping("/followings/{followed-id}")
     public ResponseEntity<?> followUser(@PathVariable("followed-id") Long followedId) {
-        // 임시 로그인된 ID
         Long followerId = authService.getLoginUser().getId();
         followService.followUser(followerId, followedId);
         return new ResponseEntity<>(followedId, HttpStatus.CREATED);
@@ -34,34 +33,27 @@ public class FollowController {
     // 유저 언팔로우
     @DeleteMapping("/followings/{followed-id}")
     public ResponseEntity<?> unfollowUser(@PathVariable("followed-id") Long followedId) {
-        // 임시 로그인된 ID
         Long followerId = authService.getLoginUser().getId();
         followService.unfollowUSer(followerId, followedId);
         return new ResponseEntity<>(followedId, HttpStatus.OK);
     }
 
     // 팔로잉 조회
-    @GetMapping("/followings")
-    public ResponseEntity<?> getFollowingList() {
-        Long loginId = authService.getLoginUser().getId();
-        List<FollowSimpleListDto> followingList = followService.getFollowingList(loginId);
+    @GetMapping("/followings/{nickname}")
+    public ResponseEntity<?> getFollowingList(@PathVariable("nickname") String nickname) {
+//        Long loginId = authService.getLoginUser().getId();
+        List<FollowSimpleListDto> followingList = followService.getFollowingList(nickname);
 
         return new ResponseEntity<>(followingList, HttpStatus.OK);
     }
 
     // 팔로워 조회
-    @GetMapping("/followers")
-    public ResponseEntity<?> getFollowerList() {
-        Long loginId = authService.getLoginUser().getId();
-        List<FollowSimpleListDto> followerList = followService.getFollowerList(loginId);
+    @GetMapping("/followers/{nickname}")
+    public ResponseEntity<?> getFollowerList(@PathVariable("nickname") String nickname) {
+//        Long loginId = authService.getLoginUser().getId();
+        List<FollowSimpleListDto> followerList = followService.getFollowerList(nickname);
 
         return new ResponseEntity<>(followerList, HttpStatus.OK);
     }
 
-//    // 해당 유저의 팔로워 수 조회
-//    @GetMapping("/follower/{user-id}/count")
-//    public ResponseEntity<?> getFollowerCount(@PathVariable("user-id") Long userId) {
-//        Long count = followService.countByFollowed(userId);
-//        return new ResponseEntity<>(count, HttpStatus.OK);
-//    }
 }
