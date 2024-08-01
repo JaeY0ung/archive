@@ -44,8 +44,8 @@ const startRecording = async () => {
       /* 파일 전송으로 바꿔야함 */
       console.log("데이터 전송 시작");
       axios
-        .post("https://arc-hive.shop/fastapi/playing", formData, {
-        //.post("http://localhost:8000/fastapi/playing", formData, {
+        //.post("https://arc-hive.shop/fastapi/playing", formData, {
+        .post("http://localhost:8000/fastapi/playing", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
