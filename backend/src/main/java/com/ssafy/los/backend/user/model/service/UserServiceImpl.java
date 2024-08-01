@@ -1,9 +1,9 @@
 package com.ssafy.los.backend.user.model.service;
 
 import com.ssafy.los.backend.config.PasswordService;
-import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
+import com.ssafy.los.backend.user.model.dto.request.UserCreateDto;
 import com.ssafy.los.backend.user.model.dto.request.UserUpdateDto;
-import com.ssafy.los.backend.user.model.dto.response.UserProfileResponseDto;
+import com.ssafy.los.backend.user.model.dto.response.UserProfileDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
 import com.ssafy.los.backend.util.FileUploadUtil;
@@ -22,15 +22,21 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final FileUploadUtil fileUploadUtil;
-    //    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PasswordService passwordService;
 
     // 회원 등록
     @Override
-    public Long saveUser(UserRegisterDto userRegisterDto) {
-        String hashPwd = passwordService.encode(userRegisterDto.getPassword());
-        String role = "ROLE_USER";
-        User user = userRegisterDto.toEntity(hashPwd, role);
+    public Long saveUser(UserCreateDto userCreateDto) {
+        String hashPwd = passwordService.encode(userCreateDto.getPassword());
+        String role = "ROLE_USER"; // 기본적으로 USER 권한 추가
+        User user = User.builder()
+                .email(userCreateDto.getEmail())
+                .birthDate(userCreateDto.getBirthDate())
+                .nickname(userCreateDto.getNickname())
+                .gender(userCreateDto.getGender())
+                .pwdHash(hashPwd)
+                .role(role)
+                .build();
         return userRepository.save(user).getId();
     }
 
@@ -48,36 +54,36 @@ public class UserServiceImpl implements UserService {
 
     // 회원 수정
     @Override
-    public Long updateUser(Long id, UserUpdateDto userUpdateForm, String uuid) {
-
+    public Long updateUser(Long id, UserUpdateDto userUpdateDto, String uuid) {
         User findUser = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이디 입니다. " + id));
 
-        findUser.updateProfile(userUpdateForm.getNickname(), uuid);
+        findUser.updateProfile(userUpdateDto.getNickname(), uuid);
         return id;
     }
 
     // 회원 수정 파일 업로드
     @Override
-    public String saveUserImgFile(MultipartFile profileImg) throws IOException {
+    public String registerUserImgFile(MultipartFile profileImg) throws IOException {
         return fileUploadUtil.uploadUserImg(profileImg);
     }
 
     // 유저 프로필 조회
     @Override
-    public UserProfileResponseDto searchUserPofile(String nickname) {
+    public UserProfileDto searchUserProfileByNickname(String nickname) {
         User findUser = userRepository.findByNickname(nickname)
-                .orElseThrow(() -> new IllegalArgumentException("nickname에 해당하는 유저가 없습니다. " + nickname));
+                .orElseThrow(
+                        () -> new IllegalArgumentException("nickname에 해당하는 유저가 없습니다. " + nickname));
 
-        UserProfileResponseDto userProfileResponseDto = UserProfileResponseDto.builder()
+        UserProfileDto userProfileDto = UserProfileDto.builder()
                 .userId(findUser.getId())
                 .nickname(findUser.getNickname())
                 .userImg(findUser.getUserImg())
                 .singleScore(findUser.getSingleScore())
                 .build();
 
-        log.info("해당하는 프로필을 제공합니다. = {}", userProfileResponseDto.toString());
-        return userProfileResponseDto;
+        log.info("해당하는 프로필을 제공합니다. = {}", userProfileDto.toString());
+        return userProfileDto;
     }
 
     // 회원 삭제
@@ -88,13 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User selectUserById(Long id) {
-        return userRepository.findUserById(id)
-                .orElseThrow(() -> new IllegalArgumentException("id에 해당하는 유저가 없습니다. " + id));
-    }
-
-    @Override
-    public User selectUserByEmail(String email) {
+    public User searchUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("email에 해당하는 유저가 없습니다. " + email));
     }

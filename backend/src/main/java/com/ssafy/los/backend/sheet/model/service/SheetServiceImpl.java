@@ -45,12 +45,10 @@ public class SheetServiceImpl implements SheetService {
 
     @Override
     public SheetDetailViewDto searchSheetById(Long sheetId) throws IllegalArgumentException {
-        try {
-            return addSongImg(sheetRepository.findSheetDetailViewDtoById(sheetId,
-                    authService.getLoginUser().getId()));
-        } catch (Exception e) {
-            throw new IllegalArgumentException();
-        }
+        return addSongImg(sheetRepository.findSheetDetailViewDtoById(sheetId,
+                authService.getLoginUser() != null ? authService.getLoginUser().getId() : null));
+
+
     }
 
     @Override
