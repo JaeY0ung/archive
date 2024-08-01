@@ -26,7 +26,7 @@ public class LikeSheetServiceImpl implements LikeService {
     @Override
     public void likeSheetById(Long sheetId) {
         User user = authService.getLoginUser();
-        Sheet sheet = sheetService.selectById(sheetId);
+        Sheet sheet = sheetService.searchById(sheetId);
         if (isExistByUserAndSheet(user, sheet)) {
             throw new IllegalArgumentException("이미 좋아요한 악보입니다");
         }
@@ -37,7 +37,7 @@ public class LikeSheetServiceImpl implements LikeService {
     @Override
     public void dislikeSheetById(Long sheetId) {
         User user = authService.getLoginUser();
-        Sheet sheet = sheetService.selectById(sheetId);
+        Sheet sheet = sheetService.searchById(sheetId);
         if (!isExistByUserAndSheet(user, sheet)) {
             throw new IllegalArgumentException("이미 좋아요 해제한 악보입니다");
         }

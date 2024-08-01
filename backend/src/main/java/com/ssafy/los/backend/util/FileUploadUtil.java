@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,105 +18,85 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadUtil {
 
     @Value("${file.path.user-img}")
-    private String userImgPath;
+    private String userImgFolderPath;
 
     @Value("${file.path.song-img}")
-    private String songImgPath;
+    private String songImgFolderPath;
 
     @Value("${file.path.upload-sheet.mid}")
-    private String sheetMidFilePath;
+    private String sheetMidFileFolderPath;
 
     @Value("${file.path.upload-sheet.musicxml}")
-    private String sheetMusicXmlFilePath;
+    private String sheetMusicXmlFileFolderPath;
 
     @Value("${file.path.play-record}")
-    private String playRecordPath;
+    private String playRecordFolderPath;
 
-    public String uploadUserImg(MultipartFile file) throws IOException {
-        String ext = getExtension(file);
-        if (!ext.equals("png") && !ext.equals("jpg") && !ext.equals("jpeg")) {
-            throw new IllegalArgumentException("파일의 확장자가 png, jpg, jpeg 증 히나가 아닙니다.");
-        }
-        return saveOneFile(file, userImgPath);
+    public String uploadUserImg(MultipartFile file) throws IllegalArgumentException {
+        validateImageFile(file);
+        return saveFile(userImgFolderPath, file);
     }
 
-    public String uploadSongImg(MultipartFile file) throws IOException {
-        String ext = getExtension(file);
-        if (!ext.equals("png") && !ext.equals("jpg") && !ext.equals("jpeg")) {
-            throw new IllegalArgumentException("파일의 확장자가 png, jpg, jpeg 증 히나가 아닙니다.");
-        }
-        return saveOneFile(file, songImgPath);
+    public String uploadSongImg(MultipartFile file) throws IllegalArgumentException {
+        validateImageFile(file);
+        return saveFile(songImgFolderPath, file);
     }
 
-    public String uploadSheet(MultipartFile file) throws IOException {
-        String ext = getExtension(file);
-        if (!ext.equals("mid")) {
-            throw new IllegalArgumentException("파일의 확장자가 mid 이 아닙니다.");
-        }
-        // webm
-        return saveOneFile(file, sheetMidFilePath);
+    public String uploadSheet(MultipartFile file) throws IllegalArgumentException {
+        validateMidFile(file);
+        return saveFile(sheetMidFileFolderPath, file);
     }
 
-    public String uploadPlayRecord(MultipartFile file) throws IOException {
-        String ext = getExtension(file);
-        if (!ext.equals("webm")) {
-            throw new IllegalArgumentException("파일의 확장자가 webm 이 아닙니다.");
-        }
-        return saveOneFile(file, playRecordPath);
+    public String uploadPlayRecord(MultipartFile file)
+            throws IllegalArgumentException {
+        validateWebmFile(file);
+        return saveFile(playRecordFolderPath, file);
     }
 
-    public Resource downloadSheetFile(String fileName) throws IOException {
-        return downloadOneFile(sheetMidFilePath, fileName);
+    public Resource downloadSheetFile(String fileName) throws IllegalArgumentException {
+        return downloadOneFile(sheetMidFileFolderPath, fileName);
     }
 
-    public Path getSomgImgPath(String fileName) {
-        return getPath(songImgPath, fileName);
+    public Path getSomgImgPath(String fileName) throws IllegalArgumentException {
+        return getPath(songImgFolderPath, fileName);
     }
 
-    private void saveFiles(List<MultipartFile> files, String filePath) throws IOException {
-        for (MultipartFile file : files) {
-            saveOneFile(file, filePath);
-        }
-    }
+    private String saveFile(String folderPath, MultipartFile file)
+            throws IllegalArgumentException {
+        makeDirectoryIfNotExists(folderPath);
+        String saveFileName = UUID.randomUUID() + "." + getExtension(file);
 
-    private String saveOneFile(MultipartFile file, String filePath) throws IOException {
-        String originalFilename = file.getOriginalFilename(); // 원본 파일명, 저장 될 파일명 생성
-        validatePath(filePath);
-        String saveFileName = UUID.randomUUID().toString() + "." + getExtension(file);
-
-        File saveFile = new File(filePath, saveFileName);
-        file.transferTo(saveFile);
-        return saveFileName;
-    }
-
-    private Resource downloadOneFile(String filePath, String fileName) {
-        Path path = getPath(filePath, fileName);
-
-        UrlResource resource = null;
         try {
-            resource = new UrlResource(path.toUri());
+            file.transferTo(new File(folderPath, saveFileName));
+            return saveFileName;
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Could not save file " + saveFileName, e);
+        }
+
+    }
+
+    private Resource downloadOneFile(String folderPath, String fileName)
+            throws IllegalArgumentException {
+        try {
+            UrlResource resource = new UrlResource(getPath(folderPath, fileName).toUri());
+            if (resource.exists() || resource.isReadable()) {
+                return resource;
+            }
+            return null;
         } catch (MalformedURLException e) {
-            throw new IllegalArgumentException("파일을 가져올 수 없습니다.");
+            throw new IllegalArgumentException("파일을 가져올 수 없습니다.", e);
         }
-
-        if (resource.exists() || resource.isReadable()) {
-            return resource;
-        }
-        return null;
     }
 
-    private Path getPath(String filePath, String fileName) {
-
-        return Paths.get(filePath, fileName);
+    private Path getPath(String folderPath, String fileName) {
+        return Paths.get(folderPath, fileName);
     }
 
-    private void validatePath(String filePath) throws IOException {
-        File directory = new File(filePath);
-        if (directory.exists() || directory.mkdirs()) {
-            return;
+    private void makeDirectoryIfNotExists(String folderPath) throws IllegalArgumentException {
+        File directory = new File(folderPath);
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw new IllegalArgumentException("파일 저장 디렉토리 생성 실패");
         }
-        log.error("파일 저장 디렉토리 생성 실패: " + filePath);
-        throw new IOException("파일 저장 디렉토리 생성 실패");
     }
 
     private String getExtension(MultipartFile file) throws IllegalArgumentException {
@@ -126,5 +105,26 @@ public class FileUploadUtil {
             throw new IllegalArgumentException("파일의 이름이 없습니다."); // NO_FILE_NAME_MESSAGE
         }
         return originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+    }
+
+    private void validateImageFile(MultipartFile file) throws IllegalArgumentException {
+        String ext = getExtension(file);
+        if (!ext.equals("png") && !ext.equals("jpg") && !ext.equals("jpeg")) {
+            throw new IllegalArgumentException("파일의 확장자가 png, jpg, jpeg 증 히나가 아닙니다.");
+        }
+    }
+
+    private void validateMidFile(MultipartFile file) throws IllegalArgumentException {
+        String ext = getExtension(file);
+        if (!ext.equals("mid")) {
+            throw new IllegalArgumentException("파일의 확장자가 mid 가 아닙니다.");
+        }
+    }
+
+    private void validateWebmFile(MultipartFile file) throws IllegalArgumentException {
+        String ext = getExtension(file);
+        if (!ext.equals("webm")) {
+            throw new IllegalArgumentException("파일의 확장자가 webm 가 아닙니다.");
+        }
     }
 }

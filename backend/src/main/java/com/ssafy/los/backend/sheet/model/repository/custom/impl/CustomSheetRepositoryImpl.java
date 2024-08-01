@@ -6,9 +6,11 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.los.backend.like.model.entity.QLikeSheet;
-import com.ssafy.los.backend.sheet.model.dto.response.SheetResponseDto;
+import com.ssafy.los.backend.sheet.model.dto.request.SheetSearchFilter;
+import com.ssafy.los.backend.sheet.model.dto.response.SheetDetailViewDto;
 import com.ssafy.los.backend.sheet.model.entity.QSheet;
 import com.ssafy.los.backend.sheet.model.repository.custom.CustomSheetRepository;
 import java.util.List;
@@ -22,54 +24,43 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     QSheet s = QSheet.sheet;
     QLikeSheet ls = QLikeSheet.likeSheet;
 
-    public List<SheetResponseDto> findSheets(String keyword, String sort, Long userId) {
-        return queryFactory.select(Projections.constructor(SheetResponseDto.class,
-                        s,
-                        JPAExpressions.select(ls.count())
-                                .from(ls)
-                                .where(ls.sheet.eq(s))
-// 악보 리스트 가져올 때는 유저의 좋아요 정보 가져오지 않는다.
-//                        createLikeStatusExpression(userId)
-                ))
-                .from(s)
+    @Override
+    public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter) {
+        return createSelectFromQuery()
                 .where(s.deletedAt.isNull(), s.createdAt.isNotNull(),
-                        containKeyword(keyword))
-                .orderBy(createOrderSpecifier(sort))
+                        containKeyword(sheetSearchFilter.getKeyword()),
+                        equalLevel(sheetSearchFilter.getLevel()))
+                .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                 .fetch();
     }
 
-
     @Override
-    public SheetResponseDto findSheetById(Long sheetId, Long userId) {
-        return queryFactory.select(Projections.constructor(SheetResponseDto.class,
-                        s,
-                        JPAExpressions.select(ls.count())
-                                .from(ls)
-                                .where(ls.sheet.eq(s)),
-                        createLikeStatusExpression(userId)
-                ))
-                .from(s)
+    public SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId, Long userId) {
+
+        return createSelectFromQuery(userId)
                 .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
                 .fetchOne();
     }
 
-    @Override
-    public List<SheetResponseDto> findSheetsByLevelRandomly(Integer level, Long userId) {
-        return queryFactory.select(Projections.constructor(SheetResponseDto.class,
-                        s,
-                        JPAExpressions.select(ls.count())
-                                .from(ls)
-                                .where(ls.sheet.eq(s))
-// 악보 리스트 가져올 때는 유저의 좋아요 정보 가져오지 않는다.
-//                        createLikeStatusExpression(userId)
-                ))
-                .from(s)
-                .where(s.deletedAt.isNull(), s.createdAt.isNotNull(),
-                        equalLevel(level))
-                .orderBy(createOrderSpecifier("RANDOM"))
-                .fetch();
+    private JPAQuery<SheetDetailViewDto> createSelectFromQuery(Long userId) {
+        return queryFactory.select(Projections.constructor(SheetDetailViewDto.class,
+                s,
+                JPAExpressions.select(ls.count())
+                        .from(ls)
+                        .where(ls.sheet.eq(s)),
+                createLikeStatusExpression(userId)
+
+        )).from(s);
     }
 
+    private JPAQuery<SheetDetailViewDto> createSelectFromQuery() {
+        return queryFactory.select(Projections.constructor(SheetDetailViewDto.class,
+                s,
+                JPAExpressions.select(ls.count())
+                        .from(ls)
+                        .where(ls.sheet.eq(s))
+        )).from(s);
+    }
 
     private BooleanExpression createLikeStatusExpression(Long userId) {
         if (userId == null) {
@@ -97,7 +88,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         return s.level.eq(level);
     }
 
-    private OrderSpecifier createOrderSpecifier(String sort) {
+    private OrderSpecifier<?> createOrderSpecifier(String sort) {
         if (sort == null || sort.isEmpty()) {
             return new OrderSpecifier<>(Order.ASC,
                     Expressions.numberTemplate(Double.class, "function('RAND')"));
