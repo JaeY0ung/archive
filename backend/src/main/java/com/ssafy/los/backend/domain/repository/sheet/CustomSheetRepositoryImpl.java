@@ -30,7 +30,10 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         return createSelectFromQuery()
                 .where(s.deletedAt.isNull(), s.createdAt.isNotNull(),
                         containKeyword(sheetSearchFilter.getKeyword()),
-                        inLevels(sheetSearchFilter.getLevel()))
+                        inLevels(sheetSearchFilter.getLevel()),
+                        inGenre(sheetSearchFilter.getGenre()),
+                        inPrice(sheetSearchFilter.getPrice())
+                )
                 .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                 .fetch();
     }
@@ -96,6 +99,38 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         }
         return s.level.in(level);
     }
+
+    private BooleanExpression inGenre(Integer[] genre) {
+        if (genre == null || genre.length == 0) {
+            return null;
+        }
+        return s.song.genre.id.in(genre);
+    }
+
+    private BooleanExpression inPrice(Integer[] price) {
+        if (price == null || price.length == 0) {
+            return null;
+        }
+
+        BooleanExpression priceExpression = null;
+        for (Integer p : price) {
+            if (p == 0) {  // 무료
+                if (priceExpression == null) {
+                    priceExpression = s.price.eq(0);
+                } else {
+                    priceExpression = priceExpression.or(s.price.eq(0));
+                }
+            } else if (p == 1) {  // 유료
+                if (priceExpression == null) {
+                    priceExpression = s.price.gt(0);
+                } else {
+                    priceExpression = priceExpression.or(s.price.gt(0));
+                }
+            }
+        }
+        return priceExpression;
+    }
+
 
     private OrderSpecifier<?> createOrderSpecifier(Sort sort) {
         if (sort == null) {

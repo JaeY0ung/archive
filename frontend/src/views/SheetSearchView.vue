@@ -10,8 +10,11 @@ const sheets = ref([]);
 const keyword = ref('');
 const scrollMode = ref('scroll-y');
 
-// TODO: 검색 필터에서 값을 여러 개 받을 수 있으므로 수정해야할듯.
+// TODO: 검색 필터에서 성공, 여부 수정
 const selectedTiers = ref([]);
+const selectedFree = ref([]);
+const selectedGenre = ref([]);
+// const selectedSuccess = ref([]);
 
 const searchSheetsByKeyword = () => {
 	local.get(`/sheets`, {
@@ -51,7 +54,9 @@ const handleViewChange = (event) => {
 const searchSheetsByFiltering = () => {
 	//TODO: axios 요청 api로 빼야함
 	local.get('/sheets', {
-		params: { level: selectedTiers.value.join(',')} // 배열을 문자열로 변환
+		params: { level: selectedTiers.value.join(','), genre: selectedGenre.value.join(','),
+		  price: selectedFree.value.join(',')
+		} // 배열을 문자열로 변환
 	}).then(({ data }) => {
 			sheets.value = data;
 			sheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
@@ -59,8 +64,8 @@ const searchSheetsByFiltering = () => {
 };
 
 // 티어 필터의 변화를 감지하고 필터링 함수 호출
-watch(selectedTiers, () => {
-  // console.log(selectedTiers);
+watch([selectedTiers, selectedFree, selectedGenre], () => {
+  console.log(selectedFree.value);
 	searchSheetsByFiltering();
 });
 
@@ -82,7 +87,6 @@ onMounted(() => {
 		</div>
 		<div class="top-bar-right">
 			<select @change="handleSelectChange">
-			<option value="accuracy">정확도순</option>
 			<option value="LATEST">최신순</option>
 			<option value="POPULAR">인기순</option>
 			<option value="play">플레이순</option>
@@ -129,11 +133,11 @@ onMounted(() => {
 				<hr class="filter-divider">
 				<div class="filter-value">
 				<label for="free">무료</label>
-				<input type="checkbox" id="free">
+				  <input type="checkbox" id="free" value='0' v-model="selectedFree">
 				</div>
 				<div class="filter-value">
 				<label for="paid">유료</label>
-				<input type="checkbox" id="paid">
+				  <input type="checkbox" id="paid" value='1' v-model="selectedFree">
 				</div>
 			</div>
 			<div class="filter-item">
@@ -141,27 +145,29 @@ onMounted(() => {
 				<hr class="filter-divider">
 				<div class="filter-value">
 				<label for="ost">OST</label>
-				<input type="checkbox" id="ost">
+				  <input type="checkbox" id="ost" value="2" v-model="selectedGenre">
 				</div>
 				<div class="filter-value">
 				<label for="classical">클래식</label>
-				<input type="checkbox" id="classical">
+				  <input type="checkbox" id="classical" value="1" v-model="selectedGenre">
 				</div>
 				<div class="filter-value">
 				<label for="jazz">재즈</label>
-				<input type="checkbox" id="jazz">
+				  <input type="checkbox" id="jazz" value="3" v-model="selectedGenre">
 				</div>
 				<div class="filter-value">
 				<label for="pop">가요</label>
-				<input type="checkbox" id="pop">
+				  <input type="checkbox" id="pop" value="5" v-model="selectedGenre">
 				</div>
 				<div class="filter-value">
 				<label for="hiphop">힙합</label>
+				  <input type="checkbox" id="hiphop" value="4" v-model="selectedGenre">
+
 				<input type="checkbox" id="hiphop">
 				</div>
 				<div class="filter-value">
 				<label for="etc">기타</label>
-				<input type="checkbox" id="etc">
+				  <input type="checkbox" id="etc" value="6" v-model="selectedGenre">
 				</div>
 			</div>
 			<div class="filter-item">
@@ -180,7 +186,6 @@ onMounted(() => {
 			</div>
 		</div>
 		<div class="right-panel">
-			<h2>Search Results for "{{ keyword }}"</h2>
 			<div :class="[scrollMode]">
 			<template v-if="sheets.length">
 				<div class="scroll-y flex-col">
@@ -188,7 +193,7 @@ onMounted(() => {
 				</div>
 			</template>
 			<template v-else>
-				<p>No results found.</p>
+				<p>검색 결과가 없습니다.</p>
 			</template>
 			</div>
 		</div>
