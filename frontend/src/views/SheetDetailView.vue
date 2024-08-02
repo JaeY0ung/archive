@@ -2,8 +2,6 @@
 import { useRoute } from "vue-router";
 import { ref, watch } from "vue";
 import { localAxios } from "@/util/http-common";
-import Sheet from "@/common/sheet/Sheet.vue";
-import SheetPlayNavigation from "@/common/sheet/SheetPlayNavigation.vue";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from  "@/common/sheet/SmallSheetCard.vue";
 import { searchSheetDetail } from "@/api/sheet";
