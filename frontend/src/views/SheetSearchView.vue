@@ -3,12 +3,17 @@ import { localAxios } from "@/util/http-common";
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import {useUserStore} from "@/stores/user";
+import {storeToRefs} from "pinia";
 
 const route = useRoute();
 const local = localAxios();
 const sheets = ref([]);
 const keyword = ref('');
 const scrollMode = ref('scroll-y');
+const userStore = useUserStore();
+const {isLogin} = storeToRefs(userStore);
+
 
 // TODO: 검색 필터에서 성공, 여부 수정
 const selectedTiers = ref([]);
@@ -170,19 +175,21 @@ onMounted(() => {
 				  <input type="checkbox" id="etc" value="6" v-model="selectedGenre">
 				</div>
 			</div>
-			<div class="filter-item">
-				<span class="filter-category highlight">성공 여부:</span>
-				<hr class="filter-divider">
+			  <template v-if="isLogin">
+				<div class="filter-item">
+					<span class="filter-category highlight">성공 여부:</span>
+					<hr class="filter-divider">
 
-				<div class="filter-value">
-				<label for="success">성공</label>
-				<input type="checkbox" id="success">
+					<div class="filter-value">
+					<label for="success">성공</label>
+					<input type="checkbox" id="success">
+					</div>
+					<div class="filter-value">
+					<label for="fail">실패</label>
+					<input type="checkbox" id="fail">
+					</div>
 				</div>
-				<div class="filter-value">
-				<label for="fail">실패</label>
-				<input type="checkbox" id="fail">
-				</div>
-			</div>
+			  </template>
 			</div>
 		</div>
 		<div class="right-panel">
