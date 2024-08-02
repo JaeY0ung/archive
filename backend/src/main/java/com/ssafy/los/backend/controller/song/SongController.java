@@ -19,11 +19,9 @@ public class SongController {
 
     @GetMapping
     public ResponseEntity<?> getSongsByFilter(@RequestParam(defaultValue = "") String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
-            return new ResponseEntity<>(songService.searchAll(), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(songService.searchSongByTitle(keyword),
+        return new ResponseEntity<>(songService.searchSongByFilter(keyword),
                 HttpStatus.OK);
+
     }
 
     @GetMapping("/{song-id}")

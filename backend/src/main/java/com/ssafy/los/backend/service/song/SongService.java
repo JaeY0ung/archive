@@ -1,13 +1,11 @@
 package com.ssafy.los.backend.service.song;
 
-import com.ssafy.los.backend.domain.entity.Song;
+import com.ssafy.los.backend.dto.song.SongDto;
 import java.util.List;
 
 public interface SongService {
 
-    List<Song> searchSongByTitle(String title);
+    List<SongDto> searchSongByFilter(String keyword);
 
-    Song searchById(Long songId);
-
-    List<Song> searchAll();
+    SongDto searchById(Long songId);
 }
