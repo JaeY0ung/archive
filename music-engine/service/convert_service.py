@@ -40,15 +40,15 @@ class ConvertService:
         
         return mp3_data
 
-    def wav_to_midi(self, wav_file, output_dir="temp"):
+    def wav_to_midi(self, wav_file, output_dir="/app/shared/temp"):
         base_filename = os.path.splitext(os.path.basename(wav_file))[0]
         midi_file = os.path.join(output_dir, f"{base_filename}.mid")
 
         cmd = [
             "docker", "exec", "omnizart_container",
             "omnizart", "music", "transcribe",
-            os.path.join("/app/temp", os.path.basename(wav_file)),  # 절대 경로 사용
-            "-o", "/app/temp"
+            os.path.join("/app/shared/temp", os.path.basename(wav_file)),  # 절대 경로 사용
+            "-o", "/app/shared/temp"
         ]
         subprocess.run(cmd, check=True)
         
