@@ -2,7 +2,6 @@ package com.ssafy.los.backend.user.filter;
 
 import com.ssafy.los.backend.user.model.dto.CustomUserDetails;
 import com.ssafy.los.backend.user.model.entity.User;
-import com.ssafy.los.backend.user.model.repository.RefreshTokenRepository;
 import com.ssafy.los.backend.util.JWTUtil;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -24,10 +23,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
-            "/users", "/users/check-email",
             "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh"
     );
 
@@ -63,8 +60,8 @@ public class JWTFilter extends OncePerRequestFilter {
             log.error("JWT validation error가 발생했습니다.", e);
         } catch (Exception e) {
             log.error("JWT 필터 처리 중 예외 발생", e);
-//            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//            response.getWriter().write("Internal Server Error");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Internal Server Error");
         }
     }
 

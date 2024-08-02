@@ -9,6 +9,7 @@ const router = useRouter();
 const userStore = useUserStore();
 const { isLogin, userInfo } = storeToRefs(userStore);
 
+const userImg = computed(() => userInfo.value.userImg);
 const userNickname = computed(() => userInfo.value?.nickname || '사용자');
 
 const goToMyPage = () => {
@@ -28,7 +29,9 @@ const goToMyPage = () => {
       <!-- 로그인 완료 시 -->
       <template v-if="isLogin && userInfo">
         <div class="user-info" @click="goToMyPage">
-          <Profile class="profile-icon"/>
+          <!-- <img v-if="userInfo.userImg" :src="userInfo.userImg" alt="User Profile" class="user-image"> -->
+          <span class="user-image">{{ userImg }}</span>
+          <!-- <Profile v-else class="profile-icon"/> -->
           <span class="user-name">{{ userNickname }}</span>
         </div>
       </template>
@@ -104,4 +107,12 @@ const goToMyPage = () => {
   text-decoration: none;
 }
 
+.user-image {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
 </style>

@@ -7,7 +7,6 @@ import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.user.model.service.UserService;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -55,30 +54,34 @@ public class UserController {
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
-    @PutMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
-            "multipart/form-data"})
+    @PutMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateUser(
-            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @RequestPart("nickname") String nickname) throws IOException {
 
         User loginUser = authService.getLoginUser();
+        log.info(loginUser.toString());
+
+        log.info("Updating user: {}", loginUser.getEmail());
+        log.info("New nickname: {}", nickname);
+        log.info("Profile image provided: {}", profileImage != null);
 
         // 파일 처리
         String uuid = null;
-        if (files.size() == 1) {
-            uuid = userService.registerUserImgFile(files.get(0));
+        if (profileImage != null && !profileImage.isEmpty()) {
+            uuid = userService.registerUserImgFile(profileImage);
+            log.info("New profile image UUID: {}", uuid);
         }
 
         // 닉네임 처리
-        UserUpdateDto.UserUpdateDtoBuilder updateFormBuilder = UserUpdateDto.builder();
-        if (nickname != null) {
-            updateFormBuilder.nickname(nickname);
-        }
-        UserUpdateDto userUpdateForm = updateFormBuilder.build();
+        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
+                .nickname(nickname)
+                .build();
 
-        Long updatedId = userService.updateUser(loginUser.getId(), userUpdateForm, uuid);
+        Long updatedId = userService.updateUser(loginUser.getId(), userUpdateDto, uuid);
+        log.info("User updated successfully. Updated ID: {}", updatedId);
+
         return new ResponseEntity<>(updatedId, HttpStatus.OK);
-
     }
 
     @DeleteMapping("/{user-id}")

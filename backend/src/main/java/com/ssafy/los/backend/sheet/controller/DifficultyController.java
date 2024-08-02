@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController 
@@ -34,6 +35,7 @@ public class DifficultyController {
         Long userId = authService.getLoginUser().getId();
         Long saveId = difficultyRatingService.saveDifficulty(sheetId, userId,
                 difficultyCreateDto);
+
         return new ResponseEntity<>(saveId, HttpStatus.OK);
     }
 
@@ -51,13 +53,17 @@ public class DifficultyController {
     @DeleteMapping("/difficulties/{difficulty-id}")
     public ResponseEntity<?> deleteDifficulty(@PathVariable("difficulty-id") Long difficultyId) {
         difficultyRatingService.deleteDifficulty(difficultyId);
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     // 악보 난이도 평가 목록 조회
     @GetMapping("/{sheet-id}/difficulties")
-    public ResponseEntity<?> findDifficulty(@PathVariable("sheet-id") Long sheetId) {
+    public ResponseEntity<?> findDifficulty(@PathVariable("sheet-id") Long sheetId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "3") int size) {
         List<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyBySheetId(sheetId);
+
         return new ResponseEntity<>(difficultyResponseDto, HttpStatus.OK);
     }
 }

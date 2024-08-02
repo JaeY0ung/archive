@@ -86,9 +86,6 @@ export const useUserStore = defineStore('user', () => {
         let { data } = response;
         console.log("로그인 완료 후 data ", data);
   
-        // TODO: 유저 정보 저장하기 (UserStore에 저장)
-
-  
         // 로그인 상태 업데이트
         isLogin.value = true;
         isLoginError.value = false;
