@@ -67,7 +67,16 @@ const checkNicknameDuplicate = async () => {
     }
 };
 
-// 사용자 정보 업데이트 하기
+const resetForm = () => {
+    loginUserInfo.value = { ...originalUserInfo.value };
+    imagePreview.value = null;
+    isNicknameChecked.value = true;
+    isNicknameAvailable.value = true;
+    if (fileInputRef.value) {
+        fileInputRef.value.value = '';
+    }
+};
+
 const updateUserInfo = async () => {
     if (
         loginUserInfo.value.nickname !== originalUserInfo.value.nickname &&
@@ -79,8 +88,8 @@ const updateUserInfo = async () => {
 
     try {
         const formData = new FormData();
-        formData.append("email", loginUserInfo.value.email);
         formData.append("nickname", loginUserInfo.value.nickname);
+        
         if (
             loginUserInfo.value.profileImage &&
             loginUserInfo.value.profileImage !== originalUserInfo.value.profileImage
@@ -88,7 +97,7 @@ const updateUserInfo = async () => {
             formData.append("profileImage", loginUserInfo.value.profileImage);
         }
 
-        const response = await local.post("/user", formData, {
+        const response = await local.put("/users", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
@@ -97,6 +106,17 @@ const updateUserInfo = async () => {
         console.log("User info updated successfully:", response.data);
         alert("사용자 정보가 성공적으로 업데이트되었습니다.");
         originalUserInfo.value = { ...loginUserInfo.value };
+
+        // 스토어 정보 초기화
+        userInfo.value.nickname = loginUserInfo.value.nickname;
+        if (
+            loginUserInfo.value.profileImage &&
+            loginUserInfo.value.profileImage !== originalUserInfo.value.profileImage
+        ) {
+        userInfo.value.userImg = loginUserInfo.value.profileImage;
+        }
+        
+        resetForm();
     } catch (error) {
         console.error("Error updating user info:", error);
         alert("사용자 정보 업데이트에 실패했습니다.");
@@ -127,10 +147,9 @@ const canUpdate = computed(() => {
     return isModified.value;
 });
 
-// 로그아웃 함수 추가
 const goLogout = async () => {
     try {
-        await userStore.userLogout(); // store에서 직접 액션 호출
+        await userStore.userLogout();
         router.push({ name: "main" });
     } catch (error) {
         console.error("로그아웃 중 오류 발생:", error);
@@ -203,7 +222,7 @@ const goLogout = async () => {
         </div>
 
         <div v-if="imagePreview" class="mb-4">
-            <img :src="imagePreview" alt="Profile Preview" class="max-w-xs mx-auto rounded-full" />
+            <img :src="imagePreview" alt="Profile Preview" class="profile-preview" />
         </div>
 
         <div class="flex justify-center mt-4">
@@ -225,10 +244,18 @@ const goLogout = async () => {
 .btn-secondary {
     background-color: #f44336;
     color: white;
-	border: none;
+    border: none;
 }
 
 .btn-secondary:hover {
     background-color: #d32f2f;
+}
+
+.profile-preview {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    border-radius: 50%;
+    object-fit: cover;
 }
 </style>
