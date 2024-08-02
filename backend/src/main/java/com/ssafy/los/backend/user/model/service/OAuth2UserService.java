@@ -4,7 +4,7 @@ import com.ssafy.los.backend.config.PasswordService;
 import com.ssafy.los.backend.user.model.dto.CustomOAuth2User;
 import com.ssafy.los.backend.user.model.dto.NaverResponse;
 import com.ssafy.los.backend.user.model.dto.OAuth2Response;
-import com.ssafy.los.backend.user.model.dto.request.UserRegisterDto;
+import com.ssafy.los.backend.user.model.dto.request.UserCreateDto;
 import com.ssafy.los.backend.user.model.entity.User;
 import com.ssafy.los.backend.user.model.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -24,17 +24,20 @@ import org.springframework.stereotype.Service;
 public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-//    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final PasswordService passwordService;
 
     // OAuth2로 유저 등록하기
-    public Long saveOAuth2User(UserRegisterDto userRegisterDto) {
-        User findUser = userRepository.findByEmail(userRegisterDto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 이메일입니다. " + userRegisterDto.getEmail()));
+    public Long saveOAuth2User(UserCreateDto userCreateDto) {
+        User findUser = userRepository.findByEmail(userCreateDto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "찾을 수 없는 이메일입니다. " + userCreateDto.getEmail()));
 
-        String hashPwd = passwordService.encode(userRegisterDto.getPassword());
+        String passhwd = passwordService.encode(userCreateDto.getPassword());
         String role = "ROLE_USER";
-        User TempOAuthUser = userRegisterDto.toEntity(hashPwd, role);
+        User TempOAuthUser = User.builder()
+                .pwdHash(passhwd)
+                .role(role)
+                .build();
         findUser.OAuth2Update(TempOAuthUser);
         return findUser.getId();
     }

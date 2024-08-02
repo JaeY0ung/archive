@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -39,11 +38,11 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "VARCHAR(64)")
     private String pwdHash;
 
-    @NotNull
-    @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$", message = "이메일 주소 양식을 확인해주세요")
+    @Column(columnDefinition = "VARCHAR(320)", unique = true)
+    @Pattern(regexp = "^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])+[.][a-zA-Z]{2,3}$")
     private String email;
 
-    @Column(columnDefinition = "VARCHAR(64)")
+    @Column(columnDefinition = "VARCHAR(20)", unique = true)
     private String nickname;
 
     private String userImg;
@@ -51,17 +50,16 @@ public class User extends BaseEntity {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime birthDate;
 
+    @ColumnDefault("false")
+    @Column(columnDefinition = "TINYINT(1)")
     private Boolean gender;
 
     private String provider;
 
-    @ColumnDefault("0")
     private int cash;
 
-    @ColumnDefault("0")
     private Integer singleScore;
 
-    @ColumnDefault("0")
     private Integer multiScore;
 
     private LocalDateTime deletedAt;
@@ -91,11 +89,6 @@ public class User extends BaseEntity {
         this.firebaseToken = firebaseToken;
     }
 
-//    @Builder
-//    public User(String userImg, String email) {
-//        this.userImg = userImg;
-//        this.email = email;
-//    }
 
     //=== 메서드 ===//
     public void updateProfile(String nickname, String uuid) {
@@ -105,14 +98,6 @@ public class User extends BaseEntity {
         if (uuid != null) {
             this.uuid = uuid;
         }
-    }
-
-    public void updateEmail(String email) {
-        this.email = email;
-    }
-
-    public void updateFirebaseToken(String firebaseToken) {
-        this.firebaseToken = firebaseToken;
     }
 
     //=== OAuth2 관련 ===///
@@ -128,10 +113,6 @@ public class User extends BaseEntity {
     public void increaseSingleScore(int amount) {
         this.singleScore += amount;
     }
-
-//    public void decreaseSingleScore(int amount) {
-//        this.SingleScore -= amount;
-//    }
 
     public void increaseMultiScore(int amount) {
         this.multiScore += amount;

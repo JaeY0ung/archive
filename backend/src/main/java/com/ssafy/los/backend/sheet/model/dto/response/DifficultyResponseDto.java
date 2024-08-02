@@ -25,6 +25,7 @@ public class DifficultyResponseDto {
                 .sheetFileName(difficulty.getSheet().getFileName())
                 .level(difficulty.getLevel())
                 .content(difficulty.getContent())
+                .createAt(difficulty.getCreatedAt())
                 .build();
     }
 

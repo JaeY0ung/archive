@@ -57,8 +57,8 @@ public class FollowServiceImpl implements FollowService {
 
     // 팔로잉 조회
     @Override
-    public List<FollowSimpleListDto> getFollowingList(Long loginId) {
-        User user = userRepository.findById(loginId).orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+    public List<FollowSimpleListDto> getFollowingList(String nickname) {
+        User user = userRepository.findByNickname(nickname).orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
         List<Follow> followingList = followRepository.findByFollower(user);
 
         List<FollowSimpleListDto> followSimpleListDtoList = new ArrayList<>();
@@ -74,8 +74,8 @@ public class FollowServiceImpl implements FollowService {
 
     // 팔로워 조회
     @Override
-    public List<FollowSimpleListDto> getFollowerList(Long loginId) {
-        User user = userRepository.findById(loginId).orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
+    public List<FollowSimpleListDto> getFollowerList(String nickname) {
+        User user = userRepository.findByNickname(nickname).orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
         List<Follow> followerList = followRepository.findByFollowed(user);
 
         List<FollowSimpleListDto> followerSimpleListDtoList = new ArrayList<>();

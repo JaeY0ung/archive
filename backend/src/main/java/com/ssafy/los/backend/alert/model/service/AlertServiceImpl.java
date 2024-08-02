@@ -6,24 +6,24 @@ import com.google.firebase.messaging.Message;
 import com.ssafy.los.backend.alert.model.dto.AlertDto;
 import com.ssafy.los.backend.alert.model.entity.Alert;
 import com.ssafy.los.backend.alert.model.repository.AlertRepository;
-import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AlertServiceImpl implements AlertService {
 
     private final AlertRepository alertRepository;
     private final RedisTemplate<String, String> redisTemplate;
-    private static final Logger logger = Logger.getLogger(AlertServiceImpl.class.getName());
 
 
     @Override
     public String sendMessage(AlertDto alertDto) {
         // 알림 받을 사용자의 Firebase 토큰 값을 조회
-        logger.info("알림 받을 사용자ID: " + alertDto.getReceiver().getId());
+        log.info("알림 받을 사용자ID: " + alertDto.getReceiver().getId());
         String userFirebaseToken = redisTemplate.opsForValue()
                 .get("firebaseToken:" + alertDto.getReceiver().getId());
 
@@ -34,7 +34,7 @@ public class AlertServiceImpl implements AlertService {
         // 알림 유형에 따라 제목 설정
         String title;
         Long alertTypeId = alertDto.getAlertType().getId();
-        logger.info("alertTypeId: " + alertTypeId);
+        log.info("alertTypeId: " + alertTypeId);
         switch (alertTypeId.intValue()) {
             case 1:
                 title = "대결 초대 알림";
@@ -79,7 +79,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public void saveFirebaseToken(Long userId, String firebaseToken) {
         redisTemplate.opsForValue().set("firebaseToken:" + userId, firebaseToken);
-        logger.info(
+        log.info(
                 "Firebase Token 저장 완료: userId = " + userId + " firebaseToken = " + firebaseToken);
     }
 
@@ -90,7 +90,7 @@ public class AlertServiceImpl implements AlertService {
 
         // Alert 엔티티를 데이터베이스에 저장
         Alert savedAlert = alertRepository.save(alertEntity);
-        logger.info("savedAlert.toDto(): " + savedAlert.toDto());
+        log.info("savedAlert.toDto(): " + savedAlert.toDto());
 
         // 저장된 Alert 엔티티의 정보를 이용하여 알림 전송
         return sendMessage(savedAlert.toDto());
