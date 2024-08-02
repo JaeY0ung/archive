@@ -9,12 +9,14 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.los.backend.like.model.entity.QLikeSheet;
+import com.ssafy.los.backend.sheet.model.constant.Sort;
 import com.ssafy.los.backend.sheet.model.dto.request.SheetSearchFilter;
 import com.ssafy.los.backend.sheet.model.dto.response.SheetDetailViewDto;
 import com.ssafy.los.backend.sheet.model.entity.QSheet;
 import com.ssafy.los.backend.sheet.model.repository.custom.CustomSheetRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 public class CustomSheetRepositoryImpl implements CustomSheetRepository {
@@ -29,7 +31,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         return createSelectFromQuery()
                 .where(s.deletedAt.isNull(), s.createdAt.isNotNull(),
                         containKeyword(sheetSearchFilter.getKeyword()),
-                        equalLevel(sheetSearchFilter.getLevel()))
+                        inLevels(sheetSearchFilter.getLevel()))
                 .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                 .fetch();
     }
@@ -40,6 +42,14 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         return createSelectFromQuery(userId)
                 .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
                 .fetchOne();
+    }
+
+    @Transactional
+    @Override
+    public long updateViewCount(Long sheetId) {
+        return queryFactory.update(s)
+                .set(s.viewCount, s.viewCount.add(1))
+                .execute();
     }
 
     private JPAQuery<SheetDetailViewDto> createSelectFromQuery(Long userId) {
@@ -81,31 +91,32 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .or(s.song.composer.contains(keyword));
     }
 
-    private BooleanExpression equalLevel(Integer level) {
-        if (level == null || level == 0) {
+    private BooleanExpression inLevels(Integer[] level) {
+        if (level == null || level.length == 0) {
             return null;
         }
-        return s.level.eq(level);
+        return s.level.in(level);
     }
 
-    private OrderSpecifier<?> createOrderSpecifier(String sort) {
-        if (sort == null || sort.isEmpty()) {
+    private OrderSpecifier<?> createOrderSpecifier(Sort sort) {
+        if (sort == null) {
             return new OrderSpecifier<>(Order.ASC,
                     Expressions.numberTemplate(Double.class, "function('RAND')"));
         }
         return switch (sort) {
             // TODO : LikeSheet과 join해서 가져오는것을 엔티티에서 OneToMany로 설정하는게 맞는지?...
-            case "POPULAR" -> new OrderSpecifier<>(Order.DESC,
+            case POPULAR -> new OrderSpecifier<>(Order.DESC,
                     JPAExpressions.select(ls.count())
                             .from(ls)
                             .where(ls.sheet.eq(s))
             );
-            case "OLDEST" -> new OrderSpecifier<>(Order.ASC, s.createdAt);
-            case "CHEAPEST" -> new OrderSpecifier<>(Order.ASC, s.price);
-            case "HIGHEST_VIEW" -> new OrderSpecifier<>(Order.DESC, s.viewCount);
-            case "LATEST" -> new OrderSpecifier<>(Order.DESC, s.createdAt);
-            case "RANDOM" -> new OrderSpecifier<>(Order.ASC,
+            case OLDEST -> new OrderSpecifier<>(Order.ASC, s.createdAt);
+            case CHEAPEST -> new OrderSpecifier<>(Order.ASC, s.price);
+            case HIGHEST_VIEW -> new OrderSpecifier<>(Order.DESC, s.viewCount);
+            case LATEST -> new OrderSpecifier<>(Order.DESC, s.createdAt);
+            case RANDOM -> new OrderSpecifier<>(Order.ASC,
                     Expressions.numberTemplate(Double.class, "function('RAND')"));
+            case STAR_RATE_HIGHEST -> new OrderSpecifier<>(Order.DESC, s.createdAt);
             default -> new OrderSpecifier<>(Order.DESC, s.createdAt);
         };
     }

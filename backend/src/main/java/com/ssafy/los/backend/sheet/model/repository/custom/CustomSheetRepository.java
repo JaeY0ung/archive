@@ -10,4 +10,6 @@ public interface CustomSheetRepository {
 
     SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId, Long userId);
 
+    long updateViewCount(Long sheetId);
+
 }

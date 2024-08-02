@@ -3,8 +3,10 @@ package com.ssafy.los.backend.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,11 +59,25 @@ public class FileUploadUtil {
         return downloadOneFile(sheetMidFileFolderPath, fileName);
     }
 
-    public Path getSomgImgPath(String fileName) throws IllegalArgumentException {
+    public String getImg(String imgName) {
+        Path path = getSomgImgPath(imgName);
+        return getImgFileByPath(path);
+    }
+
+    private Path getSomgImgPath(String fileName) throws IllegalArgumentException {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("악보에 연결된 곡의 이미지 파일이 없습니다");
         }
         return getPath(songImgFolderPath, fileName);
+    }
+
+    public String getImgFileByPath(Path path) {
+        try {
+            byte[] songImg = Files.readAllBytes(path);
+            return Base64.getEncoder().encodeToString(songImg);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     private String saveFile(String folderPath, MultipartFile file)

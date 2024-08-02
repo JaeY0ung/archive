@@ -29,7 +29,10 @@ getnewsheets();
 
 const recommendSheets = ref([]); // 추천 악보 리스트
 const getRecommendsheets = async () => {
-	const params = { sort: "RECOMMEND" }
+	const params = {
+		level: 1, // 유저의 티어
+		sort: "RANDOM"
+	}
 	await local.get("/sheets", { params })
 		.then(({ data }) => {
 			recommendSheets.value = data;

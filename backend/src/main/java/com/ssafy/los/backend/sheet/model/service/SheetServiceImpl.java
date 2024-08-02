@@ -8,16 +8,13 @@ import com.ssafy.los.backend.sheet.model.repository.SheetRepository;
 import com.ssafy.los.backend.song.model.repository.SongRepository;
 import com.ssafy.los.backend.user.model.service.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -43,11 +40,14 @@ public class SheetServiceImpl implements SheetService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 악보입니다."));
     }
 
+    @Transactional
     @Override
     public SheetDetailViewDto searchSheetById(Long sheetId) throws IllegalArgumentException {
-        return addSongImg(sheetRepository.findSheetDetailViewDtoById(sheetId,
-                authService.getLoginUser() != null ? authService.getLoginUser().getId() : null));
-
+        sheetRepository.updateViewCount(sheetId);
+        SheetDetailViewDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId,
+                authService.getLoginUser() != null ? authService.getLoginUser().getId() : null);
+        sheet.loadSongImg(fileUploadUtil);
+        return sheet;
 
     }
 
@@ -59,7 +59,8 @@ public class SheetServiceImpl implements SheetService {
     @Override
     public List<SheetDetailViewDto> searchSheetByFilter(SheetSearchFilter sheetSearchFilter) {
         return sheetRepository.findSheetsByFilter(sheetSearchFilter)
-                .stream().map(this::addSongImg)
+                .stream()
+                .peek(dto -> dto.loadSongImg(fileUploadUtil))
                 .collect(Collectors.toList());
     }
 
@@ -83,17 +84,4 @@ public class SheetServiceImpl implements SheetService {
         }
     }
 
-    public SheetDetailViewDto addSongImg(SheetDetailViewDto sheetDetailViewDto) {
-        try {
-            Path path = fileUploadUtil.getSomgImgPath(sheetDetailViewDto.getSongImgName());
-            byte[] songImg = Files.readAllBytes(path);
-            String base64SongImg = Base64.getEncoder().encodeToString(songImg);
-            sheetDetailViewDto.setSongImg(base64SongImg);
-        } catch (IOException e) {
-            log.error(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            log.error("곡의 이미지를 찾아올 수 없습니다");
-        }
-        return sheetDetailViewDto;
-    }
 }

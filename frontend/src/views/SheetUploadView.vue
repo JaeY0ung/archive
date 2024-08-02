@@ -53,7 +53,7 @@ const uploadFile = async () => {
       },
     })
     .then((res) => {
-      console.error("파일 업로드 성공: ", res);
+      console.log("파일 업로드 성공: ", res);
     })
     .catch((err) => {
       alert("파일 업로드 실패: ", err);
