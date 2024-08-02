@@ -27,7 +27,7 @@ app.add_middleware(
 )
 
 # 임시 폴더 설정
-UPLOAD_DIR = "temp"
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/shared/temp")
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -97,7 +97,7 @@ async def upload_file(file: UploadFile = File(...)):
 
         # 유사도 계산
         similarity_scores = calculate_similarity(midi_file_location, output_file_location)
-        
+        logger.info(similarity_scores)
         return {
             "filename": file.filename,
             "wav_file": wav_file_location,
