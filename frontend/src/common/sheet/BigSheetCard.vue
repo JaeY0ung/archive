@@ -2,6 +2,7 @@
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router'
 import { likeSheet, dislikeSheet } from '@/api/likesheet';
+import Tier from "@/common/icons/Tier.vue"
 
 const router = useRouter();
 
@@ -88,13 +89,7 @@ const addSheetToCart = () => {
                     <div class="bold text-[2.25vw] mr-3">
                         {{ sheet.title }}
                     </div>
-                    <div class="flex">
-                        <img v-if="sheet.level == 1" :src="require('@/assets/img/level/bronze.svg')" alt="">
-                        <img v-else-if="sheet.level == 2" :src="require('@/assets/img/level/silver.svg')" alt="">
-                        <img v-else-if="sheet.level == 3" :src="require('@/assets/img/level/gold.svg')" alt="">
-                        <img v-else-if="sheet.level == 4" :src="require('@/assets/img/level/platinum.svg')" alt="">
-                        <img v-else-if="sheet.level == 5" :src="require('@/assets/img/level/diamond.svg')" alt="">
-                    </div>
+                    <Tier :level="sheet.level"/>
                 </div>
 
                 <div class="flex items-start gap-3">
