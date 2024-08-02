@@ -22,19 +22,15 @@ const goToSheetDetail = () => {
             <img class="rounded-lg" :src="sheet.imageUrl" alt="원본 곡 이미지">
         </div>
         <!-- (오른쪽) 악보 정보 -->
-        <div class="min-w-[160px]">
-            <div>
-                <div class="bold flex justify-between" style="font-size: 18px;">
-                    <div class="flex items-center">{{ getTitleByLen(sheet.title, 10) }}</div>
-                    <div class="flex items-center">
-                        <Tier class="w-[18px] h-[18px]" :level="sheet.level"/>
-                    </div>
+        <div class="min-w-[160px] pt-[5px] flex flex-col gap-1">
+            <div class="bold flex justify-between" style="font-size: 18px;">
+                <div class="flex items-center">{{ getTitleByLen(sheet.title, 10) }}</div>
+                <div class="flex items-center">
+                    <Tier class="w-[18px] h-[18px]" :level="sheet.level"/>
                 </div>
-                <div class="medium" style="font-size: 12px;">{{ sheet.songComposer }}</div>
             </div>
-            <div class="pt-2">
-                <div class="medium" style="font-size: 12px;">업로더 {{ sheet.uploaderNickname }}</div>
-            </div>
+            <div class="medium mb-3" style="font-size: 12px;">{{ sheet.songComposer }}</div>
+            <div class="medium" style="font-size: 12px;">업로더 {{ sheet.uploaderNickname }}</div>
         </div>
     </div>
 </template>

@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import LeftNavigation from '@/common/navigation/LeftNavigation.vue'
 import MyProfile from './common/navigation/MyProfile.vue';
 import Hamburger from '@/common/icons/Hamburger.vue'
 import { useLeftNavigationStore } from '@/stores/leftNavigation'
 
 const leftNavigationStore = useLeftNavigationStore();
-
+const route = useRoute();
 </script>
 
 <template>
@@ -22,7 +23,7 @@ const leftNavigationStore = useLeftNavigationStore();
             <MyProfile style="height:40px;"/>
         </div>
         <div class="router-view-parent">
-            <RouterView @click="leftNavigationStore.closeNav"/>
+            <RouterView @click="leftNavigationStore.closeNav" :key="route.fullPath"/>
         </div>
     </div>
 </template>

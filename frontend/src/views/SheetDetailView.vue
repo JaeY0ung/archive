@@ -1,5 +1,5 @@
 <script setup>
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ref, watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
@@ -8,7 +8,7 @@ import { searchSheetDetail } from "@/api/sheet";
 const route = useRoute();
 const local = localAxios();
 const isPlay = ref("stop");
-
+const router = useRouter();
 const sheet = ref({});
 const sameLevelSheets = ref([]);
 const starRateList = ref([]);
@@ -102,6 +102,14 @@ searchSheetDetail(
 )
 
 searchStarRateList();
+
+const goToSheetDetail = (sheetId) => {
+	router.push({
+		name: 'sheetDetail',
+		params: { 'sheetId': sheetId },
+		replace: true
+	})
+}
 </script>
 
 <template>
@@ -113,8 +121,8 @@ searchStarRateList();
 			<div>
 				<div>비슷한 수준의 악보 추천</div>
 				<div class="line"></div>
-				<div class="scroll-x flex h-full bg-white/50 rounded-xl">
-					<SmallSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet"/>
+				<div class="scroll-x flex bg-white/50 rounded-xl">
+					<SmallSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer" />
 					<!-- <BigSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" /> -->
 				</div>
 			</div>

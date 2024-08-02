@@ -108,66 +108,60 @@ const uploadFile = async () => {
                 <input v-model="fileInfo.level" type="text" class="input input-bordered w-full" />
             </label>
 
-            <label class="form-control w-full mb-5">
-                <div class="label">
-                    <span class="label-text w-[100px]">이 악보의 곡</span>
+            <div class="flex flex-row items-center">
+                <label class="form-control w-full mb-5">
+                    <div class="label">
+                        <span class="label-text">이 악보의 곡</span>
+                    </div>
                     <input v-model="keyword" type="text" class="input input-bordered w-full" @input="searchSongsByKeyword" placeholder="검색" />
-                    <!-- 선택된 -->
-                    <template v-if="selectedSong">
-                        <div class="m-[5px] p-[5px] flex flex-row justify-start flex-1 gap-3 bg-white rounded-lg relative" style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);">
-                            <img :src="require('@/assets/img/close.png')" alt="체크 표시" @click="selectedSong=''" width="15px" height="15px" class="absolute top-1 right-1">
-                            
-                            <!-- (왼쪽) 악보 사진 -->
-                            <div class="h-[80px] w-[80px] flex justify-center">
-                                <img class="rounded-lg" :src="selectedSong?.imageUrl" alt="원본 곡 이미지">
-                            </div>
-                            <!-- (오른쪽) 악보 정보 -->
-                            <div class="min-w-[160px]">
-                                <div>
-                                    <div class="bold flex justify-between" style="font-size: 18px;">
-                                        <div class="flex items-center">{{ selectedSong.title }}</div>
-                                    </div>
-                                    <div class="medium" style="font-size: 12px;">{{ selectedSong.composer }}</div>
-                                </div>
-                                <div class="pt-2">
-                                    <div class="medium" style="font-size: 12px;">장르 {{ selectedSong.genreTitle }}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                    <template v-else>
-                        <div class="card w-[230px] h-[80px]">악보를 선택해주세요</div>
-                    </template>
-                </div>
-                <!-- 입력 -->
+                    
+                </label>
                 
-                <!-- 고르기 -->
-                <div class="flex w-[100%] h-[100px] overflow-x-scroll cursor-pointer" style="-ms-overflow-style: none;scrollbar-width: none;">
-                    <template v-for="song in songs">
-                        <div class="m-[5px] p-[5px] flex flex-row justify-start  gap-3 bg-white rounded-lg relative" style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);" @click="selectedSong=song">
-                            <template v-if="selectedSong?.id == song.id">
-                                <img :src="require('@/assets/img/check.png')" alt="체크 표시" width="15px" height="15px" class="absolute top-1 right-1">
-                            </template>
-                            <!-- (왼쪽) 악보 사진 -->
-                            <div class="h-[80px] w-[80px] flex justify-center">
-                                <img class="rounded-lg" :src="song?.imageUrl" alt="원본 곡 이미지">
-                            </div>
-                            <!-- (오른쪽) 악보 정보 -->
-                            <div class="min-w-[160px]">
-                                <div>
-                                    <div class="bold flex justify-between" style="font-size: 18px;">
-                                        <div class="flex items-center">{{ song.title }}</div>
-                                    </div>
-                                    <div class="medium" style="font-size: 12px;">{{ song.composer }}</div>
-                                </div>
-                                <div class="pt-2">
-                                    <div class="medium" style="font-size: 12px;">장르 {{ song.genreTitle }}</div>
-                                </div>
-                            </div>
+                <template v-if="selectedSong">
+                    <div class="m-[5px] p-[5px] flex flex-row justify-start gap-3 bg-white rounded-lg relative" style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);">
+                        <img :src="require('@/assets/img/close.png')" alt="체크 표시" @click="selectedSong=''" width="15px" height="15px" class="absolute top-1 right-1">
+                        
+                        <!-- (왼쪽) 악보 사진 -->
+                        <div class="h-[80px] w-[80px] flex justify-center">
+                            <img class="rounded-lg" :src="selectedSong?.imageUrl" alt="원본 곡 이미지">
                         </div>
-                    </template>
-                </div>
-            </label>
+                        <!-- (오른쪽) 악보 정보 -->
+                        <div class="min-w-[160px] flex flex-col gap-2 mt-2">
+                            <div class="bold flex items-center" style="font-size: 18px;">{{ selectedSong.title }}</div>
+                            <div class="flex medium" style="font-size: 12px;">{{ selectedSong.composer }}</div>
+                            <div class="flex medium" style="font-size: 12px;">장르 {{ selectedSong.genreTitle }}</div>
+                        </div>
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="m-[5px] p-[5px]  gap-3 bg-white rounded-lg min-w-[230px] min-h-[80px] text-center ">
+                        <div>
+                            악보를<br>
+                            선택해주세요
+                        </div>
+                    </div>
+                </template>
+            </div>
+            <!-- 고르기 -->
+            <div class="flex w-[100%] h-[100px] overflow-x-scroll cursor-pointer" style="-ms-overflow-style:none; scrollbar-width:none;">
+                <template v-for="song in songs">
+                    <div class="m-[5px] p-[5px] flex flex-row justify-start gap-3 bg-white rounded-lg relative" style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);" @click="selectedSong=song">
+                        <!-- (왼쪽) 악보 사진 -->
+                        <div class="h-[80px] w-[80px] flex f">
+                            <img class="rounded-lg" :src="song?.imageUrl" alt="원본 곡 이미지">
+                        </div>
+                        <!-- (오른쪽) 악보 정보 -->
+                        <div class="min-w-[160px] flex flex-col gap-2 mt-2">
+                            <div class="flex bold" style="font-size: 18px;">{{ song.title }}</div>
+                            <div class="flex medium" style="font-size: 12px;">{{ song.composer }}</div>
+                            <div class="flex medium" style="font-size: 12px;">{{ song.genreTitle }}</div>
+                        </div>
+                        <template v-if="selectedSong?.id == song.id">
+                            <img :src="require('@/assets/img/check.png')" alt="체크 표시" width="15px" height="15px" class="absolute top-1 right-1">
+                        </template>
+                    </div>
+                </template>
+            </div>
 
             <div class="flex flex-row gap-10 justify-end items-center">
                 <div class="cursor-pointer" @click="router.go(-1)">취소하기</div>
