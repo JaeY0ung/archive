@@ -27,7 +27,7 @@ app.add_middleware(
 )
 
 # 임시 폴더 설정
-UPLOAD_DIR = "temp"
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/shared/temp")
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 

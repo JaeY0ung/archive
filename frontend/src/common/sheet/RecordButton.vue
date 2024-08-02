@@ -64,19 +64,19 @@ const startRecording = async () => {
             formData.append("file", blob, `chunck_${audioBlobs.value.length}.webm`);
             /* 파일 전송으로 바꿔야함 */
             axios
-                //.post("https://arc-hive.shop/fastapi/playing", formData, {
-                .post("http://localhost:8000/fastapi/playing", formData, {
+                .post("https://arc-hive.shop/fastapi/playing", formData, {
+                //post("http://localhost:8000/fastapi/playing", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
                 })
                 .then((res) => {
-                console.log("파일 업로드 성공: ", res.data);
+                    console.log("파일 업로드 성공: ", res.data);
                 })
                 .catch((err) => {
-                console.error("파일 업로드 실패: ", err);
+                    console.error("파일 업로드 실패: ", err);
                 });
-            audioBlobs.value.push({ blob}); //
+            audioBlobs.value.push({ blob }); //
             chunks.length = 0; // 청크 초기화
         }
         // 녹음을 다시 시작합니다.
