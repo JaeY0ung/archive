@@ -27,12 +27,6 @@ const fileInputRef = ref(null);
 const isNicknameChecked = ref(false);
 const isNicknameAvailable = ref(false);
 
-onMounted(() => {
-    if (userInfo.value) {
-        originalUserInfo.value = { ...userInfo.value };
-        loginUserInfo.value = { ...userInfo.value };
-    }
-});
 
 const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -49,12 +43,12 @@ const checkNicknameDuplicate = async () => {
         const response = await local.get("/users/check-nickname", {
             params: { nickname: loginUserInfo.value.nickname },
         });
-
+        
         console.log(response.data);
-
+        
         isNicknameChecked.value = true;
         isNicknameAvailable.value = !response.data;
-
+        
         if (isNicknameAvailable.value) {
             alert("사용 가능한 닉네임입니다.");
         } else {
@@ -85,7 +79,7 @@ const updateUserInfo = async () => {
         alert("닉네임 중복 확인을 먼저 해주세요.");
         return;
     }
-
+    
     try {
         const formData = new FormData();
         formData.append("nickname", loginUserInfo.value.nickname);
@@ -102,7 +96,7 @@ const updateUserInfo = async () => {
                 "Content-Type": "multipart/form-data",
             },
         });
-
+        
         console.log("User info updated successfully:", response.data);
         alert("사용자 정보가 성공적으로 업데이트되었습니다.");
         originalUserInfo.value = { ...loginUserInfo.value };
@@ -156,21 +150,27 @@ const goLogout = async () => {
         alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
 };
+onMounted(() => {
+    if (userInfo.value) {
+        originalUserInfo.value = { ...userInfo.value };
+        loginUserInfo.value = { ...userInfo.value };
+    }
+});
 </script>
 
 <template>
     <div class="container">
         <div class="text-4xl mb-6">마이페이지</div>
-
+        
         <div class="form-control w-full mb-4">
             <label class="label">
                 <span class="label-text">이메일</span>
             </label>
             <input
-                v-model="loginUserInfo.email"
-                type="text"
-                class="input input-bordered w-full"
-                disabled
+            v-model="loginUserInfo.email"
+            type="text"
+            class="input input-bordered w-full"
+            disabled
             />
         </div>
 

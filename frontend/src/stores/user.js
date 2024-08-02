@@ -62,8 +62,6 @@ export const useUserStore = defineStore('user', () => {
 
 
   const userLogin = async (loginUser) => {
-    
-
     await userConfirm(
       loginUser,
       async (response) => {

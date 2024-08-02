@@ -7,16 +7,15 @@ import { storeToRefs } from "pinia";
 import BigSheetCard from "@/common/sheet/BigSheetCardForDifficulty.vue";
 
 const userStore = useUserStore();
-const { userInfo } = storeToRefs(userStore);
 const route = useRoute();
 const local = localAxios();
-const sheet = ref({});
 
+const { userInfo } = storeToRefs(userStore);
+const sheet = ref({});
 // 댓글 및 난이도 관련 상태
 const newComment = ref("");
 const newDifficulty = ref("");
 const comments = ref([]);
-
 // 정렬 상태
 const sortOrder = ref('desc');
 
@@ -71,7 +70,6 @@ const submitCommentAndDifficulty = () => {
 
         local.post(`/sheets/${route.params.sheetId}/difficulties`, difficultyData)
             .then(response => {
-                console.log("난이도 평가가 성공적으로 저장되었습니다:", response.data);
                 // 저장 성공 후 댓글 목록 새로고침
                 fetchCommentsAndDifficulties();
                 // 입력 필드 초기화
@@ -88,7 +86,6 @@ const submitCommentAndDifficulty = () => {
 const fetchCommentsAndDifficulties = () => {
     local.get(`/sheets/${route.params.sheetId}/difficulties`)
         .then(({ data }) => {
-            console.log("가져온 난이도 평가 데이터:", data);
             comments.value = data.map(item => ({
                 username: item.username,
                 userAvatar: item.userImg,

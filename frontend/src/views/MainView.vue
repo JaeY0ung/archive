@@ -5,6 +5,9 @@ import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
 
 const local = localAxios();
 const popularSheets = ref([]); // 인기 악보 리스트
+const newSheets = ref([]); // 새로 나온(New) 악보 리스트
+const recommendSheets = ref([]); // 추천 악보 리스트
+const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 
 const getPopularsheets = async () => {
 	const params = { sort: "POPULAR" }
@@ -14,34 +17,32 @@ const getPopularsheets = async () => {
 			popularSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); // TODO: songImg가 없으면 기본 로고로.
 		}).catch((err)=> console.log(err))
 }
-getPopularsheets();
 
-const newSheets = ref([]); // 새로 나온(New) 악보 리스트
 const getnewsheets = async () => {
 	const params = { sort: "LATEST" }
 	await local.get("/sheets", { params })
-		.then(({ data }) => {
-			newSheets.value = data;
-			newSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
-		}).catch((err)=> console.log(err))
+	.then(({ data }) => {
+		newSheets.value = data;
+		newSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
+	}).catch((err)=> console.log(err))
 }
-getnewsheets();
 
-const recommendSheets = ref([]); // 추천 악보 리스트
+
 const getRecommendsheets = async () => {
 	const params = {
 		level: 1, // 유저의 티어
 		sort: "RANDOM"
 	}
 	await local.get("/sheets", { params })
-		.then(({ data }) => {
-			recommendSheets.value = data;
-			recommendSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); 
-		}).catch((err)=> console.log(err))
+	.then(({ data }) => {
+		recommendSheets.value = data;
+		recommendSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); 
+	}).catch((err)=> console.log(err))
 }
+getPopularsheets();
+getnewsheets();
 getRecommendsheets();
 
-const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 // const getRecentChallengedsheets = async () => {
 // 	await axios.get("http://localhost:8080/sheets/recent-challenge")
 // 		.then(({ data }) => {

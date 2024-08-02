@@ -1,8 +1,9 @@
 <script setup>
-import { localAxios } from "@/util/http-common";
 import { useRouter } from "vue-router";
+import { likeSheet, dislikeSheet } from "@/api/likesheet";
 
-const local = localAxios();
+const router = useRouter();
+
 const props = defineProps({
     sheet: {
         type: Object,
@@ -21,40 +22,51 @@ const props = defineProps({
     },
 });
 
-const router = useRouter();
+
 const goToUserProfile = () => {
     router.push({ name: "userProfile", params: { nickName: props.sheet.uploaderNickname } });
 };
-// 좋아요 기능
-const likeSheet = () => {
-    local
-        .post(`/likes/sheets/${props.sheet.id}`)
-        .then((res) => (props.sheet.likeStatus = false))
-        .catch((err) => console.log(err));
-};
-
-// 좋아요 해제 기능
-const dislikeSheet = () => {
-    local
-        .delete(`/likes/sheets/${props.sheet.id}`)
-        .then((res) => (props.sheet.likeStatus = true))
-        .catch((err) => console.log(err));
-};
-
 // 싱글 배틀 페이지로 이동하기.
 const goToPlayRoom = () => {
     router.push({ name: "waitBattle" });
 };
+// 좋아요 기능
+const onClickLikeSheet = async () =>{ 
+    likeSheet(
+        props.sheet.id,
+        (res)=>{
+            sheetInfo.value.likeStatus = true;
+            sheetInfo.value.likeCount++;
+        },
+        (err)=>{
+            console.error(err);
+        },
+    )
+}
 
+// 좋아요 해제 기능
+const onClickDislikeSheet = async () =>{
+    dislikeSheet(
+        props.sheet.id,
+        (res)=>{
+            sheetInfo.value.likeStatus = false
+            sheetInfo.value.likeCount--;
+        },
+        (err)=>{
+            console.error(err);
+        }
+    )
+}
 // TODO : 장바구니에 넣는 로직 추가하기
 const addSheetToCart = () => {};
+
 </script>
 
 <template>
     <div
-        class="flex flex-row gap-3 text-[1.25vw] p-3 bg-white/80 shadow-2xl rounded-3xl shadow-pink-500/50 pr-3"
+    class="flex flex-row gap-3 text-[1.25vw] p-3 bg-white/80 shadow-2xl rounded-3xl shadow-pink-500/50 pr-3"
     >
-        <!-- 이미지 -->
+    <!-- 이미지 -->
         <div class="img flex-none">
             <img
                 class="song-img h-[150px] w-[150px] flex justify-start"
@@ -112,13 +124,13 @@ const addSheetToCart = () => {};
                             v-if="sheet.likeStatus"
                             :src="require('@/assets/img/heart-fill.svg')"
                             alt="꽉 찬 하트"
-                            @click="likeSheet"
+                            @click="onClickLikeSheet"
                         />
                         <img
                             v-else
                             :src="require('@/assets/img/heart-empty.svg')"
                             alt="빈 하트"
-                            @click="dislikeSheet"
+                            @click="onClickDislikeSheet"
                         />
                         {{ sheet.likeCount }}
                     </div>

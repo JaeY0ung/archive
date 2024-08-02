@@ -2,10 +2,9 @@
 import { useRoute } from "vue-router";
 import { ref, watch } from "vue";
 import { localAxios } from "@/util/http-common";
-import Sheet from "@/common/sheet/Sheet.vue";
-import SheetPlayNavigation from "@/common/sheet/SheetPlayNavigation.vue";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from  "@/common/sheet/SmallSheetCard.vue";
+import { searchSheetDetail } from "@/api/sheet";
 const route = useRoute();
 const local = localAxios();
 const isPlay = ref("stop");
@@ -24,18 +23,6 @@ const updateStarRate = (starRate) => {
 	starRateRegisterForm.value.starRate = starRate;
 }
 
-// 악보 세부 정보 가져오기
-const searchSheetDetail = () => {
-	local
-		.get(`/sheets/${route.params.sheetId}`)
-		.then(({ data }) => {
-			sheet.value = data;
-			sheet.value.imageUrl = `data:image/jpeg;base64,${data.songImg}`;
-		})
-		.catch((err) => {
-			alert(err);
-		});
-};
 
 // 같은 수준의 악보 랜덤으로 가져오기
 const searchRandomSameLevelSheets = () => {
@@ -44,66 +31,75 @@ const searchRandomSameLevelSheets = () => {
 		sort: "RANDOM",
 		keyword: "",
 	};
-
+	// TODO: api 리팩토링
 	local.get("/sheets", { params })
-		.then(({ data }) => {
-			sameLevelSheets.value = data;
-			sameLevelSheets.value.map((s) =>
-				s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지"
-			);
-		})
-		.catch((err) => {
-			alert(err);
-		});
+	.then(({ data }) => {
+		sameLevelSheets.value = data;
+		sameLevelSheets.value.map((s) =>
+		s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지"
+	);
+})
+.catch((err) => {
+	alert(err);
+});
 };
 
 // 별점 가져오기
 const searchStarRateList = () => {
+	// TODO: api 리팩토링
 	local
-		.get(`/sheets/${route.params.sheetId}/star-rates`)
-		.then(({ data }) => {
-			console.log("starRateList: ", data);
-			starRateList.value = data;
-			let sum = 0;
-			starRateList.value.map((starRateInfo) => {
-				sum += starRateInfo.starRate;
-				starRateStatistic.value[starRateInfo.starRate]++;
-			});
-			starRateAvg.value = round(sum / starRateList.value.length, 2);
-		})
-		.catch((err) => {
-			alert(err);
+	.get(`/sheets/${route.params.sheetId}/star-rates`)
+	.then(({ data }) => {
+		starRateList.value = data;
+		let sum = 0;
+		starRateList.value.map((starRateInfo) => {
+			sum += starRateInfo.starRate;
+			starRateStatistic.value[starRateInfo.starRate]++;
 		});
+		starRateAvg.value = round(sum / starRateList.value.length, 2);
+	})
+	.catch((err) => {
+		alert(err);
+	});
 };
 
 // 별점 등록하기
 const registerStarRate = () => {
+	// TODO: api 리팩토링
 	local
-		.post(`/sheets/${route.params.sheetId}/star-rates`, starRateRegisterForm)
-		.then(({ data }) => {
-			console.log("starRateList: ", data);
-			starRateList.value = data;
-			let sum = 0;
-			starRateList.value.map((starRateInfo) => {
-				sum += starRateInfo.starRate;
-				starRateStatistic.value[starRateInfo.starRate]++;
-			});
-			starRateAvg.value = round(sum / starRateList.value.length, 2);
-		})
-		.catch((err) => {
-			alert(err);
+	.post(`/sheets/${route.params.sheetId}/star-rates`, starRateRegisterForm)
+	.then(({ data }) => {
+		starRateList.value = data;
+		let sum = 0;
+		starRateList.value.map((starRateInfo) => {
+			sum += starRateInfo.starRate;
+			starRateStatistic.value[starRateInfo.starRate]++;
 		});
+		starRateAvg.value = round(sum / starRateList.value.length, 2);
+	})
+	.catch((err) => {
+		alert(err);
+	});
 };
 
 function round(number, place) {
 	return Math.round(number * 10 ** place) / 10 ** place;
 }
 
-searchSheetDetail();
-
 watch(sheet, (newValue, oldValue) => {
 	searchRandomSameLevelSheets();
 });
+
+searchSheetDetail(
+	route.params.sheetId, 
+	({ data }) => {
+		sheet.value = data;
+		sheet.value.imageUrl = `data:image/jpeg;base64,${data.songImg}`;
+	}, 
+	(err) => {
+		console.error(err);
+	}
+)
 
 searchStarRateList();
 </script>
@@ -112,8 +108,8 @@ searchStarRateList();
 	<div class="flex justify-between flex-margin h-full">
 		<!-- 왼쪽 -->
 		<div class="flex flex-col gap-10 w-[49%] h-full rounded-xl">
-			<BigSheetCard :sheet />
-
+			<!-- TODO: 현재 악보 불러오기 기능 미구현 -->
+			<BigSheetCard :sheet="sheet" />
 			<div>
 				<div>비슷한 수준의 악보 추천</div>
 				<div class="line"></div>
@@ -122,7 +118,6 @@ searchStarRateList();
 					<!-- <BigSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" /> -->
 				</div>
 			</div>
-
 			<div>
 				<div>리뷰</div>
 				<div class="line"></div>

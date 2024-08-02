@@ -35,13 +35,6 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
 
 @app.post("/playing")
 async def upload_file(file: UploadFile = File(...)):
@@ -104,7 +97,7 @@ async def upload_file(file: UploadFile = File(...)):
 
         # 유사도 계산
         similarity_scores = calculate_similarity(midi_file_location, output_file_location)
-        
+        logger.info(similarity_scores)
         return {
             "filename": file.filename,
             "wav_file": wav_file_location,
@@ -117,5 +110,9 @@ async def upload_file(file: UploadFile = File(...)):
         logger.error(f"파일 업로드 또는 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="내부 서버 오류")
 
+@app.post("/sheets/mid-to-xml")
+async def mid2xml():
+    # 인자 값 filename
+    return {}
 # FastAPI 실행 명령어
 # uvicorn main:app --reload --host 0.0.0.0 --port 8000

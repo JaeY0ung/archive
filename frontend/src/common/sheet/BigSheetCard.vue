@@ -1,9 +1,10 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { localAxios } from '@/util/http-common';
 import { useRouter } from 'vue-router'
+import { likeSheet, dislikeSheet } from '@/api/likesheet';
 
-const local = localAxios();
+const router = useRouter();
+
 const props = defineProps({
     sheet: {
         type: Object,
@@ -22,38 +23,49 @@ const props = defineProps({
     }
 })
 
-const sheetInfo = ref(props.sheet)
+
+const sheetInfo = ref(props.sheet);
+
 watch(() => props.sheet, (newSheet) => {
     sheetInfo.value = newSheet 
 })
 
-const router = useRouter();
+
 const goToUserProfile = () => {
     router.push({ name: 'userProfile', params: { nickName: props.sheet.uploaderNickname} })
 }
-// 좋아요 기능
-const likeSheet = () => {
-    local.post(`/likes/sheets/${props.sheet.id}`)
-        .then((res) => {
-            sheetInfo.value.likeStatus = true;
-            sheetInfo.value.likeCount++;
-        })
-        .catch((err) => console.log(err))
-}
-
-// 좋아요 해제 기능
-const dislikeSheet = () => {
-    local.delete(`/likes/sheets/${props.sheet.id}`)
-        .then((res) => {
-            sheetInfo.value.likeStatus = false
-            sheetInfo.value.likeCount--;
-        })
-        .catch((err) => console.log(err))
-}
-
 // 싱글 배틀 페이지로 이동하기.
 const goToPlayRoom = () => {
     router.push({name: 'waitBattle'})
+}
+
+// 좋아요 기능
+const onClickLikeSheet = async () =>{ 
+    likeSheet(
+        props.sheet.id,
+        (res)=>{
+            sheetInfo.value.likeStatus = true;
+            sheetInfo.value.likeCount++;
+        },
+        (err)=>{
+            console.error(err);
+        },
+    )
+}
+
+
+// 좋아요 해제 기능
+const onClickDislikeSheet = async () =>{
+    dislikeSheet(
+        props.sheet.id,
+        (res)=>{
+            sheetInfo.value.likeStatus = false
+            sheetInfo.value.likeCount--;
+        },
+        (err)=>{
+            console.error(err);
+        }
+    )
 }
 
 // TODO : 장바구니에 넣는 로직 추가하기
@@ -95,8 +107,8 @@ const addSheetToCart = () => {
                         <p>{{ sheet.viewCount }}</p>
                     </div>
                     <div class="flex items-center cursor-pointer">
-                        <img v-if="sheetInfo.likeStatus === true" :src="require('@/assets/img/heart-fill.svg')" alt="꽉 찬 하트" @click="dislikeSheet">
-                        <img v-else :src="require('@/assets/img/heart-empty.svg')" alt="빈 하트" @click="likeSheet">
+                        <img v-if="sheetInfo.likeStatus === true" :src="require('@/assets/img/heart-fill.svg')" alt="꽉 찬 하트" @click="onClickDislikeSheet">
+                        <img v-else :src="require('@/assets/img/heart-empty.svg')" alt="빈 하트" @click="onClickLikeSheet">
                         {{ sheetInfo.likeCount  }}
                     </div>
                 </div>
