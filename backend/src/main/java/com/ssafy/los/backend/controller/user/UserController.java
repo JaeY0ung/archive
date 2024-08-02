@@ -54,17 +54,13 @@ public class UserController {
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
+    // 회원 정보 수정
     @PutMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateUser(
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @RequestPart("nickname") String nickname) throws IOException {
 
         User loginUser = authService.getLoginUser();
-        log.info(loginUser.toString());
-
-        log.info("Updating user: {}", loginUser.getEmail());
-        log.info("New nickname: {}", nickname);
-        log.info("Profile image provided: {}", profileImage != null);
 
         // 파일 처리
         String uuid = null;
@@ -99,6 +95,7 @@ public class UserController {
     @GetMapping("/{user-nickname}")
     public ResponseEntity<?> getUser(@PathVariable("user-nickname") String userNickname) {
         UserProfileDto userProfileDto = userService.searchUserProfileByNickname(userNickname);
+        log.info("User profile: {}", userProfileDto);
         return new ResponseEntity<>(userProfileDto, HttpStatus.OK);
     }
 

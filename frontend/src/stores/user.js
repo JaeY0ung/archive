@@ -90,9 +90,8 @@ export const useUserStore = defineStore('user', () => {
         isValidToken.value = true;
 
         // 유저 정보 가져오기
-        await getUserInfo(accessToken);
+        await getUserInfo();
         console.log("user 정보: = ", userInfo.value);
-        // console.log(userInfo.value.email);
 
         // Firebase 토큰 발급 및 저장
         await sendFirebaseTokenToServer(accessToken);
@@ -138,21 +137,20 @@ export const useUserStore = defineStore('user', () => {
     });
   };
 
-  const getUserInfo = async (token) => {
-    let decodeToken = jwtDecode(token)
-    console.log('token: ', token)
-    console.log('decodeToken: ', decodeToken);
+  const getUserInfo = async () => {
       await findByEmail(
           (response) => {
               if (response.status === httpStatusCode.OK) {
-                  userInfo.value = response.data
+                // 스토어 정보 넣기
+                userInfo.value = response.data
+                console.log("스토어에 저장된 정보입니다.", userInfo)
               } else {
                   console.log("해당 유저 정보가 없습니다.")
               }
           },
 
       (error) => {
-        console.log('유저 정보를 가져오는데 오류 발생')
+        console.log('유저 정보를 가져오는데 오류 발생', error)
       }
     )
   }

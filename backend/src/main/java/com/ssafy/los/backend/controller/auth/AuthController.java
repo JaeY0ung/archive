@@ -7,6 +7,7 @@ import com.ssafy.los.backend.service.auth.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
@@ -26,6 +28,7 @@ public class AuthController {
     public ResponseEntity<?> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
         UserDetailDto userDetailDto = authService.getUserInfo(request);
         if (userDetailDto != null) {
+            log.info("userDetailDto = {}", userDetailDto.toString());
             return new ResponseEntity<>(userDetailDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

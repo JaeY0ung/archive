@@ -10,6 +10,7 @@ import com.ssafy.los.backend.dto.user.request.UserCreateDto;
 import com.ssafy.los.backend.dto.user.response.UserDetailDto;
 import com.ssafy.los.backend.service.user.UserService;
 import com.ssafy.los.backend.service.user.UserStatusService;
+import com.ssafy.los.backend.util.FileUploadUtil;
 import com.ssafy.los.backend.util.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final OAuth2UserService oAuth2UserService;
     private final UserStatusService userStatusService;
     private final UserService userService;
+    private final FileUploadUtil fileUploadUtil;
 
     @Override
     public UserDetailDto getUserInfo(HttpServletRequest request) {
@@ -37,20 +39,23 @@ public class AuthServiceImpl implements AuthService {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             String accessToken = bearerToken.substring(7);
             String email = jwtUtil.getUsername(accessToken);
-            User user = userService.searchUserByEmail(email);
-            return UserDetailDto.builder()
-                    .id(user.getId())
-                    .role(user.getRole())
-                    .email(user.getEmail())
-                    .nickname(user.getNickname())
-                    .userImg(user.getUserImg())
-                    .birthDate(user.getBirthDate())
-                    .gender(user.getGender())
-                    .cash(user.getCash())
-                    .singleScore(user.getSingleScore())
-                    .multiScore(user.getMultiScore())
-                    .deletedAt(user.getDeletedAt())
+            User findUser = userService.searchUserByEmail(email);
+            UserDetailDto userDetailDto = UserDetailDto.builder()
+                    .id(findUser.getId())
+                    .role(findUser.getRole())
+                    .email(findUser.getEmail())
+                    .nickname(findUser.getNickname())
+                    .userImgName(findUser.getUserImg()) // 임시
+                    .birthDate(findUser.getBirthDate())
+                    .gender(findUser.getGender())
+                    .cash(findUser.getCash())
+                    .singleScore(findUser.getSingleScore())
+                    .multiScore(findUser.getMultiScore())
+                    .deletedAt(findUser.getDeletedAt())
                     .build();
+
+            userDetailDto.loadUserImg(fileUploadUtil);
+            return userDetailDto;
         }
         return null;
     }

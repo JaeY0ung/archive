@@ -14,6 +14,7 @@ const router = useRouter();
 
 const { userInfo } = storeToRefs(userStore);
 const userProfile = ref(null);
+const userImg = ref('');
 const followersCount = ref(0);
 const followingsCount = ref(0);
 const isFollowing = ref(false);
@@ -21,6 +22,7 @@ const showFollowersModal = ref(false);
 const showFollowingsModal = ref(false);
 const followList = ref([]);
 const followModalTitle = ref("");
+
 // 악보 정보
 const mockRecentPlayedSheets = ref([
     {
@@ -72,6 +74,7 @@ const fetchUserProfile = async () => {
         //TODO: axios요청 api로 빼야함
         const response = await local.get(`/users/${route.params.nickName}`);
         userProfile.value = response.data;
+        userImg.value = `data:image/jpeg;base64,${response.data.userImg}`;
     } catch (error) {
         console.error("사용자 프로필을 가져오는데 실패했습니다:", error);
     }
@@ -147,7 +150,7 @@ onMounted(async () => {
 <template>
     <div class="profile-container">
         <div class="user-profile">
-            <img src="placeholder-profile-image.jpg" alt="User Profile" class="profile-image" />
+            <img :src="userImg" alt="User Profile" class="profile-image" />
             <span class="user-name">{{ userProfile?.nickname }}</span>
             <span class="single-score">Score: {{ userProfile?.singleScore }}</span>
             <span class="followers" @click="openFollowModal('followers')"

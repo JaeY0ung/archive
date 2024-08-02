@@ -78,9 +78,10 @@ public class UserServiceImpl implements UserService {
         UserProfileDto userProfileDto = UserProfileDto.builder()
                 .userId(findUser.getId())
                 .nickname(findUser.getNickname())
-                .userImg(findUser.getUserImg())
+                .userImgName(findUser.getUserImg()) // 임시
                 .singleScore(findUser.getSingleScore())
                 .build();
+        userProfileDto.loadUserImg(fileUploadUtil);
 
         return userProfileDto;
     }
