@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
@@ -33,6 +33,7 @@ const difficultyMap = {
 const currentPage = ref(1);
 const commentsPerPage = 3;
 const totalPages = ref(0);
+const totalItems = ref(0);
 
 // 악보 세부 정보 가져오기
 const searchSheetDetail = () => {
@@ -84,9 +85,15 @@ const submitCommentAndDifficulty = () => {
 };
 
 const fetchCommentsAndDifficulties = () => {
-    local.get(`/sheets/${route.params.sheetId}/difficulties`)
-        .then(({ data }) => {
-            comments.value = data.map(item => ({
+    local.get(`/sheets/${route.params.sheetId}/difficulties`, {
+        params: {
+            page: currentPage.value - 1,
+            size: commentsPerPage
+        }
+    })
+    .then(({ data }) => {
+        if (data && data.content) {
+            comments.value = data.content.map(item => ({
                 username: item.username,
                 userAvatar: item.userImg,
                 sheetTitle: item.sheetTitle,
@@ -95,14 +102,25 @@ const fetchCommentsAndDifficulties = () => {
                 text: item.content,
                 createdAt: new Date(item.createAt)
             }));
-            sortComments();
-            // 페이지네이션
-            totalPages.value = Math.ceil(comments.value.length / commentsPerPage);
-        })
-        .catch((err) => {
-            console.error("난이도 평가 목록을 가져오는 데 실패했습니다:", err);
-            alert("난이도 평가 목록을 불러오는 데 실패했습니다.");
-        });
+            console.log('페이지 네이션으로 받은 데이터', data);
+            totalItems.value = data.totalElements;
+            totalPages.value = data.totalPages;
+            currentPage.value = data.number + 1;
+        } else {
+            console.error("Expected paginated data, but received:", data);
+            comments.value = [];
+            totalItems.value = 0;
+            totalPages.value = 0;
+        }
+        sortComments();
+    })
+    .catch((err) => {
+        console.error("난이도 평가 목록을 가져오는 데 실패했습니다:", err);
+        alert("난이도 평가 목록을 불러오는 데 실패했습니다.");
+        comments.value = [];
+        totalItems.value = 0;
+        totalPages.value = 0;
+    });
 };
 
 // 정렬 함수 추가
@@ -122,26 +140,22 @@ const toggleSortOrder = () => {
     sortComments();
 };
 
-// 페이지네이션
-const paginatedComments = computed(() => {
-    const start = (currentPage.value - 1) * commentsPerPage;
-    const end = start + commentsPerPage;
-    return comments.value.slice(start, end);
-});
-
 const goToPage = (page) => {
     currentPage.value = page;
+    fetchCommentsAndDifficulties();
 };
 
 const nextPage = () => {
     if (currentPage.value < totalPages.value) {
         currentPage.value++;
+        fetchCommentsAndDifficulties();
     }
 };
 
 const prevPage = () => {
     if (currentPage.value > 1) {
         currentPage.value--;
+        fetchCommentsAndDifficulties();
     }
 };
 
@@ -186,7 +200,7 @@ onMounted(() => {
             </div>
 
             <div class="comments-list">
-                <div v-for="(comment, index) in paginatedComments" :key="index" class="comment-item">
+                <div v-for="(comment, index) in comments" :key="index" class="comment-item">
                     <img :src="comment.userAvatar" alt="User avatar" class="user-avatar" />
                     <div class="comment-content">
                         <strong>{{ comment.username }}</strong>

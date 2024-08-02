@@ -48,7 +48,7 @@ const searchRandomSameLevelSheets = () => {
 const searchStarRateList = () => {
 	// TODO: api 리팩토링
 	local
-	.get(`/sheets/${route.params.sheetId}/star-rates`)
+	.get(`/sheets/${route.params.sheetId}/star-rates?page=0&size=3`)
 	.then(({ data }) => {
 		starRateList.value = data;
 		let sum = 0;

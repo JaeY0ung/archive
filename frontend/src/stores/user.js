@@ -96,17 +96,17 @@ export const useUserStore = defineStore('user', () => {
         // Firebase 토큰 발급 및 저장
         await sendFirebaseTokenToServer(accessToken);
 
-          console.log("User ID:", userInfo.value.id);
-          console.log("Role:", userInfo.value.role);
-          console.log("Email:", userInfo.value.email);
-          console.log("Nickname:", userInfo.value.nickname);
-          console.log("User Image:", userInfo.value.userImg);
-          console.log("Birth Date:", userInfo.value.birthDate);
-          console.log("Gender:", userInfo.value.gender);
-          console.log("Cash:", userInfo.value.cash);
-          console.log("Single Score:", userInfo.value.singleScore);
-          console.log("Multi Score:", userInfo.value.multiScore);
-          console.log("Deleted At:", userInfo.value.deletedAt);
+          // console.log("User ID:", userInfo.value.id);
+          // console.log("Role:", userInfo.value.role);
+          // console.log("Email:", userInfo.value.email);
+          // console.log("Nickname:", userInfo.value.nickname);
+          // console.log("User Image:", userInfo.value.userImg);
+          // console.log("Birth Date:", userInfo.value.birthDate);
+          // console.log("Gender:", userInfo.value.gender);
+          // console.log("Cash:", userInfo.value.cash);
+          // console.log("Single Score:", userInfo.value.singleScore);
+          // console.log("Multi Score:", userInfo.value.multiScore);
+          // console.log("Deleted At:", userInfo.value.deletedAt);
       },
       (error) => {
         console.log("loginUser: ", loginUser);

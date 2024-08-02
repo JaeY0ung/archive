@@ -11,8 +11,8 @@ import com.ssafy.los.backend.dto.sheet.request.DifficultyUpdateDto;
 import com.ssafy.los.backend.dto.sheet.response.DifficultyResponseDto;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -67,18 +67,19 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     // 악보 난이도 평가 목록 조회
     @Override
-    public List<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int size, int page) {
+    public Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size) {
 
         // pageable 객체 생성
         Pageable pageable = PageRequest.of(page, size);
 
         Sheet sheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
-        List<Difficulty> difficultyList = difficultyRatingRepository.findAllBySheet(sheet);
+        
+        // 악보에 해당하는 난이도 평가들 반환
+        Page<Difficulty> difficultyPage = difficultyRatingRepository.findAllBySheetOrderByCreatedAtDesc(sheet, pageable);
 
-        List<DifficultyResponseDto> result = difficultyList.stream()
-                .map(DifficultyResponseDto::toEntity)
-                .collect(Collectors.toList());
+        // DTO로 변환
+        Page<DifficultyResponseDto> result = difficultyPage.map(DifficultyResponseDto::toEntity);
 
         return result;
     }
