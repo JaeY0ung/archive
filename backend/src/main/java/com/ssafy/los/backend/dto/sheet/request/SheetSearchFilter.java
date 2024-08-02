@@ -20,4 +20,8 @@ public class SheetSearchFilter {
 
     private Integer[] level;
 
+    private Integer[] genre;
+
+    private Integer[] price;
+
 }
