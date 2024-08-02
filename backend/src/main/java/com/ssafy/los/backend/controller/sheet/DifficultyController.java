@@ -62,7 +62,7 @@ public class DifficultyController {
     public ResponseEntity<?> findDifficulty(@PathVariable("sheet-id") Long sheetId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "3") int size) {
-        List<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyBySheetId(sheetId);
+        List<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyBySheetId(sheetId, page, size);
 
         return new ResponseEntity<>(difficultyResponseDto, HttpStatus.OK);
     }

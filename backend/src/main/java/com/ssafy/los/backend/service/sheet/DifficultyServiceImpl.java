@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -65,7 +67,11 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     // 악보 난이도 평가 목록 조회
     @Override
-    public List<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId) {
+    public List<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int size, int page) {
+
+        // pageable 객체 생성
+        Pageable pageable = PageRequest.of(page, size);
+
         Sheet sheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
         List<Difficulty> difficultyList = difficultyRatingRepository.findAllBySheet(sheet);
@@ -77,6 +83,8 @@ public class DifficultyServiceImpl implements DifficultyService {
         return result;
     }
 
+    // 악보 난이도 계산 조회
+    // TODO : 악보 난이도 등록되면 바로 계산 되게
     @Override
     public int calculateDifficulty(Long sheetId) {
         Sheet findSheet = sheetRepository.findById(sheetId)
