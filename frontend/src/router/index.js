@@ -38,21 +38,21 @@ const router = createRouter({
         },
         // -----------------------------------------------
         {
-            path: "/room",
+            path: "/room/:roomId",
             component: () => import('@/layouts/RoomLayout.vue'),
             children: [
-            {
+              {
                 path: 'wait',
                 name: 'wait',
                 component: () => import('@/views/play/WaitView.vue')
-            },
-            {
+              },
+              {
                 path: 'play',
                 name: 'play',
                 component: () => import('@/views/play/PlayingView.vue')
-            },
+              },
             ]
-        },
+          },
         // -----------------------------------------------
         {
             path: '/admin',

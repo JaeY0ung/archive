@@ -1,9 +1,11 @@
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
-import { ref, computed, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
+import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
 import { useUserStore } from '@/stores/user';
 import { usePlayStore } from '@/stores/play';
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
@@ -17,11 +19,8 @@ var stompClient = null;
 const isReady = ref("false");
 const opponentReady = ref("false");
 const isInvited = ref("false");
-
-// TODO: 실제 이미지, 유저 정보로 바꿔야함 임시 더미 데이터
-// TODO: 소켓 로직 구현중...페이지 전체적으로 require과 import 혼용중 기능 완성 후 리팩토링 필요
-// TODO: funcion 과 arrow function 통일 필요
 const defaultProfileImage = require('@/assets/img/common/default_profile.png');
+
 
 const me = ref({
     img: defaultProfileImage,
@@ -40,28 +39,43 @@ const opponent = ref({
 
 const canLeaveSite = ref(false);
 
+const fetchRoomUsers = async () => {
+  await playStore.enterRoom(route.params.roomId);
+    const currentRoomUsers = playStore.currentRoomUsers; 
+  if (currentRoomUsers && currentRoomUsers.length > 0) {
+    const opponentUser = currentRoomUsers.find(user => user.email !== me.value.name);
+    if (opponentUser) {
+      opponent.value.name = opponentUser.email;
+      opponent.value.isEmpty = false;
+    }
+  }
+};
+
+
 function connect() {
     var socket = new SockJS('http://localhost:8081/archive-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
-        stompClient.subscribe('/wait/socket', function (chatMessage) {
+        console.log('Connected: ' + frame);
+
+        stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
             const userLogin = JSON.parse(chatMessage.body);
             if (userLogin.id == "profile" && opponent.value.isEmpty && decodeToken.username != userLogin.email) {
-                stompClient.send("/app/wait", {}, JSON.stringify({ 'id': "profile", 'email': decodeToken.username }));
+                stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': decodeToken.username }));
                 opponent.value.name = userLogin.email;
                 opponent.value.isEmpty = false;
-                stompClient.send("/app/wait/ready", {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
+                stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
             }
         });
 
-        stompClient.subscribe('/wait/socket/ready', function (readyStatus) {
+        stompClient.subscribe(`/wait/socket/ready/${route.params.roomId}`, function (readyStatus) {
             const playerReady = JSON.parse(readyStatus.body);
             if(playerReady.sender != decodeToken.username){
                 opponentReady.value = playerReady.isReady;
             }
         })
 
-        stompClient.subscribe('/wait/socket/start', function(socket){
+        stompClient.subscribe(`/wait/socket/start/${route.params.roomId}`, function(socket){
             const message = JSON.parse(socket.body);
             if(message.type == "start" && message.content == "true"){
                 router.push({name:'play'});
@@ -73,13 +87,13 @@ function connect() {
             }
         })
 
-        stompClient.send("/app/wait", {}, JSON.stringify({ 'id': "profile", 'email': decodeToken.username }));
-        stompClient.send("/app/wait/ready", {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
+        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': decodeToken.username }));
+        stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
     });
 }
 
-//TODO: 연결 종료 로직
 function disconnect() {
+    console.log("disconnect되었다")
 }
 
 onBeforeUnmount(() => {
@@ -88,10 +102,11 @@ onBeforeUnmount(() => {
 })
 
 function sendExit(){
-    stompClient.send('/app/wait/start', {}, JSON.stringify({ 'type': 'exit', 'sender': decodeToken.username, 'content': 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'exit', 'sender': decodeToken.username, 'content': 'true' }));
 }
 
 onUnmounted(() => {
+    console.log("onUnmounted 실행");
     sendExit();
 })
 
@@ -104,7 +119,7 @@ const getLiveResult = computed(() => {
 const goToBattle = () => {
     router.push({name:'play'});
     canLeaveSite.value = true;
-    stompClient.send("/app/wait/start", {}, JSON.stringify({ 'type': 'start', 'sender': decodeToken.username, 'content': 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'start', 'sender': decodeToken.username, 'content': 'true' }));
 }
 
 const accessToken = sessionStorage.getItem("accessToken");
@@ -119,7 +134,7 @@ me.value.name = email;
 
 function readyButton() {
     isReady.value = isReady.value == "false" ? "true" : "false";
-    stompClient.send("/app/wait/ready", {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
+    stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
 }
 
 function unLoadEvent (event) {
@@ -131,10 +146,11 @@ function unLoadEvent (event) {
 onMounted(() => {
     connect();
     playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
+    fetchRoomUsers();
 })
 
 function quitButton () {
-    router.push('wait');
+    router.push('/pianoSaurus');
 }
 
 const inviteModalStatus = ref(false);
@@ -168,6 +184,7 @@ const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
          // 친구 초대 알림 보내기
         await playStore.sendInviteAlert(selectedFriend.value.id);
+        console.log("Invite selected friend:", selectedFriend.value);
     }
     closeInviteModalStatus();
 }
@@ -191,13 +208,14 @@ const inviteSelectedFriends = async () => {
             </div>
             
             <div class="button-div">
-                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'wait' && (isReady == 'false' || opponentReady == 'false')">
+                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'room' && (isReady == 'false' || opponentReady == 'false')">
                     시작하기
                 </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'wait' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
+                <button class="btn btn-primary w-24" v-if="route.name == 'room' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'play'" @click="quitButton">
+                <!-- <button class="btn btn-primary w-24" v-if="route.name == 'play'" @click="quitButton"> -->
+                <button class="btn btn-primary w-24" @click="quitButton">
                     나가기
                 </button>
             </div>
@@ -214,6 +232,8 @@ const inviteSelectedFriends = async () => {
                 </div>
             </div>
         </div>
+
+
         <div v-if="inviteModalStatus" class="invite-modal">
             <div class="modal-content">
                 <h2 class="modal-title">친구 초대하기</h2>
@@ -231,6 +251,7 @@ const inviteSelectedFriends = async () => {
             </div>
         </div>
     </div>
+    
 </template>
 
 <style scoped>

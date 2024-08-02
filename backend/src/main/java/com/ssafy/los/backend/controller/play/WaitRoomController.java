@@ -19,8 +19,8 @@ public class WaitRoomController {
         this.userServiceImpl = userServiceImpl;
     }
 
-    @MessageMapping("/wait")
-    @SendTo("/wait/socket")
+    @MessageMapping("/wait/{roomId}")
+    @SendTo("/wait/socket/{roomId}")
     public LoginUser sendPlayer(LoginUser loginUser) throws Exception {
         // LoginUser 전송
         log.info("들어왔습니다. {}", loginUser.toString());
@@ -30,8 +30,8 @@ public class WaitRoomController {
                 .build();
     }
 
-    @MessageMapping("/wait/ready")
-    @SendTo("/wait/socket/ready")
+    @MessageMapping("/wait/ready/{roomId}")
+    @SendTo("/wait/socket/ready/{roomId}")
     public PlayerReadyDto sendPlayerReady(PlayerReadyDto playerReadyDto) throws Exception {
         // LoginUser 전송
         log.info("들어왔습니다. {}", playerReadyDto.toString());
@@ -44,8 +44,8 @@ public class WaitRoomController {
                 .build();
     }
 
-    @MessageMapping("/wait/start")
-    @SendTo("/wait/socket/start")
+    @MessageMapping("/wait/start/{roomId}")
+    @SendTo("/wait/socket/start/{roomId}")
     public PlayerStartDto sendPlayerReady(PlayerStartDto playerStartDto) throws Exception {
         // start 신호 전송
 
