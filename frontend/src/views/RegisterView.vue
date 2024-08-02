@@ -12,6 +12,11 @@ const confirmPassword = ref('');
 const birthDate = ref('');
 const nickname = ref('');
 const gender = ref(null);
+const passwordsMatch = ref(false);
+const passwordMessage = ref('');
+const isEmailDuplicate = ref(false);
+const isEmailChecked = ref(false);
+const emailCheckMessage = ref('');
 
 const user = computed(() => ({
 	email: email.value,
@@ -21,19 +26,12 @@ const user = computed(() => ({
 	gender: gender.value
 }));
 
-const passwordsMatch = ref(false);
-const passwordMessage = ref('');
-
-const isEmailDuplicate = ref(false);
-const isEmailChecked = ref(false);
-const emailCheckMessage = ref('');
 
 const checkEmailDuplicate = async () => {
 	try {
 		const response = await local.get(`/users/check-email?email=${email.value}`, {
 			withCredentials: true
 		});
-		console.log(response);
 		isEmailDuplicate.value = response.data;
 		isEmailChecked.value = true;
 		emailCheckMessage.value = isEmailDuplicate.value ? '이미 사용 중인 이메일입니다.' : '사용 가능한 이메일입니다.';
@@ -71,7 +69,6 @@ const register = async () => {
 		const response = await local.post('/users', user.value, {
 			withCredentials: true
 		});
-		console.log('회원가입 성공:', response.data);
 		alert('회원가입이 완료되었습니다.');
 		router.push({ name: 'login' });
 	} catch (error) {

@@ -9,34 +9,18 @@ import FollowModal from "@/common/modal/FollowModal.vue";
 
 const local = localAxios();
 const userStore = useUserStore();
-const { userInfo } = storeToRefs(userStore);
 const route = useRoute();
 const router = useRouter();
 
+const { userInfo } = storeToRefs(userStore);
 const userProfile = ref(null);
 const followersCount = ref(0);
 const followingsCount = ref(0);
 const isFollowing = ref(false);
-const isOwnProfile = computed(() => {
-    return userInfo.value?.nickname === route.params.nickName;
-});
-
 const showFollowersModal = ref(false);
 const showFollowingsModal = ref(false);
 const followList = ref([]);
 const followModalTitle = ref("");
-
-// 유저 프로필 정보
-const fetchUserProfile = async () => {
-    try {
-        const response = await local.get(`/users/${route.params.nickName}`);
-        userProfile.value = response.data;
-        console.log("가져온 유저 데이터입니다.", response.data);
-    } catch (error) {
-        console.error("사용자 프로필을 가져오는데 실패했습니다:", error);
-    }
-};
-
 // 악보 정보
 const mockRecentPlayedSheets = ref([
     {
@@ -74,6 +58,25 @@ const mockRecentPlayedSheets = ref([
 const mockRecentBattleSheets = ref([...mockRecentPlayedSheets.value]);
 const mockLikedSheets = ref([...mockRecentPlayedSheets.value]);
 
+const isOwnProfile = computed(() => {
+    return userInfo.value?.nickname === route.params.nickName;
+});
+
+const goToEditPage = () => {
+    router.push("/mypage");
+};
+
+// 유저 프로필 정보
+const fetchUserProfile = async () => {
+    try {
+        //TODO: axios요청 api로 빼야함
+        const response = await local.get(`/users/${route.params.nickName}`);
+        userProfile.value = response.data;
+    } catch (error) {
+        console.error("사용자 프로필을 가져오는데 실패했습니다:", error);
+    }
+};
+
 // 팔로우 정보
 const fetchFollowInfo = async () => {
     try {
@@ -105,10 +108,8 @@ const toggleFollow = async () => {
     try {
         if (isFollowing.value) {
             await local.delete(`/follows/followings/${userProfile.value.userId}`);
-            console.log("언팔로우 성공");
         } else {
             await local.post(`/follows/followings/${userProfile.value.userId}`);
-            console.log("팔로우 성공");
         }
         isFollowing.value = !isFollowing.value;
         await fetchFollowInfo();
@@ -118,12 +119,8 @@ const toggleFollow = async () => {
     }
 };
 
-const goToEditPage = () => {
-    router.push("/mypage");
-};
 
 const openFollowModal = async (type) => {
-    console.log("모달창을 엽니다.")
     try {
         const response = await local.get(`/follows/${type}/${route.params.nickName}`);
         followList.value = response.data;

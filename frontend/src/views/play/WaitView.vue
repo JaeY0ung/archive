@@ -20,13 +20,11 @@ let email = ref("");
 
 const user = userStore
 
-// TODO 악보 고르기
-// TODO 친구 초대
-// TODO 나가기 버튼
+// TODO: 악보 고르기
+// TODO: 친구 초대
+// TODO: 나가기 버튼
 
 onBeforeRouteLeave((to, from, next) => {
-    console.log('이동할 라우트:', to);
-    console.log('현재 라우트:', from);
 
     if(to.name == "play" && from.name == "wait"){
         next();
@@ -46,6 +44,7 @@ onBeforeRouteLeave((to, from, next) => {
 </script>
 
 <template>
+    <!-- TODO: 기능 구현중... 차후 리팩토링 필요  -->
     <div>
         <h1 style="color: white;">대기 페이지</h1>
     </div>

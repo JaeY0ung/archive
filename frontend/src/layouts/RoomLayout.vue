@@ -1,11 +1,9 @@
 <script setup>
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
-import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
-import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
+import { useRoute, useRouter } from 'vue-router';
+import { ref, computed, onMounted, onBeforeUnmount, onUnmounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { usePlayStore } from '@/stores/play';
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
@@ -19,8 +17,11 @@ var stompClient = null;
 const isReady = ref("false");
 const opponentReady = ref("false");
 const isInvited = ref("false");
-const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 
+// TODO: 실제 이미지, 유저 정보로 바꿔야함 임시 더미 데이터
+// TODO: 소켓 로직 구현중...페이지 전체적으로 require과 import 혼용중 기능 완성 후 리팩토링 필요
+// TODO: funcion 과 arrow function 통일 필요
+const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 
 const me = ref({
     img: defaultProfileImage,
@@ -43,8 +44,6 @@ function connect() {
     var socket = new SockJS('http://localhost:8081/archive-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-
         stompClient.subscribe('/wait/socket', function (chatMessage) {
             const userLogin = JSON.parse(chatMessage.body);
             if (userLogin.id == "profile" && opponent.value.isEmpty && decodeToken.username != userLogin.email) {
@@ -79,8 +78,8 @@ function connect() {
     });
 }
 
+//TODO: 연결 종료 로직
 function disconnect() {
-    console.log("disconnect되었다")
 }
 
 onBeforeUnmount(() => {
@@ -93,7 +92,6 @@ function sendExit(){
 }
 
 onUnmounted(() => {
-    console.log("onUnmounted 실행");
     sendExit();
 })
 
@@ -169,8 +167,7 @@ const onlineUsers = computed(() => playStore.getOnlineUsers);
 const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
          // 친구 초대 알림 보내기
-         await playStore.sendInviteAlert(selectedFriend.value.id);
-        console.log("Invite selected friend:", selectedFriend.value);
+        await playStore.sendInviteAlert(selectedFriend.value.id);
     }
     closeInviteModalStatus();
 }
@@ -217,22 +214,20 @@ const inviteSelectedFriends = async () => {
                 </div>
             </div>
         </div>
-    </div>
-
-
-    <div v-if="inviteModalStatus" class="invite-modal">
-        <div class="modal-content">
-            <h2 class="modal-title">친구 초대하기</h2>
-            <ul>
-                <li v-for="user in onlineUsers" :key="user.id" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
-                    <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" />
-                    <span>{{ user.nickname }}</span>
-                    <span>{{ user.singleScore }}</span>
-                </li>
-            </ul>
-            <div class="modal-button">
-                <button @click="inviteSelectedFriends" >선택한 친구 초대하기</button>
-                <button @click="closeInviteModalStatus">닫기</button>
+        <div v-if="inviteModalStatus" class="invite-modal">
+            <div class="modal-content">
+                <h2 class="modal-title">친구 초대하기</h2>
+                <ul>
+                    <li v-for="user in onlineUsers" :key="user.id" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
+                        <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" />
+                        <span>{{ user.nickname }}</span>
+                        <span>{{ user.singleScore }}</span>
+                    </li>
+                </ul>
+                <div class="modal-button">
+                    <button @click="inviteSelectedFriends" >선택한 친구 초대하기</button>
+                    <button @click="closeInviteModalStatus">닫기</button>
+                </div>
             </div>
         </div>
     </div>

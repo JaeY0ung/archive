@@ -1,10 +1,13 @@
 <script setup>
 import SearchBar from '@/common/search-bar/CommonSearchBar.vue'
 import {useRouter} from "vue-router";
+
 const router = useRouter();
+
 const searchSheetsByKeyword = (keyword)  => {
-  router.push({ name: 'sheetSearch', query: { keyword: keyword } });
+    router.push({ name: 'sheetSearch', query: { keyword: keyword } });
 };
+
 </script>
 
 <template>
