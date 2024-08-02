@@ -82,7 +82,6 @@ public class UserServiceImpl implements UserService {
                 .singleScore(findUser.getSingleScore())
                 .build();
 
-        log.info("해당하는 프로필을 제공합니다. = {}", userProfileDto.toString());
         return userProfileDto;
     }
 

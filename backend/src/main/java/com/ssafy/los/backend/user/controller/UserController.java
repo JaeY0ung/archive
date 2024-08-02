@@ -45,7 +45,6 @@ public class UserController {
     @GetMapping("/check-email")
     public ResponseEntity<?> validateEmail(@RequestParam("email") String email) {
         boolean isDuplicated = userService.validateEmail(email);
-        log.info("이메일 중복 여부 검사 data = {}", isDuplicated);
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
@@ -53,7 +52,6 @@ public class UserController {
     @GetMapping("/check-nickname")
     public ResponseEntity<?> validateNickname(@RequestParam("nickname") String nickname) {
         boolean isDuplicated = userService.validateNickname(nickname);
-        log.info("닉네임 중복 여부 검사 data = {}", isDuplicated);
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
@@ -64,8 +62,6 @@ public class UserController {
             @RequestPart("nickname") String nickname) throws IOException {
 
         User loginUser = authService.getLoginUser();
-
-        // TODO : 로그인 유저 로직 추가
 
         // 파일 처리
         String uuid = null;
