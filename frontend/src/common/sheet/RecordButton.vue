@@ -11,10 +11,11 @@ const props = defineProps({
     },
 });
 
+// const local = localAxios();
+
 const isRecording = ref(false);
 const mediaRecorder = ref(null);
 const audioBlobs = ref([]);
-
 let chunks = reactive([]); // 분할된 음원을 저장할 버퍼
 
 // watch를 사용하여 props 변경 감지 및 함수 실행
@@ -22,7 +23,7 @@ watch(
     () => props.triggerSplit,
     (newValue) => {
         if (newValue) {
-        splitRecording();
+            splitRecording();
         }
     }
 );
@@ -51,41 +52,41 @@ const startRecording = async () => {
     // ondataavailabe => 이벤트가 발생됐을 때 실행되는 함수
     mediaRecorder.value.ondataavailable = (event) => {
         if (event.data.size > 0) {
-        chunks.push(event.data);
+            chunks.push(event.data);
         }
     };
 
-    // 녹음기가 종료됐을때 다시 실행(3초마다 무한반복)
+  // 녹음기가 종료됐을때 다시 실행(3초마다 무한반복)
     mediaRecorder.value.onstop = () => {
         if (chunks.length > 0) {
-        const formData = new FormData();
-        const blob = new Blob(chunks, { type: "audio/webm" }); // Binary Large Object (음악 파일)
-        formData.append("file", blob, `chunck_${audioBlobs.value.length}.webm`);
-        // TODO: fastAPI URL 환경변수로 빼서 api폴더로 빼기
-        axios
-            .post("https://arc-hive.shop/fastapi/playing", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-            })
-            .then((res) => {
-            // TODO : 성공 로직
-            })
-            .catch((err) => {
+            const formData = new FormData();
+            const blob = new Blob(chunks, { type: "audio/webm" }); // Binary Large Object (음악 파일)
+            formData.append("file", blob, `chunck_${audioBlobs.value.length}.webm`);
+            /* 파일 전송으로 바꿔야함 */
+            axios
+                //.post("https://arc-hive.shop/fastapi/playing", formData, {
+                .post("http://localhost:8000/fastapi/playing", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                })
+                .then((res) => {
+                console.log("파일 업로드 성공: ", res.data);
+                })
+                .catch((err) => {
                 console.error("파일 업로드 실패: ", err);
-            });
-        const url = URL.createObjectURL(blob); // Url 생성 (나중에 파일 전송으로 수정해야함)
-        audioBlobs.value.push({ blob, url }); //
-        chunks.length = 0; // 청크 초기화
+                });
+            audioBlobs.value.push({ blob}); //
+            chunks.length = 0; // 청크 초기화
         }
         // 녹음을 다시 시작합니다.
         if (isRecording.value) {
-        mediaRecorder.value.start();
+            mediaRecorder.value.start();
         }
     };
+
     mediaRecorder.value.start();
     isRecording.value = true;
-    startTime = performance.now();
 };
 
 const splitRecording = () => {
@@ -105,9 +106,7 @@ const stopRecording = () => {
 </script>
 
 <template>
-    <div>
-
-    </div>
+    <div></div>
 </template>
 
 <style scoped>
