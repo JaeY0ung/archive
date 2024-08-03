@@ -11,6 +11,7 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useLeftNavigationStore } from "@/stores/leftNavigation";
 import { useRouter } from "vue-router";
+import Record from "@/common/icons/Record";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -25,6 +26,7 @@ const pages = ref([
     { name: "payment", title: "충전하기" },
     { name: "sheetUpload", title: "악보 업로드" },
     { name: "pianoSaurus", title: "배틀하기" },
+  {name: "recording", title: "음악 녹음"},
 ]);
 
 const goLogout = async () => {
@@ -58,9 +60,10 @@ const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-
                         <Home v-if="page.name === 'main'" />
                         <My v-else-if="page.name === 'mypage'" />
                         <Search v-else-if="page.name === 'sheetSearch'" />
-                        <Card v-else-if="page.name === 'payment'" />
+                        <Record v-else-if="page.name === 'recording'" />
                         <Upload v-else-if="page.name === 'sheetUpload'" />
                         <NotePixel v-else-if="page.name === 'pianoSaurus'" />
+                        <Card v-else-if="page.name === 'payment'" />
                     </div>
                     <span>{{ page.title }}</span>
                 </RouterLink>

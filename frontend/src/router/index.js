@@ -1,56 +1,56 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import {createRouter, createWebHistory} from 'vue-router'
+import {useUserStore} from '@/stores/user'
 
 const router = createRouter({
-        history: createWebHistory(),
-        routes: [
+    history: createWebHistory(),
+    routes: [
         {
             path: "/",
             component: () => import('@/layouts/TopSearchBarLayout.vue'),
             children: [
-            {
-                path: '',
-                name: 'main',
-                component: () => import('@/views/MainView.vue')
-            },
-            {
-                path: 'sheet/search',
-                name: 'sheetSearch',
-                component: () => import('@/views/SheetSearchView.vue')
-            },
-            {
-                path: 'sheet/:sheetId/detail',
-                name: 'sheetDetail',
-                component: () => import('@/views/SheetDetailView.vue')
-            },
-            {
-                path: 'user/:nickName/profile',
-                name: 'userProfile',
-                component: () => import('@/views/UserProfileView.vue')
-            },
+                {
+                    path: '',
+                    name: 'main',
+                    component: () => import('@/views/MainView.vue')
+                },
+                {
+                    path: 'sheet/search',
+                    name: 'sheetSearch',
+                    component: () => import('@/views/SheetSearchView.vue')
+                },
+                {
+                    path: 'sheet/:sheetId/detail',
+                    name: 'sheetDetail',
+                    component: () => import('@/views/SheetDetailView.vue')
+                },
+                {
+                    path: 'user/:nickName/profile',
+                    name: 'userProfile',
+                    component: () => import('@/views/UserProfileView.vue')
+                },
             ]
         },
         // -----------------------------------------------
         {
-        path: "/pianosaurus",
-        name: "pianoSaurus",
-        component: () => import('@/views/play/PianoSaurusView.vue')
+            path: "/pianosaurus",
+            name: "pianoSaurus",
+            component: () => import('@/views/play/PianoSaurusView.vue')
         },
         // -----------------------------------------------
         {
             path: "/room",
             component: () => import('@/layouts/RoomLayout.vue'),
             children: [
-            {
-                path: 'wait',
-                name: 'wait',
-                component: () => import('@/views/play/WaitView.vue')
-            },
-            {
-                path: 'play',
-                name: 'play',
-                component: () => import('@/views/play/PlayingView.vue')
-            },
+                {
+                    path: 'wait',
+                    name: 'wait',
+                    component: () => import('@/views/play/WaitView.vue')
+                },
+                {
+                    path: 'play',
+                    name: 'play',
+                    component: () => import('@/views/play/PlayingView.vue')
+                },
             ]
         },
         // -----------------------------------------------
@@ -102,6 +102,12 @@ const router = createRouter({
             name: 'payment',
             component: () => import('@/views/PaymentView.vue')
         },
+        // 음악 녹음 페이지
+        {
+            path: '/play/recording',
+            name: "recording",
+            component: () => import('@/views/RecordingVue')
+        },
         // -----------------------------------------------
         // 난이도 기여 페이지
         {
@@ -110,7 +116,7 @@ const router = createRouter({
             component: () => import('@/views/SheetDifficultyRatingView.vue')
         },
         // -----------------------------------------------
-        ]
+    ]
 })
 
 // 전역 네비게이션 가드 추가
@@ -120,7 +126,7 @@ router.beforeEach((to, from, next) => {
     if (to.path === '/login') {
         if (userStore.isLogin) {
             alert('이미 로그인이 되었습니다.');
-            next({ name: 'main' })
+            next({name: 'main'})
         } else {
             next();
         }
