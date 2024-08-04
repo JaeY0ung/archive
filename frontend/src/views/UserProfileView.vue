@@ -6,6 +6,7 @@ import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 import FollowModal from "@/common/modal/FollowModal.vue";
+import Profile from "@/common/icons/Profile.vue";
 
 const local = localAxios();
 const userStore = useUserStore();
@@ -14,7 +15,7 @@ const router = useRouter();
 
 const { userInfo } = storeToRefs(userStore);
 const userProfile = ref(null);
-const userImg = ref('');
+const userImg = ref("");
 const followersCount = ref(0);
 const followingsCount = ref(0);
 const isFollowing = ref(false);
@@ -25,308 +26,344 @@ const followModalTitle = ref("");
 
 // 악보 정보
 const mockRecentPlayedSheets = ref([
-    {
-        id: 1,
-        title: "곡 제목 1",
-        songComposer: "아티스트 1",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-    {
-        id: 2,
-        title: "곡 제목 2",
-        songComposer: "아티스트 2",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-    {
-        id: 3,
-        title: "곡 제목 3",
-        songComposer: "아티스트 3",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-    {
-        id: 4,
-        title: "곡 제목 4",
-        songComposer: "아티스트 4",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-    {
-        id: 5,
-        title: "곡 제목 5",
-        songComposer: "아티스트 5",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
+  {
+    id: 1,
+    title: "곡 제목 1",
+    songComposer: "아티스트 1",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+  },
+  {
+    id: 2,
+    title: "곡 제목 2",
+    songComposer: "아티스트 2",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+  },
+  {
+    id: 3,
+    title: "곡 제목 3",
+    songComposer: "아티스트 3",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+  },
+  {
+    id: 4,
+    title: "곡 제목 4",
+    songComposer: "아티스트 4",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+  },
+  {
+    id: 5,
+    title: "곡 제목 5",
+    songComposer: "아티스트 5",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+  },
 ]);
 
 const mockRecentBattleSheets = ref([...mockRecentPlayedSheets.value]);
 const mockLikedSheets = ref([...mockRecentPlayedSheets.value]);
 
 const isOwnProfile = computed(() => {
-    return userInfo.value?.nickname === route.params.nickName;
+  return userInfo.value?.nickname === route.params.nickName;
 });
 
 const goToEditPage = () => {
-    router.push("/mypage");
+  router.push("/mypage");
 };
 
 // 유저 프로필 정보
 const fetchUserProfile = async () => {
-    try {
-        //TODO: axios요청 api로 빼야함
-        const response = await local.get(`/users/${route.params.nickName}`);
-        userProfile.value = response.data;
-        userImg.value = `data:image/jpeg;base64,${response.data.userImg}`;
-    } catch (error) {
-        console.error("사용자 프로필을 가져오는데 실패했습니다:", error);
-    }
+  try {
+    const response = await local.get(`/users/${route.params.nickName}`);
+    userProfile.value = response.data;
+    userImg.value = `data:image/jpeg;base64,${response.data.userImg}`;
+  } catch (error) {
+    console.error("사용자 프로필을 가져오는데 실패했습니다:", error);
+  }
 };
 
 // 팔로우 정보
 const fetchFollowInfo = async () => {
-    try {
-        const [followersResponse, followingsResponse] = await Promise.all([
-            local.get(`/follows/followers/${route.params.nickName}`),
-            local.get(`/follows/followings/${route.params.nickName}`),
-        ]);
+  try {
+    const [followersResponse, followingsResponse] = await Promise.all([
+      local.get(`/follows/followers/${route.params.nickName}`),
+      local.get(`/follows/followings/${route.params.nickName}`),
+    ]);
 
-        followersCount.value = followersResponse.data.length;
-        followingsCount.value = followingsResponse.data.length;
+    followersCount.value = followersResponse.data.length;
+    followingsCount.value = followingsResponse.data.length;
 
-        isFollowing.value = followersResponse.data.some(
-            (follower) => follower.nickname === userInfo.value.nickname
-        );
-    } catch (error) {
-        console.error("팔로우 정보를 가져오는 데 실패했습니다:", error);
-        followersCount.value = 0;
-        followingsCount.value = 0;
-        isFollowing.value = false;
-    }
+    isFollowing.value = followersResponse.data.some(
+      (follower) => follower.nickname === userInfo.value.nickname
+    );
+  } catch (error) {
+    console.error("팔로우 정보를 가져오는 데 실패했습니다:", error);
+    followersCount.value = 0;
+    followingsCount.value = 0;
+    isFollowing.value = false;
+  }
 };
 
 const toggleFollow = async () => {
-    if (!userInfo.value || !userInfo.value.id) {
-        console.error("로그인한 사용자 정보가 없습니다.");
-        return;
-    }
+  if (!userInfo.value || !userInfo.value.id) {
+    console.error("로그인한 사용자 정보가 없습니다.");
+    return;
+  }
 
-    try {
-        if (isFollowing.value) {
-            await local.delete(`/follows/followings/${userProfile.value.userId}`);
-        } else {
-            await local.post(`/follows/followings/${userProfile.value.userId}`);
-        }
-        isFollowing.value = !isFollowing.value;
-        await fetchFollowInfo();
-    } catch (error) {
-        console.error("팔로우/언팔로우에 실패했습니다:", error);
-        isFollowing.value = !isFollowing.value;
+  try {
+    if (isFollowing.value) {
+      await local.delete(`/follows/followings/${userProfile.value.userId}`);
+    } else {
+      await local.post(`/follows/followings/${userProfile.value.userId}`);
     }
+    isFollowing.value = !isFollowing.value;
+    await fetchFollowInfo();
+  } catch (error) {
+    console.error("팔로우/언팔로우에 실패했습니다:", error);
+    isFollowing.value = !isFollowing.value;
+  }
 };
 
-
 const openFollowModal = async (type) => {
-    try {
-        const response = await local.get(`/follows/${type}/${route.params.nickName}`);
-        followList.value = response.data;
-        followModalTitle.value = type === "followers" ? "Followers" : "Following";
-        type === "followers"
-            ? (showFollowersModal.value = true)
-            : (showFollowingsModal.value = true);
-    } catch (error) {
-        console.error(`${type} 목록을 가져오는데 실패했습니다:`, error);
-    }
+  try {
+    const response = await local.get(
+      `/follows/${type}/${route.params.nickName}`
+    );
+    followList.value = response.data;
+    followModalTitle.value = type === "followers" ? "Followers" : "Following";
+    type === "followers"
+      ? (showFollowersModal.value = true)
+      : (showFollowingsModal.value = true);
+  } catch (error) {
+    console.error(`${type} 목록을 가져오는데 실패했습니다:`, error);
+  }
 };
 
 const closeModal = () => {
-    showFollowersModal.value = false;
-    showFollowingsModal.value = false;
+  showFollowersModal.value = false;
+  showFollowingsModal.value = false;
 };
 
+const isValidUserImg = computed(() => {
+  return (
+    userImg.value &&
+    userImg.value.trim().length > 0 &&
+    !userImg.value.endsWith("base64,null")
+  );
+});
+
 onMounted(async () => {
-    await fetchUserProfile();
-    await fetchFollowInfo();
+  await fetchUserProfile();
+  await fetchFollowInfo();
 });
 </script>
 
 <template>
-    <div class="profile-container">
-        <div class="user-profile">
-            <img :src="userImg" alt="User Profile" class="profile-image" />
-            <span class="user-name">{{ userProfile?.nickname }}</span>
-            <span class="single-score">Score: {{ userProfile?.singleScore }}</span>
-            <span class="followers" @click="openFollowModal('followers')"
-                >Followers: {{ followersCount }}</span
-            >
-            <span class="following" @click="openFollowModal('followings')"
-                >Following: {{ followingsCount }}</span
-            >
-            <template v-if="!isOwnProfile">
-                <button
-                    :class="['follow-btn', { 'unfollow-btn': isFollowing }]"
-                    @click="toggleFollow"
-                >
-                    {{ isFollowing ? "Unfollow" : "Follow" }}
-                </button>
-                <button class="fight-btn">Fight</button>
-            </template>
-            <button v-else class="edit-btn" @click="goToEditPage">Edit</button>
-        </div>
-
-        <div class="sheets-container">
-            <div class="sheet-section">
-                <h3>최근 싱글 플레이</h3>
-                <div class="scroll-x">
-                    <SmallSheetCard
-                        v-for="sheet in mockRecentPlayedSheets"
-                        :key="sheet.id"
-                        :sheet="sheet"
-                    />
-                </div>
-            </div>
-
-            <div class="sheet-section">
-                <h3>최근 대결 플레이</h3>
-                <div class="scroll-x">
-                    <SmallSheetCard
-                        v-for="sheet in mockRecentBattleSheets"
-                        :key="sheet.id"
-                        :sheet="sheet"
-                    />
-                </div>
-            </div>
-
-            <div class="sheet-section">
-                <h3>좋아요한 악보</h3>
-                <div class="scroll-x">
-                    <SmallSheetCard
-                        v-for="sheet in mockLikedSheets"
-                        :key="sheet.id"
-                        :sheet="sheet"
-                    />
-                </div>
-            </div>
-        </div>
-
-        <FollowModal
-            v-if="showFollowersModal || showFollowingsModal"
-            :title="followModalTitle"
-            :follow-list="followList"
-            @close="closeModal"
+  <div class="profile-container">
+    <div class="user-profile">
+      <div class="profile-image-container">
+        <img
+          v-if="isValidUserImg"
+          :src="userImg"
+          alt="User Profile"
+          class="profile-image"
+          @error="handleImageError"
         />
+        <Profile v-else class="profile-icon profile-image" />
+      </div>
+      <span class="user-name">{{ userProfile?.nickname }}</span>
+      <span class="single-score">Score: {{ userProfile?.singleScore }}</span>
+      <span class="followers" @click="openFollowModal('followers')"
+        >Followers: {{ followersCount }}</span
+      >
+      <span class="following" @click="openFollowModal('followings')"
+        >Following: {{ followingsCount }}</span
+      >
+      <template v-if="!isOwnProfile">
+        <button
+          :class="['follow-btn', { 'unfollow-btn': isFollowing }]"
+          @click="toggleFollow"
+        >
+          {{ isFollowing ? "Unfollow" : "Follow" }}
+        </button>
+        <button class="fight-btn">Fight</button>
+      </template>
+      <button v-else class="edit-btn" @click="goToEditPage">Edit</button>
     </div>
+
+    <div class="sheets-container">
+      <div class="sheet-section">
+        <h3>최근 싱글 플레이</h3>
+        <div class="scroll-x">
+          <SmallSheetCard
+            v-for="sheet in mockRecentPlayedSheets"
+            :key="sheet.id"
+            :sheet="sheet"
+          />
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <h3>최근 대결 플레이</h3>
+        <div class="scroll-x">
+          <SmallSheetCard
+            v-for="sheet in mockRecentBattleSheets"
+            :key="sheet.id"
+            :sheet="sheet"
+          />
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <h3>좋아요한 악보</h3>
+        <div class="scroll-x">
+          <SmallSheetCard
+            v-for="sheet in mockLikedSheets"
+            :key="sheet.id"
+            :sheet="sheet"
+          />
+        </div>
+      </div>
+    </div>
+
+    <FollowModal
+      v-if="showFollowersModal || showFollowingsModal"
+      :title="followModalTitle"
+      :follow-list="followList"
+      @close="closeModal"
+    />
+  </div>
 </template>
 
 <style scoped>
 .profile-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 50px;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+  width: 100%;
 }
 
 .user-profile {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 10px 20px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.profile-image-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f0f0;
 }
 
 .profile-image {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-icon {
+  width: 100%;
+  height: 100%;
+  color: #666;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .user-name {
-    font-weight: bold;
-    font-size: 1.2em;
+  font-weight: bold;
+  font-size: 1.2em;
 }
 
 .single-score,
 .followers,
 .following {
-    color: #555;
+  color: #555;
 }
 
 .followers,
 .following {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .followers:hover,
 .following:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .fight-btn,
 .follow-btn {
-    padding: 5px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
+  padding: 5px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
 .fight-btn {
-    background-color: #ff4444;
-    color: white;
+  background-color: #ff4444;
+  color: white;
 }
 
 .follow-btn {
-    background-color: #4444ff;
-    color: white;
+  background-color: #4444ff;
+  color: white;
 }
 
 .unfollow-btn {
-    background-color: #333333;
-    color: white;
+  background-color: #333333;
+  color: white;
 }
 
 .sheets-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 20px;
 }
 
 .sheet-section {
-    width: 100%;
-    padding: 20px;
-    background-color: rgb(255, 255, 255, 0.5);
-    border-radius: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  padding: 20px;
+  background-color: rgb(255, 255, 255, 0.5);
+  border-radius: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .scroll-x {
-    display: flex;
-    overflow-x: auto;
-    padding: 10px 0;
+  display: flex;
+  overflow-x: auto;
+  padding: 10px 0;
 }
 
 .card-wrapper {
-    flex: 0 0 auto;
-    width: 180px;
-    margin-right: 15px;
+  flex: 0 0 auto;
+  width: 180px;
+  margin-right: 15px;
 }
 
 h3 {
-    margin-bottom: 10px;
-    font-size: 1.2em;
-    color: #333;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  color: #333;
 }
 
 .edit-btn {
-    padding: 5px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    background-color: #44ff44;
-    color: white;
+  padding: 5px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #44ff44;
+  color: white;
 }
 </style>

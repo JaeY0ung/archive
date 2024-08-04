@@ -36,6 +36,9 @@ public class UserServiceImpl implements UserService {
                 .gender(userCreateDto.getGender())
                 .pwdHash(hashPwd)
                 .role(role)
+                .singleScore(0)
+                .multiScore(0)
+                .cash(0)
                 .build();
         return userRepository.save(user).getId();
     }
