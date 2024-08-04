@@ -29,7 +29,7 @@ const selectMode = (mode) => {
   if (mode === 'multi') {
     playStore.setShowModal(true);
   } else {
-    router.push({ name: 'wait' });
+    router.push({ path: 'singleRoom' });
   }
 };
 

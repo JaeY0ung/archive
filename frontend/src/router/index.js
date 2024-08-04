@@ -50,8 +50,12 @@ const router = createRouter({
                 path: 'play',
                 name: 'play',
                 component: () => import('@/views/play/PlayingView.vue')
-              },
+              }
             ]
+          },
+          {
+            path: "/singleRoom",
+            component: () => import('@/layouts/SingleRoomLayout.vue')
           },
         // -----------------------------------------------
         {
