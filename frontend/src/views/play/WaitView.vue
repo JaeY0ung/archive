@@ -131,4 +131,17 @@ onBeforeRouteLeave( async (to, from, next) => {
     height: 58vh;
 }
 
+#card-box:has(div:hover) > div:not(:hover){
+    filter: blur(4px)
+}
+
+#card-box:has(div:hover) > div:hover{
+    width: 20vw;
+    height: 59vh;
+}
+
+div{
+    transition: all 150ms ease-in-out;
+}
+
 </style>
