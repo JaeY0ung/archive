@@ -20,7 +20,7 @@ const isReady = ref("false");
 const opponentReady = ref("false");
 const isInvited = ref("false");
 const defaultProfileImage = require('@/assets/img/common/default_profile.png');
-
+const roomId = ref(route.params.roomId);
 
 const me = ref({
     img: defaultProfileImage,
@@ -39,17 +39,17 @@ const opponent = ref({
 
 const canLeaveSite = ref(false);
 
-const fetchRoomUsers = async () => {
-  await playStore.enterRoom(route.params.roomId);
-    const currentRoomUsers = playStore.currentRoomUsers; 
-  if (currentRoomUsers && currentRoomUsers.length > 0) {
-    const opponentUser = currentRoomUsers.find(user => user.email !== me.value.name);
-    if (opponentUser) {
-      opponent.value.name = opponentUser.email;
-      opponent.value.isEmpty = false;
-    }
-  }
-};
+// const fetchRoomUsers = async () => {
+//   await playStore.enterRoom(route.params.roomId);
+//     const currentRoomUsers = playStore.currentRoomUsers; 
+//   if (currentRoomUsers && currentRoomUsers.length > 0) {
+//     const opponentUser = currentRoomUsers.find(user => user.email !== me.value.name);
+//     if (opponentUser) {
+//       opponent.value.name = opponentUser.email;
+//       opponent.value.isEmpty = false;
+//     }
+//   }
+// };
 
 
 function connect() {
@@ -146,7 +146,7 @@ function unLoadEvent (event) {
 onMounted(() => {
     connect();
     playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
-    fetchRoomUsers();
+    // fetchRoomUsers();
 })
 
 function quitButton () {
@@ -193,7 +193,7 @@ const inviteSelectedFriends = async () => {
 <template>
     <div class="container">
         <div class="up">
-            <RouterView/>
+            <RouterView :roomId="roomId"/>
         </div>
         <div class="down">
             <div class="player-card">

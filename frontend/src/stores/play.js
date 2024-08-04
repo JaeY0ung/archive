@@ -13,6 +13,7 @@ export const usePlayStore = defineStore('playMode', {
     roomTitle: '', // 방 제목
     rooms: [], // 방 목록
     currentRoomUsers: [], // 현재 방에 있는 유저 목록
+    nowRoom:{}
   }),
   actions: {
     setMode(mode) {
@@ -69,6 +70,7 @@ export const usePlayStore = defineStore('playMode', {
       }
     },
     async fetchAllRooms() {
+
       try {
         const response = await local.get(`${baseURL}/battle-rooms`);
         // 방 정보를 프론트엔드에서 처리하여 초기값 설정
@@ -86,14 +88,22 @@ export const usePlayStore = defineStore('playMode', {
     },
     async enterRoom(roomId) {
       try {
-        const response = await local.get(`${baseURL}/battle-rooms/${roomId}`);
+        const response = await local.put(`${baseURL}/battle-rooms/${roomId}`);
         console.log('입장 성공:', response.data);
         this.setMode('multi'); // 멀티 모드로 설정
       } catch (error) {
         console.error('방 입장 실패:', error);
       }
-    }
+    },
     // delete axios
+    async exitRoom(roomId){
+      try {
+        const response = await local.delete(`${baseURL}/battle-rooms/${roomId}`)
+        console.log('퇴장 성공', response.data);
+      } catch (error) {
+        console.log('방 퇴장 실패', error);
+      }
+    }
   },
   getters: {
     getMode: (state) => state.mode,

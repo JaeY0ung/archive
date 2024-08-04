@@ -2,16 +2,24 @@
 
 import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user"
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { useRouter, onBeforeRouteLeave } from 'vue-router';
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import { usePlayStore } from "@/stores/play";
+
+const props = defineProps({
+    roomId: Number
+})
 
 const canLeaveSite = ref(false);
 
 const userStore = useUserStore();
 
 const router = useRouter();
+const route = useRoute();
+
+const playStore = usePlayStore();
 
 let eventSource;
 
@@ -24,7 +32,9 @@ const user = userStore
 // TODO 친구 초대
 // TODO 나가기 버튼
 
-onBeforeRouteLeave((to, from, next) => {
+console.log("route.params.roomId : " + props.roomId);
+
+onBeforeRouteLeave( async (to, from, next) => {
     console.log('이동할 라우트:', to);
     console.log('현재 라우트:', from);
 
@@ -32,8 +42,10 @@ onBeforeRouteLeave((to, from, next) => {
         next();
     }else{
         if(confirm('방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. ')){
-            next();
-            // delete axios   
+            // delete axios
+            await playStore.exitRoom(props.roomId);
+            // next();
+            window.location.href = "http://localhost:3000/pianosaurus"
         }else{
             next(false);
         }

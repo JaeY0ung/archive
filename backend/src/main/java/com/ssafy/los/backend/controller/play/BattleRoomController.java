@@ -52,9 +52,13 @@ public class BattleRoomController {
     @PutMapping("/{room_id}")
     public ResponseEntity<?> enterBattleRoom(@PathVariable("room_id") Long roomId) {
 
+        log.info("대결방 입장 = {}", roomId);
+        System.out.println("대결방 입장");
+
         // roomid를 가지고 방 인원을 체크하여, 방 인원이 2명 미만이면 로직을 실행하도록 한다.
         String redisKey = "battleRoom:" + roomId;
         ListOperations<String, Long> listOperations = redisTemplate.opsForList();
+        System.out.println(listOperations.range(redisKey, 0, -1));
         if (listOperations.size(redisKey) < 2) {
             BattleRoom battleRoom = battleRoomService.selectAndEnterBattleRoom(roomId);
             return new ResponseEntity<>(battleRoom, HttpStatus.OK);
@@ -69,7 +73,7 @@ public class BattleRoomController {
     // 만약 유저가 나간 이후, 인원이 0명이라면 스키마 삭제
     @DeleteMapping("/{room_id}")
     public ResponseEntity<?> deleteBattleRoom(@PathVariable("room_id") Long roomId) {
-
+        LOGGER.info("퇴장할 방 번호 : " + roomId);
         // selectAndExitBattleRoom 메서드에서 통합할 것.
         battleRoomService.selectAndExitBattleRoom(roomId);
 

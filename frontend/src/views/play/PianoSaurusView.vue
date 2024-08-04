@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, onBeforeRouteUpdate } from 'vue-router';
 import { usePlayStore } from '@/stores/play';
 import RoomCreateModal from './RoomCreateModal.vue';
 
@@ -9,13 +9,18 @@ const playStore = usePlayStore();
 const isLoading = ref(true);
 
 // 방 목록 가져오기
-const getAllRooms = async () => {
-  await playStore.fetchAllRooms();
+const getAllRooms = () => {
+  playStore.fetchAllRooms();
   isLoading.value = false;
 };
 
 onMounted(() => {
-  getAllRooms();
+// const getAllRooms = async () => {
+//     await playStore.fetchAllRooms();
+//     isLoading.value = false;
+// };
+
+getAllRooms();
 });
 
 // 배틀 모드 선택

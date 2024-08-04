@@ -26,10 +26,11 @@ const closeModal = () => {
 playStore.setShowModal(false);
 };
 
-const createEnterRoom = () => {
+const createEnterRoom = async () => {
     console.log("createEnterRoom 실행")
-    playStore.createRoom();
-    const roomId = playStore.rooms[playStore.rooms.length-1].id;
+    await playStore.createRoom();
+    const roomId = playStore.rooms[playStore.rooms.length - 1].id;
+    console.log(playStore.rooms);
     console.log("roomId: " + roomId);
     router.push({ path: `/room/${roomId}/wait` }); // wait 페이지로 이동
 };
