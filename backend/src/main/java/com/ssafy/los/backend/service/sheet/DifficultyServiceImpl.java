@@ -48,6 +48,9 @@ public class DifficultyServiceImpl implements DifficultyService {
                 .level(difficultyCreateDto.getLevel())
                 .build();
 
+        // 난이도 업데이트
+        calculateDifficulty(sheetId);
+
         return difficultyRatingRepository.save(difficultyRating).getId();
     }
 
@@ -58,9 +61,11 @@ public class DifficultyServiceImpl implements DifficultyService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "해당 난이도 평가가 없습니다. id = " + difficultyId));
 
-        log.info("difficultyUpdateDto = {} {}", difficultyUpdateDto.getLevel(), difficultyUpdateDto.getContents());
         findDifficultyRating.update(difficultyUpdateDto.getLevel(),
                 difficultyUpdateDto.getContents());
+
+        // 난이도 업데이트
+        calculateDifficulty(findDifficultyRating.getSheet().getId());
 
         return difficultyId;
     }
@@ -68,6 +73,13 @@ public class DifficultyServiceImpl implements DifficultyService {
     // 난이도 평가 삭제
     @Override
     public Long deleteDifficulty(Long difficultyId) {
+        Difficulty findDifficultyRating = difficultyRatingRepository.findById(difficultyId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "해당 난이도 평가가 없습니다. id = " + difficultyId));
+
+        // 난이도 업데이트
+        calculateDifficulty(findDifficultyRating.getSheet().getId());
+
         difficultyRatingRepository.deleteById(difficultyId);
 
         return difficultyId;
@@ -86,15 +98,13 @@ public class DifficultyServiceImpl implements DifficultyService {
         // 악보에 해당하는 난이도 평가들 반환
         Page<Difficulty> difficultyPage = difficultyRatingRepository.findAllBySheetOrderByCreatedAtDesc(sheet, pageable);
 
-        // DTO로 변환
-        Page<DifficultyResponseDto> result = difficultyPage.map(difficulty ->
+        return difficultyPage.map(difficulty ->
                 DifficultyResponseDto.toEntity(difficulty, fileUploadUtil));
-
-        return result;
     }
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
-    // TODO : 악보 난이도 등록되면 바로 계산 되게
+    // TODO : 초기 10개는 즉각 반영되도록
+    // TODO : 로직 고도화
     @Override
     public int calculateDifficulty(Long sheetId) {
         Sheet findSheet = sheetRepository.findById(sheetId)
@@ -102,12 +112,14 @@ public class DifficultyServiceImpl implements DifficultyService {
 
         // 악보 난이도 계산 로직
         List<Difficulty> difficultyList = difficultyRatingRepository.findAllBySheet(findSheet);
-        int result = difficultyList.stream()
+        double average = difficultyList.stream()
                 .map(Difficulty::getLevel)
                 .filter(Objects::nonNull)
                 .mapToInt(Integer::intValue)
-                .sum();
+                .average()
+                .orElse(0.0);
 
-        return result;
+        // 평균을 1-5 범위로 매핑
+        return Math.min(Math.max((int) Math.round(average), 1), 5);
     }
 }
