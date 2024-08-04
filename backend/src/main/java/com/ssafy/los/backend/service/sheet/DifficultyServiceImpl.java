@@ -11,19 +11,26 @@ import com.ssafy.los.backend.dto.sheet.request.DifficultyUpdateDto;
 import com.ssafy.los.backend.dto.sheet.response.DifficultyResponseDto;
 import java.util.List;
 import java.util.Objects;
+
+import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
+@Transactional
 public class DifficultyServiceImpl implements DifficultyService {
 
     private final DifficultyRepository difficultyRatingRepository;
     private final SheetRepository sheetRepository;
     private final UserRepository userRepository;
+    private final FileUploadUtil fileUploadUtil;
 
 
     // 난이도 평가 생성
@@ -51,6 +58,7 @@ public class DifficultyServiceImpl implements DifficultyService {
                 .orElseThrow(() -> new IllegalArgumentException(
                         "해당 난이도 평가가 없습니다. id = " + difficultyId));
 
+        log.info("difficultyUpdateDto = {} {}", difficultyUpdateDto.getLevel(), difficultyUpdateDto.getContents());
         findDifficultyRating.update(difficultyUpdateDto.getLevel(),
                 difficultyUpdateDto.getContents());
 
@@ -79,12 +87,13 @@ public class DifficultyServiceImpl implements DifficultyService {
         Page<Difficulty> difficultyPage = difficultyRatingRepository.findAllBySheetOrderByCreatedAtDesc(sheet, pageable);
 
         // DTO로 변환
-        Page<DifficultyResponseDto> result = difficultyPage.map(DifficultyResponseDto::toEntity);
+        Page<DifficultyResponseDto> result = difficultyPage.map(difficulty ->
+                DifficultyResponseDto.toEntity(difficulty, fileUploadUtil));
 
         return result;
     }
 
-    // 악보 난이도 계산 조회
+    // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
     // TODO : 악보 난이도 등록되면 바로 계산 되게
     @Override
     public int calculateDifficulty(Long sheetId) {

@@ -27,7 +27,7 @@ const followListWithImageUrls = computed(() => {
 });
 
 const goToUserProfile = (nickname) => {
-    router.push(`/user/${nickname}/profile`);
+    window.location.href = `/user/${nickname}/profile`;
     closeModal();
 };
 </script>
