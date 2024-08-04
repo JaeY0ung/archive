@@ -39,8 +39,6 @@ public class BattleRoomController {
             @RequestBody BattleRoomRegisterDto battleRoomRegisterDto) {
         log.info("대결방 등록 요청을 한 DTO = {}", battleRoomRegisterDto.toString());
 
-        System.out.println("생성 및 입장 컨트롤러 실행");
-
         // 방을 생성 후 입장
         Map<String, Object> battleRoom = battleRoomService.createAndEnterBattleRoom(
                 battleRoomRegisterDto);
@@ -53,12 +51,10 @@ public class BattleRoomController {
     public ResponseEntity<?> enterBattleRoom(@PathVariable("room_id") Long roomId) {
 
         log.info("대결방 입장 = {}", roomId);
-        System.out.println("대결방 입장");
 
         // roomid를 가지고 방 인원을 체크하여, 방 인원이 2명 미만이면 로직을 실행하도록 한다.
         String redisKey = "battleRoom:" + roomId;
         ListOperations<String, Long> listOperations = redisTemplate.opsForList();
-        System.out.println(listOperations.range(redisKey, 0, -1));
         if (listOperations.size(redisKey) < 2) {
             BattleRoom battleRoom = battleRoomService.selectAndEnterBattleRoom(roomId);
             return new ResponseEntity<>(battleRoom, HttpStatus.OK);

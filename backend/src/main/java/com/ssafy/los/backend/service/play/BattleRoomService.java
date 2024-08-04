@@ -45,8 +45,6 @@ public class BattleRoomService {
         // redisKey를 key값으로 하는 list에 유저의 id를 오른쪽에 추가한다.
         listOperations.rightPush(redisKey, loginUser.getId());
 
-        System.out.println(listOperations.range(redisKey, 0, -1));
-
         // 방과 해당 방에 참여한 인원을 묶어서 보내줄 것이다.
         Map<String, Object> result = new HashMap<>();
 
@@ -92,27 +90,15 @@ public class BattleRoomService {
         String redisKey = "battleRoom:" + roomId;
         ListOperations<String, Long> listOperations = redisTemplate.opsForList();
 
-        System.out.println(listOperations.range(redisKey, 0, -1));
         long cnt = listOperations.remove(redisKey, 1, loginUser.getId());
-        System.out.println("삭제한 행의 갯수 : " + cnt);
-
-        System.out.println("유저의 아이디 : " + loginUser.getId());
-
-        System.out.println("redis 데이터 체크");
-        System.out.println(listOperations.range(redisKey, 0, -1));
 
         // 조건문을 통해, 방의 인원이 0명이라면 방을 삭제한다.
         if (listOperations.size(redisKey) == 0) {
             // redis의 키값쌍을 삭제
             redisTemplate.delete(redisKey);
 
-            System.out.println("redisKey 존재하는지 체크");
-            System.out.println(redisTemplate.hasKey(redisKey));
-
             // mysql에서의 방 정보 삭제
             deleteBattleRoomById(roomId);
-            System.out.println("mysql에 방 데이터 존재하는지 체크");
-            System.out.println(battleRoomRepository.findById(roomId).isPresent());
         }
 
     }

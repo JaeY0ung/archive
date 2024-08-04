@@ -5,6 +5,7 @@ import { useRouter, onBeforeRouteLeave } from "vue-router";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { jwtDecode } from "jwt-decode";
+import { usePlayStore } from "@/stores/play";
 
 const { VUE_APP_REQUEST_URL } = process.env;
 const router = useRouter();
@@ -15,6 +16,12 @@ const score = ref(0);
 
 let stompClient = null;
 let eventSource;
+
+const props = defineProps({
+    roomId: Number
+})
+
+const playStore = usePlayStore();
 
 const connect = () => {
   let socket = new SockJS(`${VUE_APP_REQUEST_URL}/archive-websocket`);
@@ -121,15 +128,16 @@ onMounted(() => {
   }, 5000);
 });
 
-onBeforeRouteLeave((to, from, next) => {
+onBeforeRouteLeave( async (to, from, next) => {
   console.log("이동할 라우트:", to);
   console.log("이동할 라우트:", to.name);
   console.log("현재 라우트:", from);
   console.log("현재 라우트:", from.name);
 
   if (confirm("방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle")) {
-    console.log("확인2");
-    router.push({name: 'main'});
+    await playStore.exitRoom(props.roomId);
+    window.location.href = "http://localhost:3000/pianosaurus"
+    next();
   } else {
     next(false);
   }

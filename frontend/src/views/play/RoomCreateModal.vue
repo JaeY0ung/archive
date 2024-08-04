@@ -3,7 +3,7 @@
     <div class="room-modal-content">
     <span class="close" @click="closeModal">&times;</span>
     <h2>방 만들기</h2>
-    <input v-model="roomTitle" placeholder="방 제목을 입력하세요" />
+    <input v-model="roomTitle" @keyup.enter="createEnterRoom" placeholder="방 제목을 입력하세요" />
     <button @click="createEnterRoom">확인</button>
     </div>
 </div>

@@ -60,17 +60,23 @@ function connect() {
 
         stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
             const userLogin = JSON.parse(chatMessage.body);
-            if (userLogin.id == "profile" && opponent.value.isEmpty && decodeToken.username != userLogin.email) {
-                stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': decodeToken.username }));
+            console.log("이거 뭐지")
+            console.log(userLogin);
+            if (userLogin.id == "profile" && opponent.value.isEmpty && user.nickname != userLogin.email) {
+                stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': user.nickname }));
                 opponent.value.name = userLogin.email;
                 opponent.value.isEmpty = false;
-                stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
+                stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': user.nickname, 'isReady': isReady.value }));
+                isInvited.value = "true";
             }
         });
 
-        stompClient.subscribe(`/wait/socket/ready/${route.params.roomId}`, function (readyStatus) {
+        stompClient.subscribe(`/wait/socket/ready/{route.params.roomId}`, function (readyStatus) {
             const playerReady = JSON.parse(readyStatus.body);
-            if(playerReady.sender != decodeToken.username){
+            console.log("준비 정보 구독")
+            console.log(playerReady)
+            console.log(user.nickname);
+            if(playerReady.sender != user.nickname){
                 opponentReady.value = playerReady.isReady;
             }
         })
@@ -87,8 +93,8 @@ function connect() {
             }
         })
 
-        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': decodeToken.username }));
-        stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
+        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': user.nickname }));
+        stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': user.nickname, 'isReady': isReady.value }));
     });
 }
 
@@ -102,7 +108,7 @@ onBeforeUnmount(() => {
 })
 
 function sendExit(){
-    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'exit', 'sender': decodeToken.username, 'content': 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'exit', 'sender': user.nickname, 'content': 'true' }));
 }
 
 onUnmounted(() => {
@@ -119,22 +125,23 @@ const getLiveResult = computed(() => {
 const goToBattle = () => {
     router.push({name:'play'});
     canLeaveSite.value = true;
-    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'start', 'sender': decodeToken.username, 'content': 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'start', 'sender': user.nickname, 'content': 'true' }));
 }
 
 const accessToken = sessionStorage.getItem("accessToken");
 
 userStore.getUserInfo(accessToken);
 
-const decodeToken = jwtDecode(accessToken);
+console.log("userinfo 찍어보기")
+console.log(userStore.userInfo);
 
-const email = decodeToken.username;
+let user = userStore.userInfo;
 
-me.value.name = email;
+me.value.name = user.nickname;
 
 function readyButton() {
     isReady.value = isReady.value == "false" ? "true" : "false";
-    stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': decodeToken.username, 'isReady': isReady.value }));
+    stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': user.nickname, 'isReady': isReady.value }));
 }
 
 function unLoadEvent (event) {
@@ -208,10 +215,10 @@ const inviteSelectedFriends = async () => {
             </div>
             
             <div class="button-div">
-                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'room' && (isReady == 'false' || opponentReady == 'false')">
+                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'wait' && (isReady == 'false' || opponentReady == 'false')">
                     시작하기
                 </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'room' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
+                <button class="btn btn-primary w-24" v-if="route.name == 'wait' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
                 <!-- <button class="btn btn-primary w-24" v-if="route.name == 'play'" @click="quitButton"> -->

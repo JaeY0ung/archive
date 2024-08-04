@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PlayerReadyDto {
 
-    private String senderNickname;
+    private String sender;
     private String isReady;
     private String profileImg;
 
 
     // 빌더 패턴
     @Builder
-    public PlayerReadyDto(String senderNickname, String isReady, String profileImg) {
-        this.senderNickname = senderNickname;
+    public PlayerReadyDto(String sender, String isReady, String profileImg) {
+        this.sender = sender;
         this.isReady = isReady;
         this.profileImg = profileImg;
     }
