@@ -32,7 +32,7 @@ const createEnterRoom = async () => {
     const roomId = playStore.rooms[playStore.rooms.length - 1].id;
     console.log(playStore.rooms);
     console.log("roomId: " + roomId);
-    router.push({ path: `/room/${roomId}/wait` }); // wait 페이지로 이동
+    router.push({ path: `/room/${roomId}/wait/default` }); // wait 페이지로 이동
 };
 </script>
 

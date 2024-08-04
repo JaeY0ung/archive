@@ -44,7 +44,19 @@ const router = createRouter({
               {
                 path: 'wait',
                 name: 'wait',
-                component: () => import('@/views/play/WaitView.vue')
+                component: () => import('@/views/play/WaitView.vue'),
+                children: [
+                    {
+                        path: 'default',
+                        name: 'default',
+                        component: () => import('@/views/play/component/DefaultSheet.vue')
+                    },
+                    {
+                        path: 'popular',
+                        name: 'popular',
+                        component: () => import('@/views/play/component/PopularSheet.vue')
+                    }
+                ]
               },
               {
                 path: 'play',
@@ -55,7 +67,14 @@ const router = createRouter({
           },
           {
             path: "/singleRoom",
-            component: () => import('@/layouts/SingleRoomLayout.vue')
+            component: () => import('@/layouts/SingleRoomLayout.vue'),
+            children: [
+                {
+                    path: 'singleDefault',
+                    name: 'singleDefault',
+                    component: () => import('@/views/play/component/SingleDefaultSheet.vue')
+                }
+            ]
           },
         // -----------------------------------------------
         {

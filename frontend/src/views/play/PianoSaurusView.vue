@@ -29,7 +29,7 @@ const selectMode = (mode) => {
   if (mode === 'multi') {
     playStore.setShowModal(true);
   } else {
-    router.push({ path: 'singleRoom' });
+    router.push({ path: 'singleRoom/singleDefault' });
   }
 };
 
@@ -37,7 +37,7 @@ const selectMode = (mode) => {
 const enterRoom = async (roomId) => {
   await playStore.enterRoom(roomId);
   // router.push({ path: `/room/${roomId}` });
-  router.push({ path: `/room/${roomId}/wait` }); // wait 페이지로 이동
+  router.push({ path: `/room/${roomId}/wait/default` }); // wait 페이지로 이동
 };
 
 const rankings = ref([
