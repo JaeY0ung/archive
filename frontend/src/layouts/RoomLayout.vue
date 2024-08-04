@@ -273,7 +273,7 @@ const inviteSelectedFriends = async () => {
 }
 .up {
     background-color: #fff;
-    height: 50vh;
+    height: 60vh;
     margin-bottom: 20px;
     padding: 20px;
     border-radius: 15px;
@@ -284,6 +284,7 @@ const inviteSelectedFriends = async () => {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    height: 25vh;
 }
 
 .button-div {
