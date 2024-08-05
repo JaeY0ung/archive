@@ -93,12 +93,12 @@ public class User extends BaseEntity {
 
 
     //=== 메서드 ===//
-    public void updateProfile(String nickname, String userImg) {
+    public void updateProfile(String nickname, String uuid) {
         if (nickname != null) {
             this.nickname = nickname;
         }
         if (uuid != null) {
-            this.userImg = userImg;
+            this.userImg = uuid;
         }
     }
 
