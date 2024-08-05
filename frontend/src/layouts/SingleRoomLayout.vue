@@ -60,7 +60,6 @@ function connect() {
 
         stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
             const userLogin = JSON.parse(chatMessage.body);
-            console.log("이거 뭐지")
             console.log(userLogin);
             if (userLogin.id == "profile" && opponent.value.isEmpty && user.nickname != userLogin.email) {
                 stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': user.nickname }));
@@ -81,7 +80,7 @@ function connect() {
             }
         })
 
-        stompClient.subscribe(`/wait/socket/start/${route.params.roomId}`, function(socket){
+        stompClient.subscribe(`/wait/socket/start/{route.params.roomId}`, function(socket){
             const message = JSON.parse(socket.body);
             if(message.type == "start" && message.content == "true"){
                 router.push({name:'play'});
@@ -200,7 +199,7 @@ const inviteSelectedFriends = async () => {
 <template>
     <div class="container">
         <div class="up">
-            <RouterView :roomId="roomId"/>
+            <RouterView />
         </div>
         <div class="down">
             <div class="player-card">

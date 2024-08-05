@@ -38,21 +38,44 @@ const router = createRouter({
         },
         // -----------------------------------------------
         {
-            path: "/room",
+            path: "/room/:roomId",
             component: () => import('@/layouts/RoomLayout.vue'),
             children: [
-            {
+              {
                 path: 'wait',
                 name: 'wait',
-                component: () => import('@/views/play/WaitView.vue')
-            },
-            {
+                component: () => import('@/views/play/WaitView.vue'),
+                children: [
+                    {
+                        path: 'default',
+                        name: 'default',
+                        component: () => import('@/views/play/component/DefaultSheet.vue')
+                    },
+                    {
+                        path: 'popular',
+                        name: 'popular',
+                        component: () => import('@/views/play/component/PopularSheet.vue')
+                    }
+                ]
+              },
+              {
                 path: 'play',
                 name: 'play',
                 component: () => import('@/views/play/PlayingView.vue')
-            },
+              }
             ]
-        },
+          },
+          {
+            path: "/singleRoom",
+            component: () => import('@/layouts/SingleRoomLayout.vue'),
+            children: [
+                {
+                    path: 'singleDefault',
+                    name: 'singleDefault',
+                    component: () => import('@/views/play/component/SingleDefaultSheet.vue')
+                }
+            ]
+          },
         // -----------------------------------------------
         {
             path: '/admin',
