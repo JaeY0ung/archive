@@ -42,6 +42,10 @@ logger = logging.getLogger(__name__)
 class FileRequest(BaseModel):
     filename: str
 
+logger.info(f"PROJECT_ROOT_PATH: {PROJECT_ROOT_PATH}")
+logger.info(f"UPLOAD_DIR: {UPLOAD_DIR}")
+
+
 @app.post("/playing")
 async def upload_file(file: UploadFile = File(...)):
     print("playing")
