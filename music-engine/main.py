@@ -10,7 +10,7 @@ import re
 from service.convert_service import ConvertService
 from service.calculate_service import calculate_similarity
 from pydantic import BaseModel
-
+from dotenv import load_dotenv
 
 app = FastAPI(root_path="/fastapi")
 
@@ -28,6 +28,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+load_dotenv(dotenv_path)
 
 # 임시 폴더 설정
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
