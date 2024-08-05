@@ -66,7 +66,7 @@ public class SheetDetailViewDto {
         this.price = sheet.getPrice();
         this.level = sheet.getLevel();
         this.status = sheet.getStatus();
-        if (sheet.getStatus() == 0) {
+        if (sheet.getStatus() != null && sheet.getStatus() == 0) {
             this.level = 0;
         }
         this.viewCount = sheet.getViewCount();
