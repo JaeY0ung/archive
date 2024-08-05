@@ -47,9 +47,10 @@ public class DifficultyServiceImpl implements DifficultyService {
         // 해당 악보 난이도 평가 기록 이력 파악
         boolean isExisted = difficultyRepository.existsByUserAndSheet(user, sheet);
 
-        if (isExisted) {
-            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
-        }
+        // TODO : 테스트 완료하면 한 악보당 중복 체크 불가능하도록 만들기
+//        if (isExisted) {
+//            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
+//        }
 
         Difficulty difficulty = Difficulty.builder()
                 .user(user)
@@ -156,7 +157,9 @@ public class DifficultyServiceImpl implements DifficultyService {
         double averageDifficulty = weightSum > 0 ? weightedSum / weightSum : 0; // 양수 반환
 
         // 평균을 1-5 범위로 매핑
-        return Math.min(Math.max((int) Math.round(averageDifficulty), 1), 5);
+        int result = Math.min(Math.max((int) Math.round(averageDifficulty), 1), 5);
+        log.info("result = {}", result);
+        return result;
     }
 
     private double calculateWeight(LocalDateTime opinionTime, int opinionIndex, LocalDateTime mostRecentTime, int totalOpinions) {
