@@ -1,6 +1,8 @@
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.status import HTTP_200_OK
 import os
 import shutil
 import logging
@@ -111,9 +113,28 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="내부 서버 오류")
 
 @app.post("/sheets/mid-to-xml")
-async def mid2xml():
-    # 인자 값 filename
-    return {}
+async def mid2xml(filename: str):
+    try:
+        # 입력 파일 경로 설정
+        input_mid_path = os.path.join("app/shared/upload-sheet/mid", filename)
+        if not os.path.exists(input_mid_path):
+            raise FileNotFoundError(f"{input_mid_path} 파일이 존재하지 않습니다.")
+
+        # 출력 파일 경로 설정
+        output_xml_path = os.path.join("app/shared/upload-sheet/musicxml", f"{os.path.splitext(filename)[0]}.musicxml")
+
+        # MIDI 파일을 MusicXML로 변환
+        ConvertService.midi_to_xml(input_mid_path, os.path.dirname(output_xml_path))
+
+        # 결과 확인
+        if not os.path.exists(output_xml_path):
+            raise FileNotFoundError(f"{output_xml_path} 파일이 생성되지 않았습니다.")
+
+        return JSONResponse(content={"message": "Conversion successful", "output_file": output_xml_path}, status_code=HTTP_200_OK)
+
+    except Exception as e:
+        logger.error(f"파일 변환 중 오류 발생: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="파일 변환 중 오류 발생")
 
 # FastAPI 실행 명령어
 # uvicorn main:app --reload --host 0.0.0.0 --port 8000
