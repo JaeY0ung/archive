@@ -228,7 +228,9 @@ const inviteSelectedFriends = async () => {
             </div>
             
             <div class="player-card" v-if="currentMode=='multi'">
-                <div class="player-img"><img :src="opponent.img" alt="Profile Image" /></div>
+                <div class="player-img">
+                    <img :src="opponent.img" alt="Profile Image" />
+                </div>
                 <div class="player-info-text">
                     <div>{{ opponent.name }}</div>
                     <div>현재 스코어 : {{ opponent.score }}</div>
