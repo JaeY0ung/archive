@@ -1,5 +1,6 @@
 ###### 내가 따로 추가 ######
 application.properties
+/src/main/generated/**
 #########################
 
 HELP.md

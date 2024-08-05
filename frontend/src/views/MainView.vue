@@ -13,32 +13,35 @@ const getPopularsheets = async () => {
 	const params = { sort: "POPULAR" }
 	await local.get("/sheets", { params } )
 		.then(({ data }) => {
+			if (!data) return;
 			popularSheets.value = data;
 			popularSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); // TODO: songImg가 없으면 기본 로고로.
-		}).catch((err)=> console.log(err))
+		}).catch((err)=> console.error(err))
 }
 
 const getnewsheets = async () => {
 	const params = { sort: "LATEST" }
 	await local.get("/sheets", { params })
-	.then(({ data }) => {
-		newSheets.value = data;
-		newSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
-	}).catch((err)=> console.log(err))
+		.then(({ data }) => {
+			if (!data) return;
+			newSheets.value = data;
+			newSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
+		}).catch((err)=> console.error(err))
 }
 
 
 const getRecommendsheets = async () => {
 	const params = {
-		level: 1, // 유저의 티어
+		levels: 1, // 유저의 티어
 		sort: "RANDOM"
 	}
 	await local.get("/sheets", { params })
-	.then(({ data }) => {
-		recommendSheets.value = data;
-		recommendSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); 
-	}).catch((err)=> console.log(err))
-}
+		.then(({ data }) => {
+			if (!data) return;
+			recommendSheets.value = data;
+			recommendSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); 
+		}).catch((err)=> console.error(err))
+	}
 getPopularsheets();
 getnewsheets();
 getRecommendsheets();

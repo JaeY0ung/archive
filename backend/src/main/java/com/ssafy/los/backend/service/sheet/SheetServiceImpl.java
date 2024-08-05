@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.service.sheet;
 
 import com.ssafy.los.backend.domain.entity.Sheet;
+import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.domain.repository.song.SongRepository;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
@@ -57,7 +58,14 @@ public class SheetServiceImpl implements SheetService {
 
     @Override
     public List<SheetDetailViewDto> searchSheetByFilter(SheetSearchFilter sheetSearchFilter) {
-        return sheetRepository.findSheetsByFilter(sheetSearchFilter)
+        User loginUser = authService.getLoginUser();
+        if (loginUser == null) {
+            return sheetRepository.findSheetsByFilter(sheetSearchFilter)
+                    .stream()
+                    .peek(dto -> dto.loadSongImg(fileUploadUtil))
+                    .toList();
+        }
+        return sheetRepository.findSheetsByFilter(sheetSearchFilter, loginUser.getId())
                 .stream()
                 .peek(dto -> dto.loadSongImg(fileUploadUtil))
                 .toList();

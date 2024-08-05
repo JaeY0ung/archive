@@ -4,7 +4,6 @@ import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailViewDto;
-import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -32,7 +31,6 @@ import org.springframework.web.util.UriUtils;
 public class SheetController {
 
     private final SheetService sheetService;
-    private final AuthService authService;
 
     // 악보 관리
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,

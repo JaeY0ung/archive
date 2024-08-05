@@ -1,209 +1,168 @@
 <script setup>
 import { localAxios } from "@/util/http-common";
+import { tierInfo } from "@/util/tier-info"
+import { sortInfo } from "@/util/sort";
+import { searchSheetsByFilter } from "@/api/sheet"
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import { getAllGenres } from "@/api/genre"
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
-import {useUserStore} from "@/stores/user";
-import {storeToRefs} from "pinia";
 
-const route = useRoute();
-const local = localAxios();
+const { isLogin } = storeToRefs(useUserStore());
+
+const props = defineProps({
+	keyword: String
+})
+
+const genres = ref([]); 
 const sheets = ref([]);
-const keyword = ref('');
-const scrollMode = ref('scroll-y');
-const userStore = useUserStore();
-const {isLogin} = storeToRefs(userStore);
 
+const priceInfo = ref([
+	{ value: 0, title: '무료' },
+	{ value: 1, title: '유료' },
+])
 
-// TODO: 검색 필터에서 성공, 여부 수정
-const selectedTiers = ref([]);
-const selectedFree = ref([]);
-const selectedGenre = ref([]);
-// const selectedSuccess = ref([]);
+const searchFilter = ref({
+	keyword: "",
+	levels: [1, 2, 3, 4, 5],
+	genres: [1, 2, 3, 4, 5, 6],
+	prices: [0, 1],
+	successStatuses: [],
+	sort: "LATEST",
+})
 
-const searchSheetsByKeyword = () => {
-	local.get(`/sheets`, {
-		params: { keyword: keyword.value }
-	}).then(({ data }) => {
+const view = ref("list")
+
+const search = () => {
+	searchSheetsByFilter(
+		{
+			keyword: searchFilter.value.keyword,
+			levels: searchFilter.value.levels.join(","),
+			genres: searchFilter.value.genres.join(","),
+			prices: searchFilter.value.prices.join(","),
+			successStatuses: searchFilter.value.successStatuses.join(","),
+			sort: searchFilter.value.sort,
+		},
+		({ data }) => { 
 			sheets.value = data;
-			sheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
-	}).catch((err) => alert(err));
-};
-
-const handleSelectChange = (event) => {
-	const view = event.target.value;
-	local.get(`/sheets`, {
-		params: { keyword: keyword.value, sort: view }
-	}).then(({ data }) => {
-			sheets.value = data;
-			sheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
-	}).catch((err) => alert(err));
+			sheets.value.map((s) => s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
+		}
+	)
 }
+getAllGenres(({ data }) => genres.value = data)
 
-const handleViewChange = (event) => {
-	const view = event.target.value;
-	if (view === 'card') {
-		scrollMode.value = 'scroll-x';
-	} else {
-		scrollMode.value = 'scroll-y';
+// 키워드 바뀔 때마다 searchFilter
+watch(() => props.keyword,
+	(newValue) => {
+		searchFilter.value.keyword = newValue || "";
 	}
-	local.get(`/sheets`, {
-		params: { keyword: keyword.value }
-	}).then(({ data }) => {
-			sheets.value = data;
-			sheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
-	}).catch((err) => alert(err));
-}
+);
 
-// 선택된 티어를 기반으로 요청을 생성
-const searchSheetsByFiltering = () => {
-	//TODO: axios 요청 api로 빼야함
-	local.get('/sheets', {
-		params: { level: selectedTiers.value.join(','), genre: selectedGenre.value.join(','),
-		  price: selectedFree.value.join(',')
-		} // 배열을 문자열로 변환
-	}).then(({ data }) => {
-			sheets.value = data;
-			sheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
-	}).catch(err => alert(err));
-};
-
-// 티어 필터의 변화를 감지하고 필터링 함수 호출
-watch([selectedTiers, selectedFree, selectedGenre], () => {
-  console.log(selectedFree.value);
-	searchSheetsByFiltering();
+// 다른 페이지에서 넘어왔을 때
+onMounted(() => {
+	searchFilter.value.keyword = props.keyword;
+	console.log("Mounted: ", props.keyword)
+	search();
 });
 
-watch(() => route.query.keyword, (newValue) => {
-	keyword.value = newValue || '';
-	searchSheetsByKeyword();
-})
-onMounted(() => {
-	keyword.value = route.query.keyword;
-	searchSheetsByKeyword();
-})
+// 검색 필터 감지
+watch(searchFilter, () => {
+	search();
+}, { deep: true });
+
 </script>
 
 <template>
 	<div class="container">
 		<div class="top-bar">
-		<div class="top-bar-left">
-			<p><span class="highlight">{{ keyword }}</span> 악보 ( {{ sheets.length }}개의 결과 )</p>
-		</div>
-		<div class="top-bar-right">
-			<select @change="handleSelectChange">
-			<option value="LATEST">최신순</option>
-			<option value="POPULAR">인기순</option>
-			<option value="play">플레이순</option>
-			<option value="starRating">별점순</option>
-			<option value="level">난이도순</option>
-			</select>
-			<select @change="handleViewChange">
-			<option value="list">리스트</option>
-			<option value="card">카드</option>
-			</select>
-		</div>
+			<div class="top-bar-left">
+				<p>
+					<span class="highlight">{{ searchFilter.keyword }}</span> 악보 ( {{ sheets.length }}개의 결과 )
+				</p>
+			</div>
+			<div class="top-bar-right">
+				<select v-model="searchFilter.sort">
+					<option v-for="sort in sortInfo" :value="sort.value">{{ sort.title }}</option>
+				</select>
+
+				<select v-model="view">
+					<option value="list">리스트</option>
+					<option value="card">카드</option>
+				</select>
+			</div>
 		</div>
 
 		<div class="panel-container">
-		<div class="left-panel">
-			<span class="text-filter highlight">검색 필터</span>
-			<div class="filter-group">
-			<div class="filter-item">
-				<span class="filter-category highlight">티어</span>
-				<hr class="filter-divider">
-				<div class="filter-value">
-				<label for="bronze">브론즈</label>
-				<input type="checkbox" id="bronze" value="1" v-model="selectedTiers">
-				</div>
-				<div class="filter-value">
-				<label for="silver">실버</label>
-				<input type="checkbox" id="silver" value="2" v-model="selectedTiers">
-				</div>
-				<div class="filter-value">
-				<label for="gold">골드</label>
-				<input type="checkbox" id="gold" value="3" v-model="selectedTiers">
-				</div>
-				<div class="filter-value">
-				<label for="platinum">플레티넘</label>
-				<input type="checkbox" id="platinum" value="4" v-model="selectedTiers">
-				</div>
-				<div class="filter-value">
-				<label for="diamond">다이아</label>
-				<input type="checkbox" id="diamond" value="5" v-model="selectedTiers">
-				</div>
-			</div>
-			<div class="filter-item">
-				<span class="filter-category highlight">무료/유료</span>
-				<hr class="filter-divider">
-				<div class="filter-value">
-				<label for="free">무료</label>
-				  <input type="checkbox" id="free" value='0' v-model="selectedFree">
-				</div>
-				<div class="filter-value">
-				<label for="paid">유료</label>
-				  <input type="checkbox" id="paid" value='1' v-model="selectedFree">
-				</div>
-			</div>
-			<div class="filter-item">
-				<span class="filter-category highlight">장르</span>
-				<hr class="filter-divider">
-				<div class="filter-value">
-				<label for="ost">OST</label>
-				  <input type="checkbox" id="ost" value="2" v-model="selectedGenre">
-				</div>
-				<div class="filter-value">
-				<label for="classical">클래식</label>
-				  <input type="checkbox" id="classical" value="1" v-model="selectedGenre">
-				</div>
-				<div class="filter-value">
-				<label for="jazz">재즈</label>
-				  <input type="checkbox" id="jazz" value="3" v-model="selectedGenre">
-				</div>
-				<div class="filter-value">
-				<label for="pop">가요</label>
-				  <input type="checkbox" id="pop" value="5" v-model="selectedGenre">
-				</div>
-				<div class="filter-value">
-				<label for="hiphop">힙합</label>
-				  <input type="checkbox" id="hiphop" value="4" v-model="selectedGenre">
+			<div class="left-panel">
+				<span class="text-filter highlight mb-5">검색 필터</span>
+				
+				<div class="filter-group flex flex-col gap-5">
 
-				<input type="checkbox" id="hiphop">
-				</div>
-				<div class="filter-value">
-				<label for="etc">기타</label>
-				  <input type="checkbox" id="etc" value="6" v-model="selectedGenre">
-				</div>
-			</div>
-			  <template v-if="isLogin">
-				<div class="filter-item">
-					<span class="filter-category highlight">성공 여부:</span>
-					<hr class="filter-divider">
+					<div class="filter-item">
+						<span class="filter-category highlight">티어</span>
+						<hr class="filter-divider" />
+						<template v-for="t in tierInfo">
+							<div class="filter-value">
+								<label for="bronze">{{ t.title }}</label>
+								<input type="checkbox" :value="t.level" v-model="searchFilter.levels" />
+							</div>
+						</template>
+					</div>
 
-					<div class="filter-value">
-					<label for="success">성공</label>
-					<input type="checkbox" id="success">
+					<div class="filter-item">
+						<span class="filter-category highlight">무료/유료</span>
+						<hr class="filter-divider" />
+						<template v-for="price in priceInfo">
+							<div class="filter-value">
+								<label for="free">{{ price.title }}</label>
+								<input type="checkbox" id="free" :value="price.value" v-model="searchFilter.prices" />
+							</div>
+						</template>
 					</div>
-					<div class="filter-value">
-					<label for="fail">실패</label>
-					<input type="checkbox" id="fail">
+					
+					<div class="filter-item">
+						<span class="filter-category highlight">장르</span>
+						<hr class="filter-divider" />
+						<template v-for="genre in genres">
+							<div class="filter-value">
+								<label for="ost">{{ genre.title }}</label>
+								<input type="checkbox" :value="genre.id" v-model="searchFilter.genres" />
+							</div>
+						</template>
 					</div>
+
+					<template v-if="isLogin">
+						<div class="filter-item">
+							<span class="filter-category highlight">성공 여부</span>
+							<hr class="filter-divider" />
+
+							<div class="filter-value">
+								<label for="success">성공</label>
+								<input type="checkbox" value="SUCCESS" v-model="searchFilter.successStatuses"/>
+							</div>
+
+							<div class="filter-value">
+								<label for="fail">실패</label>
+								<input type="checkbox" value="FAIL" v-model="searchFilter.successStatuses"/>
+							</div>
+						</div>
+					</template>
 				</div>
-			  </template>
 			</div>
-		</div>
-		<div class="right-panel">
-			<div :class="[scrollMode]">
-			<template v-if="sheets.length">
-				<div class="scroll-y flex-col">
-				<SmallSheetCard v-for="sheet in sheets" :key="sheet.id" :sheet="sheet"/>
+			<div class="right-panel">
+				<div :class="[view === 'card' ? 'scroll-x' : 'scroll-y']">
+					<template v-if="sheets.length">
+						<div class="scroll-y flex-col">
+							<SmallSheetCard v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" />
+						</div>
+					</template>
+					<template v-else>
+						<p>검색 결과가 없습니다.</p>
+					</template>
 				</div>
-			</template>
-			<template v-else>
-				<p>검색 결과가 없습니다.</p>
-			</template>
 			</div>
-		</div>
 		</div>
 	</div>
 </template>
@@ -217,93 +176,97 @@ onMounted(() => {
 }
 
 .top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background-color: #e0e0e0;
-  box-sizing: border-box;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px;
+	background-color: #e0e0e0;
+	box-sizing: border-box;
 }
 
 .top-bar-left {
-  flex: 1;
-  text-align: left;
+	flex: 1;
+	text-align: left;
 }
 
 .top-bar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .panel-container {
-  display: flex;
-  flex: 1;
-  gap: 20px;
-  padding: 20px;
-  box-sizing: border-box;
+	display: flex;
+	flex: 1;
+	gap: 20px;
+	padding: 20px;
+	box-sizing: border-box;
 }
 
-.left-panel, .right-panel {
-  padding: 20px;
+.left-panel,
+.right-panel {
+	padding: 20px;
 }
 
 .left-panel {
-  flex: 2;
-  background-color: #f0f0f0;
+	flex: 2;
+	background-color: #f0f0f0;
 }
 
 .right-panel {
-  flex: 8;
-  background-color: #ffffff;
+	flex: 8;
+	background-color: #ffffff;
 }
 
 .text-filter {
-  font-size: 1.5em; /* Larger font size for the "검색 필터" text */
-  font-weight: bold;
+	font-size: 1.5em;
+	/* Larger font size for the "검색 필터" text */
+	font-weight: bold;
 }
 
 .highlight {
-  color: #8A8ECD;
+	color: #8a8ecd;
 }
 
 .filter-group {
-  margin-top: 10px;
+	margin-top: 10px;
 }
 
 .filter-item {
-  margin-bottom: 16px; /* Increased margin for better spacing */
+	margin-bottom: 16px;
+	/* Increased margin for better spacing */
 }
 
 .filter-category {
-  font-size: 1.2em; /* Larger font size for categories */
-  font-weight: bold;
+	font-size: 1.2em;
+	/* Larger font size for categories */
+	font-weight: bold;
 }
 
 .filter-value {
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
+	display: flex;
+	align-items: center;
+	margin-left: 10px;
 }
 
 .filter-divider {
-  margin: 10px 0;
-  border: 0;
-  border-bottom: 1px solid #ccc;
+	margin: 10px 0;
+	border: 0;
+	border-bottom: 1px solid #ccc;
 }
 
 .scroll-y {
-  overflow-y: auto;
-  height: calc(100vh - 200px);
+	overflow-y: auto;
+	height: calc(100vh - 200px);
 }
 
 .scroll-x {
-  display: flex;
-  overflow-x: auto;
-  height: calc(100vh - 200px);
+	display: flex;
+	overflow-x: auto;
+	height: calc(100vh - 200px);
 }
 
-.scroll-x > .flex-col {
-  flex-direction: row;
+.scroll-x>.flex-col {
+	flex-direction: row;
 }
 </style>

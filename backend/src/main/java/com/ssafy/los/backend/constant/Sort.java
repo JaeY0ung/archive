@@ -7,12 +7,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Sort {
     POPULAR("POPULAR"),
-    OLDEST("OLDEST"),
-    CHEAPEST("CHEAPEST"),
-    HIGHEST_VIEW("HIGHEST_VIEW"),
     LATEST("LATEST"),
-    RANDOM("RANDOM"),
-    STAR_RATE_HIGHEST("STAR_RATE_HIGHEST");
+    HIGHEST_PLAY("HIGHEST_PLAY"),
+    //    OLDEST("OLDEST"),
+//    CHEAPEST("CHEAPEST"),
+    HIGHEST_STAR_RATE("HIGHEST_STAR_RATE"),
+    HIGHEST_VIEW("HIGHEST_VIEW"),
+    HIGHEST_LEVEL("HIGHEST_LEVEL"),
+    RANDOM("RANDOM");
 
     private final String value;
 }
