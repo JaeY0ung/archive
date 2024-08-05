@@ -121,15 +121,15 @@ async def mid2xml(file_request: FileRequest):
     filename = file_request.filename
     try:
         # 입력 파일 경로 설정
-        input_mid_path = os.path.join("app/shared/upload-sheet/mid", filename)
+        input_mid_path = os.path.join(PROJECT_ROOT_PATH, "upload-sheet/mid", filename)
         if not os.path.exists(input_mid_path):
             raise FileNotFoundError(f"{input_mid_path} 파일이 존재하지 않습니다.")
 
         # 출력 파일 경로 설정
-        output_xml_path = os.path.join("app/shared/upload-sheet/musicxml", f"{os.path.splitext(filename)[0]}.musicxml")
+        output_xml_path = os.path.join(PROJECT_ROOT_PATH, "upload-sheet/musicxml", f"{os.path.splitext(filename)[0]}.musicxml")
 
         # MIDI 파일을 MusicXML로 변환
-        ConvertService.midi_to_xml(input_mid_path, os.path.dirname(output_xml_path))
+        ConvertService.midi_to_xml(input_mid_path, output_xml_path)
 
         # 결과 확인
         if not os.path.exists(output_xml_path):
