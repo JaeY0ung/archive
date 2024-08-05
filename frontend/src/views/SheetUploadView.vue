@@ -6,7 +6,14 @@ import { localAxios } from "@/util/http-common";
 
 const local = localAxios();
 const router = useRouter();
-const selectedSong = ref();
+const selectedSong = ref({
+    id: "",
+    title: "",
+    composer: "",
+    genreTitle: "",
+    img: "",
+    imageUrl: "",
+});
 const keyword = ref("");
 
 const songs = ref([{
@@ -34,12 +41,13 @@ const searchSongsByKeyword = () => {
         keyword: keyword.value
 	}
     local.get("/songs", { params })
-    .then(({data})=>{
-        songs.value = data;
-        songs.value.map(s => s.img ? s.imageUrl = `data:image/jpeg;base64,${s.img}` : '기본 이미지'); 
-    }).catch((err)=>{
-        console.error(err);
-    })
+        .then(({data})=>{
+            if (!data) return;
+            songs.value = data;
+            songs.value.map(s => s.img ? s.imageUrl = `data:image/jpeg;base64,${s.img}` : '기본 이미지'); 
+        }).catch((err)=>{
+            console.error(err);
+        })
 }
 
 searchSongsByKeyword();

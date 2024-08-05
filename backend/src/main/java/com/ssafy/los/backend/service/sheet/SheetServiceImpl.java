@@ -45,7 +45,7 @@ public class SheetServiceImpl implements SheetService {
     public SheetDetailViewDto searchSheetById(Long sheetId) throws IllegalArgumentException {
         sheetRepository.updateViewCount(sheetId);
         SheetDetailViewDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId,
-                authService.getLoginUser() != null ? authService.getLoginUser().getId() : null);
+                authService.getLoginUser());
         sheet.loadSongImg(fileUploadUtil);
         return sheet;
 
@@ -65,7 +65,7 @@ public class SheetServiceImpl implements SheetService {
                     .peek(dto -> dto.loadSongImg(fileUploadUtil))
                     .toList();
         }
-        return sheetRepository.findSheetsByFilter(sheetSearchFilter, loginUser.getId())
+        return sheetRepository.findSheetsByFilter(sheetSearchFilter, loginUser)
                 .stream()
                 .peek(dto -> dto.loadSongImg(fileUploadUtil))
                 .toList();

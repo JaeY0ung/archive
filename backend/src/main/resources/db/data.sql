@@ -8,7 +8,7 @@ insert into archive.user (user_id, created_at, modified_at, birth_date, cash, de
                           user_img, uuid, firebase_token)
 values (0, '2024-07-29 01:21:33.468404', '2024-08-05 00:32:35.328245', '1998-05-28 15:00:00.000000',
         0, null, 'ssafy@ssafy.com', true, 900, 'ssafy', null,
-        '$2a$10$oxOGMt3r0MwpxsdVePPC5OivtlNkYF1Rcu6f2BovY/LveJu/FLd.m', 'ROLE_USER', null,
+        '$2a$10$oxOGMt3r0MwpxsdVePPC5OivtlNkYF1Rcu6f2BovY/LveJu/FLd.m', 'ROLE_ADMIN', null,
         'ssafy.png', 'cbcfe839-7031-481e-a2d4-3a1cfbfed90f', null),
        (1, '2024-07-29 01:21:33.468404', '2024-08-05 00:32:35.328245', '1998-05-28 15:00:00.000000',
         0, null, 'ssafy1@ssafy.com', true, 1500, 'ssafy1', null,
