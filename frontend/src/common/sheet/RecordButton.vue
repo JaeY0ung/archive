@@ -44,7 +44,15 @@ watch(
 const startRecording = async () => {
     // 기존 블롭 초기화
     audioBlobs.value = [];
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+            sampleRate: 44100, // 또는 48000 Hz
+            channelCount: 2, // 스테레오 녹음
+            noiseSuppression: false, // 잡음 제거 비활성화
+            echoCancellation: false, // 에코 제거 비활성화
+            autoGainControl: false // 자동 이득 제어 비활성화
+        }
+    });
 
     //* ! MediaRecorder 초기화
     mediaRecorder.value = new MediaRecorder(stream);
@@ -56,7 +64,7 @@ const startRecording = async () => {
         }
     };
 
-  // 녹음기가 종료됐을때 다시 실행(3초마다 무한반복)
+    // 녹음기가 종료됐을때 다시 실행(3초마다 무한반복)
     mediaRecorder.value.onstop = () => {
         if (chunks.length > 0) {
             const formData = new FormData();
@@ -66,9 +74,9 @@ const startRecording = async () => {
             axios
                 .post("https://arc-hive.shop/fastapi/playing", formData, {
                 //post("http://localhost:8000/fastapi/playing", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
                 })
                 .then((res) => {
                     console.log("파일 업로드 성공: ", res.data);
@@ -88,6 +96,7 @@ const startRecording = async () => {
     mediaRecorder.value.start();
     isRecording.value = true;
 };
+
 
 const splitRecording = () => {
     if (isRecording.value && mediaRecorder.value.state === "recording") {
