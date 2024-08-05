@@ -8,12 +8,14 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.ssafy.los.backend.constant.Role;
 import com.ssafy.los.backend.constant.Sort;
 import com.ssafy.los.backend.constant.SuccessStatus;
 import com.ssafy.los.backend.domain.entity.QLikeSheet;
 import com.ssafy.los.backend.domain.entity.QSheet;
 import com.ssafy.los.backend.domain.entity.QSheetStarRate;
 import com.ssafy.los.backend.domain.entity.QSinglePlayResult;
+import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailViewDto;
 import java.util.HashSet;
@@ -48,8 +50,9 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     }
 
     @Override
-    public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter, Long userId) {
-        return createSelectFromJoinQuery(sheetSearchFilter.getSuccessStatuses(), userId)
+    public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
+            User loginUser) {
+        return createSelectFromJoinQuery(sheetSearchFilter.getSuccessStatuses(), loginUser)
                 .where(s.deletedAt.isNull(),
                         s.createdAt.isNotNull(),
                         containKeyword(sheetSearchFilter.getKeyword()),
@@ -69,9 +72,9 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     }
 
     @Override
-    public SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId, Long userId) {
+    public SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId, User loginUser) {
 
-        return createSelectFromQuery(userId)
+        return createSelectFromQuery(loginUser)
                 .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
                 .fetchOne();
     }
@@ -84,13 +87,13 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .execute();
     }
 
-    private JPAQuery<SheetDetailViewDto> createSelectFromQuery(Long userId) {
+    private JPAQuery<SheetDetailViewDto> createSelectFromQuery(User loginUser) {
         return queryFactory.select(Projections.constructor(SheetDetailViewDto.class,
                 s,
                 JPAExpressions.select(ls.count())
                         .from(ls)
                         .where(ls.sheet.eq(s)),
-                createLikeStatusExpression(userId)
+                createLikeStatusExpression(loginUser)
 
         )).from(s);
     }
@@ -104,37 +107,38 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         )).from(s);
     }
 
-    private JPAQuery<SheetDetailViewDto> createSelectFromJoinQuery(HashSet<SuccessStatus> successStatuses,
-            long userId) {
+    private JPAQuery<SheetDetailViewDto> createSelectFromJoinQuery(
+            HashSet<SuccessStatus> successStatuses,
+            User loginUser) {
 
         QSinglePlayResult subSpr = new QSinglePlayResult("subSpr");
 
         JPAQuery<Float> subQuery = queryFactory
                 .select(subSpr.score.max())
                 .from(subSpr)
-                .where(subSpr.sheet.eq(s).and(subSpr.user.id.eq(userId)));
+                .where(subSpr.sheet.eq(s).and(subSpr.user.eq(loginUser)));
 
         if (successStatuses == null || successStatuses.isEmpty()) {
-            return createSelectFromQuery();
+            return createSelectFromQuery(loginUser);
         } else if (successStatuses.size() == 2) {
-            return createSelectFromQuery()
+            return createSelectFromQuery(loginUser)
                     .rightJoin(spr)
-                    .on(spr.user.id.eq(userId).and(spr.score.eq(subQuery)));
+                    .on(spr.user.eq(loginUser).and(spr.score.eq(subQuery)));
         }
         for (SuccessStatus successStatus : successStatuses) {
             if (successStatus == SuccessStatus.SUCCESS) {
-                return createSelectFromQuery()
+                return createSelectFromQuery(loginUser)
                         .rightJoin(spr)
                         .on(s.id.eq(spr.sheet.id)
-                                .and(spr.user.id.eq(userId))
+                                .and(spr.user.eq(loginUser))
                                 .and(spr.score.eq(subQuery))
                                 .and(spr.score.goe(80))
                         );
             } else if (successStatus == SuccessStatus.FAIL) {
-                return createSelectFromQuery()
+                return createSelectFromQuery(loginUser)
                         .rightJoin(spr)
                         .on(s.id.eq(spr.sheet.id)
-                                .and(spr.user.id.eq(userId))
+                                .and(spr.user.eq(loginUser))
                                 .and(spr.score.eq(subQuery))
                                 .and(spr.score.lt(80))
                         );
@@ -142,21 +146,21 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 throw new IllegalArgumentException("잘못된");
             }
         }
-        return createSelectFromQuery()
+        return createSelectFromQuery(loginUser)
                 .rightJoin(spr)
                 .on(s.id.eq(spr.sheet.id)
-                        .and(spr.user.id.eq(userId))
+                        .and(spr.user.eq(loginUser))
                         .and(spr.score.goe(80))
                 );
     }
 
-    private BooleanExpression createLikeStatusExpression(Long userId) {
-        if (userId == null) {
+    private BooleanExpression createLikeStatusExpression(User loginUser) {
+        if (loginUser == null) {
             return Expressions.FALSE;
         }
         return JPAExpressions.selectOne()
                 .from(ls)
-                .where(ls.sheet.eq(s).and(ls.user.id.eq(userId))).exists();
+                .where(ls.sheet.eq(s).and(ls.user.eq(loginUser))).exists();
     }
 
     private BooleanExpression containKeyword(String keyword) {
@@ -167,6 +171,13 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .or(s.uploader.nickname.contains(keyword))
                 .or(s.song.title.contains(keyword))
                 .or(s.song.composer.contains(keyword));
+    }
+
+    private BooleanExpression isStatusNotRejected(User loginUser) {
+        if (loginUser.getRole().equals(Role.ROLE_ADMIN.getValue())) {
+            return null;
+        }
+        return s.status.eq(0).or(s.status.eq(1));
     }
 
     private BooleanExpression inLevels(Integer[] level) {
@@ -212,9 +223,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
             return new OrderSpecifier<>(Order.ASC,
                     Expressions.numberTemplate(Double.class, "function('RAND')"));
         }
-        log.info(sort.toString());
         return switch (sort) {
-            // TODO : LikeSheet과 join해서 가져오는것을 엔티티에서 OneToMany로 설정하는게 맞는지?...
             case POPULAR -> new OrderSpecifier<>(Order.DESC,
                     JPAExpressions.select(ls.count())
                             .from(ls)

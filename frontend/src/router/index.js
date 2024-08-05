@@ -47,9 +47,9 @@ const routes = [
                 component: () => import('@/views/play/WaitView.vue'),
                 children: [
                     {
-                        path: 'default',
-                        name: 'default',
-                        component: () => import('@/views/play/component/DefaultSheet.vue')
+                        path: 'multiDefault',
+                        name: 'multiDefault',
+                        component: () => import('@/views/play/component/MultiDefaultSheet.vue')
                     },
                     {
                         path: 'popular',

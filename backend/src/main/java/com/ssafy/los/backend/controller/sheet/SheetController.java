@@ -43,7 +43,7 @@ public class SheetController {
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
             @RequestPart("title") String title,
             @RequestPart("level") Integer level,
-            @RequestPart("songId") Long songId) {
+            @RequestPart(value = "songId", required = false) Long songId) {
 
         if (files.size() != 1) {
             return new ResponseEntity<>("하나의 파일만 올려주세요.", HttpStatus.BAD_REQUEST);

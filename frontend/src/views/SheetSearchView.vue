@@ -1,9 +1,8 @@
 <script setup>
-import { localAxios } from "@/util/http-common";
 import { tierInfo } from "@/util/tier-info"
 import { sortInfo } from "@/util/sort";
 import { searchSheetsByFilter } from "@/api/sheet"
-import { onMounted, ref, watch } from "vue";
+import { onMounted, onUpdated, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
@@ -12,9 +11,7 @@ import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 
 const { isLogin } = storeToRefs(useUserStore());
 
-const props = defineProps({
-	keyword: String
-})
+const route = useRoute();
 
 const genres = ref([]); 
 const sheets = ref([]);
@@ -25,12 +22,12 @@ const priceInfo = ref([
 ])
 
 const searchFilter = ref({
-	keyword: "",
-	levels: [1, 2, 3, 4, 5],
-	genres: [1, 2, 3, 4, 5, 6],
-	prices: [0, 1],
-	successStatuses: [],
-	sort: "LATEST",
+	keyword: "", // 검색어 없음
+	levels: [0, 1, 2, 3, 4, 5], // 모든 레벨
+	genres: [1, 2, 3, 4, 5, 6], // 모든 장르
+	prices: [0, 1], // 무료, 유료 (전부)
+	successStatuses: [], // 필터 없음
+	sort: "LATEST", // 최신순
 })
 
 const view = ref("list")
@@ -53,17 +50,10 @@ const search = () => {
 }
 getAllGenres(({ data }) => genres.value = data)
 
-// 키워드 바뀔 때마다 searchFilter
-watch(() => props.keyword,
-	(newValue) => {
-		searchFilter.value.keyword = newValue || "";
-	}
-);
 
 // 다른 페이지에서 넘어왔을 때
 onMounted(() => {
-	searchFilter.value.keyword = props.keyword;
-	console.log("Mounted: ", props.keyword)
+	searchFilter.value.keyword = route.query.keyword || "";
 	search();
 });
 

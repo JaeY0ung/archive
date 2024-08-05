@@ -53,7 +53,8 @@ const canLeaveSite = ref(false);
 
 
 function connect() {
-    var socket = new SockJS('http://localhost:8081/archive-websocket');
+    // local & https 
+    var socket = new SockJS(process.env.VUE_APP_REQUEST_URL + '/archive-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
