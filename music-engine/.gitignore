@@ -1,7 +1,8 @@
 ###### 내가 따로 추가 ######
 .venv
 /library
-
+.env
+#########################
 /ffmpeg-2024-07-10-git-1a86a7a48d-full_build
 ffmpeg-2024-07-10-git-1a86a7a48d-full_build.7z
 

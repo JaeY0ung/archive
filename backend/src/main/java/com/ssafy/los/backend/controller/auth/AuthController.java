@@ -28,7 +28,6 @@ public class AuthController {
     public ResponseEntity<?> getUserInfo(HttpServletRequest request, HttpServletResponse response) {
         UserDetailDto userDetailDto = authService.getUserInfo(request);
         if (userDetailDto != null) {
-//            log.info("userDetailDto = {}", userDetailDto.toString());
             return new ResponseEntity<>(userDetailDto, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);

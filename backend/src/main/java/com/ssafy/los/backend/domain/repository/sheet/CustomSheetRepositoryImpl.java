@@ -9,33 +9,63 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.los.backend.constant.Sort;
+import com.ssafy.los.backend.constant.SuccessStatus;
 import com.ssafy.los.backend.domain.entity.QLikeSheet;
 import com.ssafy.los.backend.domain.entity.QSheet;
+import com.ssafy.los.backend.domain.entity.QSheetStarRate;
+import com.ssafy.los.backend.domain.entity.QSinglePlayResult;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailViewDto;
+import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
+@Slf4j
 public class CustomSheetRepositoryImpl implements CustomSheetRepository {
 
     private final JPAQueryFactory queryFactory;
 
     QSheet s = QSheet.sheet;
     QLikeSheet ls = QLikeSheet.likeSheet;
+    QSinglePlayResult spr = QSinglePlayResult.singlePlayResult;
+    QSheetStarRate ssr = QSheetStarRate.sheetStarRate;
 
     @Override
     public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter) {
         return createSelectFromQuery()
-                .where(s.deletedAt.isNull(), s.createdAt.isNotNull(),
+                .where(s.deletedAt.isNull(),
+                        s.createdAt.isNotNull(),
                         containKeyword(sheetSearchFilter.getKeyword()),
-                        inLevels(sheetSearchFilter.getLevel()),
-                        inGenre(sheetSearchFilter.getGenre()),
-                        inPrice(sheetSearchFilter.getPrice())
+                        inLevels(sheetSearchFilter.getLevels()),
+                        inGenre(sheetSearchFilter.getGenres()),
+                        inPrice(sheetSearchFilter.getPrices())
                 )
                 .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                 .fetch();
+    }
+
+    @Override
+    public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter, Long userId) {
+        return createSelectFromJoinQuery(sheetSearchFilter.getSuccessStatuses(), userId)
+                .where(s.deletedAt.isNull(),
+                        s.createdAt.isNotNull(),
+                        containKeyword(sheetSearchFilter.getKeyword()),
+                        inLevels(sheetSearchFilter.getLevels()),
+                        inGenre(sheetSearchFilter.getGenres()),
+                        inPrice(sheetSearchFilter.getPrices())
+                )
+                .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
+                .fetch();
+    }
+
+    @Override
+    public SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId) {
+        return createSelectFromQuery()
+                .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
+                .fetchOne();
     }
 
     @Override
@@ -72,6 +102,52 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                         .from(ls)
                         .where(ls.sheet.eq(s))
         )).from(s);
+    }
+
+    private JPAQuery<SheetDetailViewDto> createSelectFromJoinQuery(HashSet<SuccessStatus> successStatuses,
+            long userId) {
+
+        QSinglePlayResult subSpr = new QSinglePlayResult("subSpr");
+
+        JPAQuery<Float> subQuery = queryFactory
+                .select(subSpr.score.max())
+                .from(subSpr)
+                .where(subSpr.sheet.eq(s).and(subSpr.user.id.eq(userId)));
+
+        if (successStatuses == null || successStatuses.isEmpty()) {
+            return createSelectFromQuery();
+        } else if (successStatuses.size() == 2) {
+            return createSelectFromQuery()
+                    .rightJoin(spr)
+                    .on(spr.user.id.eq(userId).and(spr.score.eq(subQuery)));
+        }
+        for (SuccessStatus successStatus : successStatuses) {
+            if (successStatus == SuccessStatus.SUCCESS) {
+                return createSelectFromQuery()
+                        .rightJoin(spr)
+                        .on(s.id.eq(spr.sheet.id)
+                                .and(spr.user.id.eq(userId))
+                                .and(spr.score.eq(subQuery))
+                                .and(spr.score.goe(80))
+                        );
+            } else if (successStatus == SuccessStatus.FAIL) {
+                return createSelectFromQuery()
+                        .rightJoin(spr)
+                        .on(s.id.eq(spr.sheet.id)
+                                .and(spr.user.id.eq(userId))
+                                .and(spr.score.eq(subQuery))
+                                .and(spr.score.lt(80))
+                        );
+            } else {
+                throw new IllegalArgumentException("잘못된");
+            }
+        }
+        return createSelectFromQuery()
+                .rightJoin(spr)
+                .on(s.id.eq(spr.sheet.id)
+                        .and(spr.user.id.eq(userId))
+                        .and(spr.score.goe(80))
+                );
     }
 
     private BooleanExpression createLikeStatusExpression(Long userId) {
@@ -131,12 +207,12 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         return priceExpression;
     }
 
-
     private OrderSpecifier<?> createOrderSpecifier(Sort sort) {
         if (sort == null) {
             return new OrderSpecifier<>(Order.ASC,
                     Expressions.numberTemplate(Double.class, "function('RAND')"));
         }
+        log.info(sort.toString());
         return switch (sort) {
             // TODO : LikeSheet과 join해서 가져오는것을 엔티티에서 OneToMany로 설정하는게 맞는지?...
             case POPULAR -> new OrderSpecifier<>(Order.DESC,
@@ -144,13 +220,17 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                             .from(ls)
                             .where(ls.sheet.eq(s))
             );
-            case OLDEST -> new OrderSpecifier<>(Order.ASC, s.createdAt);
-            case CHEAPEST -> new OrderSpecifier<>(Order.ASC, s.price);
+//            case OLDEST -> new OrderSpecifier<>(Order.ASC, s.createdAt);
+//            case CHEAPEST -> new OrderSpecifier<>(Order.ASC, s.price);
             case HIGHEST_VIEW -> new OrderSpecifier<>(Order.DESC, s.viewCount);
             case LATEST -> new OrderSpecifier<>(Order.DESC, s.createdAt);
             case RANDOM -> new OrderSpecifier<>(Order.ASC,
                     Expressions.numberTemplate(Double.class, "function('RAND')"));
-            case STAR_RATE_HIGHEST -> new OrderSpecifier<>(Order.DESC, s.createdAt);
+            case HIGHEST_STAR_RATE -> new OrderSpecifier<>(Order.DESC,
+                    JPAExpressions.select(ssr.starRate.avg())
+                            .from(ssr)
+                            .where(ssr.sheet.eq(s))
+            );
             default -> new OrderSpecifier<>(Order.DESC, s.createdAt);
         };
     }
