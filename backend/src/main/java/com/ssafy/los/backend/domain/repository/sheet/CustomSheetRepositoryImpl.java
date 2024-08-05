@@ -48,7 +48,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     }
 
     @Override
-    public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter, Long userId) {
+    public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
+            Long userId) {
         return createSelectFromJoinQuery(sheetSearchFilter.getSuccessStatuses(), userId)
                 .where(s.deletedAt.isNull(),
                         s.createdAt.isNotNull(),
@@ -104,7 +105,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         )).from(s);
     }
 
-    private JPAQuery<SheetDetailViewDto> createSelectFromJoinQuery(HashSet<SuccessStatus> successStatuses,
+    private JPAQuery<SheetDetailViewDto> createSelectFromJoinQuery(
+            HashSet<SuccessStatus> successStatuses,
             long userId) {
 
         QSinglePlayResult subSpr = new QSinglePlayResult("subSpr");
@@ -115,15 +117,15 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .where(subSpr.sheet.eq(s).and(subSpr.user.id.eq(userId)));
 
         if (successStatuses == null || successStatuses.isEmpty()) {
-            return createSelectFromQuery();
+            return createSelectFromQuery(userId);
         } else if (successStatuses.size() == 2) {
-            return createSelectFromQuery()
+            return createSelectFromQuery(userId)
                     .rightJoin(spr)
                     .on(spr.user.id.eq(userId).and(spr.score.eq(subQuery)));
         }
         for (SuccessStatus successStatus : successStatuses) {
             if (successStatus == SuccessStatus.SUCCESS) {
-                return createSelectFromQuery()
+                return createSelectFromQuery(userId)
                         .rightJoin(spr)
                         .on(s.id.eq(spr.sheet.id)
                                 .and(spr.user.id.eq(userId))
@@ -131,7 +133,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                                 .and(spr.score.goe(80))
                         );
             } else if (successStatus == SuccessStatus.FAIL) {
-                return createSelectFromQuery()
+                return createSelectFromQuery(userId)
                         .rightJoin(spr)
                         .on(s.id.eq(spr.sheet.id)
                                 .and(spr.user.id.eq(userId))
@@ -142,7 +144,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 throw new IllegalArgumentException("잘못된");
             }
         }
-        return createSelectFromQuery()
+        return createSelectFromQuery(userId)
                 .rightJoin(spr)
                 .on(s.id.eq(spr.sheet.id)
                         .and(spr.user.id.eq(userId))
@@ -212,9 +214,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
             return new OrderSpecifier<>(Order.ASC,
                     Expressions.numberTemplate(Double.class, "function('RAND')"));
         }
-        log.info(sort.toString());
         return switch (sort) {
-            // TODO : LikeSheet과 join해서 가져오는것을 엔티티에서 OneToMany로 설정하는게 맞는지?...
             case POPULAR -> new OrderSpecifier<>(Order.DESC,
                     JPAExpressions.select(ls.count())
                             .from(ls)
