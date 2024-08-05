@@ -7,9 +7,7 @@ import logging
 import re
 from service.convert_service import ConvertService
 from service.calculate_service import calculate_similarity
-from dotenv import load_dotenv
 
-load_dotenv()
 PROJECT_ROOT_PATH = os.getenv('PROJECT_ROOT_PATH')
 
 app = FastAPI(root_path="/fastapi")
