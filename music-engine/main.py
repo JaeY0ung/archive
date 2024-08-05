@@ -11,7 +11,6 @@ from service.convert_service import ConvertService
 from service.calculate_service import calculate_similarity
 from pydantic import BaseModel
 
-PROJECT_ROOT_PATH = os.getenv('PROJECT_ROOT_PATH')
 
 app = FastAPI(root_path="/fastapi")
 
@@ -31,6 +30,7 @@ app.add_middleware(
 )
 
 # 임시 폴더 설정
+PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
 #os.makedirs(UPLOAD_DIR, exist_ok=True)
