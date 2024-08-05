@@ -3,7 +3,7 @@ package com.ssafy.los.backend.service.sheet;
 import com.ssafy.los.backend.dto.sheet.request.DifficultyCreateDto;
 import com.ssafy.los.backend.dto.sheet.request.DifficultyUpdateDto;
 import com.ssafy.los.backend.dto.sheet.response.DifficultyResponseDto;
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface DifficultyService {
 
@@ -13,7 +13,7 @@ public interface DifficultyService {
 
     Long deleteDifficulty(Long difficultyId);
 
-    List<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId);
+    Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size);
 
     int calculateDifficulty(Long sheetId);
 }

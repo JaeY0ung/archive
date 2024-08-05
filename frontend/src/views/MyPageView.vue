@@ -8,7 +8,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 const local = localAxios();
 const userStore = useUserStore();
-const { userInfo } = storeToRefs(userStore);
+const { userInfo, getUserInfo } = storeToRefs(userStore);
 
 const originalUserInfo = ref({
     email: "",
@@ -27,7 +27,6 @@ const fileInputRef = ref(null);
 const isNicknameChecked = ref(false);
 const isNicknameAvailable = ref(false);
 
-
 const handleImageUpload = (event) => {
     const file = event.target.files[0];
     loginUserInfo.value.profileImage = file;
@@ -43,12 +42,10 @@ const checkNicknameDuplicate = async () => {
         const response = await local.get("/users/check-nickname", {
             params: { nickname: loginUserInfo.value.nickname },
         });
-        
-        console.log(response.data);
-        
+
         isNicknameChecked.value = true;
         isNicknameAvailable.value = !response.data;
-        
+
         if (isNicknameAvailable.value) {
             alert("사용 가능한 닉네임입니다.");
         } else {
@@ -61,7 +58,16 @@ const checkNicknameDuplicate = async () => {
     }
 };
 
-// 사용자 정보 업데이트 하기
+const resetForm = () => {
+    loginUserInfo.value = { ...originalUserInfo.value };
+    imagePreview.value = null;
+    isNicknameChecked.value = true;
+    isNicknameAvailable.value = true;
+    if (fileInputRef.value) {
+        fileInputRef.value.value = "";
+    }
+};
+
 const updateUserInfo = async () => {
     if (
         loginUserInfo.value.nickname !== originalUserInfo.value.nickname &&
@@ -70,27 +76,32 @@ const updateUserInfo = async () => {
         alert("닉네임 중복 확인을 먼저 해주세요.");
         return;
     }
-    
+
     try {
         const formData = new FormData();
-        formData.append("email", loginUserInfo.value.email);
         formData.append("nickname", loginUserInfo.value.nickname);
+
         if (
             loginUserInfo.value.profileImage &&
             loginUserInfo.value.profileImage !== originalUserInfo.value.profileImage
         ) {
             formData.append("profileImage", loginUserInfo.value.profileImage);
         }
-        
-        const response = await local.post("/user", formData, {
+
+        const response = await local.put("/users", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
-        
+
         console.log("User info updated successfully:", response.data);
         alert("사용자 정보가 성공적으로 업데이트되었습니다.");
         originalUserInfo.value = { ...loginUserInfo.value };
+
+        // 스토어 정보 초기화
+        await userStore.getUserInfo();
+
+        resetForm();
     } catch (error) {
         console.error("Error updating user info:", error);
         alert("사용자 정보 업데이트에 실패했습니다.");
@@ -121,16 +132,24 @@ const canUpdate = computed(() => {
     return isModified.value;
 });
 
-// 로그아웃 함수 추가
 const goLogout = async () => {
     try {
-        await userStore.userLogout(); // store에서 직접 액션 호출
+        await userStore.userLogout();
         router.push({ name: "main" });
     } catch (error) {
         console.error("로그아웃 중 오류 발생:", error);
         alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
 };
+
+const goToUserProfile = () => {
+    if (userInfo.value && userInfo.value.nickname) {
+        router.push({ name: "userProfile", params: { nickName: userInfo.value.nickname } });
+    } else {
+        alert("사용자 정보를 불러올 수 없습니다.");
+    }
+};
+
 onMounted(() => {
     if (userInfo.value) {
         originalUserInfo.value = { ...userInfo.value };
@@ -142,16 +161,16 @@ onMounted(() => {
 <template>
     <div class="container">
         <div class="text-4xl mb-6">마이페이지</div>
-        
+
         <div class="form-control w-full mb-4">
             <label class="label">
                 <span class="label-text">이메일</span>
             </label>
             <input
-            v-model="loginUserInfo.email"
-            type="text"
-            class="input input-bordered w-full"
-            disabled
+                v-model="loginUserInfo.email"
+                type="text"
+                class="input input-bordered w-full"
+                disabled
             />
         </div>
 
@@ -203,13 +222,14 @@ onMounted(() => {
         </div>
 
         <div v-if="imagePreview" class="mb-4">
-            <img :src="imagePreview" alt="Profile Preview" class="max-w-xs mx-auto rounded-full" />
+            <img :src="imagePreview" alt="Profile Preview" class="profile-preview" />
         </div>
 
         <div class="flex justify-center mt-4">
             <button @click="updateUserInfo" class="btn btn-primary mr-2" :disabled="!canUpdate">
                 수정하기
             </button>
+            <button @click="goToUserProfile" class="btn btn-info mr-2">내 프로필 가기</button>
             <button @click="goLogout" class="btn btn-secondary">로그아웃</button>
         </div>
     </div>
@@ -225,10 +245,28 @@ onMounted(() => {
 .btn-secondary {
     background-color: #f44336;
     color: white;
-	border: none;
+    border: none;
 }
 
 .btn-secondary:hover {
     background-color: #d32f2f;
+}
+
+.profile-preview {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.btn-info {
+    background-color: #3498db;
+    color: white;
+    border: none;
+}
+
+.btn-info:hover {
+    background-color: #2980b9;
 }
 </style>

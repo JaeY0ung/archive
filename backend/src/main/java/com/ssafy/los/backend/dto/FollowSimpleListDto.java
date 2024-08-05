@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.dto;
 
 import com.ssafy.los.backend.domain.entity.User;
+import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,18 +13,19 @@ import lombok.Getter;
 public class FollowSimpleListDto {
 
     private String nickname;
+    private String userImgName;
     private String userImg;
 
     @Builder
-    public FollowSimpleListDto(String nickname, String userImg) {
+    public FollowSimpleListDto(String nickname, String userImgName) {
         this.nickname = nickname;
-        this.userImg = userImg;
+        this.userImgName = userImgName;
     }
 
-    public User toEntity() {
-        return User.builder()
-                .nickname(nickname)
-                .userImg(userImg)
-                .build();
+    public void loadUserImg(FileUploadUtil fileUploadUtil) {
+        if (this.userImgName != null) {
+            this.userImg = fileUploadUtil.getUserImg(this.userImgName);
+        }
     }
+
 }

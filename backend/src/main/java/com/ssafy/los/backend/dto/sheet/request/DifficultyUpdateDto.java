@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DifficultyUpdateDto {
-
     private Integer level;
     private String contents;
 }

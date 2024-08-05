@@ -7,6 +7,9 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.FollowSimpleListDto;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ssafy.los.backend.service.user.UserService;
+import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +21,7 @@ public class FollowServiceImpl implements FollowService {
 
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
+    private final FileUploadUtil fileUploadUtil;
 
 
     // 팔로우 추가하기
@@ -87,8 +91,11 @@ public class FollowServiceImpl implements FollowService {
             // TODO: SELECT 쿼리 발생 (N + 1 쿼리 문제 발생 지점)
             User target = userRepository.findById(follow.getFollower().getId())
                     .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
-            followerSimpleListDtoList.add(
-                    new FollowSimpleListDto(target.getNickname(), target.getUserImg()));
+
+            FollowSimpleListDto followSimpleListDto = new FollowSimpleListDto(target.getNickname(), target.getUserImg());
+            followSimpleListDto.loadUserImg(fileUploadUtil);
+
+            followerSimpleListDtoList.add(followSimpleListDto);
         }
         return followerSimpleListDtoList;
     }

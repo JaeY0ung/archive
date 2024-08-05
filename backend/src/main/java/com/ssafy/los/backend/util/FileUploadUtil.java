@@ -71,6 +71,20 @@ public class FileUploadUtil {
         return getPath(songImgFolderPath, fileName);
     }
 
+    // 유저용
+    public String getUserImg(String imgName) {
+        Path path = getSomgUserImgPath(imgName);
+        return getImgFileByPath(path);
+    }
+
+    // 유저용
+    private Path getSomgUserImgPath(String fileName) throws IllegalArgumentException {
+        if (fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("유저에 연결된 곡의 이미지 파일이 없습니다");
+        }
+        return getPath(userImgFolderPath, fileName);
+    }
+
     public String getImgFileByPath(Path path) {
         try {
             byte[] songImg = Files.readAllBytes(path);
