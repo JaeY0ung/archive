@@ -1,63 +1,68 @@
 package com.ssafy.los.backend.controller.order;
 
-import com.ssafy.los.backend.dto.payment.response.ApproveResponse;
-import com.ssafy.los.backend.dto.payment.response.ReadyResponse;
-import com.ssafy.los.backend.service.payment.KakaoPayService;
+import com.ssafy.los.backend.domain.entity.Sheet;
+import com.ssafy.los.backend.domain.entity.User;
+import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
+import com.ssafy.los.backend.dto.order.response.OrderSheetDto;
+import com.ssafy.los.backend.service.auth.AuthService;
+import com.ssafy.los.backend.service.order.OrderService;
+import com.ssafy.los.backend.service.sheet.SheetService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * packageName    : com.ssafy.los.backend.controller.order
- * fileName       : OrderController
- * author         : moongi
- * date           : 8/5/24
- * description    :
+ * packageName    : com.ssafy.los.backend.controller.order fileName       : OrderController author :
+ * moongi date           : 8/5/24 description    :
  */
 @Slf4j
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/order")
 public class OrderController {
-    private final KakaoPayService kakaoPayService;
 
-    @GetMapping("/pay/ready")
-    public ReadyResponse readyToKakaoPay() {
-        return kakaoPayService.payReady();
+    private final AuthService authService;
+    private final OrderService orderService;
+    private final SheetService sheetService;
+    private final SheetRepository sheetRepository;
+
+    // 주문 내역 저장
+    @PostMapping
+    public ResponseEntity<?> createOrder(@RequestBody OrderSheetDto orderSheetDto) {
+        User loginUser = authService.getLoginUser();
+
+        log.info("orderSheetDto ====== {}", orderSheetDto.getSheetIds());
+
+        List<Sheet> sheets = sheetRepository.findAllById(orderSheetDto.getSheetIds());
+
+        for (Sheet sheet : sheets) {
+            System.out.println("sheet = " + sheet.getTitle());
+        }
+
+//        List<Sheet> sheets = orderService.searchSheetByIds(orderSheetDto.getSheetIds());
+//        System.out.println("sheets = " + sheets.size());
+
+//        for (Sheet sheet : sheets) {
+//            System.out.println("sheet = " + sheet.getTitle());
+//        }
+        //TODO: 주문 내역 저장하기
+        return new ResponseEntity<>(sheets, HttpStatus.CREATED);
     }
 
-//    @PostMapping("/pay/ready")
-//    public @ResponseBody ReadyResponse payReady(@RequestBody OrderCreateForm orderCreateForm) {
-//
-//        String name = orderCreateForm.getName();
-//        int totalPrice = orderCreateForm.getTotalPrice();
-//
-//        log.info("주문 상품 이름: " + name);
-//        log.info("주문 금액: " + totalPrice);
-//
-//        // 카카오 결제 준비하기
-//        ReadyResponse readyResponse = kakaoPayService.payReady(name, totalPrice);
-//        // 세션에 결제 고유번호(tid) 저장
-//        SessionUtils.addAttribute("tid", readyResponse.getTid());
-//        log.info("결제 고유번호: " + readyResponse.getTid());
-//
-//        return readyResponse;
-//    }
+    // 주문 내역 가져오기
+    @GetMapping
+    public ResponseEntity<?> getOrder() {
+        User loginUser = authService.getLoginUser();
 
-    @GetMapping("/pay/completed")
-    public String payCompleted(@RequestParam("pg_token") String pgToken,  @ModelAttribute("tid") String tid/*, @ModelAttribute("order") Order order,  Model model*/) {
+        // TODO: 로그인한 유저의 주문 내역 가져오기
 
-//        String tid = SessionUtils.getStringAttributeValue("tid");
-        log.info("결제승인 요청을 인증하는 토큰: " + pgToken);
-        log.info("결제 고유번호: " + tid);
-
-        // 카카오 결제 요청하기
-        ApproveResponse approveResponse = kakaoPayService.payApprove(tid, pgToken);
-
-        return "redirect:/order/completed";
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

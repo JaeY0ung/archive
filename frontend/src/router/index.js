@@ -103,9 +103,9 @@ const routes = [
     },
     // -----------------------------------------------
     {
-        path: '/cart',
-        name: 'cart',
-        component: () => import('@/views/CartView.vue')
+        path: '/order',
+        name: 'order',
+        component: () => import('@/views/OrderView.vue')
     },
     {
         path: '/payment',

@@ -1,7 +1,6 @@
 package com.ssafy.los.backend.filter;
 
 import com.ssafy.los.backend.domain.entity.User;
-import com.ssafy.los.backend.domain.repository.auth.RefreshTokenRepository;
 import com.ssafy.los.backend.dto.user.CustomUserDetails;
 import com.ssafy.los.backend.util.JWTUtil;
 import io.jsonwebtoken.JwtException;
@@ -19,16 +18,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 @Slf4j
 @RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
             "/users", "/users/check-email",

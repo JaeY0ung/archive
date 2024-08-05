@@ -21,7 +21,7 @@ public class QPayment extends EntityPathBase<Payment> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final StringPath name = createString("name");
+    public final EnumPath<com.ssafy.los.backend.constant.PayType> name = createEnum("name", com.ssafy.los.backend.constant.PayType.class);
 
     public QPayment(String variable) {
         super(Payment.class, forVariable(variable));

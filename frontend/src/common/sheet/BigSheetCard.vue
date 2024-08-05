@@ -4,7 +4,8 @@ import {useRouter} from 'vue-router'
 import {likeSheet, dislikeSheet} from '@/api/likesheet';
 import Tier from "@/common/icons/Tier.vue"
 import ModalComponent from '@/common/modal/ModalComponent';
-import {addSheetToCartAPI} from "@/api/cart";
+import {addSheetToOrderAPI} from "@/api/order";
+import {addToOrder} from "@/util/order";
 
 const router = useRouter();
 
@@ -74,18 +75,25 @@ const onClickDislikeSheet = async () => {
 }
 
 // TODO : 장바구니에 넣는 로직 추가하기
-const addSheetToCart = () => {
-  // 모달을 표시하도록 상태 변경
+const addSheetToOrder = async () => {
   try {
-    addSheetToCartAPI(sheetInfo.value.id); // API 호출로 장바구니에 추가
-    showModal.value = true;
+	addToOrder(sheetInfo.value); // LocalStorage에 장바구니 추가
+	showModal.value = true;
+
   } catch (error) {
-    console.error("장바구니에 담기는 게 실패하였습니다.", error);
+	  console.error("장바구니에 담기는 게 실패하였습니다.", error);
   }
+  // 모달을 표시하도록 상태 변경
+  // try {
+  //   await addSheetToOrderAPI(sheetInfo.value.id, '카카오페이'); // API 호출로 장바구니에 추가
+  //   showModal.value = true;
+  // } catch (error) {
+  //   console.error("장바구니에 담기는 게 실패하였습니다.", error);
+  // }
 }
 
 const goToCart = () => {
-  router.push({name: 'cart'});
+  router.push({name: 'order'});
   showModal.value = false;
 }
 
@@ -156,7 +164,7 @@ const continueShopping = () => {
     <!-- 세로 선 -->
     <div class="line"></div>
     <!-- 장바구니 -->
-    <div class="items-center w-[1vw] flex flex-col justify-center gap-1 cursor-pointer" @click="addSheetToCart">
+    <div class="items-center w-[1vw] flex flex-col justify-center gap-1 cursor-pointer" @click="addSheetToOrder">
       <img :src="require('@/assets/img/cart.svg')" alt="장바구니 이미지">
 
       <div class="text-[1vw]">
