@@ -12,7 +12,10 @@ from service.calculate_service import calculate_similarity
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-app = FastAPI(root_path="/fastapi")
+
+# 로깅 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # CORS 설정
 origins = [
@@ -20,6 +23,8 @@ origins = [
     "http://localhost:8081",
     "https://arc-hive.shop"
 ]
+
+app = FastAPI(root_path="/fastapi")
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,25 +38,17 @@ dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 # 임시 폴더 설정
+# TODO: UPLOAD DIR, DUMMY OUTPUTS_DIR 추후 삭제
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
 #os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-# 로깅 설정
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 class FileRequest(BaseModel):
     filename: str
 
-logger.info(f"PROJECT_ROOT_PATH: {PROJECT_ROOT_PATH}")
-logger.info(f"UPLOAD_DIR: {UPLOAD_DIR}")
-
-
 @app.post("/playing")
 async def upload_file(file: UploadFile = File(...)):
-    print("playing")
     try:
         # 파일 저장 경로 설정
         file_location = os.path.join(UPLOAD_DIR, file.filename)
