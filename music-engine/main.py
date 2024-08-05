@@ -92,9 +92,10 @@ async def upload_file(file: UploadFile = File(...)):
 
         if not os.path.exists(original_file_location):
             raise FileNotFoundError(f"original 폴더에 {original_file_location} 파일이 존재하지 않습니다.")
+        start_measure = max(0, file_number * 8 - 1)
+        end_measure = (file_number + 1) * 8 + 1
 
-        # 유사도 계산
-        similarity_scores = calculate_similarity(original_file_location, midi_file_location)
+        similarity_scores = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
         logger.info(similarity_scores)
         return {
             "filename": file.filename,
