@@ -55,11 +55,14 @@ public class User extends BaseEntity {
 
     private String provider;
 
-    private int cash;
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
+    private Integer cash = 0;
 
-    private Integer singleScore;
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
+    private Integer singleScore = 0;
 
-    private Integer multiScore;
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
+    private Integer multiScore = 0;
 
     private LocalDateTime deletedAt;
 
@@ -74,7 +77,7 @@ public class User extends BaseEntity {
     public User(String email, String pwdHash, LocalDateTime birthDate, String nickname,
             Boolean gender,
             String userImg, String role, Integer singleScore, Integer multiScore, String provider,
-            String firebaseToken) {
+            String firebaseToken, Integer cash) {
         this.email = email;
         this.pwdHash = pwdHash;
         this.birthDate = birthDate;
@@ -90,12 +93,12 @@ public class User extends BaseEntity {
 
 
     //=== 메서드 ===//
-    public void updateProfile(String nickname, String uuid) {
+    public void updateProfile(String nickname, String userImg) {
         if (nickname != null) {
             this.nickname = nickname;
         }
         if (uuid != null) {
-            this.uuid = uuid;
+            this.userImg = userImg;
         }
     }
 

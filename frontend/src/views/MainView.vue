@@ -13,32 +13,35 @@ const getPopularsheets = async () => {
 	const params = { sort: "POPULAR" }
 	await local.get("/sheets", { params } )
 		.then(({ data }) => {
+			if (!data) return;
 			popularSheets.value = data;
 			popularSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); // TODO: songImg가 없으면 기본 로고로.
-		}).catch((err)=> console.log(err))
+		}).catch((err)=> console.error(err))
 }
 
 const getnewsheets = async () => {
 	const params = { sort: "LATEST" }
 	await local.get("/sheets", { params })
-	.then(({ data }) => {
-		newSheets.value = data;
-		newSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
-	}).catch((err)=> console.log(err))
+		.then(({ data }) => {
+			if (!data) return;
+			newSheets.value = data;
+			newSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
+		}).catch((err)=> console.error(err))
 }
 
 
 const getRecommendsheets = async () => {
 	const params = {
-		level: 1, // 유저의 티어
+		levels: 1, // 유저의 티어
 		sort: "RANDOM"
 	}
 	await local.get("/sheets", { params })
-	.then(({ data }) => {
-		recommendSheets.value = data;
-		recommendSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); 
-	}).catch((err)=> console.log(err))
-}
+		.then(({ data }) => {
+			if (!data) return;
+			recommendSheets.value = data;
+			recommendSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); 
+		}).catch((err)=> console.error(err))
+	}
 getPopularsheets();
 getnewsheets();
 getRecommendsheets();
@@ -54,34 +57,30 @@ getRecommendsheets();
 </script>
 
 <template>
-	<div class="container">
-		<div class="box-div full-box up-div">
-			<div>
-				<p class="bold">인기</p>
-			</div>
-			<div class="scroll-x flex">
-				<template v-if="popularSheets">
-					<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"/>
-				</template>
-			</div>
+	<div class="m-auto w-full flex flex-col gap-[50px]">
 
-			<div style="height: 30px;"></div>
-
-			<div>
-				<p class="bold">최신</p>
+		<div class="flex flex-col gap-[50px] p-[10px] bg-white/50 rounded-xl w-full mb-[50px]">
+			<div class="flex flex-col gap-5">
+				<div class="bold">인기</div>
+				<div class="scroll-x flex">
+					<template v-if="popularSheets">
+						<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"/>
+					</template>
+				</div>
 			</div>
-			<div class="scroll-x flex">
-				<template v-if="newSheets">
-					<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" />
-				</template>
+			<div class="flex flex-col gap-5">
+				<div class="bold">최신</div>
+				<div class="scroll-x flex">
+					<template v-if="newSheets">
+						<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" />
+					</template>
+				</div>
 			</div>
 		</div>
 
-		<div class="down-div">
-			<div class="box-div recommend-box">
-				<div>
-					<p class="bold">추천</p>
-				</div>
+		<div class="flex justify-between">
+			<div class="flex flex-col gap-5 w-[70%] p-[10px] bg-white/50 rounded-xl">
+				<div  class="bold">추천</div>
 				<div class="scroll-x flex">
 					<template v-if="recommendSheets">
 						<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" />
@@ -89,49 +88,14 @@ getRecommendsheets();
 				</div>
 			</div>
 
-			<div class="box-div challenged-box">
+			<div class="p-[10px] bg-white/50 rounded-xl w-[25%]">
 				<div>
 					<div><p class="bold">도전 중인 악보</p></div>
 				</div>
-
-				
 			</div>
 		</div>
 	</div>
 </template>
 
 <style scoped>
-.container {
-	margin: 0 auto;
-	align-items: center;
-	width: 100%;
-}
-
-.box-div  {
-	padding: 10px;
-	background-color: rgb(255, 255, 255, 0.5);
-	border-radius: 15px;
-}
-
-.full-box {
-	width: 100%;
-}
-
-.recommend-box {
-	width: 70%;
-}
-
-.challenged-box {
-	width: 25%;
-}
-
-.up-div {
-	margin-bottom: 50px;
-}
-
-.down-div {
-	display: flex;
-	justify-content: space-between;
-}
-
 </style>

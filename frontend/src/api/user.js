@@ -29,6 +29,7 @@ async function logout(success, fail) {
 
 async function findByEmail(success, fail) {
     try {
+        // TODO : 중복인지 확인하기
         const accessToken = sessionStorage.getItem("accessToken");
         const headers = {
             'Authorization': `Bearer ${accessToken}`

@@ -1,15 +1,15 @@
 package com.ssafy.los.backend.service.sheet;
 
 import com.ssafy.los.backend.domain.entity.Sheet;
-import com.ssafy.los.backend.domain.repository.song.SongRepository;
+import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
+import com.ssafy.los.backend.domain.repository.song.SongRepository;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailViewDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -58,10 +58,17 @@ public class SheetServiceImpl implements SheetService {
 
     @Override
     public List<SheetDetailViewDto> searchSheetByFilter(SheetSearchFilter sheetSearchFilter) {
-        return sheetRepository.findSheetsByFilter(sheetSearchFilter)
+        User loginUser = authService.getLoginUser();
+        if (loginUser == null) {
+            return sheetRepository.findSheetsByFilter(sheetSearchFilter)
+                    .stream()
+                    .peek(dto -> dto.loadSongImg(fileUploadUtil))
+                    .toList();
+        }
+        return sheetRepository.findSheetsByFilter(sheetSearchFilter, loginUser.getId())
                 .stream()
                 .peek(dto -> dto.loadSongImg(fileUploadUtil))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private String saveSheetFile(MultipartFile file) throws IllegalArgumentException {

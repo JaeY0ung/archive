@@ -1,25 +1,29 @@
 <script setup>
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 import LeftNavigation from '@/common/navigation/LeftNavigation.vue'
 import MyProfile from './common/navigation/MyProfile.vue';
 import Hamburger from '@/common/icons/Hamburger.vue'
 import { useLeftNavigationStore } from '@/stores/leftNavigation'
 
 const leftNavigationStore = useLeftNavigationStore();
-
+const route = useRoute();
 </script>
 
 <template>
     <div class="h-screen bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200">
         <div class="left-and-hamburger" :class="{ 'show' : leftNavigationStore.navVisibility }">
             <LeftNavigation class="left-nav"/>
-            <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
+            <div>
+                <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
+                <div class="h-full" @click="leftNavigationStore.closeNav"></div>
+            </div>
         </div>
         <div style="height:50px; display:flex; justify-content:end;">
             <MyProfile style="height:40px;"/>
         </div>
         <div class="router-view-parent">
-            <RouterView @click="leftNavigationStore.closeNav"/>
+            <RouterView @click="leftNavigationStore.closeNav" :key="route.fullPath"/>
         </div>
     </div>
 </template>

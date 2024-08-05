@@ -29,7 +29,4 @@ public class Song {
     @ManyToOne(cascade = CascadeType.REMOVE)
     private Genre genre;
 
-//    @JoinColumn(name = "sheet_id")
-//    @OneToMany(fetch = FetchType.LAZY)
-//    private List<Sheet> sheets;
 }

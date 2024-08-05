@@ -1,5 +1,5 @@
 <script setup>
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ref, watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
@@ -8,12 +8,13 @@ import { searchSheetDetail } from "@/api/sheet";
 const route = useRoute();
 const local = localAxios();
 const isPlay = ref("stop");
-
+const router = useRouter();
 const sheet = ref({});
 const sameLevelSheets = ref([]);
 const starRateList = ref([]);
 const starRateAvg = ref(0.0); // 별점 평균
 const starRateStatistic = ref([0, 0, 0, 0, 0, 0]); // 별점 0,1,2,3,4,5 인 리뷰들의 수
+
 const starRateRegisterForm = ref({
 	content: "",
 	starRate: 0,
@@ -27,72 +28,73 @@ const updateStarRate = (starRate) => {
 // 같은 수준의 악보 랜덤으로 가져오기
 const searchRandomSameLevelSheets = () => {
 	let params = {
-		level: sheet.value.level,
+		levels: sheet.value.level,
 		sort: "RANDOM",
 		keyword: "",
 	};
 	// TODO: api 리팩토링
 	local.get("/sheets", { params })
 	.then(({ data }) => {
+		if (!data) return;
 		sameLevelSheets.value = data;
 		sameLevelSheets.value.map((s) =>
-		s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지"
-	);
-})
-.catch((err) => {
-	alert(err);
-});
+		s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
+	})
+	.catch((err) => {
+		alert(err);
+	});
 };
 
 // 별점 가져오기
 const searchStarRateList = () => {
 	// TODO: api 리팩토링
-	local
-	.get(`/sheets/${route.params.sheetId}/star-rates`)
-	.then(({ data }) => {
-		starRateList.value = data;
-		let sum = 0;
-		starRateList.value.map((starRateInfo) => {
-			sum += starRateInfo.starRate;
-			starRateStatistic.value[starRateInfo.starRate]++;
+	local.get(`/sheets/${route.params.sheetId}/star-rates`)
+		.then(({ data }) => {
+			if (!data) return;
+			starRateList.value = data;
+			let sum = 0;
+			starRateList.value.map((starRateInfo) => {
+				sum += starRateInfo.starRate;
+				starRateStatistic.value[starRateInfo.starRate]++;
+			});
+			starRateAvg.value = round(sum / starRateList.value.length, 2);
+		})
+		.catch((err) => {
+			alert(err);
 		});
-		starRateAvg.value = round(sum / starRateList.value.length, 2);
-	})
-	.catch((err) => {
-		alert(err);
-	});
 };
 
 // 별점 등록하기
 const registerStarRate = () => {
 	// TODO: api 리팩토링
-	local
-	.post(`/sheets/${route.params.sheetId}/star-rates`, starRateRegisterForm)
-	.then(({ data }) => {
-		starRateList.value = data;
-		let sum = 0;
-		starRateList.value.map((starRateInfo) => {
-			sum += starRateInfo.starRate;
-			starRateStatistic.value[starRateInfo.starRate]++;
+	local.post(`/sheets/${route.params.sheetId}/star-rates`, starRateRegisterForm)
+		.then(({ data }) => {
+			if (!data) return;
+			starRateList.value = data;
+			let sum = 0;
+			starRateList.value.map((starRateInfo) => {
+				sum += starRateInfo.starRate;
+				starRateStatistic.value[starRateInfo.starRate]++;
+			});
+			starRateAvg.value = round(sum / starRateList.value.length, 2);
+		})
+		.catch((err) => {
+			alert(err);
 		});
-		starRateAvg.value = round(sum / starRateList.value.length, 2);
-	})
-	.catch((err) => {
-		alert(err);
-	});
 };
 
 function round(number, place) {
 	return Math.round(number * 10 ** place) / 10 ** place;
 }
 
-watch(sheet, (newValue, oldValue) => {
+watch(sheet, () => {
 	searchRandomSameLevelSheets();
 });
 
 searchSheetDetail(
 	route.params.sheetId, 
 	({ data }) => {
+		if (!data) return;
 		sheet.value = data;
 		sheet.value.imageUrl = `data:image/jpeg;base64,${data.songImg}`;
 	}, 
@@ -102,6 +104,14 @@ searchSheetDetail(
 )
 
 searchStarRateList();
+
+const goToSheetDetail = (sheetId) => {
+	router.push({
+		name: 'sheetDetail',
+		params: { 'sheetId': sheetId },
+		replace: true
+	})
+}
 </script>
 
 <template>
@@ -113,8 +123,8 @@ searchStarRateList();
 			<div>
 				<div>비슷한 수준의 악보 추천</div>
 				<div class="line"></div>
-				<div class="scroll-x flex h-full bg-white/50 rounded-xl">
-					<SmallSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet"/>
+				<div class="scroll-x flex bg-white/50 rounded-xl">
+					<SmallSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer" />
 					<!-- <BigSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" /> -->
 				</div>
 			</div>

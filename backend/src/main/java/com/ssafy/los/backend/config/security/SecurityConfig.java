@@ -82,13 +82,13 @@ public class SecurityConfig {
                 .requestMatchers("/test/user").hasRole("USER")
                 .requestMatchers("/test/admin").hasRole("ADMIN")
                 .requestMatchers("/assets/**", "/favicon.ico", "/index.html").permitAll()
-                .requestMatchers("/", "/oauth2/**", "/login/**").permitAll()
+                .requestMatchers("/users", "/oauth2/**", "/login/**").permitAll()
 //                .anyRequest().authenticated());
                 .anyRequest().permitAll());
 
         // 필터 추가
 
-        http.addFilterBefore(new JWTFilter(jwtUtil, refreshTokenRepository),
+        http.addFilterBefore(new JWTFilter(jwtUtil),
                 UsernamePasswordAuthenticationFilter.class);
         http.addFilterAt(
                 new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
@@ -107,11 +107,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-//    @Bean
-//    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-
 
 }

@@ -10,13 +10,17 @@ const userStore = useUserStore();
 const { isLogin, userInfo } = storeToRefs(userStore);
 
 const userNickname = computed(() => userInfo.value?.nickname || '사용자');
+const userImg = computed(() => {
+  if (userInfo.value?.userImg) {
+    return `data:image/jpeg;base64,${userInfo.value.userImg}`;
+  }
+  return null;
+});
 
 const goToMyPage = () => {
   if (router.currentRoute.value.name === 'mypage') {
-    // 현재 페이지가 mypage인 경우 이전 페이지로 이동
     router.go(-1);
   } else {
-    // 그 외의 경우 mypage로 이동
     router.push({ name: 'mypage' });
   }
 };
@@ -28,7 +32,8 @@ const goToMyPage = () => {
       <!-- 로그인 완료 시 -->
       <template v-if="isLogin && userInfo">
         <div class="user-info" @click="goToMyPage">
-          <Profile class="profile-icon"/>
+          <img v-if="userImg" :src="userImg" alt="User Profile" class="user-image">
+          <Profile v-else class="profile-icon"/>
           <span class="user-name">{{ userNickname }}</span>
         </div>
       </template>
@@ -104,4 +109,12 @@ const goToMyPage = () => {
   text-decoration: none;
 }
 
+.user-image {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
 </style>
