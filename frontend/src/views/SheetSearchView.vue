@@ -1,9 +1,8 @@
 <script setup>
-import { localAxios } from "@/util/http-common";
 import { tierInfo } from "@/util/tier-info"
 import { sortInfo } from "@/util/sort";
 import { searchSheetsByFilter } from "@/api/sheet"
-import { onMounted, ref, watch } from "vue";
+import { onMounted, onUpdated, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
@@ -23,12 +22,12 @@ const priceInfo = ref([
 ])
 
 const searchFilter = ref({
-	keyword: "",
-	levels: [1, 2, 3, 4, 5],
-	genres: [1, 2, 3, 4, 5, 6],
-	prices: [0, 1],
-	successStatuses: [],
-	sort: "LATEST",
+	keyword: "", // 검색어 없음
+	levels: [0, 1, 2, 3, 4, 5], // 모든 레벨
+	genres: [1, 2, 3, 4, 5, 6], // 모든 장르
+	prices: [0, 1], // 무료, 유료 (전부)
+	successStatuses: [], // 필터 없음
+	sort: "LATEST", // 최신순
 })
 
 const view = ref("list")
@@ -55,6 +54,7 @@ getAllGenres(({ data }) => genres.value = data)
 // 다른 페이지에서 넘어왔을 때
 onMounted(() => {
 	searchFilter.value.keyword = route.query.keyword || "";
+	search();
 });
 
 // 검색 필터 감지
