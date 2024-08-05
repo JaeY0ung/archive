@@ -12,9 +12,7 @@ import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 
 const { isLogin } = storeToRefs(useUserStore());
 
-const props = defineProps({
-	keyword: String
-})
+const route = useRoute();
 
 const genres = ref([]); 
 const sheets = ref([]);
@@ -53,18 +51,10 @@ const search = () => {
 }
 getAllGenres(({ data }) => genres.value = data)
 
-// 키워드 바뀔 때마다 searchFilter
-watch(() => props.keyword,
-	(newValue) => {
-		searchFilter.value.keyword = newValue || "";
-	}
-);
 
 // 다른 페이지에서 넘어왔을 때
 onMounted(() => {
-	searchFilter.value.keyword = props.keyword;
-	console.log("Mounted: ", props.keyword)
-	search();
+	searchFilter.value.keyword = route.query.keyword || "";
 });
 
 // 검색 필터 감지
