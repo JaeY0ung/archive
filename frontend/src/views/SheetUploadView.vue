@@ -1,19 +1,11 @@
-<!-- 파일 업로드 multiple : true, 모든 확장자 다 받음 -->
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { localAxios } from "@/util/http-common";
+import { registerSheet } from "@/api/sheet";
+import { searchSongsByFilter } from "@/api/song";
 
-const local = localAxios();
 const router = useRouter();
-const selectedSong = ref({
-    id: "",
-    title: "",
-    composer: "",
-    genreTitle: "",
-    img: "",
-    imageUrl: "",
-});
+
 const keyword = ref("");
 
 const songs = ref([{
@@ -24,6 +16,15 @@ const songs = ref([{
     img: String,
     imageUrl: "",
 }])
+
+const selectedSong = ref({
+    id: "",
+    title: "",
+    composer: "",
+    genreTitle: "",
+    img: "",
+    imageUrl: "",
+});
 
 const fileInfo = ref({
     files: "",
@@ -37,17 +38,14 @@ const handleFileChange = (event) => {
 };
 
 const searchSongsByKeyword = () => {
-    const params = {
-        keyword: keyword.value
-	}
-    local.get("/songs", { params })
-        .then(({data})=>{
+    searchSongsByFilter(
+        { keyword: keyword.value },
+        ({data})=>{
             if (!data) return;
             songs.value = data;
             songs.value.map(s => s.img ? s.imageUrl = `data:image/jpeg;base64,${s.img}` : '기본 이미지'); 
-        }).catch((err)=>{
-            console.error(err);
-        })
+        }
+    )
 }
 
 searchSongsByKeyword();
@@ -65,29 +63,14 @@ const uploadFile = async () => {
         formData.append("files", fileInfo.value.files[i]);
     }
 
-    formData.append(
-        "title",
-        new Blob([fileInfo.value.title], { type: "application/json" })
-    );
-    formData.append(
-        "level",
-        new Blob([fileInfo.value.level], { type: "application/json" })
-    );
-    formData.append(
-        "songId",
-        new Blob([selectedSong.value?.id], { type: "application/json" })
-    );
-    //TODO: axios api로 뺴야함
-    await local
-        .post("/sheets", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        }).then(({ data }) => {
-            router.push({ name: 'sheetDetail', params: { sheetId: data } });
-        }).catch((err) => {
-            alert("파일 업로드 실패: ", err);
-        });
+    formData.append( "title", new Blob([fileInfo.value.title], { type: "application/json" }) );
+    formData.append( "level", new Blob([fileInfo.value.level], { type: "application/json" }) );
+    formData.append( "songId", new Blob([selectedSong.value?.id], { type: "application/json" }) );
+    
+    registerSheet(formData, ({ data }) => {
+        // 성공 시, 악보 디테일 페이지로 이동
+        router.push({ name: 'sheetDetail', params: { sheetId: data } });
+    })
 };
 </script>
 

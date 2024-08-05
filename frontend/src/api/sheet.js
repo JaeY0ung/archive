@@ -10,6 +10,12 @@ async function searchSheetsByFilter(params, success) {
     await local.get(`/sheets`, { params }).then(success).catch((err) => console.error(err));
 }
 
+async function registerSheet(params, success) {
+    await local.post(`/sheets`, params , {
+            headers: { "Content-Type": "multipart/form-data" }
+        }).then(success).catch((err) => console.error(err));
+}
+
 async function searchRecentChallengedsheets(success) {
     await local.get(`/sheets/recent-challenge`).then(success).catch((err) => console.error(err));
 }
@@ -33,6 +39,7 @@ async function dislikeSheet(sheetId, success) {
 export {
     searchSheetDetail,
     searchSheetsByFilter,
+    registerSheet,
     searchRecentChallengedsheets,
     searchStarRateListBySheetId,
     registerStarRateBySheetId,
