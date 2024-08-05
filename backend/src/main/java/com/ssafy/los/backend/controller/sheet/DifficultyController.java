@@ -34,11 +34,15 @@ public class DifficultyController {
     @PostMapping("/{sheet-id}/difficulties")
     public ResponseEntity<?> crateDifficulty(@PathVariable("sheet-id") Long sheetId,
             @RequestBody DifficultyCreateDto difficultyCreateDto) {
-        Long userId = authService.getLoginUser().getId();
-        Long saveId = difficultyRatingService.saveDifficulty(sheetId, userId,
-                difficultyCreateDto);
-
-        return new ResponseEntity<>(saveId, HttpStatus.OK);
+        try {
+            Long userId = authService.getLoginUser().getId();
+            Long saveId = difficultyRatingService.saveDifficulty(sheetId, userId, difficultyCreateDto);
+            return new ResponseEntity<>(saveId, HttpStatus.OK);
+        } catch (IllegalStateException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>("난이도 평가 저장 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // 난이도 평가 수정
@@ -63,9 +67,11 @@ public class DifficultyController {
     @GetMapping("/{sheet-id}/difficulties")
     public ResponseEntity<?> findDifficulty(@PathVariable("sheet-id") Long sheetId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size) {
-        log.info("page: {}, size: {}", page, size);
-        Page<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyBySheetId(sheetId, page, size);
+            @RequestParam(defaultValue = "3") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+        log.info("page: {}, size: {}, sortBy: {}, sortDir: {}", page, size, sortBy, sortDir);
+        Page<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyBySheetId(sheetId, page, size, sortBy, sortDir);
 
         return new ResponseEntity<>(difficultyResponseDto, HttpStatus.OK);
     }

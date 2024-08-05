@@ -19,7 +19,7 @@ public class DifficultyResponseDto {
     private String sheetFileName;
     private int level;
     private String content;
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     public static DifficultyResponseDto toEntity(Difficulty difficulty, FileUploadUtil fileUploadUtil) {
         DifficultyResponseDto dto = DifficultyResponseDto.builder()
@@ -30,7 +30,7 @@ public class DifficultyResponseDto {
                 .sheetFileName(difficulty.getSheet().getFileName())
                 .level(difficulty.getLevel())
                 .content(difficulty.getContent())
-                .createAt(difficulty.getCreatedAt())
+                .createdAt(difficulty.getCreatedAt())
                 .build();
 
         dto.loadUserImg(fileUploadUtil);
