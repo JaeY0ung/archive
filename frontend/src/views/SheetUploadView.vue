@@ -75,7 +75,7 @@ const uploadFile = async () => {
     );
     formData.append(
         "songId",
-        new Blob([selectedSong.value.id], { type: "application/json" })
+        new Blob([selectedSong.value?.id], { type: "application/json" })
     );
     //TODO: axios api로 뺴야함
     await local
