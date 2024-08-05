@@ -23,10 +23,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        // Front에서 /battle 페이지로 들어갔을 때, 해당 엔드포인트로 연결되도록 설정해야 한다.
 //        registry.addEndpoint("archive-websocket").setAllowedOrigins("http://localhost:8081").setAllowedOriginPatterns("*").withSockJS(); // 커넥션을 맺는 경로 설정
         registry.addEndpoint("archive-websocket").setAllowedOrigins(allowedOrigins)
                 .withSockJS(); // 커넥션을 맺는 경로 설정
-        // Front에서 /battle 페이지로 들어갔을 때, 해당 엔드포인트로 연결되도록 설정해야 한다.
+        // https 웹소켓 지원
     }
 
 }
