@@ -4,7 +4,8 @@ import { ref, watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from  "@/common/sheet/SmallSheetCard.vue";
-import { searchSheetDetail } from "@/api/sheet";
+import { searchSheetDetail, searchSheetsByFilter, searchStarRateListBySheetId, registerStarRateBySheetId } from "@/api/sheet";
+
 const route = useRoute();
 const local = localAxios();
 const isPlay = ref("stop");
@@ -27,29 +28,25 @@ const updateStarRate = (starRate) => {
 
 // 같은 수준의 악보 랜덤으로 가져오기
 const searchRandomSameLevelSheets = () => {
-	let params = {
-		levels: sheet.value.level,
-		sort: "RANDOM",
-		keyword: "",
-	};
-	// TODO: api 리팩토링
-	local.get("/sheets", { params })
-	.then(({ data }) => {
-		if (!data) return;
-		sameLevelSheets.value = data;
-		sameLevelSheets.value.map((s) =>
-		s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
-	})
-	.catch((err) => {
-		alert(err);
-	});
+	searchSheetsByFilter(
+		{
+			levels: sheet.value.level,
+			sort: "RANDOM"
+		},
+		({ data }) => {
+			if (!data) return;
+			sameLevelSheets.value = data;
+			sameLevelSheets.value.map((s) =>
+			s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
+		}
+	)
 };
 
 // 별점 가져오기
 const searchStarRateList = () => {
-	// TODO: api 리팩토링
-	local.get(`/sheets/${route.params.sheetId}/star-rates`)
-		.then(({ data }) => {
+	searchStarRateListBySheetId(
+		route.params.sheetId,
+		({ data }) => {
 			if (!data) return;
 			starRateList.value = data;
 			let sum = 0;
@@ -58,17 +55,16 @@ const searchStarRateList = () => {
 				starRateStatistic.value[starRateInfo.starRate]++;
 			});
 			starRateAvg.value = round(sum / starRateList.value.length, 2);
-		})
-		.catch((err) => {
-			alert(err);
-		});
+		}
+	)
 };
 
 // 별점 등록하기
 const registerStarRate = () => {
-	// TODO: api 리팩토링
-	local.post(`/sheets/${route.params.sheetId}/star-rates`, starRateRegisterForm)
-		.then(({ data }) => {
+	registerStarRateBySheetId(
+		route.params.sheetId,
+		starRateRegisterForm.value,
+		({ data }) => {
 			if (!data) return;
 			starRateList.value = data;
 			let sum = 0;
@@ -77,19 +73,13 @@ const registerStarRate = () => {
 				starRateStatistic.value[starRateInfo.starRate]++;
 			});
 			starRateAvg.value = round(sum / starRateList.value.length, 2);
-		})
-		.catch((err) => {
-			alert(err);
-		});
+		}
+	)
 };
 
 function round(number, place) {
 	return Math.round(number * 10 ** place) / 10 ** place;
 }
-
-watch(sheet, () => {
-	searchRandomSameLevelSheets();
-});
 
 searchSheetDetail(
 	route.params.sheetId, 
@@ -103,6 +93,9 @@ searchSheetDetail(
 	}
 )
 
+watch(sheet, () => {
+	searchRandomSameLevelSheets();
+});
 searchStarRateList();
 
 const goToSheetDetail = (sheetId) => {
