@@ -40,6 +40,7 @@ const routes = [
         path: "/room",
         component: () => import('@/layouts/RoomLayout.vue'),
         children: [
+<<<<<<< Updated upstream
         {
             path: 'wait',
             name: 'wait',
@@ -50,6 +51,41 @@ const routes = [
             name: 'play',
             component: () => import('@/views/play/PlayingView.vue')
         },
+=======
+            {
+                path: 'wait',
+                name: 'wait',
+                component: () => import('@/views/play/WaitView.vue'),
+                children: [
+                    {
+                        path: 'multiDefault',
+                        name: 'multiDefault',
+                        component: () => import('@/views/play/component/MultiDefaultSheet.vue')
+                    },
+                    {
+                        path: 'popular',
+                        name: 'popular',
+                        component: () => import('@/views/play/component/PopularSheet.vue')
+                    }
+                ]
+            },
+            {
+                path: 'play',
+                name: 'play',
+                component: () => import('@/views/play/PlayingView.vue')
+            },
+        ],
+    },
+    {
+        path: "/singleRoom",
+        component: () => import('@/layouts/SingleRoomLayout.vue'),
+        children: [
+            {
+                path: 'singleDefault',
+                name: 'singleDefault',
+                component: () => import('@/views/play/component/SingleDefaultSheet.vue')
+            }
+>>>>>>> Stashed changes
         ]
     },
     // -----------------------------------------------
