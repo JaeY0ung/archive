@@ -9,6 +9,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -64,8 +67,8 @@ public class JWTFilter extends OncePerRequestFilter {
             log.error("JWT validation error가 발생했습니다.", e);
         } catch (Exception e) {
             log.error("JWT 필터 처리 중 예외 발생", e);
-//            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//            response.getWriter().write("Internal Server Error");
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Internal Server Error");
         }
     }
 

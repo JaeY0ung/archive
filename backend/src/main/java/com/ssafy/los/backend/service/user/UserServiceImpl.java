@@ -36,6 +36,9 @@ public class UserServiceImpl implements UserService {
                 .gender(userCreateDto.getGender())
                 .pwdHash(hashPwd)
                 .role(role)
+                .singleScore(0)
+                .multiScore(0)
+                .cash(0)
                 .build();
         return userRepository.save(user).getId();
     }
@@ -78,9 +81,10 @@ public class UserServiceImpl implements UserService {
         UserProfileDto userProfileDto = UserProfileDto.builder()
                 .userId(findUser.getId())
                 .nickname(findUser.getNickname())
-                .userImg(findUser.getUserImg())
+                .userImgName(findUser.getUserImg()) // 임시
                 .singleScore(findUser.getSingleScore())
                 .build();
+        userProfileDto.loadUserImg(fileUploadUtil);
 
         return userProfileDto;
     }

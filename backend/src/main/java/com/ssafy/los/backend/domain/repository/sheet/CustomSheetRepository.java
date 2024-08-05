@@ -8,8 +8,11 @@ public interface CustomSheetRepository {
 
     List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter);
 
+    List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter, Long userId);
+
+    SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId);
+
     SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId, Long userId);
 
     long updateViewCount(Long sheetId);
-
 }

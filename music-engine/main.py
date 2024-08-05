@@ -1,13 +1,16 @@
+import uvicorn
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import shutil
 import logging
 import re
-
 # ConvertService를 가져옵니다.
 from service.convert_service import ConvertService
 from service.calculate_service import calculate_similarity
+from dotenv import load_dotenv
+load_dotenv()
+PROJECT_ROOT_PATH = os.getenv('PROJECT_ROOT_PATH')
 
 app = FastAPI(root_path="/fastapi")
 
@@ -27,7 +30,7 @@ app.add_middleware(
 )
 
 # 임시 폴더 설정
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/shared/temp")
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -114,5 +117,9 @@ async def upload_file(file: UploadFile = File(...)):
 async def mid2xml():
     # 인자 값 filename
     return {}
+
+
 # FastAPI 실행 명령어
 # uvicorn main:app --reload --host 0.0.0.0 --port 8000
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
