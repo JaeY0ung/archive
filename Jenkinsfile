@@ -57,7 +57,7 @@ pipeline {
         stage('Build with Gradle') {
             steps {
                 dir('workspace/backend') {
-                    sh './gradlew clean build'
+                    sh './gradlew build'
                 }
             }
         }
