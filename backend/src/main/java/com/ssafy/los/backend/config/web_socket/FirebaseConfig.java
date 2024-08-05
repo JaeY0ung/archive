@@ -3,7 +3,8 @@ package com.ssafy.los.backend.config.web_socket;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -54,8 +55,7 @@ public class FirebaseConfig {
                     authProviderX509CertUrl, clientX509CertUrl
             );
 
-            FileInputStream serviceAccount =
-                    new FileInputStream("src/main/resources/FirebaseAccountKey.json");
+            InputStream serviceAccount = new ByteArrayInputStream(firebaseConfig.getBytes());
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
