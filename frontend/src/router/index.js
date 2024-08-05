@@ -98,6 +98,11 @@ const router = createRouter({
         },
         // -----------------------------------------------
         {
+          path: '/cart',
+          name: 'cart',
+          component: () => import('@/views/CartView.vue')
+        },
+        {
             path: '/payment',
             name: 'payment',
             component: () => import('@/views/PaymentView.vue')

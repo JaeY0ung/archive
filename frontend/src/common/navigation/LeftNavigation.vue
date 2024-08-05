@@ -2,7 +2,7 @@
 import Home from "@/common/icons/Home.vue";
 import My from "@/common/icons/My.vue";
 import Search from "@/common/icons/Search.vue";
-import Card from "@/common/icons/Card.vue";
+import Cart from "@/common/icons/Cart.vue";
 import Upload from "@/common/icons/Upload.vue";
 import NotePixel from "@/common/icons/NotePixel.vue";
 
@@ -23,7 +23,7 @@ const pages = ref([
     { name: "main", title: "메인 페이지" },
     { name: "mypage", title: "마이페이지" },
     { name: "sheetSearch", title: "악보 검색" },
-    { name: "payment", title: "충전하기" },
+    { name: "cart", title: "장바구니" },
     { name: "sheetUpload", title: "악보 업로드" },
     { name: "pianoSaurus", title: "배틀하기" },
   {name: "recording", title: "음악 녹음"},
@@ -63,7 +63,7 @@ const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-
                         <Record v-else-if="page.name === 'recording'" />
                         <Upload v-else-if="page.name === 'sheetUpload'" />
                         <NotePixel v-else-if="page.name === 'pianoSaurus'" />
-                        <Card v-else-if="page.name === 'payment'" />
+                        <Cart v-else-if="page.name === 'cart'" />
                     </div>
                     <span>{{ page.title }}</span>
                 </RouterLink>
