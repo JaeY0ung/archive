@@ -72,8 +72,8 @@ const startRecording = async () => {
             formData.append("file", blob, `chunck_${audioBlobs.value.length}.webm`);
             /* 파일 전송으로 바꿔야함 */
             axios
-                //post("https://arc-hive.shop/fastapi/playing", formData, {
-                .post("http://localhost:8000/fastapi/playing", formData, {
+                .post("https://arc-hive.shop/fastapi/playing", formData, {
+                //post("http://localhost:8000/fastapi/playing", formData, {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
