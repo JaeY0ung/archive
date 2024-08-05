@@ -83,8 +83,8 @@ const uploadFile = async () => {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
-        }).then((res) => {
-            //TODO: 요청 성공시 action
+        }).then(({ data }) => {
+            router.push({ name: 'sheetDetail', params: { sheetId: data } });
         }).catch((err) => {
             alert("파일 업로드 실패: ", err);
         });
