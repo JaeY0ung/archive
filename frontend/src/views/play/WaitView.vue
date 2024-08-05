@@ -9,7 +9,7 @@ import axios from "axios";
 import { usePlayStore } from "@/stores/play";
 
 const props = defineProps({
-    roomId: Number
+    roomId: String
 })
 
 const canLeaveSite = ref(false);

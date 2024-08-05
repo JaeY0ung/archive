@@ -32,7 +32,7 @@ const selectMode = (mode) => {
 const enterRoom = async (roomId) => {
   await playStore.enterRoom(roomId);
   // router.push({ path: `/room/${roomId}` });
-  router.push({ path: `/room/${roomId}/wait` }); // wait 페이지로 이동
+  router.push({ path: `/room/${roomId}/wait/multiDefault` }); // wait 페이지로 이동
 }; 
 
 const rankings = ref([

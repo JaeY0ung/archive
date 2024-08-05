@@ -9,6 +9,8 @@ import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
+import Sheet from '@/common/sheet/Sheet2.vue';
+
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
@@ -17,10 +19,14 @@ const playStore = new usePlayStore();
 var stompClient = null;
 
 const isReady = ref("false");
+isReady.value = userStore.userReady;
 const opponentReady = ref("false");
 const isInvited = ref("false");
 const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 const roomId = ref(route.params.roomId);
+
+console.log("isReady: " + isReady.value);
+console.log("this.router : " + route.name);
 
 const me = ref({
     img: defaultProfileImage,
@@ -29,6 +35,13 @@ const me = ref({
     isEmpty: true
 });
 
+watch(() => isReady.value, (newVal, oldVal) => {
+    console.log(userStore.userReady);
+    userStore.userReady = isReady.value;
+    console.log("watch 실행됨");
+    console.log("isReady.value : " + isReady.value);
+    console.log(userStore.userReady);
+});
 
 const opponent = ref({
     img: defaultProfileImage,
@@ -39,29 +52,14 @@ const opponent = ref({
 
 const canLeaveSite = ref(false);
 
-// const fetchRoomUsers = async () => {
-//   await playStore.enterRoom(route.params.roomId);
-//     const currentRoomUsers = playStore.currentRoomUsers; 
-//   if (currentRoomUsers && currentRoomUsers.length > 0) {
-//     const opponentUser = currentRoomUsers.find(user => user.email !== me.value.name);
-//     if (opponentUser) {
-//       opponent.value.name = opponentUser.email;
-//       opponent.value.isEmpty = false;
-//     }
-//   }
-// };
-
 
 function connect() {
     var socket = new SockJS('http://localhost:8081/archive-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
 
         stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
             const userLogin = JSON.parse(chatMessage.body);
-            console.log("이거 뭐지")
-            console.log(userLogin);
             if (userLogin.id == "profile" && opponent.value.isEmpty && user.nickname != userLogin.email) {
                 stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': user.nickname }));
                 opponent.value.name = userLogin.email;
@@ -73,9 +71,6 @@ function connect() {
 
         stompClient.subscribe(`/wait/socket/ready/{route.params.roomId}`, function (readyStatus) {
             const playerReady = JSON.parse(readyStatus.body);
-            console.log("준비 정보 구독")
-            console.log(playerReady)
-            console.log(user.nickname);
             if(playerReady.sender != user.nickname){
                 opponentReady.value = playerReady.isReady;
             }
@@ -132,9 +127,6 @@ const accessToken = sessionStorage.getItem("accessToken");
 
 userStore.getUserInfo(accessToken);
 
-console.log("userinfo 찍어보기")
-console.log(userStore.userInfo);
-
 let user = userStore.userInfo;
 
 me.value.name = user.nickname;
@@ -153,7 +145,6 @@ function unLoadEvent (event) {
 onMounted(() => {
     connect();
     playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
-    // fetchRoomUsers();
 })
 
 function quitButton () {
@@ -200,7 +191,8 @@ const inviteSelectedFriends = async () => {
 <template>
     <div class="container">
         <div class="up">
-            <RouterView :roomId="roomId"/>
+            <Sheet :roomId="roomId" showController="true" isRecording="true"/>
+            <!-- <RouterView :roomId="roomId" /> -->
         </div>
         <div class="down">
             <div class="player-card">
@@ -215,10 +207,10 @@ const inviteSelectedFriends = async () => {
             </div>
             
             <div class="button-div">
-                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'wait' && (isReady == 'false' || opponentReady == 'false')">
+                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'multiDefault' && (isReady == 'false' || opponentReady == 'false')">
                     시작하기
                 </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'wait' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
+                <button class="btn btn-primary w-24" v-if="route.name == 'multiDefault' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
                 <!-- <button class="btn btn-primary w-24" v-if="route.name == 'play'" @click="quitButton"> -->

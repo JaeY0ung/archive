@@ -24,6 +24,7 @@ export const useUserStore = defineStore(
     const isLogin = ref(false);
     const isLoginError = ref(false);
     const isValidToken = ref(false);
+    const userReady = ref("false");
 
     // 세션 타임아웃 관련
     const lastActivityTime = ref(null);
@@ -231,6 +232,7 @@ export const useUserStore = defineStore(
       isLoginError,
       isValidToken,
       tokenRegenerate,
+      userReady
     };
   },
   { persist: true }

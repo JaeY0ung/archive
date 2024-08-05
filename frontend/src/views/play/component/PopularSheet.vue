@@ -8,7 +8,6 @@ const popularSheets = ref([]); // 인기 악보 리스트
 
 
 const getPopularsheets = async () => {
-
     searchSheetsByFilter(
         { sort: "POPULAR" },
         ({ data }) => {
