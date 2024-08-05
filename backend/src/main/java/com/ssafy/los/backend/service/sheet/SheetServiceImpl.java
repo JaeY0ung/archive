@@ -82,7 +82,7 @@ public class SheetServiceImpl implements SheetService {
                     .uploader(authService.getLoginUser())
                     .level(sheetUploadForm.getLevel())
                     .title(sheetUploadForm.getTitle())
-                    .song(songRepository.findById(sheetUploadForm.getSongId()).orElse(null))
+                    .song(sheetUploadForm.getSongId() != null ? songRepository.findById(sheetUploadForm.getSongId()).orElse(null) : null)
                     .fileName(fileName)
                     .build();
             return sheetRepository.save(sheet);

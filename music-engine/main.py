@@ -9,6 +9,7 @@ import logging
 import re
 from service.convert_service import ConvertService
 from service.calculate_service import calculate_similarity
+from pydantic import BaseModel
 
 PROJECT_ROOT_PATH = os.getenv('PROJECT_ROOT_PATH')
 
@@ -32,11 +33,14 @@ app.add_middleware(
 # 임시 폴더 설정
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+#os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+class FileRequest(BaseModel):
+    filename: str
 
 @app.post("/playing")
 async def upload_file(file: UploadFile = File(...)):
@@ -113,7 +117,8 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail="내부 서버 오류")
 
 @app.post("/sheets/mid-to-xml")
-async def mid2xml(filename: str):
+async def mid2xml(file_request: FileRequest):
+    filename = file_request.filename
     try:
         # 입력 파일 경로 설정
         input_mid_path = os.path.join("app/shared/upload-sheet/mid", filename)
@@ -130,12 +135,12 @@ async def mid2xml(filename: str):
         if not os.path.exists(output_xml_path):
             raise FileNotFoundError(f"{output_xml_path} 파일이 생성되지 않았습니다.")
 
-        return JSONResponse(content={"message": "Conversion successful", "output_file": output_xml_path}, status_code=HTTP_200_OK)
+        return JSONResponse(content={"message": "Conversion successful", "output_file": output_xml_path}, status_code=200)
 
     except Exception as e:
         logger.error(f"파일 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="파일 변환 중 오류 발생")
-
+    
 # FastAPI 실행 명령어
 # uvicorn main:app --reload --host 0.0.0.0 --port 8000
 if __name__ == "__main__":
