@@ -26,19 +26,28 @@ def apply_pitch_offset(notes, offset):
     return [(start, pitch + offset, duration) for start, pitch, duration in notes]
 
 # 노트 비교를 위한 시각화 함수
-def plot_notes(notes1, notes2, matched_notes, ignored_notes, title1='Original Notes', title2='Result Notes'):
+def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes', title2='Result Notes', time_tolerance=0.3, pitch_tolerance=1.0):
     fig, axs = plt.subplots(2, 1, figsize=(15, 10), sharex=True, sharey=True)
 
     # Original notes
     times1, pitches1 = zip(*[(note[0], note[1]) for note in notes1])
     colors1 = []
+
+    if matched_notes:
+        first_matched_time = min(note[0] for note in matched_notes)
+        last_matched_time = max(note[0] for note in matched_notes)
+        min_pitch = min(note[1] for note in matched_notes)
+        max_pitch = max(note[1] for note in matched_notes)
+    else:
+        first_matched_time = last_matched_time = min_pitch = max_pitch = 0
+
     for note in notes1:
         if note in matched_notes:
-            colors1.append('red')
-        elif note[0] < min(note[0] for note in matched_notes) or note[0] > max(note[0] for note in matched_notes):
-            colors1.append('grey')
+            colors1.append('red')  # Original의 빨간점 (매칭된 노트)
+        elif note[0] < first_matched_time or note[0] > last_matched_time:
+            colors1.append('black')  # Original의 검은점 (범위 밖의 노트)
         else:
-            colors1.append('blue')
+            colors1.append('blue')  # Original의 파란점 (매칭되지 않은 노트)
 
     axs[0].scatter(times1, pitches1, c=colors1, edgecolors='k', label='Original Notes')
 
@@ -46,20 +55,18 @@ def plot_notes(notes1, notes2, matched_notes, ignored_notes, title1='Original No
     axs[0].set_ylabel('Pitch')
     axs[0].legend()
 
-    # Result notes
-    times2, pitches2 = zip(*[(note[0], note[1]) for note in notes2])
+    # Result notes (shifted)
+    shifted_notes2 = [(start + best_shift, pitch, duration) for start, pitch, duration in notes2]
+    times2, pitches2 = zip(*[(note[0], note[1]) for note in shifted_notes2])
     colors2 = []
-    min_pitch = min(note[1] for note in notes1)
-    max_pitch = max(note[1] for note in notes1)
-    for note in notes2:
-        if note in matched_notes:
-            colors2.append('red')
-        elif note in ignored_notes:
-            colors2.append('grey')
+
+    for note in shifted_notes2:
+        if any(abs(note[0] - match[0]) < time_tolerance and abs(note[1] - match[1]) <= pitch_tolerance for match in matched_notes):
+            colors2.append('green')  # Result의 초록점 (매칭된 노트)
         elif note[1] < min_pitch or note[1] > max_pitch:
-            colors2.append('black')
+            colors2.append('black')  # Result의 검은점 (범위 밖의 노트)
         else:
-            colors2.append('blue')
+            colors2.append('blue')  # Result의 파란점 (매칭되지 않은 노트)
 
     axs[1].scatter(times2, pitches2, c=colors2, edgecolors='k', label='Result Notes')
 
@@ -123,7 +130,9 @@ def calculate_best_similarity(original_notes, aligned_notes, pitch_range, time_t
         set1 = set((round(start / time_tolerance) * time_tolerance, pitch) for start, pitch, _ in original_notes)
         set2 = set((round(start / time_tolerance) * time_tolerance, pitch) for start, pitch, _ in offset_notes)
         intersection = len(set1 & set2)
-        union = len(set1 | set2)
+
+        # 합집합은 매칭된 노트 (빨간색) + 매칭되지 않은 노트 (파란색)의 수로 계산
+        union = len(set1) + len([note for note in original_notes if (round(note[0] / time_tolerance) * time_tolerance, note[1]) not in set2]) + len([note for note in offset_notes if (round(note[0] / time_tolerance) * time_tolerance, note[1]) not in set1])
 
         print(f"Offset: {offset}, Intersection: {intersection}, Union: {union}")
 
@@ -195,7 +204,7 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     time_tolerance = 0.3
     pitch_tolerance = 1.0
 
-    best_shift, best_aligned_notes, best_matched_notes, _ = find_best_alignment(
+    best_shift, best_aligned_notes, best_matched_notes, best_shifted_notes = find_best_alignment(
         notes1_segment, notes2, min_shift, max_shift, step, max_discard_time, time_tolerance, pitch_tolerance)
 
     # 원본의 가장 높은 음보다 높거나 가장 낮은 음보다 낮은 음을 필터링
@@ -203,6 +212,9 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     max_pitch = max(note[1] for note in notes1_segment)
     filtered_aligned_notes = [note for note in best_aligned_notes if min_pitch <= note[1] <= max_pitch]
     ignored_notes = [note for note in notes2 if note not in filtered_aligned_notes or note[1] < min_pitch or note[1] > max_pitch]
+
+    # 매칭되지 않은 노트
+    unmatched_shifted_notes = [note for note in best_shifted_notes if note not in filtered_aligned_notes]
 
     # 최적의 피치 오프셋 적용
     best_jaccard_sim, best_f1, best_pitch_offset, best_offset_notes, set1, set2 = calculate_best_similarity(
@@ -222,13 +234,23 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     valid_notes1_segment = [note for note in valid_notes1_segment if first_matched_time <= note[0] <= last_matched_time]
     valid_best_offset_notes = [note for note in valid_best_offset_notes if first_matched_time <= note[0] <= last_matched_time]
 
+    # 색상별로 노트 개수 저장
+    original_red_notes = best_matched_notes  # Original의 빨간점 (매칭된 노트)
+    original_blue_notes = [note for note in notes1_segment if note not in best_matched_notes and first_matched_time <= note[0] <= last_matched_time]  # Original의 파란점 (매칭되지 않은 노트)
+    result_green_notes = [note for note in valid_best_offset_notes if any(abs(note[0] - match[0]) < time_tolerance and abs(note[1] - match[1]) <= pitch_tolerance for match in best_matched_notes)]  # Result의 초록점 (매칭된 노트)
+    result_blue_notes = [note for note in valid_best_offset_notes if note not in result_green_notes and min_pitch <= note[1] <= max_pitch]  # Result의 파란점 (매칭되지 않은 노트)
+
     # 코사인 유사도 계산
     final_cosine_sim = calculate_cosine_similarity(valid_notes1_segment, valid_best_offset_notes)
 
     # 최종 자카드 유사도 계산
-    intersection = len(set(valid_notes1_segment) & set(valid_best_offset_notes))
-    union = len(set(valid_notes1_segment) | set(valid_best_offset_notes))
+    intersection = len(original_red_notes)
+    union = len(original_red_notes) + len(original_blue_notes) + len(result_blue_notes)
+
     final_jaccard_sim = intersection / union if union != 0 else 0
+
+    # 교집합과 합집합 크기 및 자카드 유사도 출력
+    print(f"Intersection: {intersection}, Union: {union}, Final Jaccard Similarity: {final_jaccard_sim}")
 
     final_similarity = (final_cosine_sim * 0.3) + (final_jaccard_sim * 0.2) + (best_f1 * 0.5)
 
@@ -237,9 +259,12 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
         'jaccard_similarity': final_jaccard_sim,
         'f1_score': best_f1,
         'final_similarity': final_similarity,
-        'matched_notes': best_matched_notes,
-        'original_segment_notes': notes1_segment,
-        'aligned_notes': filtered_aligned_notes,
-        'offset_notes': best_offset_notes,
-        'ignored_notes': ignored_notes
+        'matched_notes': best_matched_notes,  # Original의 빨간점
+        'original_segment_notes': notes1_segment,  # Original의 모든 노트 (빨간점, 파란점, 검은점 포함)
+        'aligned_notes': filtered_aligned_notes,  # Result의 모든 노트 (초록점, 파란점, 검은점 포함)
+        'offset_notes': best_offset_notes,  # 피치 오프셋이 적용된 Result의 노트 (초록점, 파란점, 검은점 포함)
+        'ignored_notes': ignored_notes,  # Result의 검은점
+        'unmatched_shifted_notes': unmatched_shifted_notes,  # Result의 파란점
+        'best_shift': best_shift  # 최적의 시간 이동
     }
+

@@ -5,10 +5,10 @@ import os
 import shutil
 import logging
 import re
-# ConvertService를 가져옵니다.
 from service.convert_service import ConvertService
 from service.calculate_service import calculate_similarity
 from dotenv import load_dotenv
+
 load_dotenv()
 PROJECT_ROOT_PATH = os.getenv('PROJECT_ROOT_PATH')
 
@@ -37,7 +37,6 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 @app.post("/playing")
 async def upload_file(file: UploadFile = File(...)):
@@ -90,16 +89,14 @@ async def upload_file(file: UploadFile = File(...)):
         os.remove(file_location)
         logger.info(f"원본 파일 {file_location}을 삭제했습니다.")
 
-        # 비교할 dummyOutputs 파일 결정
-        output_file_number = int(file_number) + 1
-        output_file_name = f"output_{output_file_number}.mid"
-        output_file_location = os.path.join(DUMMY_OUTPUTS_DIR, output_file_name)
+        # 원본 MIDI 파일 경로 설정
+        original_file_location = os.path.join("original", "original.mid")
 
-        if not os.path.exists(output_file_location):
-            raise FileNotFoundError(f"dummyOutputs 폴더에 {output_file_location} 파일이 존재하지 않습니다.")
+        if not os.path.exists(original_file_location):
+            raise FileNotFoundError(f"original 폴더에 {original_file_location} 파일이 존재하지 않습니다.")
 
         # 유사도 계산
-        similarity_scores = calculate_similarity(midi_file_location, output_file_location)
+        similarity_scores = calculate_similarity(original_file_location, midi_file_location)
         logger.info(similarity_scores)
         return {
             "filename": file.filename,
@@ -117,7 +114,6 @@ async def upload_file(file: UploadFile = File(...)):
 async def mid2xml():
     # 인자 값 filename
     return {}
-
 
 # FastAPI 실행 명령어
 # uvicorn main:app --reload --host 0.0.0.0 --port 8000

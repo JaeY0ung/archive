@@ -42,27 +42,20 @@ def main():
 
                 # 유사도 계산
                 similarity_results = calculate_similarity(original_midi_file, midi_file_location, start_measure, end_measure)
-                logger.info({
-                    "midi_file": midi_file_location,
-                    "similarity_results": similarity_results
-                })
-                print({
-                    "midi_file": midi_file_location,
-                    "similarity_results": similarity_results
-                })
+                
 
                 # 분할된 원본 및 비교할 MIDI 파일의 노트 로드
                 original_segment_notes = similarity_results['original_segment_notes']
                 comparison_notes = load_midi_notes(midi_file_location)
                 matched_notes = similarity_results['matched_notes']
-                ignored_notes = similarity_results['ignored_notes']
+                best_shift = similarity_results['best_shift']
 
                 # 시각화 함수 호출
                 plot_notes(
                     original_segment_notes,
                     comparison_notes,
                     matched_notes,
-                    ignored_notes,
+                    best_shift,
                     title1=f'Segment {file_number} Notes',
                     title2=f'Result {file_number} Notes'
                 )
