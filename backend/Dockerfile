@@ -18,7 +18,6 @@ WORKDIR /app
 
 # Copy the built JAR file from the build container
 COPY --from=builder /home/gradle/project/build/libs/backend-0.0.1-SNAPSHOT.jar ./backend.jar
-COPY src/main/resources/arc-hive.shop.p12 ./arc-hive.shop.p12
 
 # Run the application
 CMD ["java", "-jar", "./backend.jar"]
