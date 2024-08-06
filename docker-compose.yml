@@ -39,6 +39,7 @@ services:
       MYSQL_DATABASE: archive
       MYSQL_USER: ssafy
       MYSQL_PASSWORD: ssafy
+      LC_ALL: C.UTF-8
     volumes:
       - mysql-data:/var/lib/mysql
 
