@@ -6,13 +6,11 @@ const fs = require('fs');
 
 require('dotenv').config();
 
-// Read the firebase-messaging-sw.template.js template
 const swTemplatePath = path.resolve(__dirname, 'public/firebase-messaging-sw.template.js');
 const swOutputPath = path.resolve(__dirname, 'public/firebase-messaging-sw.js');
 
 const swTemplateContent = fs.readFileSync(swTemplatePath, 'utf8');
 
-// Replace environment variables in the template
 const swContent = swTemplateContent
   .replace(/VUE_APP_FIREBASE_API_KEY/g, process.env.VUE_APP_FIREBASE_API_KEY)
   .replace(/VUE_APP_FIREBASE_AUTH_DOMAIN/g, process.env.VUE_APP_FIREBASE_AUTH_DOMAIN)
@@ -22,7 +20,6 @@ const swContent = swTemplateContent
   .replace(/VUE_APP_FIREBASE_APP_ID/g, process.env.VUE_APP_FIREBASE_APP_ID)
   .replace(/VUE_APP_FIREBASE_MEASUREMENT_ID/g, process.env.VUE_APP_FIREBASE_MEASUREMENT_ID);
 
-// Write the processed content to the public folder
 fs.writeFileSync(swOutputPath, swContent, 'utf8');
 
 module.exports = {
@@ -31,7 +28,6 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    //filename: '[name].bundle.js'
     filename: 'bundle.js'
   },
   resolve: {
@@ -50,7 +46,8 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env']
+            presets: ['@babel/preset-env'],
+            plugins: ['@babel/plugin-proposal-class-properties', '@babel/plugin-transform-runtime']
           }
         }
       },
