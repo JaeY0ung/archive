@@ -9,15 +9,17 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.sheet.request.DifficultyCreateDto;
 import com.ssafy.los.backend.dto.sheet.request.DifficultyUpdateDto;
 import com.ssafy.los.backend.dto.sheet.response.DifficultyResponseDto;
-import java.util.List;
-import java.util.Objects;
-
 import com.ssafy.los.backend.util.FileUploadUtil;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +33,7 @@ public class DifficultyServiceImpl implements DifficultyService {
     private final SheetRepository sheetRepository;
     private final UserRepository userRepository;
     private final FileUploadUtil fileUploadUtil;
+    private final DifficultyRepository difficultyRepository;
 
 
     // 난이도 평가 생성
@@ -41,17 +44,25 @@ public class DifficultyServiceImpl implements DifficultyService {
         Sheet sheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
 
-        Difficulty difficultyRating = Difficulty.builder()
+        // 해당 악보 난이도 평가 기록 이력 파악
+        boolean isExisted = difficultyRepository.existsByUserAndSheet(user, sheet);
+
+        // TODO : 테스트 완료하면 한 악보당 중복 체크 불가능하도록 만들기
+//        if (isExisted) {
+//            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
+//        }
+
+        Difficulty difficulty = Difficulty.builder()
                 .user(user)
                 .sheet(sheet)
-                .contents(difficultyCreateDto.getContents())
+                .content(difficultyCreateDto.getContent())
                 .level(difficultyCreateDto.getLevel())
                 .build();
 
         // 난이도 업데이트
         calculateDifficulty(sheetId);
 
-        return difficultyRatingRepository.save(difficultyRating).getId();
+        return difficultyRatingRepository.save(difficulty).getId();
     }
 
     // 난이도 평가 수정
@@ -87,39 +98,77 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     // 악보 난이도 평가 목록 조회
     @Override
-    public Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size) {
-
-        // pageable 객체 생성
-        Pageable pageable = PageRequest.of(page, size);
+    public Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size, String sortBy, String sortDir) {
 
         Sheet sheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
+
+        // pageable 객체 생성
+        Sort.Direction direction = Sort.Direction.fromString(sortDir);
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
         
         // 악보에 해당하는 난이도 평가들 반환
-        Page<Difficulty> difficultyPage = difficultyRatingRepository.findAllBySheetOrderByCreatedAtDesc(sheet, pageable);
+        Page<Difficulty> difficultyPage = difficultyRatingRepository.findAllBySheet(sheet, pageable);
 
         return difficultyPage.map(difficulty ->
                 DifficultyResponseDto.toEntity(difficulty, fileUploadUtil));
     }
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
-    // TODO : 초기 10개는 즉각 반영되도록
-    // TODO : 로직 고도화
-    @Override
     public int calculateDifficulty(Long sheetId) {
         Sheet findSheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
 
-        // 악보 난이도 계산 로직
         List<Difficulty> difficultyList = difficultyRatingRepository.findAllBySheet(findSheet);
-        double average = difficultyList.stream()
-                .map(Difficulty::getLevel)
-                .filter(Objects::nonNull)
-                .mapToInt(Integer::intValue)
-                .average()
-                .orElse(0.0);
+
+        // 난이도 의견이 있는 평가만 필터링하고 시간순으로 정렬
+        List<Difficulty> validDifficulties = difficultyList.stream()
+                .filter(d -> d.getLevel() != null)
+                .sorted((d1, d2) -> d2.getCreatedAt().compareTo(d1.getCreatedAt()))
+                .collect(Collectors.toList());
+
+        int totalDifficulties = validDifficulties.size();
+        if (totalDifficulties == 0) {
+            return -1; // 평가가 하나도 없는 경우
+        }
+
+        int trimCount = (int) Math.round(totalDifficulties * 0.1);
+
+        // 상위 10%와 하위 10% 제거
+        List<Difficulty> trimmedDifficulties = validDifficulties.subList(
+                trimCount,
+                Math.max(trimCount, totalDifficulties - trimCount)
+        );
+
+        // 최근 날짜 구하기
+        LocalDateTime mostRecentTime = trimmedDifficulties.get(0).getCreatedAt();
+
+        double weightedSum = 0;
+        double weightSum = 0; // 전체 가중치
+
+        for (int i = 0; i < trimmedDifficulties.size(); i++) {
+            Difficulty difficulty = trimmedDifficulties.get(i);
+            double weight = calculateWeight(difficulty.getCreatedAt(), i, mostRecentTime, trimmedDifficulties.size());
+            weightedSum += difficulty.getLevel() * weight;
+            weightSum += weight;
+        }
+
+        double averageDifficulty = weightSum > 0 ? weightedSum / weightSum : 0; // 양수 반환
 
         // 평균을 1-5 범위로 매핑
-        return Math.min(Math.max((int) Math.round(average), 1), 5);
+        int result = Math.min(Math.max((int) Math.round(averageDifficulty), 1), 5);
+        log.info("result = {}", result);
+        return result;
+    }
+
+    private double calculateWeight(LocalDateTime opinionTime, int opinionIndex, LocalDateTime mostRecentTime, int totalOpinions) {
+        long daysDifference = ChronoUnit.DAYS.between(opinionTime, mostRecentTime);
+        int indexDifference = totalOpinions - opinionIndex - 1;
+
+        double timeWeight = Math.pow(0.5, daysDifference / 180.0); // 반년 반감기
+        double orderWeight = Math.pow(0.9, indexDifference); // 10%씩 감소
+
+        return Math.max(timeWeight, orderWeight);
     }
 }

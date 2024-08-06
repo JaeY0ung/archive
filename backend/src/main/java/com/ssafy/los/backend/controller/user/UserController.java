@@ -66,7 +66,6 @@ public class UserController {
         String uuid = null;
         if (profileImage != null && !profileImage.isEmpty()) {
             uuid = userService.registerUserImgFile(profileImage);
-            log.info("New profile image UUID: {}", uuid);
         }
 
         // 닉네임 처리
@@ -75,7 +74,6 @@ public class UserController {
                 .build();
 
         Long updatedId = userService.updateUser(loginUser.getId(), userUpdateDto, uuid);
-        log.info("User updated successfully. Updated ID: {}", updatedId);
 
         return new ResponseEntity<>(updatedId, HttpStatus.OK);
     }
@@ -95,7 +93,6 @@ public class UserController {
     @GetMapping("/{user-nickname}")
     public ResponseEntity<?> getUser(@PathVariable("user-nickname") String userNickname) {
         UserProfileDto userProfileDto = userService.searchUserProfileByNickname(userNickname);
-        log.info("User profile: {}", userProfileDto);
         return new ResponseEntity<>(userProfileDto, HttpStatus.OK);
     }
 

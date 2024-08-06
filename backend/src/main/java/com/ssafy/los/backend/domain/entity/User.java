@@ -1,22 +1,20 @@
 package com.ssafy.los.backend.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Entity
@@ -68,6 +66,10 @@ public class User extends BaseEntity {
 
     private String firebaseToken;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders = new ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         this.uuid = UUID.randomUUID().toString();
@@ -93,12 +95,12 @@ public class User extends BaseEntity {
 
 
     //=== 메서드 ===//
-    public void updateProfile(String nickname, String userImg) {
+    public void updateProfile(String nickname, String uuid) {
         if (nickname != null) {
             this.nickname = nickname;
         }
         if (uuid != null) {
-            this.userImg = userImg;
+            this.userImg = uuid;
         }
     }
 

@@ -1,11 +1,7 @@
 package com.ssafy.los.backend.domain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.ssafy.los.backend.constant.PayType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -19,5 +15,10 @@ public class Payment {
     @Column(name = "payment_id")
     private Long id;
 
-    private String name; // 카카오페이, 토스
+    @Enumerated(EnumType.STRING)
+    private PayType name; // 카카오페이, 토스
+
+    @OneToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 }

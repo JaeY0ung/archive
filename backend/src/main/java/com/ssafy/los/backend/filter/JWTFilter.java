@@ -1,7 +1,6 @@
 package com.ssafy.los.backend.filter;
 
 import com.ssafy.los.backend.domain.entity.User;
-import com.ssafy.los.backend.domain.repository.auth.RefreshTokenRepository;
 import com.ssafy.los.backend.dto.user.CustomUserDetails;
 import com.ssafy.los.backend.util.JWTUtil;
 import io.jsonwebtoken.JwtException;
@@ -26,8 +25,8 @@ public class JWTFilter extends OncePerRequestFilter {
     private final JWTUtil jwtUtil;
 
     private static final List<String> EXCLUDE_PATHS = Arrays.asList(
-            "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh",
-            "/users/check-email"
+            "/users", "/users/check-email",
+            "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh", "/order/**"
     );
 
     @Override
