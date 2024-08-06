@@ -9,6 +9,7 @@ import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
+const { VUE_APP_REQUEST_URL } = process.env;
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
@@ -53,7 +54,8 @@ const canLeaveSite = ref(false);
 
 
 function connect() {
-    var socket = new SockJS('http://localhost:8081/archive-websocket');
+    // local & https 
+    var socket = new SockJS(VUE_APP_REQUEST_URL + '/archive-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
@@ -228,7 +230,9 @@ const inviteSelectedFriends = async () => {
             </div>
             
             <div class="player-card" v-if="currentMode=='multi'">
-                <div class="player-img"><img :src="opponent.img" alt="Profile Image" /></div>
+                <div class="player-img">
+                    <img :src="opponent.img" alt="Profile Image" />
+                </div>
                 <div class="player-info-text">
                     <div>{{ opponent.name }}</div>
                     <div>현재 스코어 : {{ opponent.score }}</div>

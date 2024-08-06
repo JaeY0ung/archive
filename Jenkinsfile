@@ -54,6 +54,13 @@ pipeline {
                 }
             }
         }
+        stage('Build with Gradle') {
+            steps {
+                dir('workspace/backend') {
+                    sh './gradlew build'
+                }
+            }
+        }
 
         stage('Build Backend') {
             steps {

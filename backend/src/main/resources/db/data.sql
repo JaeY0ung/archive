@@ -3,73 +3,109 @@
 USE archive;
 #==================================-============================================================
 # user
-INSERT INTO archive.user (user_id, cash, gender, role, birth_date, created_at, deleted_at,
-                          modified_at, email, nickname, pwd_hash, user_img, uuid,
-                          multi_score, single_score)
-VALUES (1, 0, null, null, null, '2024-07-22 16:09:44.000000', null, '2024-07-22 16:09:44.000000',
-        'user1@ssafy.com', 'user1',
-        '0a041b9462caa4a31bac3567e0b6e6fd9100787db2ab433d96f6d178cabfce90', 'user1.png',
-        '94eecf5b-b597-461a-8b50-4fd47f82cea5', null, null),
-       (2, 0, null, null, null, '2024-07-22 16:09:44.000000', null, '2024-07-22 16:09:44.000000',
-        'user2@ssafy.com', 'user2',
-        '6025d18fe48abd45168528f18a82e265dd98d421a7084aa09f61b341703901a3', 'user2.png',
-        'fd8309b6-2fe5-4e40-b738-cb5c684dae7d', null, null),
-       (3, 0, null, null, null, '2024-07-22 16:09:44.000000', null, '2024-07-22 16:09:44.000000',
-        'user3@ssafy.com', 'user3',
-        '5860faf02b6bc6222ba5aca523560f0e364ccd8b67bee486fe8bf7c01d492ccb', 'user3.png',
-        'af190ea4-5576-4220-a896-1e53fcdcf79d', null, null),
-       (4, 0, null, null, null, '2024-07-22 16:09:44.000000', null, '2024-07-22 16:09:44.000000',
-        'user4@ssafy.com', 'user4',
-        '5269ef980de47819ba3d14340f4665262c41e933dc92c1a27dd5d01b047ac80e', 'user4.png',
-        '2aed3202-438c-4e30-92e8-4cd42804054c', null, null),
-       (5, 0, null, null, null, '2024-07-22 16:09:44.000000', null, '2024-07-22 16:09:44.000000',
-        'user5@ssafy.com', 'user5',
-        '5a39bead318f306939acb1d016647be2e38c6501c58367fdb3e9f52542aa2442', 'user5.png',
-        '6c8516cb-b407-4270-bff6-2d0027eb498f', null, null),
-       (6, 0, null, null, null, '2024-07-22 16:09:44.000000', null, '2024-07-22 16:09:44.000000',
-        'user6@ssafy.com', 'user6',
-        'ecb48a1cc94f951252ec462fe9ecc55c3ef123fadfe935661396c26a45a5809d', 'user6.png',
-        'e717f88e-9ece-4653-b1d2-ded3b9b5bea6', null, null),
-       (7, 0, true, 'ROLE_USER', '1998-05-28 15:00:00.000000', '2024-07-29 01:21:33.468404', null,
-        '2024-07-29 01:21:33.468404', 'ssafy@ssafy.com', 'ssafy',
-        '$2a$10$oxOGMt3r0MwpxsdVePPC5OivtlNkYF1Rcu6f2BovY/LveJu/FLd.m', null,
-        'cbcfe839-7031-481e-a2d4-3a1cfbfed90f', null, null),
-       (8, 0, true, 'ROLE_USER', '2024-07-28 15:00:00.000000', '2024-07-29 01:45:52.226517', null,
-        '2024-07-29 01:45:52.226517', 'ssafy1@ssafy.com', 'user1',
-        '$2a$10$he2lmt.dSoQ15YfSe64aGu12Hi3ukiiC6U3Xypo8WMXruS8CCDyce', null,
-        'c6c6d147-11ad-4803-b164-6260ea0e8f69', null, null),
-       (9, 0, true, 'ROLE_USER', '2024-07-28 15:00:00.000000', '2024-07-29 01:46:11.558280', null,
-        '2024-07-29 01:46:11.558280', 'ssafy2@ssafy.com', 'ssafy2',
-        '$2a$10$LE3hdry2pBXO8XZ.i6F6S.KVGCvNmZFkeEVnEgh1VbBa.ev5xg0n6', null,
-        'f7f23ed4-0ba6-4f45-9874-9634165453b1', null, null),
-       (10, 0, true, 'ROLE_USER', '2024-07-28 15:00:00.000000', '2024-07-29 01:46:33.909071', null,
-        '2024-07-29 01:46:33.909071', 'ssafy3@ssafy.com', 'ssafy3',
-        '$2a$10$E2epoNr8RBjL0jNc8sAbSuqMT20pU0ZYa21WUJpKI/xgF0vlyhCfK', null,
-        '8ee4baae-c512-49c2-bfc6-c61364e9c292', null, null);
+insert into archive.user (user_id, created_at, modified_at, birth_date, cash, deleted_at, email,
+                          gender, multi_score, nickname, provider, pwd_hash, role, single_score,
+                          user_img, uuid, firebase_token)
+values (0, '2024-07-29 01:21:33.468404', '2024-08-05 00:32:35.328245', '1998-05-28 15:00:00.000000',
+        0, null, 'ssafy@ssafy.com', true, 900, 'ssafy', null,
+        '$2a$10$oxOGMt3r0MwpxsdVePPC5OivtlNkYF1Rcu6f2BovY/LveJu/FLd.m', 'ROLE_ADMIN', null,
+        'ssafy.png', 'cbcfe839-7031-481e-a2d4-3a1cfbfed90f', null),
+       (1, '2024-07-29 01:21:33.468404', '2024-08-05 00:32:35.328245', '1998-05-28 15:00:00.000000',
+        0, null, 'ssafy1@ssafy.com', true, 1500, 'ssafy1', null,
+        '$2a$10$he2lmt.dSoQ15YfSe64aGu12Hi3ukiiC6U3Xypo8WMXruS8CCDyce', 'ROLE_USER', null,
+        'ssafy1.png', 'cbcfe839-7031-481e-a2d4-3a1cfbfed90f', null),
+       (2, '2024-07-29 01:45:52.226517', '2024-07-29 01:45:52.226517', '2024-07-28 15:00:00.000000',
+        0, null, 'ssafy2@ssafy.com', true, 1300, 'ssafy2', null,
+        '$2a$10$LE3hdry2pBXO8XZ.i6F6S.KVGCvNmZFkeEVnEgh1VbBa.ev5xg0n6', 'ROLE_USER', null,
+        'ssafy2.png', 'c6c6d147-11ad-4803-b164-6260ea0e8f69', null),
+       (3, '2024-07-29 01:46:11.558280', '2024-07-29 01:46:11.558280', '2024-07-28 15:00:00.000000',
+        0, null, 'ssafy3@ssafy.com', true, 1500, 'ssafy3', null,
+        '$2a$10$E2epoNr8RBjL0jNc8sAbSuqMT20pU0ZYa21WUJpKI/xgF0vlyhCfK', 'ROLE_USER', null,
+        'ssafy3.png', 'f7f23ed4-0ba6-4f45-9874-9634165453b1', null),
+       (4, '2024-07-29 01:46:33.909071', '2024-07-29 01:46:33.909071',
+        '2024-07-28 15:00:00.000000', 0, null, 'ssafy4@ssafy.com', true, 1000, 'ssafy4', null,
+        '$2a$10$1NrV3BtmzkplhUUU3.kVOOR2IEKja3QFc7xT0fhrtiNkiAL7Ibqku', 'ROLE_USER', null,
+        'ssafy4.png', '8ee4baae-c512-49c2-bfc6-c61364e9c292', null),
+       (5, '2024-07-22 16:09:44.000000', '2024-07-22 16:09:44.000000', '1998-05-28 15:00:00.000000',
+        0, null, 'ssafy5@ssafy.com', true, 1250, 'ssafy5', null,
+        '$2a$10$588/55KPLOZaHe8pMdKA0.A9VBqQhLryP8LBmwQgL6nX/nthT4BFe', 'ROLE_USER', null,
+        'ssafy5.png', '94eecf5b-b597-461a-8b50-4fd47f82cea5', null),
+       (6, '2024-07-22 16:09:44.000000', '2024-07-22 16:09:44.000000', '1998-05-28 15:00:00.000000',
+        0, null, 'ssafy6@ssafy.com', false, 1000, 'ssafy6', null,
+        '$2a$10$zM42VizLFc7P.VQ4acYDPe2Q5wLoJAvX8gbpqUhkv3uyeFiC.54My', 'ROLE_USER', null,
+        'ssafy6.png', 'fd8309b6-2fe5-4e40-b738-cb5c684dae7d', null),
+       (7, '2024-07-22 16:09:44.000000', '2024-07-22 16:09:44.000000', '1998-05-28 15:00:00.000000',
+        0, null, 'ssafy7@ssafy.com', false, 900, 'ssafy7', null,
+        '$2a$10$zM42VizLFc7P.VQ4acYDPe2Q5wLoJAvX8gbpqUhkv3uyeFiC.54My', 'ROLE_USER', null,
+        'ssafy7.png', 'af190ea4-5576-4220-a896-1e53fcdcf79d', null),
+       (8, '2024-07-22 16:09:44.000000', '2024-07-22 16:09:44.000000', '1998-05-28 15:00:00.000000',
+        0, null, 'ssafy8@ssafy.com', false, 890, 'ssafy8', null,
+        '$2a$10$zM42VizLFc7P.VQ4acYDPe2Q5wLoJAvX8gbpqUhkv3uyeFiC.54My', 'ROLE_USER', null,
+        'ssafy8.png', '2aed3202-438c-4e30-92e8-4cd42804054c', null),
+       (9, '2024-07-22 16:09:44.000000', '2024-07-22 16:09:44.000000', '1998-05-28 15:00:00.000000',
+        0, null, 'ssafy9@ssafy.com', false, 1070, 'ssafy9', null,
+        '$2a$10$zM42VizLFc7P.VQ4acYDPe2Q5wLoJAvX8gbpqUhkv3uyeFiC.54My', 'ROLE_USER', null,
+        'ssafy9.png', '6c8516cb-b407-4270-bff6-2d0027eb498f', null),
+       (10, '2024-07-22 16:09:44.000000', '2024-07-22 16:09:44.000000',
+        '1998-05-28 15:00:00.000000',
+        0, null, 'ssafy10@ssafy.com', false, 1130, 'ssafy10', null,
+        '$2a$10$zM42VizLFc7P.VQ4acYDPe2Q5wLoJAvX8gbpqUhkv3uyeFiC.54My', 'ROLE_USER', null,
+        'ssafy10.png', 'e717f88e-9ece-4653-b1d2-ded3b9b5bea6', null);
+
 
 
 #==================================-============================================================
 # 팔로우 (follow)
-INSERT INTO follow(follow_id, followed_id, follower_id)
-VALUES (1, 1, 2),
-       (2, 1, 3),
-       (3, 1, 4),
-       (4, 1, 5),
-       (5, 1, 6),
+INSERT INTO follow(followed_id, follower_id)
+VALUES (1, 2),
+       (1, 3),
+       (1, 4),
+       (1, 5),
+       (1, 6),
+       (1, 7),
+       (1, 8),
+       (1, 9),
+       (1, 10),
 
-       (6, 2, 1),
-       (7, 2, 3),
-       (8, 2, 4),
-       (9, 2, 5),
+       (2, 1),
+       (2, 3),
+       (2, 4),
+       (2, 5),
+       (2, 6),
+       (2, 7),
+       (2, 8),
+       (2, 9),
+       (2, 10),
 
-       (10, 3, 1),
-       (11, 3, 2),
-       (12, 3, 4),
+       (3, 1),
+       (3, 2),
+       (3, 4),
+       (3, 5),
+       (3, 6),
+       (3, 7),
+       (3, 8),
+       (3, 9),
+       (3, 10),
 
-       (14, 4, 1),
-       (15, 4, 2),
+       (4, 1),
+       (4, 2),
+       (4, 3),
+       (4, 5),
+       (4, 6),
+       (4, 7),
+       (4, 8),
+       (4, 9),
+       (4, 10),
 
-       (16, 3, 1);
+       (5, 1),
+       (5, 2),
+       (5, 3),
+       (5, 4),
+       (5, 6),
+       (5, 7),
+       (5, 8),
+       (5, 9),
+       (5, 10);
 #==================================-============================================================
 # 장르(Genre)
 INSERT INTO genre(genre_id, title)
@@ -81,22 +117,35 @@ VALUES (1, '클래식'),
        (6, '기타');
 #==================================-============================================================
 # 곡 (Song)
-INSERT INTO song(song_id, genre_id, composer, title, img_name)
-VALUES (1, 1, 'Max Vogrich', '체르니 100번 1', 'Max Vogrich.jpg'),
-       (2, 5, '아이브', 'after like', 'after_like.jpg'),
-       (3, 5, '멜로망스', '사랑인가 봐', '사랑인가 봐.jpg'),
-       (4, 5, '조정석', '아로하', '아로하.jpg');
+insert into song (song_id, composer, img_name, title, genre_id)
+values (1, 'Max Vogrich', 'Max Vogrich.jpg', '체르니 100번 1', 1),
+       (2, '아이브', 'after_like.jpg', 'after like', 5),
+       (3, '멜로망스', '사랑인가 봐.jpg', '사랑인가 봐', 5),
+       (4, '조정석', '아로하.jpg', '아로하', 5),
+       (99999999, '기타', '기타.jpg', '기타', 6);
 
 #==================================-============================================================
 # 악보(sheet)
-INSERT INTO sheet(sheet_id, song_id, level, price, uploader_id, status, title, file_name,
-                  created_at,
-                  modified_at,
-                  deleted_at)
-VALUES (1, 1, 1, 500, 1, 0, '체르니 100 1번', '체르니 100 1번.mid', NOW(), NOW(), NULL),
-       (2, 2, 2, 500, 2, 0, 'after like', 'after_like.mid', NOW(), NOW(), NULL),
-       (3, 3, 3, 500, 3, 0, '사랑인가 봐', '사랑인가 봐.mid', NOW(), NOW(), NULL),
-       (4, 4, 4, 500, 4, 0, '아로하', '아로하.mid', NOW(), NOW(), NULL);
+insert into sheet (sheet_id, created_at, deleted_at, file_name, level, modified_at,
+                   price, status, title, view_count, song_id, uploader_id)
+values (1, '2024-07-30 15:18:28.000000', null, '체르니 100 1번.mid', 1, '2024-07-30 15:18:28.000000',
+        500, 0, '체르니 100 1번', 263, 1, 1),
+       (2, '2024-07-30 15:18:28.000000', null, 'after_like.mid', 2, '2024-07-30 15:18:28.000000',
+        500, 0, 'after like', 263, 2, 2),
+       (3, '2024-07-30 15:18:28.000000', null, '사랑인가 봐.mid', 3, '2024-07-30 15:18:28.000000',
+        500, 0, '사랑인가 봐', 263, 3, 3),
+       (4, '2024-07-30 15:18:28.000000', null, '아로하.mid', 4, '2024-07-30 15:18:28.000000',
+        500, 0, '아로하', 263, 4, 4),
+       (7, '2024-07-31 04:53:13.429411', null, '아로하-v3.mid', 3,
+        '2024-07-31 04:53:13.429411', 500, 0, '아로하-조정석', 263, 4, 5),
+       (8, '2024-07-31 04:53:40.909672', null, '체르니 4번.mid', 2,
+        '2024-07-31 04:53:40.909672', 500, 0, '체르니 100 4번', 263, 1, 6),
+       (9, '2024-07-31 06:18:06.293099', null, '아로하 어쿠스틱.mid', 1,
+        '2024-07-31 06:18:06.293099', 500, 0, '아로하-어쿠스틱', 263, 1, 7),
+       (10, '2024-07-31 06:21:14.046643', null, '아로하-ver2.mid', 1,
+        '2024-07-31 06:21:14.046643', 500, 0, '아로하-ver2', 263, 1, 8),
+       (11, '2024-07-31 06:21:14.046643', null, 'after_like-편곡.mid', 3,
+        '2024-07-31 06:21:14.046643', 500, 0, '아로하-ver2', 263, 1, 7);
 
 #==================================-============================================================
 # 악보 좋아요 (like_sheet)
@@ -146,3 +195,33 @@ INSERT INTO difficulty(user_id, sheet_id, level, content)
 VALUES (1, 1, 4, '너무 쉬워요!'),
        (2, 1, 3, '너무 어려워요!'),
        (3, 1, 2, '너무 대박이에요!');
+
+# 멀티 플레이 전적
+insert into multi_play_result (multi_result_id, created_at, modified_at, is_draw,
+                               loser_score, play_time, status, winner_score, loser_id,
+                               sheet_id, winner_id)
+values (1, '2024-08-05 09:53:07.000000', '2024-08-05 09:53:08.000000', 0, 79, 3, 1, 81, 1, 1, 2);
+
+# 싱글 플레이 전적
+insert into archive.single_play_result (single_result_id, created_at, modified_at, play_time, score,
+                                        sheet_id, user_id)
+values (1, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 81, 1, 1),
+       (2, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 79, 1, 1),
+       (3, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 81, 2, 1),
+       (4, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 79, 2, 1),
+       (5, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 81, 3, 1),
+       (6, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 79, 3, 1),
+
+       (7, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 81, 1, 2),
+       (8, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 78, 1, 2),
+       (9, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 83, 2, 2),
+       (10, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 75, 2, 2),
+       (11, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 83, 3, 2),
+       (12, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 79, 3, 2),
+
+       (13, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 83, 1, 3),
+       (14, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 79, 1, 3),
+       (15, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 89, 2, 3),
+       (16, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 70, 2, 3),
+       (17, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 90, 3, 3),
+       (18, '2024-08-05 09:56:11.000000', '2024-08-05 09:56:12.000000', 2, 70, 3, 3);

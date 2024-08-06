@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter, onBeforeRouteUpdate } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { usePlayStore } from '@/stores/play';
 import RoomCreateModal from './RoomCreateModal.vue';
 
@@ -9,18 +9,13 @@ const playStore = usePlayStore();
 const isLoading = ref(true);
 
 // 방 목록 가져오기
-const getAllRooms = () => {
-  playStore.fetchAllRooms();
+const getAllRooms = async () => {
+  await playStore.fetchAllRooms();
   isLoading.value = false;
 };
 
 onMounted(() => {
-// const getAllRooms = async () => {
-//     await playStore.fetchAllRooms();
-//     isLoading.value = false;
-// };
-
-getAllRooms();
+  getAllRooms();
 });
 
 // 배틀 모드 선택
@@ -29,7 +24,7 @@ const selectMode = (mode) => {
   if (mode === 'multi') {
     playStore.setShowModal(true);
   } else {
-    router.push({ path: 'singleRoom/singleDefault' });
+    router.push({ name: 'wait' });
   }
 };
 
@@ -37,8 +32,8 @@ const selectMode = (mode) => {
 const enterRoom = async (roomId) => {
   await playStore.enterRoom(roomId);
   // router.push({ path: `/room/${roomId}` });
-  router.push({ path: `/room/${roomId}/wait/default` }); // wait 페이지로 이동
-};
+  router.push({ path: `/room/${roomId}/wait` }); // wait 페이지로 이동
+}; 
 
 const rankings = ref([
   { rank: 1, name: 'User1', wins: 60, losses: 20 },

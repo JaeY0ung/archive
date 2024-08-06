@@ -2,17 +2,20 @@
 import { ref } from 'vue';
 import { localAxios } from '@/util/http-common';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
+import { searchSheetsByFilter } from '@/api/sheet';
 const local = localAxios();
 const popularSheets = ref([]); // 인기 악보 리스트
+
+
 const getPopularsheets = async () => {
-	const params = { sort: "POPULAR" }
-	await local.get("/sheets", { params } )
-		.then(({ data }) => {
+
+    searchSheetsByFilter(
+        { sort: "POPULAR" },
+        ({ data }) => {
 			popularSheets.value = data;
 			popularSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); // TODO: songImg가 없으면 기본 로고로.
-            console.log("popularSheets.value ");
-            console.log(popularSheets.value);
-		}).catch((err)=> console.log(err))
+		}
+    )
 }
 getPopularsheets();
 </script>
