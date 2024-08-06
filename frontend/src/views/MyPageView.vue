@@ -66,6 +66,7 @@ const resetForm = () => {
     if (fileInputRef.value) {
         fileInputRef.value.value = "";
     }
+    loginUserInfo.value.profileImage = null;
 };
 
 const updateUserInfo = async () => {
@@ -102,6 +103,7 @@ const updateUserInfo = async () => {
         await userStore.getUserInfo();
 
         resetForm();
+
     } catch (error) {
         console.error("Error updating user info:", error);
         alert("사용자 정보 업데이트에 실패했습니다.");
