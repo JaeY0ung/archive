@@ -71,6 +71,12 @@ public class SheetServiceImpl implements SheetService {
                 .toList();
     }
 
+    @Override
+    public String getMusicXmlFileById(Long sheetId) {
+        SheetDetailViewDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId);
+        return fileUploadUtil.getMusicXml(sheet.getFileName());
+    }
+
     private String saveSheetFile(MultipartFile file) throws IllegalArgumentException {
         return fileUploadUtil.uploadSheet(file); // 로컬에 저장
     }
@@ -82,7 +88,8 @@ public class SheetServiceImpl implements SheetService {
                     .uploader(authService.getLoginUser())
                     .level(sheetUploadForm.getLevel())
                     .title(sheetUploadForm.getTitle())
-                    .song(sheetUploadForm.getSongId() != null ? songRepository.findById(sheetUploadForm.getSongId()).orElse(null) : null)
+                    .song(sheetUploadForm.getSongId() != null ? songRepository.findById(
+                            sheetUploadForm.getSongId()).orElse(null) : null)
                     .fileName(fileName)
                     .build();
             return sheetRepository.save(sheet);

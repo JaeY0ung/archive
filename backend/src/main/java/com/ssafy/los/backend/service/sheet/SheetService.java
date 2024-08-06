@@ -20,4 +20,6 @@ public interface SheetService {
 
     List<SheetDetailViewDto> searchSheetByFilter(SheetSearchFilter sheetSearchFilter)
             throws IllegalArgumentException;
+
+    String getMusicXmlFileById(Long sheetId);
 }
