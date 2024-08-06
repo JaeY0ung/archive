@@ -1,21 +1,14 @@
-<!-- 파일 업로드 multiple : true, 모든 확장자 다 받음 -->
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { localAxios } from "@/util/http-common";
-
-const local = localAxios();
+import { registerSheet } from "@/api/sheet";
+import { searchSongsByFilter } from "@/api/song";
+import SongRegisterModal from "@/common/modal/SongRegisterModal.vue"
 const router = useRouter();
-const selectedSong = ref({
-    id: "",
-    title: "",
-    composer: "",
-    genreTitle: "",
-    img: "",
-    imageUrl: "",
-});
-const keyword = ref("");
 
+const keyword = ref("");
+const fileInput = ref(null);
+const modalVisibility = ref(false);
 const songs = ref([{
     id: Number,
     title: String,
@@ -25,81 +18,92 @@ const songs = ref([{
     imageUrl: "",
 }])
 
+const selectedSong = ref({
+    id: "",
+    title: "",
+    composer: "",
+    genreTitle: "",
+    img: "",
+    imageUrl: "",
+});
+
 const fileInfo = ref({
-    files: "",
+    file: "",
     title: "",
     level: "",
 });
 
 // 파일이 바뀔 때마다 파일 ref값 변경
 const handleFileChange = (event) => {
-    fileInfo.value.files = event.target.files;
+    if (event.target.files[0].type !== "audio/mid") {
+        fileInput.value.value = "";
+        alert(".mid 확장자의 파일을 업로드해 주세요");
+        return;
+    }
+    fileInfo.value.file = event.target.files[0];
 };
 
 const searchSongsByKeyword = () => {
-    const params = {
-        keyword: keyword.value
-	}
-    local.get("/songs", { params })
-        .then(({data})=>{
+    searchSongsByFilter(
+        { keyword: keyword.value },
+        ({data})=>{
             if (!data) return;
             songs.value = data;
             songs.value.map(s => s.img ? s.imageUrl = `data:image/jpeg;base64,${s.img}` : '기본 이미지'); 
-        }).catch((err)=>{
-            console.error(err);
-        })
+        }
+    )
 }
 
 searchSongsByKeyword();
 
 const uploadFile = async () => {
-    // 파일 선택 안하고 제출 시 + 파일 선택했다 취소하고 제출 시
-    if (!fileInfo.value.files) {
-        alert("파일을 선택해 주세요.");
+    if (!fileInfo.value.file) {
+        alert("파일을 선택해 주세요");
+        return;
+    }
+
+    if (!fileInfo.value.title) {
+        alert("악보의 제목을 입력해 주세요");
+        return;
+    }
+
+    if (!selectedSong.value || !selectedSong.value.id) {
+        alert("악보의 곡을 선택해 주세요");
         return;
     }
 
     const formData = new FormData();
 
-    for (let i = 0; i < fileInfo.value.files.length; i++) {
-        formData.append("files", fileInfo.value.files[i]);
-    }
 
-    formData.append(
-        "title",
-        new Blob([fileInfo.value.title], { type: "application/json" })
-    );
-    formData.append(
-        "level",
-        new Blob([fileInfo.value.level], { type: "application/json" })
-    );
-    formData.append(
-        "songId",
-        new Blob([selectedSong.value?.id], { type: "application/json" })
-    );
-    //TODO: axios api로 뺴야함
-    await local
-        .post("/sheets", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        }).then((res) => {
-            //TODO: 요청 성공시 action
-        }).catch((err) => {
-            alert("파일 업로드 실패: ", err);
-        });
+    formData.append( "files", fileInfo.value.file );
+    formData.append( "title", new Blob([fileInfo.value.title], { type: "application/json" }) );
+    formData.append( "level", new Blob([fileInfo.value.level], { type: "application/json" }) );
+    formData.append( "songId", new Blob([selectedSong.value.id], { type: "application/json" }) );
+    
+    registerSheet(formData, ({ data }) => { // 성공 시, 악보 디테일 페이지로 이동
+        router.push({ name: 'sheetDetail', params: { sheetId: data } });
+    })
 };
+
+const showSongRegisterModal = () => {
+    modalVisibility.value = true;
+}
+
+const closeSongRegisterModal = () => {
+    modalVisibility.value = false;
+}
 </script>
 
 <template>
-    <form class="h-full w-[500px] text-center m-auto" @submit.prevent="uploadFile">
+    <div class="form h-full w-[500px] text-center m-auto">
+        <SongRegisterModal v-if="modalVisibility" @closeModalEvent="closeSongRegisterModal"/>
         <div class="text-5xl mb-10">파일 업로드</div>
         <div class="scroll-x h-[90%] flex flex-col gap-1">
             <label class="form-control w-full">
                 <div class="label">
                     <span class="label-text">악보 파일</span>
                 </div>
-                <input @change="handleFileChange" type="file" class="file-input input-bordered w-full" multiple />
+                <input id="file" @change="handleFileChange" type="file" class="file-input input-bordered w-full" ref="fileInput" />
             </label>
 
             <label class="form-control w-full">
@@ -121,11 +125,11 @@ const uploadFile = async () => {
                     <div class="label">
                         <span class="label-text">이 악보의 곡</span>
                     </div>
-                    <input v-model="keyword" type="text" class="input input-bordered w-full" @input="searchSongsByKeyword" placeholder="검색" />
+                    <input @submit.prevent="searchSongsByKeyword" v-model="keyword" type="text" class="input input-bordered w-full" @input="searchSongsByKeyword" placeholder="검색" />
                     
                 </label>
                 
-                <template v-if="selectedSong">
+                <template v-if="selectedSong.id">
                     <div class="m-[5px] p-[5px] flex flex-row justify-start gap-3 bg-white rounded-lg relative" style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);">
                         <img :src="require('@/assets/img/close.png')" alt="체크 표시" @click="selectedSong=''" width="15px" height="15px" class="absolute top-1 right-1">
                         
@@ -144,8 +148,11 @@ const uploadFile = async () => {
                 <template v-else>
                     <div class="m-[5px] p-[5px]  gap-3 bg-white rounded-lg min-w-[230px] min-h-[80px] text-center ">
                         <div>
-                            악보를<br>
-                            선택해주세요
+                            <div>
+                                이 악보에 맞는 곡을<br>
+                                선택해주세요
+                            </div>
+                            <div class="btn btn-secondary" @click="showSongRegisterModal">추가</div>
                         </div>
                     </div>
                 </template>
@@ -173,10 +180,10 @@ const uploadFile = async () => {
 
             <div class="flex flex-row gap-10 justify-end items-center">
                 <div class="cursor-pointer" @click="router.go(-1)">취소하기</div>
-                <button class="btn btn-primary">제출하기</button>
+                <button class="btn btn-primary" @click="uploadFile">제출하기</button>
             </div>
         </div>
-    </form>
+    </div>
 </template>
 
 <style scoped>

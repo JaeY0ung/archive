@@ -1,17 +1,13 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { OpenSheetMusicDisplay } from "@/assets/js/opensheetmusicdisplay.min.js";
+import { getMusicXmlById } from "@/api/sheet";
 
 const props = defineProps({
     playbackManager: Object,
-    width: {
-        type: Number,
-        default: null
-    },
-    height: {
-        type: Number,
-        default: null
-    },
+    width: Number,
+    height: Number,
+    sheetId: Number,
 });
 
 const emit = defineEmits(["measure-changed", "music-finished"]);
@@ -21,8 +17,14 @@ let osmd = null;
 
 //TODO: 파일을 읽어오게 수정해야함 
 const loadMusicXML = async () => {
-    const response = await fetch("/loa.musicxml");
-    const xml = await response.text();
+    // const response = await fetch("/loa.musicxml");
+    let xml;
+    await getMusicXmlById(props.sheetId, 
+        ({ data }) => {
+            xml = data;
+            console.log(data)
+        }
+    )
     return xml;
 };
 
@@ -63,10 +65,6 @@ const setupPlaybackManager = () => {
     osmd.PlaybackManager = props.playbackManager;
 };
 
-const computedWidth = computed(() => props.width ? props.width + 'px' : '100%');
-const computedHeight = computed(() => props.height ? props.height + 'px' : '100%');
-
-
 onMounted(async () => {
     osmd = new OpenSheetMusicDisplay(osmdContainer.value);
     osmd.setOptions({
@@ -84,7 +82,7 @@ onMounted(async () => {
     <div
         id="scrollContainer"
         style="overflow-y: scroll"
-        :style="{ width: computedWidth, height: computedHeight }"
+        :style="{ width: width + 'px', height: height + 'px' }"
     >
         <div id="osmdContainer" ref="osmdContainer"></div>
     </div>

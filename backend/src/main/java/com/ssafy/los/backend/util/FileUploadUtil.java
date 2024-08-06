@@ -59,25 +59,45 @@ public class FileUploadUtil {
         return downloadOneFile(sheetMidFileFolderPath, fileName);
     }
 
-    public String getImg(String imgName) {
-        Path path = getSomgImgPath(imgName);
-        return getImgFileByPath(path);
+    public String getSongImg(String imgName) {
+        Path path = getSongImgPath(imgName);
+        return getFileAsBase64(path);
     }
 
-    private Path getSomgImgPath(String fileName) throws IllegalArgumentException {
+    // TODO : 바꾸기
+    public String getMusicXml(String fileName) {
+        int dotIndex = fileName.lastIndexOf(".");
+        fileName = fileName.substring(0, dotIndex) + ".musicxml";
+        log.info(fileName);
+        Path path = getMusicXmlPath(fileName);
+        return readFileAsString(path);
+    }
+
+    // TODO : 바꾸기
+    public String getMid(String fileName) {
+        Path path = getMusicXmlPath(fileName);
+        return readFileAsString(path);
+    }
+
+    private Path getSongImgPath(String fileName) throws IllegalArgumentException {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("악보에 연결된 곡의 이미지 파일이 없습니다");
         }
         return getPath(songImgFolderPath, fileName);
     }
 
-    // 유저용
-    public String getUserImg(String imgName) {
-        Path path = getSomgUserImgPath(imgName);
-        return getImgFileByPath(path);
+    private Path getMusicXmlPath(String fileName) throws IllegalArgumentException {
+        if (fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("악보에 연결된 곡의 이미지 파일이 없습니다");
+        }
+        return getPath(sheetMusicXmlFileFolderPath, fileName);
     }
 
-    // 유저용
+    public String getUserImg(String imgName) {
+        Path path = getSomgUserImgPath(imgName);
+        return getFileAsBase64(path);
+    }
+
     private Path getSomgUserImgPath(String fileName) throws IllegalArgumentException {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("유저에 연결된 곡의 이미지 파일이 없습니다");
@@ -85,12 +105,20 @@ public class FileUploadUtil {
         return getPath(userImgFolderPath, fileName);
     }
 
-    public String getImgFileByPath(Path path) {
+    public String getFileAsBase64(Path path) {
         try {
             byte[] songImg = Files.readAllBytes(path);
             return Base64.getEncoder().encodeToString(songImg);
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    public String readFileAsString(Path path) {
+        try {
+            return new String(Files.readAllBytes(path));
+        } catch (IOException e) {
+            throw new IllegalArgumentException("파일을 읽을 수 없습니다: " + path, e);
         }
     }
 

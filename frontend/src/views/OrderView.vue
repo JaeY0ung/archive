@@ -39,8 +39,10 @@ const checkout = async () => {
 	console.log(itemsToCheckout); // id 값만 출력됨을 확인
     const totalPrice = totalSelectedPrice.value;
 	await addSheetToOrderAPI(itemsToCheckout, 'KAKAO_PAY', totalPrice,
+
 		(redirectUrl) => {
 		  clearOrder();
+		  console.log(redirectUrl);
       window.location.href = redirectUrl; // 결제 페이지로 리디렉션
 		  alert('Order placed successfully!');
 		  // router.push({name: 'home'}); // 주석 처리된 라우터 네비게이션

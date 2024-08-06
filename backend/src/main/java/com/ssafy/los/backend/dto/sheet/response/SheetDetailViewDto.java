@@ -80,7 +80,7 @@ public class SheetDetailViewDto {
 
     public void loadSongImg(FileUploadUtil fileUploadUtil) {
         if (this.songImgName != null) {
-            this.songImg = fileUploadUtil.getImg(this.songImgName);
+            this.songImg = fileUploadUtil.getSongImg(this.songImgName);
         }
     }
 

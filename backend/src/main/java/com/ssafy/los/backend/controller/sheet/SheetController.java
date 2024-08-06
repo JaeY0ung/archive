@@ -8,7 +8,6 @@ import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.MusicService;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -36,29 +35,24 @@ public class SheetController {
     private final AuthService authService;
     private final MusicService musicService;
 
-    // 악보 관리
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
     public ResponseEntity<?> uploadSheet(
-            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "files", required = false) MultipartFile file,
             @RequestPart("title") String title,
             @RequestPart("level") Integer level,
             @RequestPart(value = "songId", required = false) Long songId) {
 
-        if (files.size() != 1) {
-            return new ResponseEntity<>("하나의 파일만 올려주세요.", HttpStatus.BAD_REQUEST);
-        }
-
         SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
-                .file(files.get(0))
+                .file(file)
                 .title(title)
                 .level(level)
                 .songId(songId)
                 .build();
         try { // 악보 데이터 및 파일 저장
             Sheet sheet = sheetService.registerSheetAndFile(sheetUploadForm);
-            musicService.saveMidFileWithSplit(sheet.getFileName());
-            return new ResponseEntity<>(sheet, HttpStatus.CREATED);
+//            musicService.saveMidFileWithSplit(sheet.getFileName());
+            return new ResponseEntity<>(sheet.getId(), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("파일 업로드에 실패했습니다." + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -95,5 +89,19 @@ public class SheetController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/{sheet-id}/music-xml")
+    public ResponseEntity<?> getSheetMusicXmlFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sheetService.getMusicXmlFileById(sheetId));
+    }
+
+    @GetMapping("/{sheet-id}/mid")
+    public ResponseEntity<?> getSheetMidFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sheetService.getMidFileById(sheetId));
     }
 }
