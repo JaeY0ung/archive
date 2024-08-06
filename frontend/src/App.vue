@@ -14,11 +14,13 @@ const route = useRoute();
     <div class="h-screen bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200">
         <div class="left-and-hamburger" :class="{ 'show' : leftNavigationStore.navVisibility }">
             <LeftNavigation class="left-nav"/>
-		 	 <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
-<!--            <div>-->
-<!--                <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>-->
-<!--&lt;!&ndash;                <div class="h-full" @click="leftNavigationStore.closeNav"></div>&ndash;&gt;-->
-<!--            </div>-->
+            <div class="h-[50px] flex justify-center items-center">
+                <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
+                <RouterLink class="logo" :to="{ name : 'main'}">
+                    <img class="mr-2" :src="require('@/assets/img/piano.svg')" alt="피아노">
+                    <div class="text-xl">악카이브</div>
+                </RouterLink>
+            </div>
         </div>
         <div style="height:50px; display:flex; justify-content:end;">
             <MyProfile style="height:40px;"/>
@@ -48,11 +50,20 @@ const route = useRoute();
     cursor: pointer;
     width: 50px;
     height: 50px;
-  	max-height: 50px;
+    max-height: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
     margin: 5px;
+}
+
+.logo {
+    cursor: pointer;
+    height: 25px;
+    max-height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .show {

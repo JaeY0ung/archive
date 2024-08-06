@@ -8,7 +8,7 @@ const router = useRouter();
 const emit = defineEmits(["closeModalEvent"])
 
 const genres = ref([])
-const modalVisibility = ref(false);
+const fileInput = ref(null);
 
 getAllGenres(
     ({ data }) => {
@@ -20,18 +20,34 @@ const fileInfo = ref({
     file: "",
     title: "",
     composer: "",
-    genreId: "",
+    genreId: 0,
 });
 
 // 파일이 바뀔 때마다 파일 ref값 변경
 const handleFileChange = (event) => {
+    console.log(event.target.files[0].type)
+    if (event.target.files[0].type !== "image/jpeg") {
+        fileInput.value.value = "";
+        alert(".jpg 확장자의 파일을 업로드해 주세요");
+        return;
+    }
     fileInfo.value.file = event.target.files[0];
 };
 
 const uploadSongAndFile = async () => {
     // 파일 선택 안하고 제출 시 + 파일 선택했다 취소하고 제출 시
     if (!fileInfo.value.file) {
-        alert("파일을 선택해 주세요.");
+        alert("파일을 선택해 주세요");
+        return;
+    }
+
+    if (!fileInfo.value.composer) {
+        alert("작곡가를 입력해주세요");
+        return;
+    }
+
+    if (!fileInfo.value.genreId || fileInfo.value.genreId == 0) {
+        alert("장르를 선택해주세요");
         return;
     }
 
@@ -43,7 +59,7 @@ const uploadSongAndFile = async () => {
     formData.append( "genreId", new Blob([fileInfo.value.genreId], { type: "application/json" }) );
     
     registerSong(formData, ({ data }) => {
-        alert("등록 완료")
+        router.go(0);
     })
 };
 </script>
@@ -70,7 +86,7 @@ const uploadSongAndFile = async () => {
                 <div class="label">
                     <span class="label-text">곡 앨범 이미지</span>
                 </div>
-                <input @change="handleFileChange" type="file" class="file-input input-bordered w-full" />
+                <input @change="handleFileChange" type="file" class="file-input input-bordered w-full" ref="fileInput"/>
             </label>
 
             <label class="form-control w-full">

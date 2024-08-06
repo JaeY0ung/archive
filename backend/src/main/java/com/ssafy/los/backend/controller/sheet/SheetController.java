@@ -8,7 +8,6 @@ import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.MusicService;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -39,17 +38,13 @@ public class SheetController {
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
     public ResponseEntity<?> uploadSheet(
-            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            @RequestPart(value = "files", required = false) MultipartFile file,
             @RequestPart("title") String title,
             @RequestPart("level") Integer level,
             @RequestPart(value = "songId", required = false) Long songId) {
 
-        if (files.size() != 1) {
-            return new ResponseEntity<>("하나의 파일만 올려주세요.", HttpStatus.BAD_REQUEST);
-        }
-
         SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
-                .file(files.get(0))
+                .file(file)
                 .title(title)
                 .level(level)
                 .songId(songId)

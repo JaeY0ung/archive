@@ -20,11 +20,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/order")
 public class OrderController {
+
     private final OrderService orderService;
+
     // 주문 내역 저장
     @PostMapping
     public ResponseEntity<?> createOrder(@RequestBody OrderSheetDto orderSheetDto) {
-        String redirectUrl = orderService.createOrder(orderSheetDto.getSheetIds(), orderSheetDto.getPayType(), orderSheetDto.getTotalPrice());
+        String redirectUrl = orderService.createOrder(orderSheetDto.getSheetIds(),
+                orderSheetDto.getPayType(), orderSheetDto.getTotalPrice());
+        log.info("================={}", redirectUrl);
         return new ResponseEntity<>(redirectUrl, HttpStatus.CREATED);
     }
 }

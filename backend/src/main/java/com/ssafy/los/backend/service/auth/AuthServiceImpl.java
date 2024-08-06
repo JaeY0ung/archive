@@ -128,6 +128,9 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 이메일의 유저가 없습니다"));
         RefreshToken redis = new RefreshToken(refreshToken, user.getId());
         refreshTokenRepository.save(redis);
+
+        // OAuthAuthorization 쿠키 제거
+        removeOAuthAuthorizationCookie(response);
     }
 
     @Override
@@ -168,6 +171,15 @@ public class AuthServiceImpl implements AuthService {
             }
         }
         return null;
+    }
+
+    private void removeOAuthAuthorizationCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("OAuthAuthorization", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        response.addCookie(cookie);
     }
 
     private Cookie createCookie(String key, String value) {

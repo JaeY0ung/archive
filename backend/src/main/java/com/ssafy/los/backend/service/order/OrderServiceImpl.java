@@ -10,13 +10,14 @@ import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.dto.payment.response.ReadyResponse;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.payment.KakaoPayService;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -41,6 +42,8 @@ public class OrderServiceImpl implements OrderService {
 
         ReadyResponse readyResponse = kakaoPayService.payReady(createOrder, totalPrice);
         createOrder.setTid(readyResponse.getTid());
+
+        log.info("================{}", readyResponse.getNext_redirect_pc_url());
 
         return readyResponse.getNext_redirect_pc_url();
     }

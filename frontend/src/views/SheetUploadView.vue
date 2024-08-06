@@ -7,8 +7,8 @@ import SongRegisterModal from "@/common/modal/SongRegisterModal.vue"
 const router = useRouter();
 
 const keyword = ref("");
+const fileInput = ref(null);
 const modalVisibility = ref(false);
-
 const songs = ref([{
     id: Number,
     title: String,
@@ -28,14 +28,19 @@ const selectedSong = ref({
 });
 
 const fileInfo = ref({
-    files: "",
+    file: "",
     title: "",
     level: "",
 });
 
 // 파일이 바뀔 때마다 파일 ref값 변경
 const handleFileChange = (event) => {
-    fileInfo.value.files = event.target.files;
+    if (event.target.files[0].type !== "audio/mid") {
+        fileInput.value.value = "";
+        alert(".mid 확장자의 파일을 업로드해 주세요");
+        return;
+    }
+    fileInfo.value.file = event.target.files[0];
 };
 
 const searchSongsByKeyword = () => {
@@ -52,24 +57,30 @@ const searchSongsByKeyword = () => {
 searchSongsByKeyword();
 
 const uploadFile = async () => {
-    // 파일 선택 안하고 제출 시 + 파일 선택했다 취소하고 제출 시
-    if (!fileInfo.value.files) {
-        alert("파일을 선택해 주세요.");
+    if (!fileInfo.value.file) {
+        alert("파일을 선택해 주세요");
+        return;
+    }
+
+    if (!fileInfo.value.title) {
+        alert("악보의 제목을 입력해 주세요");
+        return;
+    }
+
+    if (!selectedSong.value || !selectedSong.value.id) {
+        alert("악보의 곡을 선택해 주세요");
         return;
     }
 
     const formData = new FormData();
 
-    for (let i = 0; i < fileInfo.value.files.length; i++) {
-        formData.append("files", fileInfo.value.files[i]);
-    }
 
+    formData.append( "files", fileInfo.value.file );
     formData.append( "title", new Blob([fileInfo.value.title], { type: "application/json" }) );
     formData.append( "level", new Blob([fileInfo.value.level], { type: "application/json" }) );
-    formData.append( "songId", new Blob([selectedSong.value?.id], { type: "application/json" }) );
+    formData.append( "songId", new Blob([selectedSong.value.id], { type: "application/json" }) );
     
-    registerSheet(formData, ({ data }) => {
-        // 성공 시, 악보 디테일 페이지로 이동
+    registerSheet(formData, ({ data }) => { // 성공 시, 악보 디테일 페이지로 이동
         router.push({ name: 'sheetDetail', params: { sheetId: data } });
     })
 };
@@ -92,7 +103,7 @@ const closeSongRegisterModal = () => {
                 <div class="label">
                     <span class="label-text">악보 파일</span>
                 </div>
-                <input @change="handleFileChange" type="file" class="file-input input-bordered w-full" multiple />
+                <input id="file" @change="handleFileChange" type="file" class="file-input input-bordered w-full" ref="fileInput" />
             </label>
 
             <label class="form-control w-full">
