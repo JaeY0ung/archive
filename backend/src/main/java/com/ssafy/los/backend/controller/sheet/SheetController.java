@@ -51,7 +51,7 @@ public class SheetController {
                 .build();
         try { // 악보 데이터 및 파일 저장
             Sheet sheet = sheetService.registerSheetAndFile(sheetUploadForm);
-//            musicService.saveMidFileWithSplit(sheet.getFileName());
+            musicService.saveMidFileWithSplit(sheet.getFileName());
             return new ResponseEntity<>(sheet.getId(), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("파일 업로드에 실패했습니다." + e.getMessage(), HttpStatus.BAD_REQUEST);

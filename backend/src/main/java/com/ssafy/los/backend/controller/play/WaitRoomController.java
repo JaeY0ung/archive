@@ -17,7 +17,7 @@ import org.springframework.stereotype.Controller;
 public class WaitRoomController {
 
     private final UserServiceImpl userServiceImpl;
-    
+
     private final AuthService authService;
 
     @MessageMapping("/wait/{roomId}")

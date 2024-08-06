@@ -2,7 +2,7 @@ import { ref, watch } from "vue";
 import { defineStore } from "pinia";
 import { httpStatusCode } from "@/util/http-status";
 import { useRouter } from "vue-router";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode"; // 잘못된 import 수정
 import { userConfirm, findById, tokenRegeneration, logout, findByEmail } from "@/api/user";
 import firebase from "firebase/app";
 import "firebase/messaging";
@@ -13,11 +13,12 @@ export const useUserStore = defineStore(
     () => {
         const router = useRouter();
 
-        // 유저 정보 및 상태
-        const userInfo = ref(null);
-        const isLogin = ref(false);
-        const isLoginError = ref(false);
-        const isValidToken = ref(false);
+    // 유저 정보 및 상태
+    const userInfo = ref(null);
+    const isLogin = ref(false);
+    const isLoginError = ref(false);
+    const isValidToken = ref(false);
+    const userReady = ref("false");
 
         // 세션 타임아웃 관련
         const lastActivityTime = ref(null);
@@ -40,6 +41,16 @@ export const useUserStore = defineStore(
         }
 
         const messaging = firebase.messaging();
+
+        // 서비스 워커 등록 코드 추가
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                .then((registration) => {
+                    console.log('Service Worker 등록 완료:', registration.scope);
+                }).catch((err) => {
+                    console.log('Service Worker 등록 실패:', err);
+                });
+        }
 
         // Foreground 메시지 핸들러
         messaging.onMessage((payload) => {
@@ -165,7 +176,7 @@ export const useUserStore = defineStore(
         };
 
         // Firebase 토큰을 서버로 전송
-        const sendFirebaseTokenToServer = async () => {
+        const sendFirebaseTokenToServer = async (accessToken) => {
             const local = localAxios();
             const firebaseToken = await requestFirebaseToken();
             if (!firebaseToken) {
@@ -180,6 +191,7 @@ export const useUserStore = defineStore(
                 {
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
                     },
                 }
             );
@@ -241,18 +253,16 @@ export const useUserStore = defineStore(
             );
         };
 
-        return {
-            userLogin,
-            OAuth2userLogin,
-            userLogout,
-            getUserInfo,
-            userInfo,
-            isLogin,
-            isLoginError,
-            isValidToken,
-
-            tokenRegenerate,
-        };
-    },
-    { persist: true }
+    return {
+      userLogin,
+      userLogout,
+      getUserInfo,
+      userInfo,
+      isLogin,
+      isLoginError,
+      isValidToken,
+      tokenRegenerate,
+    };
+  },
+  { persist: true }
 );

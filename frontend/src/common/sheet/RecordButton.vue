@@ -1,6 +1,17 @@
 <script setup>
 import { ref, reactive, watch } from "vue";
 import axios from "axios";
+import SockJS from "sockjs-client";
+import Stomp from "stompjs";
+var stompClient = null;
+
+function connect() {
+    var client = new SockJS('http://localhost:8081/archive-websocket');
+    stompClient = Stomp.over(client);
+    stompClient.connect({}, function (frame){
+        // subscribe logic
+    });
+}
 
 const props = defineProps({
     triggerSplit: Number,
@@ -9,8 +20,9 @@ const props = defineProps({
         default: false,
         required: false,
     },
+    roomId: Number
 });
-
+let roomId = props.roomId;
 // const local = localAxios();
 
 const isRecording = ref(false);
@@ -72,11 +84,11 @@ const startRecording = async () => {
             formData.append("file", blob, `chunck_${audioBlobs.value.length}.webm`);
             /* 파일 전송으로 바꿔야함 */
             axios
-                .post("https://arc-hive.shop/fastapi/playing", formData, {
-                //post("http://localhost:8000/fastapi/playing", formData, {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
+                //post("https://arc-hive.shop/fastapi/playing", formData, {
+                .post("http://localhost:8000/fastapi/playing", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
                 })
                 .then((res) => {
                     console.log("파일 업로드 성공: ", res.data);
@@ -84,6 +96,8 @@ const startRecording = async () => {
                 .catch((err) => {
                     console.error("파일 업로드 실패: ", err);
                 });
+            // 경로, 익명 함수, 로그인 이메일
+            // stompClient.send()
             audioBlobs.value.push({ blob }); //
             chunks.length = 0; // 청크 초기화
         }
