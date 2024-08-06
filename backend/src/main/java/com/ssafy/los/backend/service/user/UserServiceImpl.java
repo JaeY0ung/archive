@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
         User findUser = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이디 입니다. " + userId));
 
-        findUser.updateProfile(userUpdateDto.getNickname(), uuid);
+                    findUser.updateProfile(userUpdateDto.getNickname(), uuid);
         return userId;
     }
 

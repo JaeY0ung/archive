@@ -26,7 +26,6 @@ async function logout(success, fail) {
     await local.get(`/auth/logout`).then(success).catch(fail);
 }
 
-
 async function findByEmail(success, fail) {
     try {
         // TODO : 중복인지 확인하기
@@ -44,7 +43,6 @@ async function findByEmail(success, fail) {
     }
 }
 
-
 async function findById(username, success, fail) {
     local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
     await local.get(`/auth/info/${username}`).then(success).catch(fail);
@@ -54,8 +52,6 @@ async function tokenRegeneration(user, success, fail) {
   local.defaults.headers["refreshToken"] = sessionStorage.getItem("refreshToken"); //axios header에 refresh-token 셋팅
     await local.post(`/auth/refresh`, user).then(success).catch(fail);
 }
-
-
 
 async function signout(success, fail) {
     local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
