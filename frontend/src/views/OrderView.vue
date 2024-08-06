@@ -37,9 +37,11 @@ const checkout = async () => {
 		.filter(item => selectedItems.value.has(item.id))
 		.map(item => item.id); // id 값만 추출
 	console.log(itemsToCheckout); // id 값만 출력됨을 확인
-	await addSheetToOrderAPI(itemsToCheckout, 'KAKAO_PAY',
-		() => {
+    const totalPrice = totalSelectedPrice.value;
+	await addSheetToOrderAPI(itemsToCheckout, 'KAKAO_PAY', totalPrice,
+		(redirectUrl) => {
 		  clearOrder();
+      window.location.href = redirectUrl; // 결제 페이지로 리디렉션
 		  alert('Order placed successfully!');
 		  // router.push({name: 'home'}); // 주석 처리된 라우터 네비게이션
 		},
