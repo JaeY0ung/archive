@@ -157,7 +157,7 @@ const inviteModalStatus = ref(false);
 const selectedFriend = ref(null);
 
 const openInviteModalStatus = () => {
-    console.log("ONLINE ::::::: ",onlineUsers)
+    console.log("ONLINE ::::::: ",onlineUsers.value)
     inviteModalStatus.value = true;
 }
 
