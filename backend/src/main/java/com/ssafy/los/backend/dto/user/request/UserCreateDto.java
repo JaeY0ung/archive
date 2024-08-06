@@ -20,9 +20,8 @@ public class UserCreateDto {
     @Size(min = 2, max = 20)
     private String nickname;
 
-    // TODO : 개발용 최소 사이즈 설정
     @NotNull
-    @Size(min = 2, max = 15)
+    @Size(min = 9, max = 15)
     private String password; // 여기는 Hash 값이 들어가지 않음
 
     @NotNull

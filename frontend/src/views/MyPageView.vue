@@ -70,6 +70,7 @@ const resetForm = () => {
 };
 
 const updateUserInfo = async () => {
+    // 닉네임 변경 시 중복 확인 여부 체크
     if (
         loginUserInfo.value.nickname !== originalUserInfo.value.nickname &&
         (!isNicknameChecked.value || !isNicknameAvailable.value)
@@ -80,8 +81,17 @@ const updateUserInfo = async () => {
 
     try {
         const formData = new FormData();
-        formData.append("nickname", loginUserInfo.value.nickname);
 
+        // UserUpdateDto 객체 생성 및 JSON 변환
+        const userUpdateDto = {
+            nickname: loginUserInfo.value.nickname,
+        };
+        const userUpdateDtoBlob = new Blob([JSON.stringify(userUpdateDto)], {
+            type: "application/json"
+        });
+        formData.append("userUpdateDto", userUpdateDtoBlob);
+
+        // 프로필 이미지가 변경되었을 경우에만 추가
         if (
             loginUserInfo.value.profileImage &&
             loginUserInfo.value.profileImage !== originalUserInfo.value.profileImage
@@ -89,23 +99,23 @@ const updateUserInfo = async () => {
             formData.append("profileImage", loginUserInfo.value.profileImage);
         }
 
+        // API 호출
         const response = await local.put("/users", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
             },
         });
 
-        console.log("User info updated successfully:", response.data);
         alert("사용자 정보가 성공적으로 업데이트되었습니다.");
         originalUserInfo.value = { ...loginUserInfo.value };
 
-        // 스토어 정보 초기화
+        // 사용자 정보 갱신
         await userStore.getUserInfo();
 
         resetForm();
     } catch (error) {
-        console.error("Error updating user info:", error);
-        alert("사용자 정보 업데이트에 실패했습니다.");
+        console.error("사용자 정보 업데이트 중 오류 발생:", error);
+        alert("사용자 정보 업데이트에 실패했습니다. 다시 시도해 주세요.");
     }
 };
 

@@ -5,13 +5,15 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.user.request.UserCreateDto;
 import com.ssafy.los.backend.dto.user.request.UserUpdateDto;
 import com.ssafy.los.backend.dto.user.response.UserProfileDto;
+import com.ssafy.los.backend.exception.user.UserNotFoundException;
+import com.ssafy.los.backend.exception.user.UserUpdateException;
 import com.ssafy.los.backend.service.auth.PasswordService;
 import com.ssafy.los.backend.util.FileUploadUtil;
-import jakarta.transaction.Transactional;
-import java.io.IOException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -59,16 +61,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public Long updateUser(Long userId, UserUpdateDto userUpdateDto, String uuid) {
         User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이디 입니다. " + userId));
+                .orElseThrow(() -> new UserNotFoundException("찾을 수 없는 아이디 입니다: " + userId));
 
-                    findUser.updateProfile(userUpdateDto.getNickname(), uuid);
+        try {
+            findUser.updateProfile(userUpdateDto.getNickname(), uuid);
+        } catch (Exception e) {
+            throw new UserUpdateException("사용자 정보 업데이트 중 오류 발생: " + e.getMessage());
+        }
+
         return userId;
     }
 
     // 회원 수정 파일 업로드
     @Override
-    public String registerUserImgFile(MultipartFile profileImg) throws IOException {
-        return fileUploadUtil.uploadUserImg(profileImg);
+    public String registerUserImgFile(MultipartFile profileImg) {
+        try {
+            return fileUploadUtil.uploadUserImg(profileImg);
+        } catch (IllegalArgumentException e) {
+            throw new UserUpdateException("프로필 이미지 업로드 중 오류 발생: " + e.getMessage());
+        }
     }
 
     // 유저 프로필 조회
@@ -76,13 +87,13 @@ public class UserServiceImpl implements UserService {
     public UserProfileDto searchUserProfileByNickname(String nickname) {
         User findUser = userRepository.findByNickname(nickname)
                 .orElseThrow(
-                        () -> new IllegalArgumentException("nickname에 해당하는 유저가 없습니다. " + nickname));
+                        () -> new UserNotFoundException("찾을 수 없는 닉네임 입니다: " + nickname));
 
         UserProfileDto userProfileDto = UserProfileDto.builder()
                 .userId(findUser.getId())
                 .nickname(findUser.getNickname())
-                .userImgName(findUser.getUserImg()) // 임시
-                .singleScore(findUser.getSingleScore())
+                .userImgName(findUser.getUserImg())
+                .singleScore(Optional.ofNullable(findUser.getSingleScore()).orElse(0)) // null 조심
                 .build();
         userProfileDto.loadUserImg(fileUploadUtil);
 
@@ -96,12 +107,14 @@ public class UserServiceImpl implements UserService {
         return id;
     }
 
+    // 이메일 기반 조회
     @Override
     public User searchUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("email에 해당하는 유저가 없습니다. " + email));
+                .orElseThrow(() -> new UserNotFoundException("찾을 수 없는 이메일 입니다: " + email));
     }
 
+    // 아이디 기반 조회
     @Override
     public User selectUserById(Long userId) {
         return userRepository.findUserById(userId).orElse(null);
