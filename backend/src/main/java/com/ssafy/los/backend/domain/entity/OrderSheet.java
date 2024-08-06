@@ -1,21 +1,15 @@
 package com.ssafy.los.backend.domain.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.Getter;
-import org.springframework.data.annotation.Id;
+import lombok.Setter;
 
+// 주문 상품
 @Entity
 @Getter
-
+@Setter
 public class OrderSheet {
 
-    @jakarta.persistence.Id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_sheet_id")
@@ -29,4 +23,12 @@ public class OrderSheet {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sheet_id")
     private Sheet sheet;
+
+    public static OrderSheet createOrderSheet(Sheet sheet) {
+        OrderSheet orderSheet = new OrderSheet();
+        orderSheet.setSheet(sheet);
+
+        return orderSheet;
+    }
+
 }
