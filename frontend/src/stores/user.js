@@ -47,6 +47,16 @@ export const useUserStore = defineStore(
 
     const messaging = firebase.messaging();
 
+     // 서비스 워커 등록 코드 추가
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/firebase-messaging-sw.js')
+        .then((registration) => {
+          console.log('Service Worker 등록 완료:', registration.scope);
+        }).catch((err) => {
+          console.log('Service Worker 등록 실패:', err);
+        });
+    }
+
     // Foreground 메시지 핸들러
     messaging.onMessage((payload) => {
       console.log("Message received. ", payload);
