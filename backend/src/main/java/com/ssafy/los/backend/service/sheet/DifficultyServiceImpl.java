@@ -60,7 +60,7 @@ public class DifficultyServiceImpl implements DifficultyService {
                 .build();
 
         // 난이도 업데이트
-        calculateDifficulty(sheetId);
+//        calculateDifficulty(sheetId);
 
         return difficultyRatingRepository.save(difficulty).getId();
     }
@@ -76,7 +76,7 @@ public class DifficultyServiceImpl implements DifficultyService {
                 difficultyUpdateDto.getContents());
 
         // 난이도 업데이트
-        calculateDifficulty(findDifficultyRating.getSheet().getId());
+//        calculateDifficulty(findDifficultyRating.getSheet().getId());
 
         return difficultyId;
     }
@@ -89,7 +89,7 @@ public class DifficultyServiceImpl implements DifficultyService {
                         "해당 난이도 평가가 없습니다. id = " + difficultyId));
 
         // 난이도 업데이트
-        calculateDifficulty(findDifficultyRating.getSheet().getId());
+//        calculateDifficulty(findDifficultyRating.getSheet().getId());
 
         difficultyRatingRepository.deleteById(difficultyId);
 
