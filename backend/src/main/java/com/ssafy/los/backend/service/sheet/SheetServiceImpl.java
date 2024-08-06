@@ -77,6 +77,12 @@ public class SheetServiceImpl implements SheetService {
         return fileUploadUtil.getMusicXml(sheet.getFileName());
     }
 
+    @Override
+    public String getMidFileById(Long sheetId) {
+        SheetDetailViewDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId);
+        return fileUploadUtil.getMid(sheet.getFileName());
+    }
+
     private String saveSheetFile(MultipartFile file) throws IllegalArgumentException {
         return fileUploadUtil.uploadSheet(file); // 로컬에 저장
     }

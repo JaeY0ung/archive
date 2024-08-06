@@ -64,11 +64,17 @@ public class FileUploadUtil {
         return getFileAsBase64(path);
     }
 
+    // TODO : 바꾸기
     public String getMusicXml(String fileName) {
-        // TODO : 바꾸기
         int dotIndex = fileName.lastIndexOf(".");
         fileName = fileName.substring(0, dotIndex) + ".musicxml";
         log.info(fileName);
+        Path path = getMusicXmlPath(fileName);
+        return readFileAsString(path);
+    }
+
+    // TODO : 바꾸기
+    public String getMid(String fileName) {
         Path path = getMusicXmlPath(fileName);
         return readFileAsString(path);
     }

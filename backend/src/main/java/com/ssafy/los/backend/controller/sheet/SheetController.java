@@ -108,6 +108,6 @@ public class SheetController {
     public ResponseEntity<?> getSheetMidFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(sheetService.getMusicXmlFileById(sheetId));
+                .body(sheetService.getMidFileById(sheetId));
     }
 }

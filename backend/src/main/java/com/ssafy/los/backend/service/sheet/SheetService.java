@@ -22,4 +22,6 @@ public interface SheetService {
             throws IllegalArgumentException;
 
     String getMusicXmlFileById(Long sheetId);
+
+    String getMidFileById(Long sheetId);
 }
