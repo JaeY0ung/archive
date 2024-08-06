@@ -1,4 +1,4 @@
-package com.ssafy.los.backend.dto.song;
+package com.ssafy.los.backend.dto.song.response;
 
 import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.AllArgsConstructor;
@@ -22,7 +22,7 @@ public class SongDto {
 
     public void loadSongImg(FileUploadUtil fileUploadUtil) {
         if (this.imgName != null) {
-            this.img = fileUploadUtil.getImg(this.imgName);
+            this.img = fileUploadUtil.getSongImg(this.imgName);
         }
     }
 
@@ -33,4 +33,5 @@ public class SongDto {
         this.imgName = imgName;
         this.genreTitle = genreTitle;
     }
+
 }

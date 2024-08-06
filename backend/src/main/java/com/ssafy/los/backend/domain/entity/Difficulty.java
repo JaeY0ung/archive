@@ -42,17 +42,17 @@ public class Difficulty extends BaseEntity {
     private String content;
 
     @Builder
-    public Difficulty(User user, Sheet sheet, Integer level, String contents) {
+    public Difficulty(User user, Sheet sheet, Integer level, String content) {
         this.user = user;
         this.sheet = sheet;
         this.level = level;
-        this.content = contents;
+        this.content = content;
     }
 
     //== 메서드 ==//
-    public void update(Integer level, String contents) {
+    public void update(Integer level, String content) {
         this.level = level;
-        this.content = contents;
+        this.content = content;
     }
 
 }

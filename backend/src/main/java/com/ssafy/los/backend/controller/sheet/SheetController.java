@@ -36,7 +36,6 @@ public class SheetController {
     private final AuthService authService;
     private final MusicService musicService;
 
-    // 악보 관리
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
     public ResponseEntity<?> uploadSheet(
@@ -58,7 +57,7 @@ public class SheetController {
         try { // 악보 데이터 및 파일 저장
             Sheet sheet = sheetService.registerSheetAndFile(sheetUploadForm);
             musicService.saveMidFileWithSplit(sheet.getFileName());
-            return new ResponseEntity<>(sheet, HttpStatus.CREATED);
+            return new ResponseEntity<>(sheet.getId(), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("파일 업로드에 실패했습니다." + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -95,5 +94,19 @@ public class SheetController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/{sheet-id}/music-xml")
+    public ResponseEntity<?> getSheetMusicXmlFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sheetService.getMusicXmlFileById(sheetId));
+    }
+
+    @GetMapping("/{sheet-id}/mid")
+    public ResponseEntity<?> getSheetMidFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sheetService.getMidFileById(sheetId));
     }
 }

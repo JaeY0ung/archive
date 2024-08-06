@@ -29,7 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //        registry.addEndpoint("/archive-websocket").setAllowedOrigins(allowedOrigins)
 //                .withSockJS(); // 커넥션을 맺는 경로 설정
         // https 웹소켓 지원
-        registry.addEndpoint("api/archive-websocket").setAllowedOrigins(allowedOrigins)
+        registry.addEndpoint("/archive-websocket").setAllowedOrigins(allowedOrigins)
                 .withSockJS(); // 커넥션을 맺는 경로 설정
     }
 

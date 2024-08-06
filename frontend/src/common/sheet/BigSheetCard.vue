@@ -40,38 +40,33 @@ watch(() => props.sheet, (newSheet) => {
 const goToUserProfile = () => {
   router.push({name: 'userProfile', params: {nickName: props.sheet.uploaderNickname}})
 }
+
 // 싱글 배틀 페이지로 이동하기.
 const goToPlayRoom = () => {
   router.push({name: 'waitBattle'})
 }
 
-// 좋아요 기능
-const onClickLikeSheet = async () => {
-  likeSheet(
-      props.sheet.id,
-      (res) => {
-        sheetInfo.value.likeStatus = true;
-        sheetInfo.value.likeCount++;
-      },
-      (err) => {
-        console.error(err);
-      },
-  )
+// 좋아요
+const onClickLikeSheet = async () => { 
+    likeSheet(
+        props.sheet.id,
+        (res)=>{
+            sheetInfo.value.likeStatus = true;
+            sheetInfo.value.likeCount++;
+        }
+    )
 }
 
 
-// 좋아요 해제 기능
+// 좋아요 해제
 const onClickDislikeSheet = async () => {
-  dislikeSheet(
-      props.sheet.id,
-      (res) => {
-        sheetInfo.value.likeStatus = false
-        sheetInfo.value.likeCount--;
-      },
-      (err) => {
-        console.error(err);
-      }
-  )
+    dislikeSheet(
+        props.sheet.id,
+        (res)=>{
+            sheetInfo.value.likeStatus = false
+            sheetInfo.value.likeCount--;
+        }
+    )
 }
 
 // TODO : 장바구니에 넣는 로직 추가하기

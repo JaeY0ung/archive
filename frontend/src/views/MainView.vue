@@ -1,58 +1,59 @@
 <script setup>
 import { ref } from 'vue';
-import { localAxios } from '@/util/http-common';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
+import { searchSheetsByFilter, searchRecentChallengedsheets } from '@/api/sheet';
 
-const local = localAxios();
 const popularSheets = ref([]); // 인기 악보 리스트
 const newSheets = ref([]); // 새로 나온(New) 악보 리스트
 const recommendSheets = ref([]); // 추천 악보 리스트
 const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 
 const getPopularsheets = async () => {
-	const params = { sort: "POPULAR" }
-	await local.get("/sheets", { params } )
-		.then(({ data }) => {
+	searchSheetsByFilter(
+		{ sort: "POPULAR" },
+		({ data }) => {
 			if (!data) return;
 			popularSheets.value = data;
 			popularSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); // TODO: songImg가 없으면 기본 로고로.
-		}).catch((err)=> console.error(err))
+		}
+	)
 }
 
 const getnewsheets = async () => {
-	const params = { sort: "LATEST" }
-	await local.get("/sheets", { params })
-		.then(({ data }) => {
+	searchSheetsByFilter(
+		{ sort: "LATEST" },
+		({ data }) => {
 			if (!data) return;
 			newSheets.value = data;
 			newSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
-		}).catch((err)=> console.error(err))
+		}
+	)
 }
 
-
 const getRecommendsheets = async () => {
-	const params = {
-		levels: 1, // 유저의 티어
-		sort: "RANDOM"
-	}
-	await local.get("/sheets", { params })
-		.then(({ data }) => {
+	searchSheetsByFilter(
+		{ levels: 1, sort: "RANDOM" },
+		({ data }) => {
 			if (!data) return;
 			recommendSheets.value = data;
 			recommendSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); 
-		}).catch((err)=> console.error(err))
-	}
+		}
+	)
+}
+
+const getRecentChallengedsheets = async () => {
+	searchRecentChallengedsheets(
+		({ data }) => {
+			if (!data) return;
+			recentChallengedSheet.value = data;
+			recentChallengedSheet.imageUrl = recentChallengedSheet.songImg ? `data:image/jpeg;base64,${recentChallengedSheet.songImg}` : '기본 이미지'; 
+		}
+	)
+}
+
 getPopularsheets();
 getnewsheets();
 getRecommendsheets();
-
-// const getRecentChallengedsheets = async () => {
-// 	await axios.get("http://localhost:8080/sheets/recent-challenge")
-// 		.then(({ data }) => {
-// 			recentChallengedSheet.value = data;
-// 			recentChallengedSheet.imageUrl = recentChallengedSheet.songImg ? `data:image/jpeg;base64,${recentChallengedSheet.songImg}` : '기본 이미지'; 
-// 		}).catch((err)=> alert(err))
-// }
 // getRecentChallengedsheets();
 </script>
 
