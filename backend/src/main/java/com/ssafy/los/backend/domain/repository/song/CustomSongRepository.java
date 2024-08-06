@@ -1,6 +1,6 @@
 package com.ssafy.los.backend.domain.repository.song;
 
-import com.ssafy.los.backend.dto.song.SongDto;
+import com.ssafy.los.backend.dto.song.response.SongDto;
 import java.util.List;
 
 public interface CustomSongRepository {

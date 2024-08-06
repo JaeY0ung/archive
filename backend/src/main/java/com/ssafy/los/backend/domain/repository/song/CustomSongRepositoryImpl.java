@@ -4,7 +4,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.los.backend.domain.entity.QSong;
-import com.ssafy.los.backend.dto.song.SongDto;
+import com.ssafy.los.backend.dto.song.response.SongDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 

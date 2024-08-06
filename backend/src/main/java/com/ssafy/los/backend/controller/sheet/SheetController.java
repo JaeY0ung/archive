@@ -36,7 +36,6 @@ public class SheetController {
     private final AuthService authService;
     private final MusicService musicService;
 
-    // 악보 관리
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
     public ResponseEntity<?> uploadSheet(

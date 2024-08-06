@@ -1,4 +1,4 @@
-package com.ssafy.los.backend.controller.sheet;
+package com.ssafy.los.backend.controller.song;
 
 import com.ssafy.los.backend.service.sheet.GenreService;
 import lombok.RequiredArgsConstructor;
