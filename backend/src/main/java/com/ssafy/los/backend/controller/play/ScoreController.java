@@ -1,21 +1,25 @@
 package com.ssafy.los.backend.controller.play;
 
-import com.ssafy.los.backend.dto.play.MultiPlayScoreDto;
-import com.ssafy.los.backend.service.play.LiveScoreService;
+import com.ssafy.los.backend.dto.user.response.ScoreDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/scores")
 public class ScoreController {
 
-    private final LiveScoreService liveScoreService;
-
-    @GetMapping(path = "/battle/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<MultiPlayScoreDto> aggregate() {
-        return liveScoreService.stream();
+    @MessageMapping("/wait/play/{roomId}")
+    @SendTo("/wait/play/{roomId}")
+    public ScoreDto sendScore(@PathVariable("roomId") String roomId, ScoreDto scoreDto) throws Exception {
+        log.info("sendScore: {}", scoreDto);
+        return scoreDto; // 수정
     }
+
 }

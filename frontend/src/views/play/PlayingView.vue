@@ -18,7 +18,7 @@ let stompClient = null;
 let eventSource;
 
 const props = defineProps({
-    roomId: Number
+    roomId: String
 })
 
 const playStore = usePlayStore();
