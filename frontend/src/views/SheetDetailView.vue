@@ -5,6 +5,8 @@ import { localAxios } from "@/util/http-common";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from  "@/common/sheet/SmallSheetCard.vue";
 import { searchSheetDetail } from "@/api/sheet";
+import Sheet from "@/common/sheet/Sheet.vue";
+
 const route = useRoute();
 const local = localAxios();
 const isPlay = ref("stop");
@@ -193,8 +195,8 @@ const goToSheetDetail = (sheetId) => {
 		<div class="flex flex-col gap-5 w-[49%] h-full p-3 bg-white/50 rounded-xl">
 			<SheetPlayNavigation class="flex-none h-[30px]" @play="isPlay = 'play'" @pause="isPlay = 'pause'"
 				@stop="isPlay = 'stop'" />
-			<div class="bg-black rounded-xl h-full"></div>
-			<!-- <Sheet class="rounded-xl h-full" :isPlay="isPlay" /> -->
+			<!-- <div class="bg-black rounded-xl h-full"></div> -->
+			<Sheet class="rounded-xl h-full"  :sheetId="route.params.sheetId"/>
 		</div>
 	</div>
 </template>

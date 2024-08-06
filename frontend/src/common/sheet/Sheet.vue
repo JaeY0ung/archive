@@ -13,6 +13,7 @@ const props = defineProps({
     },
     width: Number,
     height: Number,
+    sheetId: Number,
 });
 
 const playbackManager = ref(null);
@@ -65,6 +66,7 @@ onMounted(() => {
             :height="props.height"
             @measure-changed="handleMeasureChanged"
             @music-finished="musicFinished"
+            :sheetId
         />
         <RecordButton
             v-if="isRecording"
