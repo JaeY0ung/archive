@@ -36,11 +36,11 @@ public class UserStatusServiceImpl implements UserStatusService {
     public Set<String> getOnlineUsers() {
         // Redis에 저장된 모든 키 중에서 "USER_ONLINE_"로 시작하는 키를 검색하여 Set<String>으로 반환
         Set<String> keys = redisTemplate.keys("USER_ONLINE_*");
-        LOGGER.info("Keys found: " + keys);
+        LOGGER.info("USER_ONLINE_* 에 맞는 키를 찾았습니다: " + keys);
         return keys.stream()
                 .filter(key -> {
                     Boolean online = (Boolean) redisTemplate.opsForValue().get(key);
-                    LOGGER.info("Key: " + key + ", Online: " + online);
+                    LOGGER.info("온라인 유저 Key: " + key + ", Online 여부: " + online);
                     return online != null && online;
                 })
                 // 각 키에서 "USER_ONLINE_" 부분을 제거하고 사용자 ID만 남기도록 변환

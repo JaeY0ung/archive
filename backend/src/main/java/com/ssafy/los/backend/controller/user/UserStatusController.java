@@ -35,11 +35,15 @@ public class UserStatusController {
     @GetMapping("/online-users")
     public ResponseEntity<List<OnlineUserDto>> getOnlineUsers() {
         Set<String> onlineUserIds = userStatusService.getOnlineUsers();
-        LOGGER.info("Online users: " + onlineUserIds);
+        LOGGER.info("userStatusService.getOnlineUsers() 결과: " + onlineUserIds);
 
         List<OnlineUserDto> onlineUserDtoList = onlineUserIds.stream()
                 .map(userId -> {
                     User user = userService.selectUserById(Long.parseLong(userId));
+                    if (user == null) {
+                        LOGGER.warning("User with id " + userId + "를 찾을 수 없습니다.");
+                        return null; // user가 null이면 null 반환
+                    }
                     return OnlineUserDto.builder()
                             .id(user.getId())
                             .userImg(user.getUserImg())
