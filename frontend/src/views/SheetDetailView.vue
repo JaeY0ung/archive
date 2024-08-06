@@ -3,7 +3,8 @@ import { useRoute, useRouter } from "vue-router";
 import { ref, watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
-import SmallSheetCard from  "@/common/sheet/SmallSheetCard.vue";
+import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import Sheet from "@/common/sheet/Sheet.vue";
 import { searchSheetDetail, searchSheetsByFilter, searchStarRateListBySheetId, registerStarRateBySheetId } from "@/api/sheet";
 
 const route = useRoute();
