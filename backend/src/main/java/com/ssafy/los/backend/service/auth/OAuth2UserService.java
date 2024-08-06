@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional // 문제 없겠지?
+@Transactional
 public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
@@ -36,6 +36,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         User TempOAuthUser = User.builder()
                 .pwdHash(passhwd)
                 .role(role)
+                .nickname(userCreateDto.getNickname())
+                .gender(userCreateDto.getGender())
+                .singleScore(0)
+                .multiScore(0)
+                .cash(0)
                 .build();
         findUser.OAuth2Update(TempOAuthUser);
         return findUser.getId();

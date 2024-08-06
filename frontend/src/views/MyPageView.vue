@@ -103,7 +103,6 @@ const updateUserInfo = async () => {
         await userStore.getUserInfo();
 
         resetForm();
-
     } catch (error) {
         console.error("Error updating user info:", error);
         alert("사용자 정보 업데이트에 실패했습니다.");
@@ -149,6 +148,22 @@ const goToUserProfile = () => {
         router.push({ name: "userProfile", params: { nickName: userInfo.value.nickname } });
     } else {
         alert("사용자 정보를 불러올 수 없습니다.");
+    }
+};
+
+const deleteAccount = async () => {
+    if (!confirm("정말로 회원탈퇴를 하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
+        return;
+    }
+
+    try {
+        await local.delete(`/users/${userInfo.value.id}`);
+        alert("회원탈퇴가 완료되었습니다.");
+        await userStore.userLogout();
+        router.push({ name: "main" });
+    } catch (error) {
+        console.error("회원탈퇴 중 오류 발생:", error);
+        alert("회원탈퇴 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
 };
 
@@ -232,7 +247,8 @@ onMounted(() => {
                 수정하기
             </button>
             <button @click="goToUserProfile" class="btn btn-info mr-2">내 프로필 가기</button>
-            <button @click="goLogout" class="btn btn-secondary">로그아웃</button>
+            <button @click="goLogout" class="btn btn-secondary mr-2">로그아웃</button>
+            <button @click="deleteAccount" class="btn btn-error">회원탈퇴</button>
         </div>
     </div>
 </template>
@@ -270,5 +286,15 @@ onMounted(() => {
 
 .btn-info:hover {
     background-color: #2980b9;
+}
+
+.btn-error {
+    background-color: #000000;
+    color: white;
+    border: none;
+}
+
+.btn-error:hover {
+    background-color: #3d3837;
 }
 </style>
