@@ -4,7 +4,9 @@ import { ref, watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from  "@/common/sheet/SmallSheetCard.vue";
+import Sheet from "@/common/sheet/Sheet.vue";
 import { searchSheetDetail } from "@/api/sheet";
+
 const route = useRoute();
 const local = localAxios();
 const isPlay = ref("stop");
@@ -190,11 +192,8 @@ const goToSheetDetail = (sheetId) => {
 			</div>
 		</div>
 		<!-- 오른쪽 -->
-		<div class="flex flex-col gap-5 w-[49%] h-full p-3 bg-white/50 rounded-xl">
-			<SheetPlayNavigation class="flex-none h-[30px]" @play="isPlay = 'play'" @pause="isPlay = 'pause'"
-				@stop="isPlay = 'stop'" />
-			<div class="bg-black rounded-xl h-full"></div>
-			<!-- <Sheet class="rounded-xl h-full" :isPlay="isPlay" /> -->
+		<div class="flex flex-col gap-5 w-[49%] h-full p-3 bg-white/50 rounded-xl" style="display:flex; justify-content:center; align-items:center">
+			<Sheet :showController="false" :isRecording="false"  :width="650" :height="600"/>
 		</div>
 	</div>
 </template>

@@ -1,11 +1,17 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { OpenSheetMusicDisplay } from "@/assets/js/opensheetmusicdisplay.min.js";
 
 const props = defineProps({
     playbackManager: Object,
-    width: Number,
-    height: Number,
+    width: {
+        type: Number,
+        default: null
+    },
+    height: {
+        type: Number,
+        default: null
+    },
 });
 
 const emit = defineEmits(["measure-changed", "music-finished"]);
@@ -57,6 +63,10 @@ const setupPlaybackManager = () => {
     osmd.PlaybackManager = props.playbackManager;
 };
 
+const computedWidth = computed(() => props.width ? props.width + 'px' : '100%');
+const computedHeight = computed(() => props.height ? props.height + 'px' : '100%');
+
+
 onMounted(async () => {
     osmd = new OpenSheetMusicDisplay(osmdContainer.value);
     osmd.setOptions({
@@ -74,7 +84,7 @@ onMounted(async () => {
     <div
         id="scrollContainer"
         style="overflow-y: scroll"
-        :style="{ width: width + 'px', height: height + 'px' }"
+        :style="{ width: computedWidth, height: computedHeight }"
     >
         <div id="osmdContainer" ref="osmdContainer"></div>
     </div>
