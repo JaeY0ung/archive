@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.service.song;
 
 import com.ssafy.los.backend.domain.entity.Song;
+import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.song.SongRepository;
 import com.ssafy.los.backend.dto.song.request.SongRegisterForm;
 import com.ssafy.los.backend.dto.song.response.SongDto;
@@ -39,6 +40,17 @@ public class SongServiceImpl implements SongService {
     public Song registerSongAndFile(SongRegisterForm songRegisterForm)
             throws IllegalArgumentException {
         return registerSong(songRegisterForm, saveSongImgFile(songRegisterForm.getFile()));
+    }
+
+    @Override
+    public boolean deleteById(Long songId) {
+        User loginUser = authService.getLoginUser();
+        Song song = songRepository.findById(songId).orElse(null);
+        if (song != null && loginUser != null && loginUser.getRole().equals("ROLE_ADMIN")) {
+            songRepository.deleteById(songId);
+            return true;
+        }
+        return false;
     }
 
     private String saveSongImgFile(MultipartFile file) throws IllegalArgumentException {

@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Slf4j
 
-public class SheetDetailViewDto {
+public class SheetDetailForAdminDto implements SheetDetailDto {
 
     private Long id;
 
@@ -51,7 +51,7 @@ public class SheetDetailViewDto {
 
     private Timestamp createdAt;
 
-    public SheetDetailViewDto(Sheet sheet, Long likeCount, Boolean likeStatus) {
+    public SheetDetailForAdminDto(Sheet sheet, Long likeCount, Boolean likeStatus) {
         this.id = sheet.getId();
         this.title = sheet.getTitle();
         if (sheet.getSong() != null) {
@@ -66,18 +66,16 @@ public class SheetDetailViewDto {
         this.price = sheet.getPrice();
         this.level = sheet.getLevel();
         this.status = sheet.getStatus();
-        if (sheet.getStatus() != null && sheet.getStatus() == 0) {
-            this.level = 0;
-        }
         this.viewCount = sheet.getViewCount();
         this.likeCount = likeCount;
         this.likeStatus = likeStatus;
     }
 
-    public SheetDetailViewDto(Sheet sheet, Long likeCount) {
+    public SheetDetailForAdminDto(Sheet sheet, Long likeCount) {
         this(sheet, likeCount, null);
     }
 
+    @Override
     public void loadSongImg(FileUploadUtil fileUploadUtil) {
         if (this.songImgName != null) {
             this.songImg = fileUploadUtil.getSongImg(this.songImgName);
