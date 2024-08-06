@@ -2,7 +2,7 @@
 import Home from "@/common/icons/Home.vue";
 import My from "@/common/icons/My.vue";
 import Search from "@/common/icons/Search.vue";
-import Card from "@/common/icons/Card.vue";
+import Order from "@/common/icons/Order.vue";
 import Upload from "@/common/icons/Upload.vue";
 import NotePixel from "@/common/icons/NotePixel.vue";
 
@@ -11,6 +11,7 @@ import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useLeftNavigationStore } from "@/stores/leftNavigation";
 import { useRouter } from "vue-router";
+import Record from "@/common/icons/Record";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -22,9 +23,10 @@ const pages = ref([
     { name: "main", title: "메인 페이지" },
     { name: "mypage", title: "마이페이지" },
     { name: "sheetSearch", title: "악보 검색" },
-    { name: "payment", title: "충전하기" },
+    { name: "order", title: "장바구니" },
     { name: "sheetUpload", title: "악보 업로드" },
     { name: "pianoSaurus", title: "배틀하기" },
+  {name: "recording", title: "음악 녹음"},
 ]);
 
 const goLogout = async () => {
@@ -58,9 +60,10 @@ const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-
                         <Home v-if="page.name === 'main'" />
                         <My v-else-if="page.name === 'mypage'" />
                         <Search v-else-if="page.name === 'sheetSearch'" />
-                        <Card v-else-if="page.name === 'payment'" />
+                        <Record v-else-if="page.name === 'recording'" />
                         <Upload v-else-if="page.name === 'sheetUpload'" />
                         <NotePixel v-else-if="page.name === 'pianoSaurus'" />
+                        <Order v-else-if="page.name === 'order'" />
                     </div>
                     <span>{{ page.title }}</span>
                 </RouterLink>
