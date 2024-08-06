@@ -1,8 +1,25 @@
-if ('serviceWorker' in navigator) { 
-    navigator.serviceWorker.register('../firebase-messaging-sw.js') 
-    .then(function(registration) { 
-      console.log('등록 성공, 범위는 다음과 같습니다.', registration.scope); 
-    }).catch(function(err) { 
-      console.log('서비스 워커 등록에 실패했습니다. 오류:', err); 
-    }); 
-  }
+importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js');
+importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js');
+
+firebase.initializeApp({
+  apiKey: 'VUE_APP_FIREBASE_API_KEY',
+  authDomain: 'VUE_APP_FIREBASE_AUTH_DOMAIN',
+  projectId: 'VUE_APP_FIREBASE_PROJECT_ID',
+  storageBucket: 'VUE_APP_FIREBASE_STORAGE_BUCKET',
+  messagingSenderId: 'VUE_APP_FIREBASE_MESSAGING_SENDER_ID',
+  appId: 'VUE_APP_FIREBASE_APP_ID',
+  measurementId: 'VUE_APP_FIREBASE_MEASUREMENT_ID'
+});
+
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  console.log('백그라운드 메시지를 받았습니다. ', payload);
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: payload.notification.icon
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
