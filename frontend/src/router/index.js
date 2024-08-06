@@ -61,7 +61,7 @@ const routes = [
             {
                 path: 'play',
                 name: 'play',
-                component: () => import('@/views/play/PlayingView.vue')
+                component: () => import('@/common/sheet/Sheet2.vue')
             },
         ],
     },
@@ -72,7 +72,8 @@ const routes = [
             {
                 path: 'singleDefault',
                 name: 'singleDefault',
-                component: () => import('@/views/play/component/SingleDefaultSheet.vue')
+                component: () => import('@/common/sheet/Sheet2.vue')
+                // component: () => import('@/views/play/component/SingleDefaultSheet.vue')
             }
         ]
     },

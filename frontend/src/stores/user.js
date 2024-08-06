@@ -13,11 +13,12 @@ export const useUserStore = defineStore(
     () => {
         const router = useRouter();
 
-        // 유저 정보 및 상태
-        const userInfo = ref(null);
-        const isLogin = ref(false);
-        const isLoginError = ref(false);
-        const isValidToken = ref(false);
+    // 유저 정보 및 상태
+    const userInfo = ref(null);
+    const isLogin = ref(false);
+    const isLoginError = ref(false);
+    const isValidToken = ref(false);
+    const userReady = ref("false");
 
         // 세션 타임아웃 관련
         const lastActivityTime = ref(null);
@@ -252,18 +253,16 @@ export const useUserStore = defineStore(
             );
         };
 
-        return {
-            userLogin,
-            OAuth2userLogin,
-            userLogout,
-            getUserInfo,
-            userInfo,
-            isLogin,
-            isLoginError,
-            isValidToken,
-
-            tokenRegenerate,
-        };
-    },
-    { persist: true }
+    return {
+      userLogin,
+      userLogout,
+      getUserInfo,
+      userInfo,
+      isLogin,
+      isLoginError,
+      isValidToken,
+      tokenRegenerate,
+    };
+  },
+  { persist: true }
 );
