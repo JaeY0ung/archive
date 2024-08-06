@@ -81,8 +81,8 @@ onMounted(async () => {
 <template>
     <div
         id="scrollContainer"
-        style="overflow-y: scroll"
         :style="{ width: width + 'px', height: height + 'px' }"
+        style="overflow-y:scroll; height:400px;"
     >
         <div id="osmdContainer" ref="osmdContainer"></div>
     </div>

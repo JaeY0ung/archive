@@ -66,7 +66,7 @@ onMounted(() => {
             :height="props.height"
             @measure-changed="handleMeasureChanged"
             @music-finished="musicFinished"
-            :sheetId
+            :sheetId="sheetId"
         />
         <RecordButton
             v-if="isRecording"

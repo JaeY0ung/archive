@@ -70,9 +70,10 @@ const routes = [
         component: () => import('@/layouts/SingleRoomLayout.vue'),
         children: [
             {
-                path: 'singleDefault',
+                path: 'singleDefault/:sheetId',
                 name: 'singleDefault',
-                component: () => import('@/common/sheet/Sheet2.vue')
+                component: () => import('@/views/play/PlaySheetView.vue'),
+
                 // component: () => import('@/views/play/component/SingleDefaultSheet.vue')
             }
         ]
