@@ -2,7 +2,7 @@ import { ref, watch } from "vue";
 import { defineStore } from "pinia";
 import { httpStatusCode } from "@/util/http-status";
 import { useRouter } from "vue-router";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode"; // 잘못된 import 수정
 import { userConfirm, findById, tokenRegeneration, logout, findByEmail } from "@/api/user";
 import firebase from "firebase/app";
 import "firebase/messaging";
@@ -34,59 +34,22 @@ export const useUserStore = defineStore(
             measurementId: process.env.VUE_APP_FIREBASE_MEASUREMENT_ID,
         };
 
-    // Firebase 초기화
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-
-    const messaging = firebase.messaging();
-
-     // 서비스 워커 등록 코드 추가
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/firebase-messaging-sw.js')
-        .then((registration) => {
-          console.log('Service Worker 등록 완료:', registration.scope);
-        }).catch((err) => {
-          console.log('Service Worker 등록 실패:', err);
-        });
-    }
-
-    // Foreground 메시지 핸들러
-    messaging.onMessage((payload) => {
-      console.log("Message received. ", payload);
-      new Notification(payload.notification.title, {
-        body: payload.notification.body,
-        icon: payload.notification.icon,
-      });
-    });
-
-    // Firebase 토큰 요청
-    async function requestFirebaseToken() {
-      try {
-        await Notification.requestPermission();
-        console.log("알림 권한 요청을 보냈습니다.");
-        const token = await messaging.getToken();
-        return token;
-      } catch (error) {
-        console.error("Unable to get permission to notify.", error);
-        return null;
-      }
-    }
-
-    // 사용자 활동 시간 갱신
-    const updateLastActivityTime = () => {
-      lastActivityTime.value = Date.now();
-    };
-
-    // 세션 타임아웃 체크
-    const checkSessionTimeout = () => {
-      if (isLogin.value && lastActivityTime.value) {
-        const currentTime = Date.now();
-        if (currentTime - lastActivityTime.value > SESSION_TIMEOUT) {
-          userLogout();
+        // Firebase 초기화
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
 
         const messaging = firebase.messaging();
+
+        // 서비스 워커 등록 코드 추가
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                .then((registration) => {
+                    console.log('Service Worker 등록 완료:', registration.scope);
+                }).catch((err) => {
+                    console.log('Service Worker 등록 실패:', err);
+                });
+        }
 
         // Foreground 메시지 핸들러
         messaging.onMessage((payload) => {
@@ -212,7 +175,7 @@ export const useUserStore = defineStore(
         };
 
         // Firebase 토큰을 서버로 전송
-        const sendFirebaseTokenToServer = async () => {
+        const sendFirebaseTokenToServer = async (accessToken) => {
             const local = localAxios();
             const firebaseToken = await requestFirebaseToken();
             if (!firebaseToken) {
@@ -227,6 +190,7 @@ export const useUserStore = defineStore(
                 {
                     headers: {
                         "Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`
                     },
                 }
             );
