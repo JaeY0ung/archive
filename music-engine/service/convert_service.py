@@ -68,13 +68,13 @@ class ConvertService:
         
         return midi_data
 
-    def midi_to_xml(self, midi_file_path, output_dir="temp"):
-        base_filename = os.path.splitext(os.path.basename(midi_file_path))[0]
-        musicxml_output_path = os.path.join(output_dir, f"{base_filename}.musicxml")
+    def midi_to_xml(midi_file_path, xml_file_path):
+        # Convert the MIDI file to MusicXML and save it to the specified output path
         midi_stream = converter.parse(midi_file_path)
-        midi_stream.write('musicxml', fp=musicxml_output_path)
+        midi_stream.write('musicxml', fp=xml_file_path)
         
-        with open(musicxml_output_path, 'rb') as f:
+        # Read the generated MusicXML file
+        with open(xml_file_path, 'rb') as f:
             musicxml_data = f.read()
         
         return musicxml_data

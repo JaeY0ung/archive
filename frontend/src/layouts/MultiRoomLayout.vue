@@ -9,6 +9,7 @@ import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
+const { VUE_APP_REQUEST_URL } = process.env;
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
@@ -54,7 +55,7 @@ const canLeaveSite = ref(false);
 
 function connect() {
     // local & https 
-    var socket = new SockJS(process.env.VUE_APP_REQUEST_URL + '/archive-websocket');
+    var socket = new SockJS(VUE_APP_REQUEST_URL + '/archive-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);

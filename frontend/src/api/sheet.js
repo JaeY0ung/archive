@@ -36,6 +36,14 @@ async function dislikeSheet(sheetId, success) {
     await local.delete(`/likes/sheets/${sheetId}`).then(success).catch((err) => console.error(err));
 }
 
+async function getMusicXmlById(sheetId, success){
+    await local.get(`/sheets/${sheetId}/music-xml`).then(success).catch((err) => console.error(err));
+}
+
+async function getMidById(sheetId, success){
+    await local.get(`/sheets/${sheetId}/mid`).then(success).catch((err) => console.error(err));
+}
+
 export {
     searchSheetDetail,
     searchSheetsByFilter,
@@ -45,4 +53,6 @@ export {
     registerStarRateBySheetId,
     likeSheet,
     dislikeSheet,
+    getMusicXmlById,
+    getMidById,
 };

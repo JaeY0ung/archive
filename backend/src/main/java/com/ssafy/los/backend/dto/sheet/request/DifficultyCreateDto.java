@@ -8,5 +8,5 @@ import lombok.Getter;
 public class DifficultyCreateDto {
 
     private Integer level;
-    private String contents;
+    private String content;
 }

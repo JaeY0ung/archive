@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { OpenSheetMusicDisplay } from "@/assets/js/opensheetmusicdisplay.min.js";
+import { getMusicXmlById } from "@/api/sheet";
 
 const props = defineProps({
     playbackManager: Object,
     width: Number,
     height: Number,
+    sheetId: Number,
 });
 
 const emit = defineEmits(["measure-changed", "music-finished"]);
@@ -15,8 +17,14 @@ let osmd = null;
 
 //TODO: 파일을 읽어오게 수정해야함 
 const loadMusicXML = async () => {
-    const response = await fetch("/loa.musicxml");
-    const xml = await response.text();
+    // const response = await fetch("/loa.musicxml");
+    let xml;
+    await getMusicXmlById(props.sheetId, 
+        ({ data }) => {
+            xml = data;
+            console.log(data)
+        }
+    )
     return xml;
 };
 

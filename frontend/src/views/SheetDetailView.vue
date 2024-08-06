@@ -186,8 +186,8 @@ const goToSheetDetail = (sheetId) => {
 		<div class="flex flex-col gap-5 w-[49%] h-full p-3 bg-white/50 rounded-xl">
 			<SheetPlayNavigation class="flex-none h-[30px]" @play="isPlay = 'play'" @pause="isPlay = 'pause'"
 				@stop="isPlay = 'stop'" />
-			<div class="bg-black rounded-xl h-full"></div>
-			<!-- <Sheet class="rounded-xl h-full" :isPlay="isPlay" /> -->
+			<!-- <div class="bg-black rounded-xl h-full"></div> -->
+			<Sheet class="rounded-xl h-full"  :sheetId="route.params.sheetId"/>
 		</div>
 	</div>
 </template>

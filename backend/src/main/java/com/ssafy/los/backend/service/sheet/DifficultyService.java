@@ -13,7 +13,7 @@ public interface DifficultyService {
 
     Long deleteDifficulty(Long difficultyId);
 
-    Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size);
+    Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size, String sortBy, String sortDir);
 
     int calculateDifficulty(Long sheetId);
 }

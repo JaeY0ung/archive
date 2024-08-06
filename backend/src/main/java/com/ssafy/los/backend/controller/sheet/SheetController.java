@@ -95,4 +95,18 @@ public class SheetController {
             return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/{sheet-id}/music-xml")
+    public ResponseEntity<?> getSheetMusicXmlFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sheetService.getMusicXmlFileById(sheetId));
+    }
+
+    @GetMapping("/{sheet-id}/mid")
+    public ResponseEntity<?> getSheetMidFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(sheetService.getMidFileById(sheetId));
+    }
 }

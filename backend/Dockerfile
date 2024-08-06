@@ -8,7 +8,7 @@ COPY --chown=gradle:gradle . /home/gradle/project
 WORKDIR /home/gradle/project
 
 # Build the project
-RUN ./gradlew clean build
+RUN ./gradlew build
 
 # Step 2: Use a slim Java image to create the final image
 FROM openjdk:17-jdk-slim

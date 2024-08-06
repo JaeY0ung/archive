@@ -22,7 +22,7 @@ public class SongDto {
 
     public void loadSongImg(FileUploadUtil fileUploadUtil) {
         if (this.imgName != null) {
-            this.img = fileUploadUtil.getImg(this.imgName);
+            this.img = fileUploadUtil.getSongImg(this.imgName);
         }
     }
 

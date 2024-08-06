@@ -126,6 +126,22 @@ const routes = [
         component: () => import('@/views/PaymentView.vue')
     },
     // -----------------------------------------------
+    {
+        path: '/order',
+        name: 'order',
+        component: () => import('@/views/OrderView.vue')
+    },
+    {
+        path: '/payment',
+        name: 'payment',
+        component: () => import('@/views/PaymentView.vue')
+    },
+    // 음악 녹음 페이지
+    {
+        path: '/play/recording',
+        name: "recording",
+        component: () => import('@/views/RecordingVue')
+    },
     // 난이도 기여 페이지
     {
         path: '/difficulty/:sheetId',

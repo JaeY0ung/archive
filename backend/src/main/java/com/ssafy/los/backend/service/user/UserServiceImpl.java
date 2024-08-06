@@ -57,12 +57,12 @@ public class UserServiceImpl implements UserService {
 
     // 회원 수정
     @Override
-    public Long updateUser(Long id, UserUpdateDto userUpdateDto, String uuid) {
-        User findUser = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이디 입니다. " + id));
+    public Long updateUser(Long userId, UserUpdateDto userUpdateDto, String uuid) {
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("찾을 수 없는 아이디 입니다. " + userId));
 
         findUser.updateProfile(userUpdateDto.getNickname(), uuid);
-        return id;
+        return userId;
     }
 
     // 회원 수정 파일 업로드

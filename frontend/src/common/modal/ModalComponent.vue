@@ -1,0 +1,46 @@
+<script setup>
+const props = defineProps({
+  show: {
+    type: Boolean,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  primaryButtonText: {
+    type: String,
+    required: true
+  },
+  secondaryButtonText: {
+    type: String,
+    required: true
+  }
+});
+
+const emit = defineEmits(['primaryAction', 'secondaryAction']);
+
+const onPrimaryAction = () => {
+  emit('primaryAction');
+};
+
+const onSecondaryAction = () => {
+  emit('secondaryAction');
+};
+</script>
+
+<template>
+  <div v-if="show" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+      <p>{{ message }}</p>
+      <div class="mt-4 flex justify-around gap-4">
+        <button class="btn btn-primary" @click="onPrimaryAction">{{ primaryButtonText }}</button>
+        <button class="btn btn-secondary" @click="onSecondaryAction">{{ secondaryButtonText }}</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* 필요한 스타일이 있으면 추가합니다 */
+</style>

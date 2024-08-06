@@ -79,15 +79,12 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http.authorizeHttpRequests((auth) -> auth
 //                .requestMatchers("/register").authenticated()
-                .requestMatchers("/test/user").hasRole("USER")
-                .requestMatchers("/test/admin").hasRole("ADMIN")
                 .requestMatchers("/assets/**", "/favicon.ico", "/index.html").permitAll()
                 .requestMatchers("/users", "/oauth2/**", "/login/**").permitAll()
 //                .anyRequest().authenticated());
                 .anyRequest().permitAll());
 
         // 필터 추가
-
         http.addFilterBefore(new JWTFilter(jwtUtil),
                 UsernamePasswordAuthenticationFilter.class);
         http.addFilterAt(
