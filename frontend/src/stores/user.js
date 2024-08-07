@@ -13,12 +13,12 @@ export const useUserStore = defineStore(
     () => {
         const router = useRouter();
 
-        // 유저 정보 및 상태
-        const userInfo = ref(null);
-        const isLogin = ref(false);
-        const isLoginError = ref(false);
-        const isValidToken = ref(false);
-        const userReady = ref("false");
+    // 유저 정보 및 상태
+    const userInfo = ref(null);
+    const isLogin = ref(false);
+    const isLoginError = ref(false);
+    const isValidToken = ref(false);
+    const userReady = ref("false");
 
         // 세션 타임아웃 관련
         const lastActivityTime = ref(null);
@@ -43,24 +43,23 @@ export const useUserStore = defineStore(
         const messaging = firebase.messaging();
 
         // 서비스 워커 등록 코드 추가
-        if ("serviceWorker" in navigator) {
-            navigator.serviceWorker
-                .register("/firebase-messaging-sw.js")
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
                 .then((registration) => {
-                    console.log("Service Worker 등록 완료:", registration.scope);
-                })
-                .catch((err) => {
-                    console.log("Service Worker 등록 실패:", err);
+                    console.log('Service Worker 등록 완료:', registration.scope);
+                }).catch((err) => {
+                    console.log('Service Worker 등록 실패:', err);
                 });
         }
 
         // Foreground 메시지 핸들러
         messaging.onMessage((payload) => {
             console.log("Message received. ", payload);
-            new Notification(payload.notification.title, {
-                body: payload.notification.body,
-                icon: payload.notification.icon,
-            });
+            const notificationTitle = payload.notification.title;
+            const notificationBody = payload.notification.body;
+            if (window && window.showNotification) {
+                window.showNotification(notificationTitle, notificationBody);
+            }
         });
 
         // Firebase 토큰 요청
@@ -162,7 +161,7 @@ export const useUserStore = defineStore(
                 console.log("user 정보: = ", userInfo.value);
 
                 // Firebase 토큰을 서버로 전송
-                const accessToken = sessionStorage.getItem("accessToken");
+                const accessToken = sessionStorage.getItem("accessToken")
                 await sendFirebaseTokenToServer(accessToken);
 
                 // 마지막 활동 시간 업데이트
@@ -193,7 +192,7 @@ export const useUserStore = defineStore(
                 {
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${accessToken}`,
+                        "Authorization": `Bearer ${accessToken}`
                     },
                 }
             );
@@ -255,17 +254,16 @@ export const useUserStore = defineStore(
             );
         };
 
-        return {
-            userLogin,
-            userLogout,
-            getUserInfo,
-            OAuth2userLogin,
-            userInfo,
-            isLogin,
-            isLoginError,
-            isValidToken,
-            tokenRegenerate,
-        };
-    },
-    { persist: true }
+    return {
+      userLogin,
+      userLogout,
+      getUserInfo,
+      userInfo,
+      isLogin,
+      isLoginError,
+      isValidToken,
+      tokenRegenerate,
+    };
+  },
+  { persist: true }
 );
