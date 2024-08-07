@@ -16,7 +16,7 @@ import { ref, watch } from 'vue';
 
 const notifications = ref([]);
 const showBadge = ref(false);
-const showBubble = ref(false);
+const showBubble = ref(false); // 하늘색 말풍선 항상 보이도록 초기값 true
 
 function toggleNotifications() {
     showBubble.value = !showBubble.value;
@@ -24,6 +24,7 @@ function toggleNotifications() {
 
 watch(notifications, () => {
     showBadge.value = true;
+    showBubble.value = true; // 알림이 오면 말풍선 보이도록 설정
     setTimeout(() => {
         showBadge.value = false;
     }, 5000);
@@ -33,6 +34,7 @@ watch(notifications, () => {
 window.showNotification = (title, body) => {
     notifications.value.push({ title, body });
     showBadge.value = true;
+    showBubble.value = true; // 알림이 오면 말풍선 보이도록 설정
 };
 </script>
 
@@ -77,7 +79,6 @@ window.showNotification = (title, body) => {
   color: #000;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  display: none;
 }
 
 .notification-bubble .notification {
