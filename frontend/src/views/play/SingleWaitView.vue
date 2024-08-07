@@ -35,6 +35,7 @@ const onClickQuit = () => {
             <SelectSheetView />
         </div>
         <div class="down">
+          <button class="btn btn-primary w-24" @click="onClickStart">연주하기</button>
           <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
           <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
         </div>
@@ -42,6 +43,14 @@ const onClickQuit = () => {
 </template>
 
 <style scoped>
+.justify-center {
+    justify-content: center;
+    align-items: center;
+}
+.justify-around {
+    justify-content: space-around;
+}
+
 .container {
   margin: 10px auto;
   width: 90vw;
@@ -62,7 +71,7 @@ const onClickQuit = () => {
 
 .down {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   align-items: center;
   height: 25vh;
 }

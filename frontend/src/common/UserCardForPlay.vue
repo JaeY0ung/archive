@@ -38,16 +38,24 @@ console.log(routeName);
 <template>
     <div class="player-card">
         <div class="player-img">
-            <img :src="user.userImg" alt="Profile Image" />
+            <img :src="user.userImg" alt="Profile Image" class="rounded-xl"/>
             <span class="pt-3" v-if="routeName=='singlePlay'">랭킹 13위</span>
         </div>
         <div class="player-info-text">
-            <div>{{ user.nickname }}</div>
+            <div class="info-item">{{ user.nickname }}</div>
+            <div class="info-item">
+                유저 총점수
+            </div>
+            <div class="info-item">
+                유저 티어
+            </div>
+            <!-- <button  class="btn text-white" style="background-color: gray" @click="emit('onClickStart')" v-if="routeName=='singleWait'">
+                채점 시작
+            </button> -->
+        </div>
+        <div v-if="routeName == 'singlePlay'">
             <div>현재 스코어(f1) : {{ f1Score }}</div>
             <div>현재 스코어(jaccard) : {{ jaccardScore }}</div>
-            <button  class="btn text-white" style="background-color: gray" @click="emit('onClickStart')" v-if="routeName=='singleWait'">
-                채점 시작
-            </button>
         </div>
     </div>
 </template>
@@ -57,27 +65,37 @@ console.log(routeName);
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 20px;
+  padding: 0px 2%;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;
-  width: 40%;
+  width: 30%;
+  height: 80%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .player-img {
-  width: 100px;
-  height: 100px;
   background-color: white;
-  border-radius: 50%;
-  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+img {
+    height: 100px;
+    width: 100px;
+}
+
 .player-info-text {
   text-align: center;
   margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* This ensures it takes up the remaining space */
+  justify-content: space-around;
+}
+
+.info-item{
+    margin-bottom: 5%;
 }
 </style>
