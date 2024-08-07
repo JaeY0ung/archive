@@ -30,9 +30,9 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public String sendMessage(AlertDto alertDto) {
         // 알림 받을 사용자의 Firebase 토큰 값을 조회
-        log.info("알림 받을 사용자ID: " + alertDto.getReceiver());
+        log.info("알림 받을 사용자ID: " + alertDto.getReceiverId());
         String userFirebaseToken = redisTemplate.opsForValue()
-                .get("firebaseToken:" + alertDto.getReceiver());
+                .get("firebaseToken:" + alertDto.getReceiverId());
 
         if (userFirebaseToken == null || userFirebaseToken.isEmpty()) {
             return "알림 전송에 실패했습니다. 사용자 Firebase 토큰이 없습니다.";
@@ -64,15 +64,21 @@ public class AlertServiceImpl implements AlertService {
         }
 
         // 2) 알림 받을 사용자의 닉네임을 조회
-        User receiverUser = userRepository.findById(alertDto.getReceiver())
+        User receiverUser = userRepository.findById(alertDto.getReceiverId())
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
         String receiverNickname = receiverUser.getNickname();
 
-        // (1), (2) 를 바탕으로 메시지 구성
+        // 3) 알림 보낸 사용자의 닉네임을 조회
+        User senderUser = userRepository.findById(alertDto.getSenderId())
+                .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
+        String senderNickname = senderUser.getNickname();
+
+        // (1), (2), (3)을 바탕으로 메시지 구성
         Message message = Message.builder()
                 .setNotification(Notification.builder()
                         .setTitle(title)
-                        .setBody(receiverNickname + " 님에게 새로운 알람이 도착했습니다.")
+                        .setBody(senderNickname + "님으로부터 " + receiverNickname
+                                + "님에게 새로운 알람이 도착했습니다.")
                         .build())
                 .putData("alertTypeId", alertDto.getAlertType().toString())
                 .putData("referenceId", alertDto.getReferenceId().toString())
@@ -100,7 +106,7 @@ public class AlertServiceImpl implements AlertService {
     @Override
     public String saveAlertAndSendMessage(AlertDto alertDto) {
         // User 및 AlertType 엔티티 조회
-        User receiverUser = userRepository.findById(alertDto.getReceiver())
+        User receiverUser = userRepository.findById(alertDto.getReceiverId())
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
         AlertType alertTypeEntity = alertTypeRepository.findById(alertDto.getAlertType())
                 .orElseThrow(() -> new IllegalArgumentException("AlertType not found"));
