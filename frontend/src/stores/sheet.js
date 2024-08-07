@@ -17,6 +17,8 @@ export const useMusicStore = defineStore('music', () => {
     const chunks = ref([]);
     const triggerSplit = ref(0);
     const volume = ref(50);
+    const f1 = ref([]);
+    const jaccard = ref([]);
 
     const initializeOsmd = (container) => {
         osmd.value = new OpenSheetMusicDisplay(container);
@@ -139,10 +141,16 @@ export const useMusicStore = defineStore('music', () => {
                 try {
                     const res = await axios.post('http://localhost:8000/fastapi/playing', formData, {
                         headers: {
-                            'Content-Type': 'multipart/form-data',
+                            'Content-Type': 'mul tipart/form-data',
                         },
                     });
                     console.log('파일 업로드 성공: ', res.data);
+                    f1.value.push(res.data.similarity_results.f1_score);
+                    jaccard.value.push(res.data.similarity_results.jaccard_similarity);
+                    console.log('res.data.similarity_results.f1_score : ' + res.data.similarity_results.f1_score)
+                    console.log('res.data.similarity_results.jaccard_similarity : ' + res.data.similarity_results.jaccard_similarity)
+                    console.log(f1.value)
+                    console.log(jaccard.value)
                 } catch (err) {
                     console.error('파일 업로드 실패: ', err);
                 }
@@ -185,6 +193,8 @@ export const useMusicStore = defineStore('music', () => {
         chunks,
         triggerSplit,
         volume,
+        f1,
+        jaccard,
         initializeOsmd,
         loadAndSetupOsmd,
         setVolume,

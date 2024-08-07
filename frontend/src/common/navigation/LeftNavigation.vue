@@ -25,7 +25,7 @@ const pages = ref([
     { name: "sheetSearch", title: "악보 검색" },
     { name: "order", title: "장바구니" },
     { name: "sheetUpload", title: "악보 업로드" },
-    { name: "pianoSaurus", title: "배틀하기" },
+    { name: "multiRoomList", title: "배틀하기" },
   {name: "recording", title: "음악 녹음"},
 ]);
 
@@ -62,7 +62,7 @@ const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-
                         <Search v-else-if="page.name === 'sheetSearch'" />
                         <Record v-else-if="page.name === 'recording'" />
                         <Upload v-else-if="page.name === 'sheetUpload'" />
-                        <NotePixel v-else-if="page.name === 'pianoSaurus'" />
+                        <NotePixel v-else-if="page.name === 'multiRoomList'" />
                         <Order v-else-if="page.name === 'order'" />
                     </div>
                     <span>{{ page.title }}</span>
