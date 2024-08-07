@@ -149,7 +149,7 @@ const router = createRouter({
 });
 
 // 로그인이 필요한 라우트 목록
-const authRequiredRoutes = ["mypage", "order", "sheetUpload", "pianoSaurus", "recording"];
+const authRequiredRoutes = ["mypage", "order", "sheetUpload", "pianoSaurus", "recording", "sheetDifficultyRating"];
 
 // 전역 네비게이션 가드 수정
 router.beforeEach((to, from, next) => {

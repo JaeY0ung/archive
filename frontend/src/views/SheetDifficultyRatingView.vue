@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
+import Profile from "@/common/icons/Profile.vue";
 import { onClickOutside } from "@vueuse/core";
 import BigSheetCard from "@/common/sheet/BigSheetCardForDifficulty.vue";
 import {
@@ -272,7 +273,7 @@ const createChart = () => {
             data: {
                 datasets: difficultyOptions.map((difficulty, index) => ({
                     label: difficulty,
-                    data: chartData.filter(item => item.difficulty === difficulty),
+                    data: chartData.filter((item) => item.difficulty === difficulty),
                     backgroundColor: difficultyColors[difficulty],
                     borderColor: difficultyColors[difficulty],
                     pointRadius: 6,
@@ -285,13 +286,15 @@ const createChart = () => {
                 plugins: {
                     legend: {
                         display: true,
-                        position: 'top',
+                        position: "top",
                     },
                     tooltip: {
                         callbacks: {
                             label: function (context) {
                                 const point = context.raw;
-                                return `난이도: ${point.difficulty}, 날짜: ${new Date(point.x).toLocaleDateString()}`;
+                                return `난이도: ${point.difficulty}, 날짜: ${new Date(
+                                    point.x
+                                ).toLocaleDateString()}`;
                             },
                         },
                     },
@@ -335,7 +338,7 @@ const updateChart = () => {
         const chartData = prepareChartData();
         chart.data.datasets = difficultyOptions.map((difficulty, index) => ({
             label: difficulty,
-            data: chartData.filter(item => item.difficulty === difficulty),
+            data: chartData.filter((item) => item.difficulty === difficulty),
             backgroundColor: difficultyColors[difficulty],
             borderColor: difficultyColors[difficulty],
             pointRadius: 6,
@@ -413,7 +416,7 @@ onMounted(() => {
                             alt="User avatar"
                             class="user-avatar"
                         />
-                        <div v-else class="user-avatar-placeholder"></div>
+                        <Profile v-else class="profile-icon profile-image" />
                         <div class="comment-content">
                             <div class="comment-header">
                                 <div class="user-info">
@@ -825,5 +828,20 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-image {
+    border: 2px solid #fff;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
 }
 </style>
