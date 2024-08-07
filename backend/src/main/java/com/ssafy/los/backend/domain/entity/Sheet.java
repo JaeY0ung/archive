@@ -1,6 +1,5 @@
 package com.ssafy.los.backend.domain.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -9,10 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,11 +32,11 @@ public class Sheet {
     private String title;
 
     @JoinColumn(name = "song_id")
-    @ManyToOne(cascade = CascadeType.REMOVE, optional = true)
+    @ManyToOne(optional = true)
     private Song song;
 
     @JoinColumn(name = "uploader_id")
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne
     private User uploader;
 
     private String fileName;
@@ -64,8 +60,6 @@ public class Sheet {
 
     private Timestamp deletedAt;
 
-    @OneToMany(mappedBy = "sheet")
-    private List<LikeSheet> likeSheets = new ArrayList<>();
 
     @Builder
     public Sheet(Long id, Integer level, String title, Song song, Integer price,
@@ -79,5 +73,9 @@ public class Sheet {
         this.fileName = fileName;
         this.status = 0;
         this.viewCount = 0;
+    }
+
+    public void updateStatus(int status) {
+        this.status = status;
     }
 }

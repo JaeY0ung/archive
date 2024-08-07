@@ -15,7 +15,6 @@ const routes = [
             {
                 path: 'sheet/search',
                 name: 'sheetSearch',
-                props: route => ({ keyword: route.params.keyword }),
                 component: () => import('@/views/SheetSearchView.vue')
             },
             {
@@ -32,9 +31,9 @@ const routes = [
     },
     // -----------------------------------------------
     {
-    path: "/pianosaurus",
-    name: "pianoSaurus",
-    component: () => import('@/views/play/PianoSaurusView.vue')
+        path: "/pianosaurus",
+        name: "pianoSaurus",
+        component: () => import('@/views/play/PianoSaurusView.vue')
     },
     // -----------------------------------------------
     {
@@ -70,9 +69,10 @@ const routes = [
         component: () => import('@/layouts/SingleRoomLayout.vue'),
         children: [
             {
-                path: 'singleDefault',
+                path: 'singleDefault/:sheetId',
                 name: 'singleDefault',
-                component: () => import('@/common/sheet/Sheet2.vue')
+                component: () => import('@/views/play/PlaySheetView.vue'),
+
                 // component: () => import('@/views/play/component/SingleDefaultSheet.vue')
             }
         ]
@@ -81,7 +81,14 @@ const routes = [
     {
         path: '/admin',
         name: 'admin',
-        component: () => import('@/views/AdminView.vue')
+        component: () => import('@/views/AdminView.vue'),
+        children: [
+            {
+                path: 'sheet/manage',
+                name: 'manageSheet',
+                component: () => import('@/views/AdminSheetManageView.vue')
+            }
+        ]
     },
     // -----------------------------------------------
     {

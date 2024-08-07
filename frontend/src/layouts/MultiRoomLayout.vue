@@ -157,6 +157,7 @@ const inviteModalStatus = ref(false);
 const selectedFriend = ref(null);
 
 const openInviteModalStatus = () => {
+    console.log("ONLINE ::::::: ",onlineUsers.value)
     inviteModalStatus.value = true;
 }
 
@@ -241,7 +242,7 @@ const inviteSelectedFriends = async () => {
             <div class="modal-content">
                 <h2 class="modal-title">친구 초대하기</h2>
                 <ul>
-                    <li v-for="user in onlineUsers" :key="user.id" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
+                    <li v-for="user in onlineUsers" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
                         <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" />
                         <span>{{ user.nickname }}</span>
                         <span>{{ user.singleScore }}</span>

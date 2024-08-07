@@ -1,11 +1,5 @@
 <script setup>
-import { useRouter } from 'vue-router';
 
-const router = useRouter();
-
-const goPopular = () => {
-    router.push({name:"popular"});
-}
 </script>
 
 <template>
@@ -14,7 +8,7 @@ const goPopular = () => {
             <h1 style="color: white;">대기 페이지</h1>
         </div>
         <div id="card-box">
-            <div @click="goPopular" class="card card-compact h-64"> <!-- W-72 -->
+            <div class="card card-compact h-64"> <!-- W-72 -->
                 <figure>
                     <img
                     src="https://newsimg.hankookilbo.com/cms/articlerelease/2021/01/17/fb3de445-6b62-49df-9dab-0fa8efa9cc8c.jpg"
@@ -66,6 +60,7 @@ const goPopular = () => {
                     </div>
                 </div>
             </div>
+        
         </div>
     </div>
 </template>

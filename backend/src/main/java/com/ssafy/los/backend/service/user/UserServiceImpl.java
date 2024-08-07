@@ -117,7 +117,11 @@ public class UserServiceImpl implements UserService {
     // 아이디 기반 조회
     @Override
     public User selectUserById(Long userId) {
-        return userRepository.findUserById(userId).orElse(null);
+        User user = userRepository.findUserById(userId).orElse(null);
+        if (user == null) {
+            log.info("repository에서 해당 id에 맞는 User를 찾을 수 없습니다: " + userId);
+        }
+        return user;
     }
 
 }

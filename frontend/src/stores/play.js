@@ -28,6 +28,7 @@ export const usePlayStore = defineStore('playMode', {
     async fetchOnlineUsers() {
       try {
         const response = await axios.get(`${baseURL}/users/online-users`);
+        console.log("FETCH ONLINE USERS ::::: ",response.data);
         this.onlineUsers = response.data;
       } catch (error) {
         console.error('온라인 유저 목록을 불러오는 것에 실패했습니다', error);
