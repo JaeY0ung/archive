@@ -16,6 +16,7 @@ public class UserStatusServiceImpl implements UserStatusService {
     private static final Logger LOGGER = Logger.getLogger(UserStatusService.class.getName());
     private static final String USER_ONLINE_KEY_PREFIX = "USER_ONLINE_";
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserService userService;
 
     public void setUserOnline(Long id) {
         redisTemplate.opsForValue().set("USER_ONLINE_" + id, true);
@@ -47,6 +48,8 @@ public class UserStatusServiceImpl implements UserStatusService {
                 // 각 키에서 "USER_ONLINE_" 부분을 제거하고 사용자 ID만 남기도록 변환
                 .map(key -> key.replace(USER_ONLINE_KEY_PREFIX, ""))
                 .filter(userId -> userId != null && !userId.isEmpty()) // null 값 필터링
+                .filter(userId -> userService.selectUserById(Long.parseLong(userId))
+                        != null) // userService에서 null 체크 추가
                 .collect(Collectors.toSet());
 
         LOGGER.info("Online User IDs: " + onlineUserIds);
