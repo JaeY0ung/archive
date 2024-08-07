@@ -6,17 +6,14 @@ const musicStore = useMusicStore();
 const volume = ref(musicStore.volume);
 
 const play = () => {
-    musicStore.playbackManager.play();
     musicStore.startMusic();
 };
 
 const pause = () => {
-    musicStore.playbackManager.pause();
     musicStore.pauseMusic();
 };
 
 const stop = () => {
-    musicStore.playbackManager.pause();
     musicStore.stopMusic();
 };
 

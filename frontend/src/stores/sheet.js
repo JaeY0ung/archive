@@ -105,9 +105,9 @@ export const useMusicStore = defineStore('music', () => {
     };
 
     const stopMusic = () => {
-        isPlay.value = false;
-        timingSource.value.reset();
+        pauseMusic();
         playbackManager.value.reset();
+        timingSource.value.reset();
     };
 
     const startRecording = async () => {
@@ -170,7 +170,7 @@ export const useMusicStore = defineStore('music', () => {
         if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
             mediaRecorder.value.stop();
         }
-        stopMusic(); // 녹음 중지 시 음악 재생도 중지
+        isPlay.value=false;
     };
 
     return {
