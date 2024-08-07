@@ -82,11 +82,11 @@ export const useUserStore = defineStore(
         };
 
         // 세션 타임아웃 체크
-        const checkSessionTimeout = () => {
+        const checkSessionTimeout = async () => {
             if (isLogin.value && lastActivityTime.value) {
                 const currentTime = Date.now();
                 if (currentTime - lastActivityTime.value > SESSION_TIMEOUT) {
-                    userLogout();
+                    await userLogout();
                     router.push({ name: 'login' });
                 }
 
