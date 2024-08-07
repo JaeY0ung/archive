@@ -138,19 +138,19 @@ export const useMusicStore = defineStore('music', () => {
                 const formData = new FormData();
                 const blob = new Blob(chunks.value, { type: 'audio/webm' });
                 formData.append('file', blob, `chunk_${audioBlobs.value.length}.webm`);
+                console.log("formData", formData);
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, value);
+                }
                 try {
                     const res = await axios.post('http://localhost:8000/fastapi/playing', formData, {
                         headers: {
-                            'Content-Type': 'mul tipart/form-data',
+                            'Content-Type': 'multipart/form-data',
                         },
                     });
                     console.log('파일 업로드 성공: ', res.data);
                     f1.value.push(res.data.similarity_results.f1_score);
                     jaccard.value.push(res.data.similarity_results.jaccard_similarity);
-                    console.log('res.data.similarity_results.f1_score : ' + res.data.similarity_results.f1_score)
-                    console.log('res.data.similarity_results.jaccard_similarity : ' + res.data.similarity_results.jaccard_similarity)
-                    console.log(f1.value)
-                    console.log(jaccard.value)
                 } catch (err) {
                     console.error('파일 업로드 실패: ', err);
                 }
