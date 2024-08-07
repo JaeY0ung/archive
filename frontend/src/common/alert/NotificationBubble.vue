@@ -1,30 +1,39 @@
 <template>
   <div class="notification-icon">
-      <img src="@/assets/img/common/bell.png" alt="Notifications" />
-      <div v-if="showBadge" class="notification-badge"></div>
-      <div class="notification-bubble">
+      <img src="@/assets/img/common/bell.png" alt="Notifications" @click="toggleNotifications" />
+      <div v-if="showBubble" class="notification-bubble">
           <div v-for="notification in notifications" :key="notification.title" class="notification">
               <div class="title">{{ notification.title }}</div>
               <div class="body">{{ notification.body }}</div>
           </div>
       </div>
+      <div v-if="showBadge" class="notification-badge"></div>
   </div>
 </template>
 
 <script setup>
-import { defineProps, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
-const props = defineProps({
-  notifications: Array,
-  showBadge: Boolean
+const notifications = ref([]);
+const showBadge = ref(false);
+const showBubble = ref(false);
+
+function toggleNotifications() {
+    showBubble.value = !showBubble.value;
+}
+
+watch(notifications, () => {
+    showBadge.value = true;
+    setTimeout(() => {
+        showBadge.value = false;
+    }, 5000);
 });
 
-watch(props.notifications, () => {
-  // Hide the badge after some time or user interaction
-  setTimeout(() => {
-      props.showBadge = false;
-  }, 5000); // Hide after 5 seconds
-});
+// Expose these functions for external use
+window.showNotification = (title, body) => {
+    notifications.value.push({ title, body });
+    showBadge.value = true;
+};
 </script>
 
 <style scoped>
@@ -62,27 +71,25 @@ watch(props.notifications, () => {
   right: 10px;
   width: 250px;
   max-height: 400px;
-  overflow-y: auto;
-  background: rgba(0, 0, 0, 0.7);
+  background: #e1f5fe;
   border-radius: 10px;
   padding: 10px;
-  color: white;
+  color: #000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   display: none;
 }
 
-.notification {
+.notification-bubble .notification {
   margin-bottom: 10px;
-  padding: 10px;
-  border-bottom: 1px solid white;
 }
 
-.title {
+.notification-bubble .title {
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.body {
+.notification-bubble .body {
   font-size: 14px;
 }
 </style>

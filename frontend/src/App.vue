@@ -9,19 +9,6 @@ import NotificationBubble from '@/common/alert/NotificationBubble.vue';
 
 const leftNavigationStore = useLeftNavigationStore();
 const route = useRoute();
-
-const notifications = ref([]);
-const showNotificationBadge = ref(false);
-
-function showNotification(title, body) {
-    notifications.value.push({ title, body });
-    showNotificationBadge.value = true;
-}
-
-onMounted(() => {
-    window.showNotification = showNotification;
-});
-
 </script>
 
 <template>
@@ -52,7 +39,7 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-        <NotificationBubble :notifications="notifications" :showBadge="showNotificationBadge" />
+        <NotificationBubble />
     </div>
 </template>
 
