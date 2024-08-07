@@ -1,6 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useUserStore } from '@/stores/user'
-
+import { createRouter, createWebHistory } from "vue-router";
+import { useUserStore } from "@/stores/user";
 
 const routes = [
     {
@@ -64,105 +63,114 @@ const routes = [
     // },
     // -----------------------------------------------
     {
-        path: '/admin',
-        name: 'admin',
-        component: () => import('@/views/AdminView.vue'),
+        path: "/admin",
+        name: "admin",
+        component: () => import("@/views/AdminView.vue"),
         children: [
             {
-                path: 'sheet/manage',
-                name: 'manageSheet',
-                component: () => import('@/views/AdminSheetManageView.vue')
-            }
-        ]
+                path: "sheet/manage",
+                name: "manageSheet",
+                component: () => import("@/views/AdminSheetManageView.vue"),
+            },
+        ],
     },
     // -----------------------------------------------
     {
-        path: '/mypage',
-        name: 'mypage',
-        component: () => import('@/views/MyPageView.vue')
+        path: "/mypage",
+        name: "mypage",
+        component: () => import("@/views/MyPageView.vue"),
     },
     {
-        path: '/login',
-        name: 'login',
-        component: () => import('@/views/LoginView.vue')
+        path: "/login",
+        name: "login",
+        component: () => import("@/views/LoginView.vue"),
     },
     {
-        path: '/register',
-        name: 'register',
-        component: () => import('@/views/RegisterView.vue')
+        path: "/register",
+        name: "register",
+        component: () => import("@/views/RegisterView.vue"),
     },
     {
-        path: '/auth/register',
-        name: 'auth-register',
-        component: () => import('@/views/user/OAuth2RegisterView.vue')
+        path: "/auth/register",
+        name: "auth-register",
+        component: () => import("@/views/user/OAuth2RegisterView.vue"),
     },
     {
-        path: '/auth-success',
-        name: 'auth-success',
-        component: () => import('@/views/user/OAuth2SuccessView.vue')
-    },
-    // -----------------------------------------------
-    {
-        path: '/sheet/upload',
-        name: 'sheetUpload',
-        component: () => import('@/views/SheetUploadView.vue')
-    },
-    {
-        path: '/sheet/fullscreen',
-        name: 'sheet/fullscreen',
-        component: () => import('@/views/SheetFullScreenView.vue')
+        path: "/auth-success",
+        name: "auth-success",
+        component: () => import("@/views/user/OAuth2SuccessView.vue"),
     },
     // -----------------------------------------------
     {
-        path: '/payment',
-        name: 'payment',
-        component: () => import('@/views/PaymentView.vue')
+        path: "/sheet/upload",
+        name: "sheetUpload",
+        component: () => import("@/views/SheetUploadView.vue"),
+    },
+    {
+        path: "/sheet/fullscreen",
+        name: "sheet/fullscreen",
+        component: () => import("@/views/SheetFullScreenView.vue"),
     },
     // -----------------------------------------------
     {
-        path: '/order',
-        name: 'order',
-        component: () => import('@/views/OrderView.vue')
+        path: "/payment",
+        name: "payment",
+        component: () => import("@/views/PaymentView.vue"),
+    },
+    // -----------------------------------------------
+    {
+        path: "/order",
+        name: "order",
+        component: () => import("@/views/OrderView.vue"),
     },
     {
-        path: '/payment',
-        name: 'payment',
-        component: () => import('@/views/PaymentView.vue')
+        path: "/payment",
+        name: "payment",
+        component: () => import("@/views/PaymentView.vue"),
     },
     // 음악 녹음 페이지
     {
-        path: '/play/recording',
+        path: "/play/recording",
         name: "recording",
-        component: () => import('@/views/RecordingVue')
+        component: () => import("@/views/RecordingVue"),
     },
     // 난이도 기여 페이지
     {
-        path: '/difficulty/:sheetId',
-        name: 'sheetDifficultyRating',
-        component: () => import('@/views/SheetDifficultyRatingView.vue')
+        path: "/difficulty/:sheetId",
+        name: "sheetDifficultyRating",
+        component: () => import("@/views/SheetDifficultyRatingView.vue"),
     },
     // -----------------------------------------------
-]
+];
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
-})
+    routes,
+});
 
-// 전역 네비게이션 가드 추가
+// 로그인이 필요한 라우트 목록
+const authRequiredRoutes = ["mypage", "order", "sheetUpload", "pianoSaurus", "recording"];
+
+// 전역 네비게이션 가드 수정
 router.beforeEach((to, from, next) => {
-    const userStore = useUserStore()
+    const userStore = useUserStore();
+
     // '/login' 경로로 이동 관리
-    if (to.path === '/login') {
+    if (to.path === "/login") {
         if (userStore.isLogin) {
-            alert('이미 로그인이 되었습니다.');
-            next({ name: 'main' })
+            alert("이미 로그인이 되었습니다.");
+            next({ name: "main" });
         } else {
             next();
         }
+    }
+    // 로그인이 필요한 라우트에 대한 체크
+    else if (authRequiredRoutes.includes(to.name) && !userStore.isLogin) {
+        alert("로그인이 필요합니다.");
+        next({ name: "login" });
     } else {
         next();
     }
-})
+});
 
-export default router
+export default router;

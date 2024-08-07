@@ -12,7 +12,9 @@ import com.ssafy.los.backend.dto.sheet.response.DifficultyResponseDto;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -113,6 +115,22 @@ public class DifficultyServiceImpl implements DifficultyService {
 
         return difficultyPage.map(difficulty ->
                 DifficultyResponseDto.toEntity(difficulty, fileUploadUtil));
+    }
+
+    @Override
+    public List<DifficultyResponseDto> searchDifficultyAllBySheetId(Long sheetId) {
+        Sheet sheet = sheetRepository.findById(sheetId)
+                .orElseThrow(() -> new NoSuchElementException("해당 악보를 찾을 수 없습니다. id = " + sheetId));
+
+        List<Difficulty> difficultyList = difficultyRatingRepository.findAllBySheet(sheet);
+
+        if (difficultyList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return difficultyList.stream()
+                .map(difficulty -> DifficultyResponseDto.toEntity(difficulty, fileUploadUtil))
+                .collect(Collectors.toList());
     }
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)

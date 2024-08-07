@@ -15,6 +15,7 @@ public class DifficultyResponseDto {
     private String username;
     private String userImgName;
     private String userImg;
+    private Integer singleScore;
     private String sheetTitle;
     private String sheetFileName;
     private int level;
@@ -26,6 +27,7 @@ public class DifficultyResponseDto {
                 .difficultyId(difficulty.getId())
                 .username(difficulty.getUser().getNickname())
                 .userImgName(difficulty.getUser().getUserImg())
+                .singleScore(difficulty.getUser().getSingleScore())
                 .sheetTitle(difficulty.getSheet().getTitle())
                 .sheetFileName(difficulty.getSheet().getFileName())
                 .level(difficulty.getLevel())
