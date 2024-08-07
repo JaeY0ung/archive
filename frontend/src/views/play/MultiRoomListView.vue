@@ -68,7 +68,7 @@ const rankings = ref([
       <div class="flex flex-grow flex-col mb-[10px] room-list" >
         <h2>방 리스트</h2>
         <div class="flex flex-grow w-full h-full relative overflow-hidden">
-          <ul class="flex flex-grow flex-col w-full absolute scroll-x">
+          <ul class="flex flex-grow flex-col w-full absolute scroll-y">
             <li v-if="isLoading.value">Loading...</li>
             <li v-else v-for="room in playStore.getRooms" :key="room.id" class="room-item" @click="enterRoom(room.id)">
               <span>{{ room.title }}</span>
