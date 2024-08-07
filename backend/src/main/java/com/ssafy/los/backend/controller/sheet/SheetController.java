@@ -1,9 +1,10 @@
 package com.ssafy.los.backend.controller.sheet;
 
 import com.ssafy.los.backend.domain.entity.Sheet;
+import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
-import com.ssafy.los.backend.dto.sheet.response.SheetDetailViewDto;
+import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.MusicService;
 import com.ssafy.los.backend.service.sheet.SheetService;
@@ -15,10 +16,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +37,7 @@ public class SheetController {
     private final SheetService sheetService;
     private final AuthService authService;
     private final MusicService musicService;
+    private final SheetRepository sheetRepository;
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
@@ -72,10 +76,36 @@ public class SheetController {
                 .body(sheetService.searchSheetById(sheetId));
     }
 
+    @DeleteMapping("/{sheet-id}")
+    public ResponseEntity<?> deleteSheet(@PathVariable("sheet-id") Long sheetId) {
+        if (!sheetService.deleteSheet(sheetId)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/{sheet-id}/status/0")
+    public ResponseEntity<?> changeSheetStatusToWaiting(@PathVariable("sheet-id") Long sheetId) {
+        sheetService.changeStatusToWaiting(sheetId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/{sheet-id}/status/1")
+    public ResponseEntity<?> changeSheetStatusToApproved(@PathVariable("sheet-id") Long sheetId) {
+        sheetService.changeStatusToApproved(sheetId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/{sheet-id}/status/2")
+    public ResponseEntity<?> changeSheetStatusToRejected(@PathVariable("sheet-id") Long sheetId) {
+        sheetService.changeStatusToRejected(sheetId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping("/{sheet-id}/download")
     public ResponseEntity<?> downloadSheet(@PathVariable("sheet-id") Long sheetId) {
         // TODO : 구매여부 확인
-        SheetDetailViewDto sheet = sheetService.searchSheetById(sheetId);
+        SheetDetailDto sheet = sheetService.searchSheetById(sheetId);
         try {
             return ResponseEntity.ok()
                     .header(

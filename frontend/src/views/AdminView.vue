@@ -4,7 +4,8 @@
 
 <template>
     <div>
-        <h1>관리자 페이지</h1>
+        <div class="text-3xl text-center">관리자 페이지</div>
+        <RouterView/>
     </div>
 </template>
 

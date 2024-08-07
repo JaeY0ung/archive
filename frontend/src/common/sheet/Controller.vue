@@ -1,32 +1,27 @@
 <script setup>
 import { ref } from "vue";
+import { useMusicStore } from '@/stores/sheet';
 
-const props = defineProps({
-    playbackManager: Object,
-});
-
-const emit = defineEmits(["music-started", "set-volume"]);
-
-const volume = ref(50);
+const musicStore = useMusicStore();
+const volume = ref(musicStore.volume);
 
 const play = () => {
-    props.playbackManager.play();
-    emit("music-started");
+    musicStore.startMusic();
 };
 
 const pause = () => {
-    props.playbackManager.pause();
+    musicStore.pauseMusic();
 };
 
 const stop = () => {
-    props.playbackManager.pause();
-    props.playbackManager.reset();
+    musicStore.stopMusic();
 };
 
 const updateVolume = () => {
-    emit("set-volume", volume.value);
+    musicStore.setVolume(volume.value);
 };
 </script>
+
 <template>
     <div>
         <button @click="play">재생</button>
@@ -43,7 +38,6 @@ const updateVolume = () => {
         />
     </div>
 </template>
-
 
 <style>
 button {

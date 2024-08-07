@@ -17,7 +17,10 @@ import com.ssafy.los.backend.domain.entity.QSheetStarRate;
 import com.ssafy.los.backend.domain.entity.QSinglePlayResult;
 import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
-import com.ssafy.los.backend.dto.sheet.response.SheetDetailViewDto;
+import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
+import com.ssafy.los.backend.dto.sheet.response.SheetDetailForAdminDto;
+import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -36,43 +39,64 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     QSheetStarRate ssr = QSheetStarRate.sheetStarRate;
 
     @Override
-    public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter) {
-        return createSelectFromQuery()
+    public List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter) {
+        List<SheetDetailForUserDto> sheetDetailForUserDtoList = createSelectFromQuery()
                 .where(s.deletedAt.isNull(),
                         s.createdAt.isNotNull(),
                         containKeyword(sheetSearchFilter.getKeyword()),
                         inLevels(sheetSearchFilter.getLevels()),
                         inGenre(sheetSearchFilter.getGenres()),
-                        inPrice(sheetSearchFilter.getPrices())
+                        inPrice(sheetSearchFilter.getPrices()),
+                        isStatusNotRejected()
                 )
                 .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                 .fetch();
+        return new ArrayList<>(sheetDetailForUserDtoList);
     }
 
     @Override
-    public List<SheetDetailViewDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
+    public List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
             User loginUser) {
-        return createSelectFromJoinQuery(sheetSearchFilter.getSuccessStatuses(), loginUser)
-                .where(s.deletedAt.isNull(),
-                        s.createdAt.isNotNull(),
-                        containKeyword(sheetSearchFilter.getKeyword()),
-                        inLevels(sheetSearchFilter.getLevels()),
-                        inGenre(sheetSearchFilter.getGenres()),
-                        inPrice(sheetSearchFilter.getPrices())
-                )
-                .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
-                .fetch();
+        if (loginUser.getRole().equals("ROLE_ADMIN")) {
+            List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin(
+                    loginUser)
+                    .where(s.deletedAt.isNull(),
+                            s.createdAt.isNotNull(),
+                            containKeyword(sheetSearchFilter.getKeyword()),
+                            inLevels(sheetSearchFilter.getLevels()),
+                            inGenre(sheetSearchFilter.getGenres()),
+                            inPrice(sheetSearchFilter.getPrices())
+                    )
+                    .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
+                    .fetch();
+            return new ArrayList<>(sheetDetailForAdminDtoList);
+        } else {
+            List<SheetDetailForUserDto> sheetDetailForUserDtoList = createSelectFromJoinQuery(
+                    sheetSearchFilter.getSuccessStatuses(), loginUser)
+                    .where(s.deletedAt.isNull(),
+                            s.createdAt.isNotNull(),
+                            containKeyword(sheetSearchFilter.getKeyword()),
+                            inLevels(sheetSearchFilter.getLevels()),
+                            inGenre(sheetSearchFilter.getGenres()),
+                            inPrice(sheetSearchFilter.getPrices()),
+                            isStatusNotRejected()
+                    )
+                    .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
+                    .fetch();
+            return new ArrayList<>(sheetDetailForUserDtoList);
+        }
     }
 
+
     @Override
-    public SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId) {
+    public SheetDetailDto findSheetDetailViewDtoById(Long sheetId) {
         return createSelectFromQuery()
                 .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
                 .fetchOne();
     }
 
     @Override
-    public SheetDetailViewDto findSheetDetailViewDtoById(Long sheetId, User loginUser) {
+    public SheetDetailDto findSheetDetailViewDtoById(Long sheetId, User loginUser) {
 
         return createSelectFromQuery(loginUser)
                 .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
@@ -87,19 +111,18 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .execute();
     }
 
-    private JPAQuery<SheetDetailViewDto> createSelectFromQuery(User loginUser) {
-        return queryFactory.select(Projections.constructor(SheetDetailViewDto.class,
+    private JPAQuery<SheetDetailForUserDto> createSelectFromQuery(User loginUser) {
+        return queryFactory.select(Projections.constructor(SheetDetailForUserDto.class,
                 s,
                 JPAExpressions.select(ls.count())
                         .from(ls)
                         .where(ls.sheet.eq(s)),
                 createLikeStatusExpression(loginUser)
-
         )).from(s);
     }
 
-    private JPAQuery<SheetDetailViewDto> createSelectFromQuery() {
-        return queryFactory.select(Projections.constructor(SheetDetailViewDto.class,
+    private JPAQuery<SheetDetailForUserDto> createSelectFromQuery() {
+        return queryFactory.select(Projections.constructor(SheetDetailForUserDto.class,
                 s,
                 JPAExpressions.select(ls.count())
                         .from(ls)
@@ -107,7 +130,17 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         )).from(s);
     }
 
-    private JPAQuery<SheetDetailViewDto> createSelectFromJoinQuery(
+    private JPAQuery<SheetDetailForAdminDto> createSelectFromQueryForAdmin(User loginUser) {
+        return queryFactory.select(Projections.constructor(SheetDetailForAdminDto.class,
+                s,
+                JPAExpressions.select(ls.count())
+                        .from(ls)
+                        .where(ls.sheet.eq(s)),
+                createLikeStatusExpression(loginUser)
+        )).from(s);
+    }
+
+    private JPAQuery<SheetDetailForUserDto> createSelectFromJoinQuery(
             HashSet<SuccessStatus> successStatuses,
             User loginUser) {
 
@@ -192,6 +225,10 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
             return null;
         }
         return s.song.genre.id.in(genre);
+    }
+
+    private BooleanExpression isStatusNotRejected() {
+        return s.status.in(new Integer[]{null, 0, 1});
     }
 
     private BooleanExpression inPrice(Integer[] price) {

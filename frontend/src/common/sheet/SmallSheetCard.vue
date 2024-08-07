@@ -41,7 +41,7 @@ const goToSheetDetail = () => {
 	  </div>
 	</div>
 	<div class="h-full flex flex-col items-center justify-center">
-	  <slot />
+	  <slot/>
 	</div>
   </div>
 </template>

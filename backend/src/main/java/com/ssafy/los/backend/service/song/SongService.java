@@ -12,4 +12,6 @@ public interface SongService {
     SongDto searchById(Long songId);
 
     Song registerSongAndFile(SongRegisterForm songRegisterForm) throws IllegalArgumentException;
+
+    boolean deleteById(Long songId);
 }

@@ -1,9 +1,7 @@
 <script setup>
 import Controller from "@/common/sheet/Controller.vue";
 import ScrollContainer from "@/common/sheet/ScrollContainer.vue";
-import RecordButton from "@/common/sheet/RecordButton.vue";
-import { ref, onMounted } from "vue";
-import { LinearTimingSource, PlaybackManager, BasicAudioPlayer} from "@/assets/js/opensheetmusicdisplay.min.js";
+import { useMusicStore } from '@/stores/sheet';
 
 const props = defineProps({
     showController: Boolean,
@@ -16,67 +14,46 @@ const props = defineProps({
     sheetId: Number,
 });
 
-const playbackManager = ref(null);
-const isPlay = ref(false);
-const triggerSplit = ref(0);
+const musicStore = useMusicStore();
 
-const handleMeasureChanged = (measureIndex) => {
-    triggerSplit.value++;
+const startRecording = () => {
+    musicStore.startRecording();
 };
 
-const musicStarted = () => {
-    isPlay.value = true;
+const stopRecording = () => {
+    musicStore.stopRecording();
 };
 
-const musicFinished = () => {
-    isPlay.value = false;
+const startMusic = () => {
+    musicStore.startMusic();
 };
 
-const setVolume = (volume) => {
-    if (playbackManager.value) {
-        const instrumentIds = Array.from(playbackManager.value.instrumentIdMapping.keys());
-        instrumentIds.forEach((instrumentId) => {
-            playbackManager.value.volumeChanged(instrumentId, volume);
-        });
-    }
+const pauseMusic = () => {
+    musicStore.pauseMusic();
 };
 
-onMounted(() => {
-    const timingSource = new LinearTimingSource();
-    playbackManager.value = new PlaybackManager(
-        timingSource,
-        undefined,
-        new BasicAudioPlayer(),
-        undefined
-    );
-});
+const stopMusic = () => {
+    musicStore.stopMusic();
+};
+
 </script>
 
 <template>
     <div>
-        <Controller
-            v-if="showController"
-            :playbackManager="playbackManager"
-            @music-started="musicStarted"
-            @set-volume="setVolume"
-        />
-        <ScrollContainer
-            :playbackManager="playbackManager"
-            :width="props.width"
-            :height="props.height"
-            @measure-changed="handleMeasureChanged"
-            @music-finished="musicFinished"
-            :sheetId="sheetId"
-        />
-        <RecordButton
-            v-if="isRecording"
-            ref="recordComponent"
-            :triggerSplit="triggerSplit"
-            :isPlay="isPlay"
-        />
+        <Controller v-if="showController" />
+        <ScrollContainer :width="props.width" :height="props.height" :sheetId="props.sheetId" />
+        <div>
+            <button @click="startRecording">녹음 시작</button>
+            <button @click="stopRecording">녹음 중지</button>
+            <button @click="startMusic">재생</button>
+            <button @click="pauseMusic">일시정지</button>
+            <button @click="stopMusic">정지</button>
+        </div>
     </div>
 </template>
 
 <style scoped>
-
+button {
+    margin: 5px;
+}
 </style>
