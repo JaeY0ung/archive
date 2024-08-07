@@ -87,7 +87,9 @@ export const useUserStore = defineStore(
                 const currentTime = Date.now();
                 if (currentTime - lastActivityTime.value > SESSION_TIMEOUT) {
                     userLogout();
+                    router.push({ name: 'login' });
                 }
+
             }
         };
 
@@ -243,6 +245,7 @@ export const useUserStore = defineStore(
                         isValidToken.value = false;
                         sessionStorage.removeItem("accessToken");
                         lastActivityTime.value = null;
+                        router.push({ name: 'login' });
                         console.log("로그아웃이 되었습니다.");
                     } else {
                         console.error("유저 정보가 없습니다.");

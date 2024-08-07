@@ -5,6 +5,7 @@ import com.ssafy.los.backend.dto.sheet.request.DifficultyUpdateDto;
 import com.ssafy.los.backend.dto.sheet.response.DifficultyResponseDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.DifficultyService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -72,6 +73,13 @@ public class DifficultyController {
             @RequestParam(defaultValue = "desc") String sortDir) {
         log.info("page: {}, size: {}, sortBy: {}, sortDir: {}", page, size, sortBy, sortDir);
         Page<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyBySheetId(sheetId, page, size, sortBy, sortDir);
+
+        return new ResponseEntity<>(difficultyResponseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/{sheet-id}/difficulties/all")
+    public ResponseEntity<?> findAllDifficulty(@PathVariable("sheet-id") Long sheetId) {
+        List<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyAllBySheetId(sheetId);
 
         return new ResponseEntity<>(difficultyResponseDto, HttpStatus.OK);
     }

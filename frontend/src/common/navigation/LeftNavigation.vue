@@ -33,7 +33,7 @@ const goLogout = async () => {
     try {
         await userStore.userLogout();
         leftNavigationStore.closeNav();
-        router.push({ name: "main" });
+        router.push({ name: "login" });
     } catch (error) {
         console.error("로그아웃 중 오류 발생:", error);
         alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
