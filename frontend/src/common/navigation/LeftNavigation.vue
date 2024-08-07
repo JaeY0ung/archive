@@ -5,13 +5,13 @@ import Search from "@/common/icons/Search.vue";
 import Order from "@/common/icons/Order.vue";
 import Upload from "@/common/icons/Upload.vue";
 import NotePixel from "@/common/icons/NotePixel.vue";
+import Record from "@/common/icons/Record";
 
 import { ref, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
 import { useLeftNavigationStore } from "@/stores/leftNavigation";
 import { useRouter } from "vue-router";
-import Record from "@/common/icons/Record";
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -26,8 +26,16 @@ const pages = ref([
     { name: "order", title: "장바구니" },
     { name: "sheetUpload", title: "악보 업로드" },
     { name: "pianoSaurus", title: "배틀하기" },
-  {name: "recording", title: "음악 녹음"},
+    { name: "recording", title: "음악 녹음" },
 ]);
+
+const visiblePages = computed(() => {
+    if (isLogin.value) {
+        return pages.value;
+    } else {
+        return pages.value.filter((page) => ["main", "sheetSearch"].includes(page.name));
+    }
+});
 
 const goLogout = async () => {
     try {
@@ -46,7 +54,7 @@ const goLogin = () => {
 };
 
 const authButtonText = computed(() => (isLogin.value ? "로그아웃" : "로그인"));
-const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-button');
+const authButtonClass = computed(() => (isLogin.value ? "logout-button" : "login-button"));
 </script>
 
 <template>
@@ -54,7 +62,7 @@ const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-
         <br /><br /><br /><br /><br /><br /><br />
 
         <div class="nav-main">
-            <div v-for="page in pages" :key="page.name">
+            <div v-for="page in visiblePages" :key="page.name">
                 <RouterLink :to="{ name: page.name }" @click="leftNavigationStore.closeNav">
                     <div class="icon-container">
                         <Home v-if="page.name === 'main'" />
@@ -68,8 +76,8 @@ const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-
                     <span>{{ page.title }}</span>
                 </RouterLink>
             </div>
-            <div 
-                @click="isLogin ? goLogout() : goLogin()" 
+            <div
+                @click="isLogin ? goLogout() : goLogin()"
                 class="auth-button"
                 :class="authButtonClass"
             >
@@ -78,7 +86,6 @@ const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-
         </div>
     </nav>
 </template>
-
 
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
