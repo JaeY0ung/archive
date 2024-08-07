@@ -62,13 +62,13 @@ const authButtonClass = computed(() => isLogin.value ? 'logout-button' : 'login-
             </RouterLink>
         </div>
         
-        <!-- <div 
+        <div 
             @click="isLogin ? goLogout() : goLogin()" 
             class="auth-button"
             :class="authButtonClass"
         >
             <span>{{ authButtonText }}</span>
-        </div>  -->
+        </div> 
     </nav>
     </template>
     

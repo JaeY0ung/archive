@@ -1,16 +1,13 @@
 package com.ssafy.los.backend.dto.user.request;
 
 import jakarta.validation.constraints.Size;
-import java.util.List;
-import lombok.Builder;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter
-@Builder
+@Getter @Setter // Jackson이 JSON을 객체로 변환할 때 필요한 setter 메서드를 제공
+@NoArgsConstructor // 필드가 한개로 오류 발생하여 추가
 public class UserUpdateDto {
-
-    private List<MultipartFile> files;
 
     @Size(min = 2, max = 20)
     private String nickname;

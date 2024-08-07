@@ -108,6 +108,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     public long updateViewCount(Long sheetId) {
         return queryFactory.update(s)
                 .set(s.viewCount, s.viewCount.add(1))
+                .where(s.id.eq(sheetId))
                 .execute();
     }
 

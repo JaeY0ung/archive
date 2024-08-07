@@ -24,15 +24,14 @@ const selectMode = (mode) => {
   if (mode === 'multi') {
     playStore.setShowModal(true);
   } else {
-    router.push({ path: 'singleRoom' });
+    router.push({ name: 'singleWait' });
   }
 };
 
 // 방 입장
 const enterRoom = async (roomId) => {
   await playStore.enterRoom(roomId);
-  // router.push({ path: `/room/${roomId}` });
-  router.push({ path: `/room/${roomId}/wait/multiDefault` }); // wait 페이지로 이동
+  router.push({ name: 'multiWait', params: { roomId } }); // wait 페이지로 이동
 }; 
 
 const rankings = ref([

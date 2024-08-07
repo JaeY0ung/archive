@@ -23,6 +23,7 @@ const showFollowersModal = ref(false);
 const showFollowingsModal = ref(false);
 const followList = ref([]);
 const followModalTitle = ref("");
+const userNotFound = ref(false);
 
 // 악보 정보
 const mockRecentPlayedSheets = ref([
@@ -73,10 +74,16 @@ const goToEditPage = () => {
 const fetchUserProfile = async () => {
   try {
     const response = await local.get(`/users/${route.params.nickName}`);
-    userProfile.value = response.data;
-    userImg.value = `data:image/jpeg;base64,${response.data.userImg}`;
+    if (response.data) {
+      userProfile.value = response.data;
+      userImg.value = `data:image/jpeg;base64,${response.data.userImg}`;
+      userNotFound.value = false;
+    } else {
+      userNotFound.value = true;
+    }
   } catch (error) {
     console.error("사용자 프로필을 가져오는데 실패했습니다:", error);
+    userNotFound.value = true;
   }
 };
 
@@ -150,86 +157,100 @@ const isValidUserImg = computed(() => {
   );
 });
 
+const handleImageError = () => {
+  userImg.value = "";
+};
+
 onMounted(async () => {
   await fetchUserProfile();
-  await fetchFollowInfo();
+  if (!userNotFound.value) {
+    await fetchFollowInfo();
+  }
 });
 </script>
 
 <template>
   <div class="profile-container">
-    <div class="user-profile">
-      <div class="profile-image-container">
-        <img
-          v-if="isValidUserImg"
-          :src="userImg"
-          alt="User Profile"
-          class="profile-image"
-          @error="handleImageError"
-        />
-        <Profile v-else class="profile-icon profile-image" />
-      </div>
-      <span class="user-name">{{ userProfile?.nickname }}</span>
-      <span class="single-score">Score: {{ userProfile?.singleScore }}</span>
-      <span class="followers" @click="openFollowModal('followers')"
-        >Followers: {{ followersCount }}</span
-      >
-      <span class="following" @click="openFollowModal('followings')"
-        >Following: {{ followingsCount }}</span
-      >
-      <template v-if="!isOwnProfile">
-        <button
-          :class="['follow-btn', { 'unfollow-btn': isFollowing }]"
-          @click="toggleFollow"
+    <div v-if="userNotFound" class="user-not-found">
+      <h2>사용자를 찾을 수 없습니다</h2>
+      <p>요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.</p>
+      <button class="back-btn" @click="$router.push('/')">메인으로 돌아가기</button>
+    </div>
+
+    <template v-else>
+      <div class="user-profile">
+        <div class="profile-image-container">
+          <img
+            v-if="isValidUserImg"
+            :src="userImg"
+            alt="User Profile"
+            class="profile-image"
+            @error="handleImageError"
+          />
+          <Profile v-else class="profile-icon profile-image" />
+        </div>
+        <span class="user-name">{{ userProfile?.nickname }}</span>
+        <span class="single-score">Score: {{ userProfile?.singleScore }}</span>
+        <span class="followers" @click="openFollowModal('followers')"
+          >Followers: {{ followersCount }}</span
         >
-          {{ isFollowing ? "Unfollow" : "Follow" }}
-        </button>
-        <button class="fight-btn">Fight</button>
-      </template>
-      <button v-else class="edit-btn" @click="goToEditPage">Edit</button>
-    </div>
+        <span class="following" @click="openFollowModal('followings')"
+          >Following: {{ followingsCount }}</span
+        >
+        <template v-if="!isOwnProfile">
+          <button
+            :class="['follow-btn', { 'unfollow-btn': isFollowing }]"
+            @click="toggleFollow"
+          >
+            {{ isFollowing ? "Unfollow" : "Follow" }}
+          </button>
+          <button class="fight-btn">Fight</button>
+        </template>
+        <button v-else class="edit-btn" @click="goToEditPage">Edit</button>
+      </div>
 
-    <div class="sheets-container">
-      <div class="sheet-section">
-        <h3>최근 싱글 플레이</h3>
-        <div class="scroll-x">
-          <SmallSheetCard
-            v-for="sheet in mockRecentPlayedSheets"
-            :key="sheet.id"
-            :sheet="sheet"
-          />
+      <div class="sheets-container">
+        <div class="sheet-section">
+          <h3>최근 싱글 플레이</h3>
+          <div class="scroll-x">
+            <SmallSheetCard
+              v-for="sheet in mockRecentPlayedSheets"
+              :key="sheet.id"
+              :sheet="sheet"
+            />
+          </div>
+        </div>
+
+        <div class="sheet-section">
+          <h3>최근 대결 플레이</h3>
+          <div class="scroll-x">
+            <SmallSheetCard
+              v-for="sheet in mockRecentBattleSheets"
+              :key="sheet.id"
+              :sheet="sheet"
+            />
+          </div>
+        </div>
+
+        <div class="sheet-section">
+          <h3>좋아요한 악보</h3>
+          <div class="scroll-x">
+            <SmallSheetCard
+              v-for="sheet in mockLikedSheets"
+              :key="sheet.id"
+              :sheet="sheet"
+            />
+          </div>
         </div>
       </div>
 
-      <div class="sheet-section">
-        <h3>최근 대결 플레이</h3>
-        <div class="scroll-x">
-          <SmallSheetCard
-            v-for="sheet in mockRecentBattleSheets"
-            :key="sheet.id"
-            :sheet="sheet"
-          />
-        </div>
-      </div>
-
-      <div class="sheet-section">
-        <h3>좋아요한 악보</h3>
-        <div class="scroll-x">
-          <SmallSheetCard
-            v-for="sheet in mockLikedSheets"
-            :key="sheet.id"
-            :sheet="sheet"
-          />
-        </div>
-      </div>
-    </div>
-
-    <FollowModal
-      v-if="showFollowersModal || showFollowingsModal"
-      :title="followModalTitle"
-      :follow-list="followList"
-      @close="closeModal"
-    />
+      <FollowModal
+        v-if="showFollowersModal || showFollowingsModal"
+        :title="followModalTitle"
+        :follow-list="followList"
+        @close="closeModal"
+      />
+    </template>
   </div>
 </template>
 
@@ -365,5 +386,40 @@ h3 {
   font-weight: bold;
   background-color: #44ff44;
   color: white;
+}
+
+.user-not-found {
+  text-align: center;
+  padding: 50px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+.user-not-found h2 {
+  color: #ff4444;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.user-not-found p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  padding: 10px 20px;
+  background-color: #4444ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+  background-color: #3333cc;
 }
 </style>

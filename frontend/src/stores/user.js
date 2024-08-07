@@ -55,10 +55,11 @@ export const useUserStore = defineStore(
         // Foreground 메시지 핸들러
         messaging.onMessage((payload) => {
             console.log("Message received. ", payload);
-            new Notification(payload.notification.title, {
-                body: payload.notification.body,
-                icon: payload.notification.icon,
-            });
+            const notificationTitle = payload.notification.title;
+            const notificationBody = payload.notification.body;
+            if (window && window.showNotification) {
+                window.showNotification(notificationTitle, notificationBody);
+            }
         });
 
         // Firebase 토큰 요청

@@ -14,7 +14,7 @@ public interface SheetService {
 
     Sheet searchById(Long sheetId) throws IllegalArgumentException;
 
-    SheetDetailDto searchSheetById(Long sheetId) throws IllegalArgumentException;
+    SheetDetailDto searchSheetDetailById(Long sheetId) throws IllegalArgumentException;
 
     Resource getSheetFileByFileName(String fileName) throws IllegalArgumentException;
 

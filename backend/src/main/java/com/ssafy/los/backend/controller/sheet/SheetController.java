@@ -73,7 +73,7 @@ public class SheetController {
     public ResponseEntity<?> getSheetInfo(@PathVariable("sheet-id") Long sheetId) {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(sheetService.searchSheetById(sheetId));
+                .body(sheetService.searchSheetDetailById(sheetId));
     }
 
     @DeleteMapping("/{sheet-id}")
@@ -105,7 +105,7 @@ public class SheetController {
     @GetMapping("/{sheet-id}/download")
     public ResponseEntity<?> downloadSheet(@PathVariable("sheet-id") Long sheetId) {
         // TODO : 구매여부 확인
-        SheetDetailDto sheet = sheetService.searchSheetById(sheetId);
+        SheetDetailDto sheet = sheetService.searchSheetDetailById(sheetId);
         try {
             return ResponseEntity.ok()
                     .header(

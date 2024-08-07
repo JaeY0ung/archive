@@ -1,11 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLeftNavigationStore } from '@/stores/leftNavigation'
 import Hamburger from './common/icons/Hamburger.vue';
 import MyProfile from './common/navigation/MyProfile.vue';
 import LeftNavigation from './common/navigation/LeftNavigation.vue';
 import CommonSearchBar from './common/search-bar/CommonSearchBar.vue';
+import NotificationBubble from '@/common/alert/NotificationBubble.vue';
 
 const leftNavigationStore = useLeftNavigationStore();
 const route = useRoute();
@@ -42,6 +43,7 @@ const route = useRoute();
                 </div>
             </div>
         </div>
+        <NotificationBubble />
     </div>
 </template>
 

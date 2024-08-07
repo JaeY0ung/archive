@@ -3,8 +3,13 @@ package com.ssafy.los.backend.service.alert;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import com.ssafy.los.backend.domain.entity.Alert;
+import com.ssafy.los.backend.domain.entity.AlertType;
+import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.alert.AlertRepository;
+import com.ssafy.los.backend.domain.repository.alert.AlertTypeRepository;
+import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.AlertDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,23 +22,25 @@ import org.springframework.stereotype.Service;
 public class AlertServiceImpl implements AlertService {
 
     private final AlertRepository alertRepository;
+    private final UserRepository userRepository;
+    private final AlertTypeRepository alertTypeRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
 
     @Override
     public String sendMessage(AlertDto alertDto) {
         // 알림 받을 사용자의 Firebase 토큰 값을 조회
-        log.info("알림 받을 사용자ID: " + alertDto.getReceiver().getId());
+        log.info("알림 받을 사용자ID: " + alertDto.getReceiver());
         String userFirebaseToken = redisTemplate.opsForValue()
-                .get("firebaseToken:" + alertDto.getReceiver().getId());
+                .get("firebaseToken:" + alertDto.getReceiver());
 
         if (userFirebaseToken == null || userFirebaseToken.isEmpty()) {
             return "알림 전송에 실패했습니다. 사용자 Firebase 토큰이 없습니다.";
         }
 
-        // 알림 유형에 따라 제목 설정
+        // 1) 알림 유형에 따라 제목 설정
         String title;
-        Long alertTypeId = alertDto.getAlertType().getId();
+        Long alertTypeId = alertDto.getAlertType();
         log.info("alertTypeId: " + alertTypeId);
         switch (alertTypeId.intValue()) {
             case 1:
@@ -56,12 +63,19 @@ public class AlertServiceImpl implements AlertService {
                 break;
         }
 
-        // 메시지 구성
+        // 2) 알림 받을 사용자의 닉네임을 조회
+        User receiverUser = userRepository.findById(alertDto.getReceiver())
+                .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
+        String receiverNickname = receiverUser.getNickname();
+
+        // (1), (2) 를 바탕으로 메시지 구성
         Message message = Message.builder()
-                .putData("title", title)
-                .putData("content", alertDto.getReceiver().getNickname() + " 님에게 새로운 알람이 도착했습니다.")
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(receiverNickname + " 님에게 새로운 알람이 도착했습니다.")
+                        .build())
                 .putData("alertTypeId", alertDto.getAlertType().toString())
-                .putData("referenceId", "0")
+                .putData("referenceId", alertDto.getReferenceId().toString())
                 .putData("readStatus", alertDto.getReadStatus().toString())
                 .setToken(userFirebaseToken)
                 .build();
@@ -85,8 +99,14 @@ public class AlertServiceImpl implements AlertService {
 
     @Override
     public String saveAlertAndSendMessage(AlertDto alertDto) {
+        // User 및 AlertType 엔티티 조회
+        User receiverUser = userRepository.findById(alertDto.getReceiver())
+                .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
+        AlertType alertTypeEntity = alertTypeRepository.findById(alertDto.getAlertType())
+                .orElseThrow(() -> new IllegalArgumentException("AlertType not found"));
+
         // AlertDto를 Alert 엔티티로 변환
-        Alert alertEntity = alertDto.toEntity();
+        Alert alertEntity = alertDto.toEntity(receiverUser, alertTypeEntity);
 
         // Alert 엔티티를 데이터베이스에 저장
         Alert savedAlert = alertRepository.save(alertEntity);
