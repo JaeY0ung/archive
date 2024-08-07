@@ -1,13 +1,27 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import LeftNavigation from '@/common/navigation/LeftNavigation.vue'
 import MyProfile from './common/navigation/MyProfile.vue';
 import Hamburger from '@/common/icons/Hamburger.vue'
 import { useLeftNavigationStore } from '@/stores/leftNavigation'
+import NotificationBubble from '@/common/alert/NotificationBubble.vue';
 
 const leftNavigationStore = useLeftNavigationStore();
 const route = useRoute();
+
+const notifications = ref([]);
+const showNotificationBadge = ref(false);
+
+function showNotification(title, body) {
+    notifications.value.push({ title, body });
+    showNotificationBadge.value = true;
+}
+
+onMounted(() => {
+    window.showNotification = showNotification;
+});
+
 </script>
 
 <template>
@@ -38,6 +52,7 @@ const route = useRoute();
                 </div>
             </div>
         </div>
+        <NotificationBubble :notifications="notifications" :showBadge="showNotificationBadge" />
     </div>
 </template>
 
