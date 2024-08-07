@@ -5,45 +5,34 @@ import { useUserStore } from "@/stores/user";
 import defaultProfileImage from "@/assets/img/common/default_profile.png";
 import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
 
-const me = ref({
-    img: defaultProfileImage,
-    nickname: "악카이브1",
-    score: "0",
-    isEmpty: true,
-});
-
 const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
-const user = userStore.userInfo;
-me.value.name = user.nickname;
+const loginUser = userStore.userInfo;
 
-const onClickStart = () => {
-    router.push({ 
-        name: "singleDefault",
-        params: {
-            sheetId: 3
-        }
-    });
-};
+
 
 const onClickQuit = () => {
     router.push("/pianoSaurus");
 }
+
+
+console.log("route.params.sheetId = " + route.params.sheetId);
 </script>
 
 <template>
     <div class="container">
-        <div class="up">
-            <Sheet :sheetId="router.params.sheetId" />
-        </div>
-        <div class="down">
-          <UserCardForPlay :me="me" @onClickStart="onClickStart" />
-          <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
-        </div>
+      <div class="up">
+        <Sheet :sheetId="route.params.sheetId" height="95"/>
+      </div>
+      <div class="down">
+        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
+      </div>
     </div>
 </template>
 
@@ -51,6 +40,7 @@ const onClickQuit = () => {
 .container {
   margin: 10px auto;
   width: 90vw;
+  height: 90vh;
   background-color: #f0f0f0;
   border-radius: 15px;
   padding: 20px;
@@ -59,7 +49,7 @@ const onClickQuit = () => {
 }
 .up {
   background-color: #fff;
-  height: 60vh;
+  height: 72%;
   margin-bottom: 20px;
   padding: 20px;
   border-radius: 15px;

@@ -19,7 +19,6 @@ const user = ref({
 const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const loginUser = userStore.userInfo;
-user.value.nickname = loginUser.nickname;
 
 const onClickStart = () => {
     router.push({ name: "singlePlay", params: { sheetId: 3 } });
@@ -36,7 +35,7 @@ const onClickQuit = () => {
             <SelectSheetView />
         </div>
         <div class="down">
-          <UserCardForPlay :user="user" @onClickStart="onClickStart" />
+          <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
           <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
         </div>
     </div>

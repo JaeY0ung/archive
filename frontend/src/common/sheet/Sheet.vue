@@ -39,9 +39,9 @@ const stopMusic = () => {
 </script>
 
 <template>
-    <div>
+    <div id="sheet">
         <Controller v-if="showController" />
-        <ScrollContainer :width="props.width" :height="props.height" :sheetId="props.sheetId" />
+        <ScrollContainer :width="props.width" :height="props.height" :sheetId="sheetId" />
         <div>
             <button @click="startRecording">녹음 시작</button>
             <button @click="stopRecording">녹음 중지</button>
@@ -55,5 +55,9 @@ const stopMusic = () => {
 <style scoped>
 button {
     margin: 5px;
+}
+
+#sheet{
+    height: 100%;
 }
 </style>
