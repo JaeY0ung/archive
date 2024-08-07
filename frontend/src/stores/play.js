@@ -37,8 +37,8 @@ export const usePlayStore = defineStore('playMode', {
     async sendInviteAlert(userId) {
       try {
         const alertDto = {
-          receiver: { id: userId },
-          alertType: { id: 1 }, // 대결 초대 알림 타입
+          receiver: userId ,
+          alertType: 1, // 대결 초대 알림 타입
           referenceId: 123, // 관련 ID, 필요에 따라 설정
           readStatus: false,
           createdAt: new Date().toISOString()

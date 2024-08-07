@@ -52,8 +52,8 @@ public class Alert {
     public AlertDto toDto() {
         return AlertDto.builder()
                 .id(id)
-                .receiver(receiver)
-                .alertType(alertType)
+                .receiver(receiver.getId())
+                .alertType(alertType.getId())
                 .referenceId(referenceId)
                 .readStatus(readStatus)
                 .createdAt(createdAt)
