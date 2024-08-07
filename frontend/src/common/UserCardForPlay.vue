@@ -14,12 +14,14 @@ const emit = defineEmits(['onClickStart'])
 // 반응형 계산을 위한 computed 속성
 const f1Score = computed(() => {
     if (musicStore.f1.length === 0) return 0;
-    return musicStore.f1.reduce((acc, score) => acc + score, 0) / musicStore.f1.length;
+    const averageScore = musicStore.f1.reduce((acc, score) => acc + score, 0) / musicStore.f1.length;
+    return Math.floor(averageScore * 100);
 });
 
 const jaccardScore = computed(() => {
     if (musicStore.jaccard.length === 0) return 0;
-    return musicStore.jaccard.reduce((acc, score) => acc + score, 0) / musicStore.jaccard.length;
+    const averageScore = musicStore.jaccard.reduce((acc, score) => acc + score, 0) / musicStore.jaccard.length;
+    return Math.floor(averageScore * 100);
 });
 
 // img 파일 디코딩
