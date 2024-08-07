@@ -22,13 +22,7 @@ const routes = [
         name: 'userProfile',
         component: () => import('@/views/UserProfileView.vue')
     },
-    // {
-    //     path: "/",
-    //     children: [
-            
-    //     ]
-    // },
-    // -----------------------------------------------
+
     {
         path: "/room/multi/list",
         name: "multiRoomList",

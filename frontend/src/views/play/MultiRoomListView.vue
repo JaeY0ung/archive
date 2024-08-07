@@ -50,24 +50,24 @@ const rankings = ref([
 </script>
 
 <template>
-    <div class="container">
-    <aside class="ranking">
+    <div class="flex flex-grow w-full h-full bg-red-400">
+    <div class="flex flex-col mt-[10px] mb-[10px] bg-yellow-400 ranking">
       <h2>RANKING</h2>
       <ul>
         <li v-for="(item, index) in rankings" :key="index">
           {{ item.rank }}위 {{ item.name }} 님 {{ item.wins }}승 {{ item.losses }}패
         </li>
       </ul>
-    </aside>
+    </div>
 
-    <main>
-      <section class="menu">
-        <button @click="selectMode('single')">혼자 연습하기</button>
-        <button @click="selectMode('multi')">방 만들기</button>
-      </section>
-      <article class="room-list">
+    <div class="flex flex-col flex-grow ml-[5px] bg-green-200">
+      <div class="flex gap-[20px] justify-center items-center mt-[10px] h-[50px] bg-blue-200">
+        <div class="flex flex-grow h-full text-center items-center  rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('single')">혼자 연습하기</div>
+        <div class="flex flex-grow h-full text-center items-center  rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('multi')">방 만들기</div>
+      </div>
+      <div class="flex flex-grow flex-col mb-[10px] room-list">
         <h2>방 리스트</h2>
-        <ul>
+        <ul class="flex flex-grow flex-col">
           <li v-if="isLoading.value">Loading...</li>
           <li 
             v-else 
@@ -80,8 +80,8 @@ const rankings = ref([
             <span>{{ room.status }}</span>
           </li>
         </ul>
-      </article>
-    </main>
+      </div>
+    </div>
     <RoomCreateModal />
     </div>
 </template>
@@ -98,23 +98,10 @@ button {
   margin-top: 20px;
 }
 
-.menu {
-  display: flex;
-  gap: 20px;
-}
-
-.container {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px;
-}
 
 .ranking {
   width: 20%;
-  padding: 20px;
-  background-color: #fff;
   border: 1px solid #ccc;
-  border-radius: 10px;
 }
 
 .ranking h2 {
@@ -133,33 +120,10 @@ button {
   border-radius: 5px;
 }
 
-main {
-  width: 75%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 
-.menu {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #2196f3;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-}
 
 .room-list {
   width: 100%;
-  padding: 20px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;
