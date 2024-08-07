@@ -16,7 +16,7 @@ import { ref, watch } from 'vue';
 
 const notifications = ref([]);
 const showBadge = ref(false);
-const showBubble = ref(false); // 하늘색 말풍선 항상 보이도록 초기값 true
+const showBubble = ref(false); 
 
 function toggleNotifications() {
     showBubble.value = !showBubble.value;
@@ -79,6 +79,7 @@ window.showNotification = (title, body) => {
   color: #000;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  display: block;
 }
 
 .notification-bubble .notification {
