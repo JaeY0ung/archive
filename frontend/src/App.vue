@@ -11,84 +11,43 @@ const route = useRoute();
 </script>
 
 <template>
-    <div class="h-screen bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200">
-        <div class="left-and-hamburger" :class="{ 'show' : leftNavigationStore.navVisibility }">
-            <LeftNavigation class="left-nav"/>
-            <div class="h-[50px] flex justify-center items-center">
-                <Hamburger class="hamburger" @click="leftNavigationStore.changeNavVisibility"/>
-                <RouterLink class="logo" :to="{ name : 'main'}">
-                    <img class="mr-2" :src="require('@/assets/img/piano.svg')" alt="피아노">
-                    <div class="text-xl">악카이브</div>
-                </RouterLink>
+    <div class="w-screen h-screen bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200">
+        <div class="absolute left-[-200px] flex h-screen bg-gradient-to-br" :class="{ 'left-0' : leftNavigationStore.navVisibility }"  style="transition: left 0.5s ease;">
+        <div>
+            <LeftNavigation class="h-screen w-[200px]"/>
+        </div>
+
+        <div :class="{'w-screen' : !leftNavigationStore.navVisibility, 'w-screen-except-nav' : leftNavigationStore.navVisibility}">
+            <!-- 위 -->
+            <div style="height:50px; display:flex; justify-content:start;">
+
+                <div class="h-[50px] flex items-center cursor-pointer">
+                    <Hamburger class="w-[50px] h-50px max-h-[50px] flex justify-center items-center m-[5px]" @click="leftNavigationStore.changeNavVisibility"/>
+                    <RouterLink class="h-[25px] max-h-[50px] flex justify-center items-center" :to="{ name : 'main'}">
+                        <img class="mr-2" :src="require('@/assets/img/piano.svg')" alt="피아노">
+                        <div class="text-xl">악카이브</div>
+                    </RouterLink>
+                </div>
+                
+                <MyProfile style="height:40px;"/>
+            </div>
+
+            <!-- 아래 -->
+            <div class="router-view-parent" @click="leftNavigationStore.closeNav">
+                <RouterView :key="route.fullPath"/>
             </div>
         </div>
-        <div style="height:50px; display:flex; justify-content:end;">
-            <MyProfile style="height:40px;"/>
-        </div>
-        <div class="router-view-parent">
-            <RouterView @click="leftNavigationStore.closeNav" :key="route.fullPath"/>
-        </div>
+    </div>
     </div>
 </template>
 
 <style scoped>
-.left-and-hamburger {
-    display: flex;
-    position: fixed;
-    z-index: 3;
-    left: -200px; /* 애니메이션 시작 위치 */
-    transition: left 0.5s ease;
-    height: 100vh;
+.w-screen-except-nav {
+    width: calc(100vw - 200px)
 }
-
-.left-nav {
-    height: 100vh;
-    width: 200px; /* TODO : 아이패드, 모바일, 데탑 마다 각각 고정 설정 */
-}
-
-.hamburger {
-    cursor: pointer;
-    width: 50px;
-    height: 50px;
-    max-height: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 5px;
-}
-
-.logo {
-    cursor: pointer;
-    height: 25px;
-    max-height: 50px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.show {
-  left: 0; /* 애니메이션 종료 위치 */
-}
-
-.container {
-    width: 100vw;
-    margin-top: 20px;
-    min-height: calc(100vh - 70px);
-}
-
-.background-image {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* 이미지가 화면에 꽉 차도록 설정 */
-    z-index: 1;
-}
-
 .router-view-parent {
     margin: 0 20px;
-    height: calc(100% - 100px);
+    height: calc(100% - 150px);
 }
 
 </style>

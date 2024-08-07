@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +36,14 @@ public class SongController {
         return new ResponseEntity<>(songService.searchById(songId), HttpStatus.OK);
     }
 
+    @DeleteMapping("/{song-id}")
+    public ResponseEntity<?> deleteSongById(@PathVariable("song-id") Long songId) {
+        if (!songService.deleteById(songId)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
     public ResponseEntity<?> uploadSong(
@@ -49,7 +58,7 @@ public class SongController {
                 .genreId(genreId)
                 .build();
         log.info(songRegisterForm.toString());
-        try { // 악보 데이터 및 파일 저장
+        try {
             return new ResponseEntity<>(songService.registerSongAndFile(songRegisterForm).getId(),
                     HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
