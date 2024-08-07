@@ -42,8 +42,9 @@ public class SheetServiceImpl implements SheetService {
 
     @Transactional
     @Override
-    public SheetDetailDto searchSheetById(Long sheetId) throws IllegalArgumentException {
+    public SheetDetailDto searchSheetDetailById(Long sheetId) throws IllegalArgumentException {
         sheetRepository.updateViewCount(sheetId);
+
         SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId,
                 authService.getLoginUser());
         sheet.loadSongImg(fileUploadUtil);

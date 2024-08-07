@@ -8,7 +8,7 @@ const sheetId = route.params.sheetId;
 
 <template>
     <div stlye="width:100%; height:400px;" >
-        <Sheet :sheet-id="sheetId" />
+        <Sheet :sheet-id="sheetId" :show-controller="true"/>
     </div>
 </template>
 

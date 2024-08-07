@@ -1,71 +1,38 @@
 <script setup>
-import { useRoute, useRouter } from "vue-router";
-import { ref, computed } from "vue";
+import { useRouter } from "vue-router";
+import { ref } from "vue";
 import { useUserStore } from "@/stores/user";
-import { usePlayStore } from "@/stores/play";
 import defaultProfileImage from "@/assets/img/common/default_profile.png";
+import UserCardForPlay from "@/common/UserCardForPlay.vue";
+import Sheet from "@/common/sheet/Sheet.vue";
+import { useRoute } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
-const playStore = new usePlayStore();
-
-const isReady = ref("false");
-const isInvited = ref("false");
-const canLeaveSite = ref(false);
-
-const me = ref({
-    img: defaultProfileImage,
-    name: "악카이브1",
-    score: "0",
-    isEmpty: true,
-});
-
-
 
 const accessToken = sessionStorage.getItem("accessToken");
-
 userStore.getUserInfo(accessToken);
+const loginUser = userStore.userInfo;
 
-let user = userStore.userInfo;
 
-me.value.name = user.nickname;
-
-const onClickStart = () => {
-    router.push({ 
-        name: "singleDefault",
-        params: {
-            sheetId: 11
-        }
-    });
-};
 
 const onClickQuit = () => {
-    router.push("/pianoSaurus");
+    router.push("/room/multi/list");
 }
+
+
+console.log("route.params.sheetId = " + route.params.sheetId);
 </script>
 
 <template>
     <div class="container">
-        <div class="up">
-            <RouterView />
-        </div>
-        <div class="down">
-            <div class="player-card">
-                <div class="player-img">
-                    <img :src="me.img" alt="Profile Image" />
-                </div>
-                <div class="player-info-text">
-                    <div>{{ me.name }}</div>
-                    <div>현재 스코어 : {{ me.score }}</div>
-                    <button class="btn text-white" style="background-color: gray" @click="onClickStart">
-                        채점 시작
-                    </button>
-                </div>
-            </div>
-        <!-- <button class="btn btn-primary w-24" v-if="route.name == 'play'" @click="quitButton"> -->
-            <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
-        </div>
+      <div class="up">
+        <Sheet :sheetId="route.params.sheetId" height="95"/>
+      </div>
+      <div class="down">
+        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
+      </div>
     </div>
 </template>
 
@@ -73,6 +40,7 @@ const onClickQuit = () => {
 .container {
   margin: 10px auto;
   width: 90vw;
+  height: 90vh;
   background-color: #f0f0f0;
   border-radius: 15px;
   padding: 20px;
@@ -81,7 +49,7 @@ const onClickQuit = () => {
 }
 .up {
   background-color: #fff;
-  height: 60vh;
+  height: 72%;
   margin-bottom: 20px;
   padding: 20px;
   border-radius: 15px;

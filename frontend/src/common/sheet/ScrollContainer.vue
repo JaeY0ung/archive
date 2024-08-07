@@ -19,7 +19,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div id="scrollContainer" :style="{ width: props.width + 'px', height: props.height + 'px' }" style="overflow-y:scroll; height:400px;">
+    <div id="scrollContainer" :style="{ width: props.width + 'px', height: props.height + '%' }" style="overflow-y:scroll;">
         <div id="osmdContainer" ref="container"></div>
     </div>
 </template>

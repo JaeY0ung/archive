@@ -3,79 +3,64 @@ import { useUserStore } from "@/stores/user";
 
 const routes = [
     {
-        path: "/",
-        component: () => import("@/layouts/TopSearchBarLayout.vue"),
-        children: [
-            {
-                path: "",
-                name: "main",
-                component: () => import("@/views/MainView.vue"),
-            },
-            {
-                path: "sheet/search",
-                name: "sheetSearch",
-                component: () => import("@/views/SheetSearchView.vue"),
-            },
-            {
-                path: "sheet/:sheetId/detail",
-                name: "sheetDetail",
-                component: () => import("@/views/SheetDetailView.vue"),
-            },
-            {
-                path: "user/:nickName/profile",
-                name: "userProfile",
-                component: () => import("@/views/UserProfileView.vue"),
-            },
-        ],
+        path: '/',
+        name: 'main',
+        component: () => import('@/views/MainView.vue')
+    },
+    {
+        path: '/sheet/search',
+        name: 'sheetSearch',
+        component: () => import('@/views/SheetSearchView.vue')
+    },
+    {
+        path: '/sheet/:sheetId/detail',
+        name: 'sheetDetail',
+        component: () => import('@/views/SheetDetailView.vue')
+    },
+    {
+        path: '/user/:nickName/profile',
+        name: 'userProfile',
+        component: () => import('@/views/UserProfileView.vue')
+    },
+    // {
+    //     path: "/",
+    //     children: [
+            
+    //     ]
+    // },
+    // -----------------------------------------------
+    {
+        path: "/room/multi/list",
+        name: "multiRoomList",
+        component: () => import('@/views/play/MultiRoomListView.vue')
     },
     // -----------------------------------------------
     {
-        path: "/pianosaurus",
-        name: "pianoSaurus",
-        component: () => import("@/views/play/PianoSaurusView.vue"),
-    },
-    // -----------------------------------------------
-    {
-        path: "/room/:roomId",
-        component: () => import("@/layouts/MultiRoomLayout.vue"),
-        children: [
-            {
-                path: "wait",
-                name: "wait",
-                component: () => import("@/views/play/WaitView.vue"),
-                children: [
-                    {
-                        path: "multiDefault",
-                        name: "multiDefault",
-                        component: () => import("@/views/play/component/MultiDefaultSheet.vue"),
-                    },
-                    {
-                        path: "popular",
-                        name: "popular",
-                        component: () => import("@/views/play/component/PopularSheet.vue"),
-                    },
-                ],
-            },
-            {
-                path: "play",
-                name: "play",
-                component: () => import("@/common/sheet/Sheet2.vue"),
-            },
-        ],
+        path: '/room/single/wait',
+        name: 'singleWait',
+        component: () => import('@/views/play/SingleWaitView.vue'),
     },
     {
-        path: "/singleRoom",
-        component: () => import("@/layouts/SingleRoomLayout.vue"),
-        children: [
-            {
-                path: "singleDefault/:sheetId",
-                name: "singleDefault",
-                component: () => import("@/views/play/PlaySheetView.vue"),
-
-                // component: () => import('@/views/play/component/SingleDefaultSheet.vue')
-            },
-        ],
+        path: '/room/single/play/:sheetId',
+        name: 'singlePlay',
+        component: () => import('@/views/play/SinglePlayView.vue'),
     },
+     // -----------------------------------------------
+    {
+        path: '/room/multi/:roomId/wait',
+        name: 'multiWait',
+        component: () => import('@/views/play/MultiWaitView.vue'),
+    },
+    {
+        path: '/room/multi/play/:sheetId',
+        name: 'multiPlay',
+        component: () => import('@/views/play/MultiPlayView.vue'),
+    },
+    // {
+    //     path: 'play',
+    //     name: 'play',
+    //     component: () => import('@/common/sheet/Sheet2.vue')
+    // },
     // -----------------------------------------------
     {
         path: "/admin",

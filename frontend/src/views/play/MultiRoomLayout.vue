@@ -150,7 +150,7 @@ onMounted(() => {
 })
 
 function quitButton () {
-    router.push('/pianoSaurus');
+    router.push('/room/multi/list');
 }
 
 const inviteModalStatus = ref(false);
