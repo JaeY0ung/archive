@@ -49,7 +49,7 @@ const routes = [
     {
         path: '/room/multi/:roomId/wait',
         name: 'multiWait',
-        component: () => import('@/views/play/MultiWaitView.vue'),
+        component: () => import('@/views/play/MultiRoomLayout.vue'),
     },
     {
         path: '/room/multi/play/:sheetId',

@@ -10,7 +10,6 @@ import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
 const { VUE_APP_REQUEST_URL } = process.env;
-import Sheet from '@/common/sheet/Sheet2.vue';
 
 const route = useRoute();
 const router = useRouter();
