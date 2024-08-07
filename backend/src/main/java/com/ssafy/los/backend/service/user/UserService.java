@@ -4,7 +4,6 @@ import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.user.request.UserCreateDto;
 import com.ssafy.los.backend.dto.user.request.UserUpdateDto;
 import com.ssafy.los.backend.dto.user.response.UserProfileDto;
-import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface UserService {
@@ -19,7 +18,7 @@ public interface UserService {
 
     Long deleteUser(Long id);
 
-    String registerUserImgFile(MultipartFile userImg) throws IOException;
+    String registerUserImgFile(MultipartFile userImg);
 
     User searchUserByEmail(String email);
 

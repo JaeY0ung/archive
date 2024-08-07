@@ -6,7 +6,6 @@ import com.ssafy.los.backend.dto.user.request.UserUpdateDto;
 import com.ssafy.los.backend.dto.user.response.UserProfileDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.user.UserService;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -54,46 +53,47 @@ public class UserController {
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
-    // 회원 정보 수정
-    @PutMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    // 회원 수정
+    @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateUser(
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
-            @RequestPart("nickname") String nickname) throws IOException {
+            @RequestPart("userUpdateDto") UserUpdateDto userUpdateDto) {
 
+        log.info("userUpdateDto = {}", userUpdateDto.getNickname());
+
+        // 권한 확인
         User loginUser = authService.getLoginUser();
 
-        // 파일 처리
+        // 이미지 처리
         String uuid = null;
         if (profileImage != null && !profileImage.isEmpty()) {
             uuid = userService.registerUserImgFile(profileImage);
         }
-
-        // 닉네임 처리
-        UserUpdateDto userUpdateDto = UserUpdateDto.builder()
-                .nickname(nickname)
-                .build();
 
         Long updatedId = userService.updateUser(loginUser.getId(), userUpdateDto, uuid);
 
         return new ResponseEntity<>(updatedId, HttpStatus.OK);
     }
 
+    // 회원 삭제
+    // TODO : cascade 추가해야 함
+    // TODO : deletedAt만 수정하면 됨
     @DeleteMapping("/{user-id}")
     public ResponseEntity<?> deleteUser(@PathVariable("user-id") Long userId) {
         User loginUser = authService.getLoginUser();
         if (!userId.equals(loginUser.getId())) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+
         Long deleteId = userService.deleteUser(userId);
         return new ResponseEntity<>(deleteId, HttpStatus.OK);
-
     }
 
-    // 회원 조회
+    // 회원 프로필 제공
     @GetMapping("/{user-nickname}")
     public ResponseEntity<?> getUser(@PathVariable("user-nickname") String userNickname) {
         UserProfileDto userProfileDto = userService.searchUserProfileByNickname(userNickname);
         return new ResponseEntity<>(userProfileDto, HttpStatus.OK);
     }
-
+    
 }

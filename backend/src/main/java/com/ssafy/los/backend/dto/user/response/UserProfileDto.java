@@ -12,7 +12,7 @@ public class UserProfileDto {
     private String nickname;
     private String userImgName;
     private String userImg;
-    private int singleScore;
+    private Integer singleScore;
 
     public void loadUserImg(FileUploadUtil fileUploadUtil) {
         if (this.userImgName != null) {
