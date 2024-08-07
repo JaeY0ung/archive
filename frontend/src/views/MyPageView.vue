@@ -4,6 +4,7 @@ import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
+import Profile from "@/common/icons/Profile.vue";
 
 const router = useRouter();
 const local = localAxios();
@@ -146,7 +147,7 @@ const currentProfileImage = computed(() => {
     if (userInfo.value && userInfo.value.userImg) {
         return `data:image/jpeg;base64,${userInfo.value.userImg}`;
     }
-    return null; // 또는 기본 이미지 URL
+    return null;
 });
 
 onMounted(() => {
@@ -160,14 +161,15 @@ onMounted(() => {
 
 <template>
     <div class="container">
-        <div class="mb-4 profile-image-container">
+        <div class="mb-4 profile-image-container" @click="triggerFileInput">
             <img
+                v-if="imagePreview || currentProfileImage"
                 :src="imagePreview || currentProfileImage"
                 alt="Profile Preview"
                 class="profile-preview mx-auto"
-                @click="triggerFileInput"
             />
-            <div class="profile-image-overlay" @click="triggerFileInput">
+            <Profile v-else class="profile-icon profile-image" />
+            <div class="profile-image-overlay">
                 <span>클릭하여 변경</span>
             </div>
             <input
@@ -237,6 +239,7 @@ onMounted(() => {
     margin: 0 auto;
     border-radius: 50%;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .profile-preview {
@@ -258,7 +261,6 @@ onMounted(() => {
     align-items: center;
     opacity: 0;
     transition: opacity 0.3s ease;
-    cursor: pointer;
 }
 
 .profile-image-container:hover .profile-image-overlay {
@@ -277,5 +279,21 @@ onMounted(() => {
 
 .btn-info:hover {
     background-color: #2980b9;
+}
+
+.profile-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 50%;
+}
+
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 </style>

@@ -13,6 +13,7 @@ import UploadSvg from "@/common/icons/upload.svg"
 import NotePixelSvg from "@/common/icons/notepixel.svg"
 import RecordSvg from "@/common/icons/record.svg"
 
+
 const router = useRouter();
 const userStore = useUserStore();
 const { isLogin } = storeToRefs(userStore);
@@ -21,16 +22,20 @@ const { navVisibility } = storeToRefs(leftNavigationStore);
 
 const pages = ref([
     { name: "main", title: "메인 페이지", src: HomeSvg },
-    { name: "sheetSearch", title: "악보 검색", src: SearchSvg },
-    { name: "mypage", title: "마이페이지", src: MySvg, requireLogin: true },
-    { name: "order", title: "장바구니", src: OrderSvg, requireLogin: true },
-    { name: "sheetUpload", title: "악보 업로드", src: UploadSvg, requireLogin: true },
-    { name: "multiRoomList", title: "배틀하기", src: NotePixelSvg, requireLogin: true },
-    { name: "recording", title: "음악 녹음", src: RecordSvg, requireLogin: true },
+    { name: "mypage", title: "마이페이지" ,src:MySvg},
+    { name: "sheetSearch", title: "악보 검색",src:SearchSvg },
+    { name: "order", title: "장바구니",src:OrderSvg },
+    { name: "sheetUpload", title: "악보 업로드",src:UploadSvg },
+    { name: "multiRoomList", title: "배틀하기" ,src:NotePixelSvg},
+    { name: "recording", title: "음악 녹음",src:RecordSvg},
 ]);
 
 const visiblePages = computed(() => {
-    return pages.value.filter(page => !page.requireLogin || isLogin.value);
+    if (isLogin.value) {
+        return pages.value;
+    } else {
+        return pages.value.filter((page) => ["main", "sheetSearch"].includes(page.name));
+    }
 });
 
 const goLogout = async () => {
@@ -54,9 +59,9 @@ const authButtonClass = computed(() => (isLogin.value ? "logout-button" : "login
 </script>
 
 <template>
-    <nav class="left-nav-container flex flex-shrink-0">
+    <nav class="left-nav-container flex flex-shrink-0" >
         <br /><br /><br /><br /><br /><br /><br />
-        <div v-for="page in visiblePages" :key="page.name" class="flex contents-center items-center w-full h-[50px] mt-5">
+        <div v-for="page in pages" :key="page.name" class="flex contents-center items-center w-full h-[50px] mt-5 ">
             <RouterLink :to="{ name: page.name }" @click="leftNavigationStore.closeNav" class="flex items-center w-full h-full">
                 <div class="flex w-[24px] h-[24px] ml-[20px]">
                     <img :src="page.src" />
@@ -73,8 +78,9 @@ const authButtonClass = computed(() => (isLogin.value ? "logout-button" : "login
             <span>{{ authButtonText }}</span>
         </div> 
     </nav>
-</template>
-
+    </template>
+    
+    
 <style scoped>
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
@@ -87,6 +93,7 @@ const authButtonClass = computed(() => (isLogin.value ? "logout-button" : "login
     font-family: "Poppins", sans-serif;
     border: 1px solid rgba(255, 255, 255, 0.2); 
 }
+    
 
 .left-nav-container > div > a:hover {
     background-color: rgba(255, 255, 255, 0.3);
