@@ -1,10 +1,10 @@
 package com.ssafy.los.backend.controller.user;
 
-import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.user.response.OnlineUserDto;
 import com.ssafy.los.backend.service.user.UserService;
 import com.ssafy.los.backend.service.user.UserStatusService;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -38,19 +38,14 @@ public class UserStatusController {
         LOGGER.info("userStatusService.getOnlineUsers() 결과: " + onlineUserIds);
 
         List<OnlineUserDto> onlineUserDtoList = onlineUserIds.stream()
-                .map(userId -> {
-                    User user = userService.selectUserById(Long.parseLong(userId));
-                    if (user == null) {
-                        LOGGER.warning("User with id " + userId + "를 찾을 수 없습니다.");
-                        return null; // user가 null이면 null 반환
-                    }
-                    return OnlineUserDto.builder()
-                            .id(user.getId())
-                            .userImg(user.getUserImg())
-                            .nickname(user.getNickname())
-                            .singleScore(user.getSingleScore())
-                            .build();
-                })
+                .map(userId -> userService.selectUserById(Long.parseLong(userId)))
+                .filter(Objects::nonNull) // null 값을 필터링
+                .map(user -> OnlineUserDto.builder()
+                        .id(user.getId())
+                        .userImg(user.getUserImg())
+                        .nickname(user.getNickname())
+                        .singleScore(user.getSingleScore())
+                        .build())
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(onlineUserDtoList, HttpStatus.OK);
