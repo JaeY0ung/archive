@@ -18,7 +18,7 @@ const loginUser = userStore.userInfo;
 
 
 const onClickQuit = () => {
-    router.push("/pianoSaurus");
+    router.push("/room/multi/list");
 }
 
 

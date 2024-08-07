@@ -26,7 +26,7 @@ const pages = ref([
     { name: "sheetSearch", title: "악보 검색",src:SearchSvg },
     { name: "order", title: "장바구니",src:OrderSvg },
     { name: "sheetUpload", title: "악보 업로드",src:UploadSvg },
-    { name: "pianoSaurus", title: "배틀하기" ,src:NotePixelSvg},
+    { name: "multiRoomList", title: "배틀하기" ,src:NotePixelSvg},
     { name: "recording", title: "음악 녹음",src:RecordSvg},
 ]);
 
