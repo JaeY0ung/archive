@@ -6,7 +6,6 @@ import com.ssafy.los.backend.dto.user.request.UserUpdateDto;
 import com.ssafy.los.backend.dto.user.response.UserProfileDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.user.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,7 +34,7 @@ public class UserController {
 
     // 회원 등록
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody @Valid UserCreateDto userCreateDto) {
+    public ResponseEntity<?> createUser(@RequestBody UserCreateDto userCreateDto) {
         Long createId = userService.saveUser(userCreateDto);
         return new ResponseEntity<>(createId, HttpStatus.CREATED);
     }
@@ -60,6 +59,8 @@ public class UserController {
             @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @RequestPart("userUpdateDto") UserUpdateDto userUpdateDto) {
 
+        log.info("userUpdateDto = {}", userUpdateDto.getNickname());
+
         // 권한 확인
         User loginUser = authService.getLoginUser();
 
@@ -76,6 +77,7 @@ public class UserController {
 
     // 회원 삭제
     // TODO : cascade 추가해야 함
+    // TODO : deletedAt만 수정하면 됨
     @DeleteMapping("/{user-id}")
     public ResponseEntity<?> deleteUser(@PathVariable("user-id") Long userId) {
         User loginUser = authService.getLoginUser();
