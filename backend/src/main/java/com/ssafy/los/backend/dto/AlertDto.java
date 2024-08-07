@@ -18,20 +18,21 @@ import lombok.NoArgsConstructor;
 public class AlertDto {
 
     private Long id;
-    private User receiver;
-    private AlertType alertType; // TODO : typeName 으로 가져와야 함
+    private Long receiver; // User 객체 대신 ID를 사용
+    private Long alertType; // AlertType 객체 대신 ID를 사용
     private Long referenceId;
     private Boolean readStatus;
     private Timestamp createdAt;
 
-    public Alert toEntity() {
+    public Alert toEntity(User receiverUser, AlertType alertTypeEntity) {
         return Alert.builder()
                 .id(id)
-                .receiver(receiver)
-                .alertType(alertType)
+                .receiver(receiverUser)
+                .alertType(alertTypeEntity)
                 .referenceId(referenceId)
                 .readStatus(readStatus)
                 .createdAt(createdAt)
                 .build();
     }
+
 }
