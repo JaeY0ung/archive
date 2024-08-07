@@ -1,14 +1,13 @@
 <script setup>
 import { defineProps, defineEmits, computed } from "vue";
 import { useRouter } from 'vue-router';
+import Profile from "@/common/icons/Profile.vue";
 
 const router = useRouter();
-
 const props = defineProps({
     title: String,
     followList: Array,
 });
-
 const emit = defineEmits(["close"]);
 
 const closeModal = () => {
@@ -16,7 +15,7 @@ const closeModal = () => {
 };
 
 const getImageUrl = (base64String) => {
-    return base64String ? `data:image/jpeg;base64,${base64String}` : '';
+    return base64String ? `data:image/jpeg;base64,${base64String}` : null;
 };
 
 const followListWithImageUrls = computed(() => {
@@ -39,7 +38,10 @@ const goToUserProfile = (nickname) => {
                 <h2 class="custom-modal-title">{{ title }}</h2>
                 <ul class="custom-modal-list">
                     <li v-for="user in followListWithImageUrls" :key="user.id" class="custom-modal-list-item">
-                        <img :src="user.imageUrl" :alt="user.nickname" class="user-image">
+                        <div class="user-image-container">
+                            <img v-if="user.imageUrl" :src="user.imageUrl" :alt="user.nickname" class="user-image">
+                            <Profile v-else class="user-image profile-icon" />
+                        </div>
                         <span @click="goToUserProfile(user.nickname)" class="user-nickname clickable">
                             {{ user.nickname }}
                         </span>
@@ -124,13 +126,23 @@ const goToUserProfile = (nickname) => {
     background-color: #f9f9f9;
 }
 
-.user-image {
+.user-image-container {
     width: 50px;
     height: 50px;
+    margin-right: 15px;
+}
+
+.user-image {
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    margin-right: 15px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.profile-icon {
+    color: #666;
+    background-color: #f0f0f0;
 }
 
 .user-nickname {
