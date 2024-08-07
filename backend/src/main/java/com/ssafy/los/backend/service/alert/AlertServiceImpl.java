@@ -3,6 +3,7 @@ package com.ssafy.los.backend.service.alert;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import com.ssafy.los.backend.domain.entity.Alert;
 import com.ssafy.los.backend.domain.entity.AlertType;
 import com.ssafy.los.backend.domain.entity.User;
@@ -69,8 +70,10 @@ public class AlertServiceImpl implements AlertService {
 
         // (1), (2) 를 바탕으로 메시지 구성
         Message message = Message.builder()
-                .putData("title", title)
-                .putData("content", receiverNickname + " 님에게 새로운 알람이 도착했습니다.")
+                .setNotification(Notification.builder()
+                        .setTitle(title)
+                        .setBody(receiverNickname + " 님에게 새로운 알람이 도착했습니다.")
+                        .build())
                 .putData("alertTypeId", alertDto.getAlertType().toString())
                 .putData("referenceId", alertDto.getReferenceId().toString())
                 .putData("readStatus", alertDto.getReadStatus().toString())
