@@ -45,9 +45,7 @@ export const useUserStore = defineStore(
         // 서비스 워커 등록 코드 추가
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                .then((registration) => {
-                    console.log('Service Worker 등록 완료:', registration.scope);
-                }).catch((err) => {
+                .catch((err) => {
                     console.log('Service Worker 등록 실패:', err);
                 });
         }
@@ -57,8 +55,10 @@ export const useUserStore = defineStore(
             console.log("Message received. ", payload);
             const notificationTitle = payload.notification.title;
             const notificationBody = payload.notification.body;
+            const alertType = payload.data.alertTypeId ? parseInt(payload.data.alertTypeId, 10) : null;
+            const roomId = payload.data.roomId ? parseInt(payload.data.roomId, 10) : null;
             if (window && window.showNotification) {
-                window.showNotification(notificationTitle, notificationBody);
+                window.showNotification(notificationTitle, notificationBody, alertType, roomId);
             }
         });
 

@@ -3,6 +3,9 @@ import axios from 'axios';
 import { localAxios } from "@/util/http-common";
 const local = localAxios();
 
+import { useUserStore } from '@/stores/user';
+import { useRoute } from 'vue-router';
+
 const baseURL = process.env.VUE_APP_REQUEST_URL;
 
 export const usePlayStore = defineStore('playMode', {
@@ -35,13 +38,21 @@ export const usePlayStore = defineStore('playMode', {
       }
     },
     async sendInviteAlert(userId) {
+
+      const userStore = useUserStore();
+      const route = useRoute();
+      const senderId = userStore.userInfo.id;
+      const roomId = route.params.roomId;
+
       try {
         const alertDto = {
           receiver: userId ,
           alertType: 1, // 대결 초대 알림 타입
           referenceId: 123, // 관련 ID, 필요에 따라 설정
           readStatus: false,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          senderId: senderId,
+          roomId: roomId
         };
         console.log('Sending alertDto:', alertDto); // 디버깅을 위한 로그
         const response = await axios.post(`${baseURL}/alert`, alertDto);
