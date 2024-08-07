@@ -49,14 +49,17 @@ public class Alert {
     @CreatedDate
     private Timestamp createdAt;
 
+    private Long senderId;
+
     public AlertDto toDto() {
         return AlertDto.builder()
                 .id(id)
-                .receiver(receiver.getId())
+                .receiverId(receiver.getId())
                 .alertType(alertType.getId())
                 .referenceId(referenceId)
                 .readStatus(readStatus)
                 .createdAt(createdAt)
+                .senderId(senderId)
                 .build();
     }
 
