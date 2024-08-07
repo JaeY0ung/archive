@@ -27,7 +27,7 @@ const goToMyPage = () => {
 </script>
 
 <template>
-  <div class="profile-div">
+  <div class="flex justify-end ml-auto mr-[15px] ">
     <div class="profile-content">
       <!-- 로그인 완료 시 -->
       <template v-if="isLogin && userInfo">
@@ -37,29 +37,22 @@ const goToMyPage = () => {
           <span class="user-name">{{ userNickname }}</span>
         </div>
       </template>
-
       <!-- 비 로그인 시 -->
       <RouterLink v-else :to="{ name : 'login' }" class="login-link">
         <Profile class="profile-icon"/>
-        <span>로그인하기</span>
+          <span>로그인하기</span>
       </RouterLink>
     </div>
   </div>
 </template>
 
 <style scoped>
-.profile-div {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  z-index: 10;
-}
-
 .profile-content {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 240, 0.9));
   border-radius: 25px;
   padding: 0 20px;
   display: flex;
+  width:160px;
   align-items: center;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;

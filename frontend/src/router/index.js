@@ -4,31 +4,31 @@ import { useUserStore } from '@/stores/user'
 
 const routes = [
     {
-        path: "/",
-        component: () => import('@/layouts/TopSearchBarLayout.vue'),
-        children: [
-            {
-                path: '',
-                name: 'main',
-                component: () => import('@/views/MainView.vue')
-            },
-            {
-                path: 'sheet/search',
-                name: 'sheetSearch',
-                component: () => import('@/views/SheetSearchView.vue')
-            },
-            {
-                path: 'sheet/:sheetId/detail',
-                name: 'sheetDetail',
-                component: () => import('@/views/SheetDetailView.vue')
-            },
-            {
-                path: 'user/:nickName/profile',
-                name: 'userProfile',
-                component: () => import('@/views/UserProfileView.vue')
-            },
-        ]
+        path: '/',
+        name: 'main',
+        component: () => import('@/views/MainView.vue')
     },
+    {
+        path: '/sheet/search',
+        name: 'sheetSearch',
+        component: () => import('@/views/SheetSearchView.vue')
+    },
+    {
+        path: '/sheet/:sheetId/detail',
+        name: 'sheetDetail',
+        component: () => import('@/views/SheetDetailView.vue')
+    },
+    {
+        path: '/user/:nickName/profile',
+        name: 'userProfile',
+        component: () => import('@/views/UserProfileView.vue')
+    },
+    // {
+    //     path: "/",
+    //     children: [
+            
+    //     ]
+    // },
     // -----------------------------------------------
     {
         path: "/pianosaurus",

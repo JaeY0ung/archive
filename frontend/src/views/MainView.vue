@@ -58,34 +58,41 @@ getRecommendsheets();
 </script>
 
 <template>
-	<div class="m-auto w-full flex flex-col gap-[50px]">
-
-		<div class="flex flex-col gap-[50px] p-[10px] bg-white/50 rounded-xl w-full mb-[50px]">
-			<div class="flex flex-col gap-5">
+	<div class="flex w-full h-full flex-col ">
+		<div class="flex flex-col w-full gap-[50px] bg-white/50 rounded-xl mb-[50px]">
+			
+			<div class="flex flex-grow flex-col w-full h-[150px] gap-5">
 				<div class="bold">인기</div>
-				<div class="scroll-x flex">
-					<template v-if="popularSheets">
-						<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"/>
-					</template>
+				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
+					<div class="flex w-full absolute scroll-x">
+						<template v-if="popularSheets">
+							<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"/>
+						</template>
+					</div>
 				</div>
 			</div>
-			<div class="flex flex-col gap-5">
+
+			<div class="flex flex-grow flex-col w-full h-[150px] gap-5">
 				<div class="bold">최신</div>
-				<div class="scroll-x flex">
-					<template v-if="newSheets">
-						<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" />
-					</template>
+				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
+					<div class="flex w-full absolute scroll-x">
+						<template v-if="newSheets">
+							<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" />
+						</template>
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<div class="flex justify-between">
-			<div class="flex flex-col gap-5 w-[70%] p-[10px] bg-white/50 rounded-xl">
+			<div class="flex flex-col gap-5 w-[70%] h-[150px] p-[10px] bg-white/50 rounded-xl">
 				<div  class="bold">추천</div>
-				<div class="scroll-x flex">
-					<template v-if="recommendSheets">
-						<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" />
-					</template>
+				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
+					<div class="flex w-full absolute scroll-x">
+						<template v-if="recommendSheets">
+							<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" />
+						</template>
+					</div>
 				</div>
 			</div>
 

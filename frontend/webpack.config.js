@@ -28,7 +28,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: '[name].bundle.js' // 이름에 따라 번들링된 파일 명 설정
   },
   resolve: {
     alias: {
@@ -61,6 +61,21 @@ module.exports = {
           'vue-style-loader',
           'css-loader'
         ]
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/, // 모든 이미지 파일 처리
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]?[hash]'
+            }
+          }
+        ]
+      },
+      {
+        test: /\.svg$/, // SVG 파일 처리
+        use: 'vue-svg-loader'
       }
     ]
   },
@@ -78,7 +93,7 @@ module.exports = {
     new Dotenv(),
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'public', to: 'dist' }
+        { from: 'public', to: '' }
       ]
     })
   ]
