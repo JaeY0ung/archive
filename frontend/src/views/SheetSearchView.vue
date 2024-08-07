@@ -65,14 +65,14 @@ watch(searchFilter, () => {
 </script>
 
 <template>
-	<div class="container">
-		<div class="top-bar">
-			<div class="top-bar-left">
+	<div class="flex flex-col w-full h-full mb-[10px] bg-red-500">
+		<div class="flex w-full justify-between items-center p-[20px] bg-yellow-200">
+			<div class="flex-1 text-left">
 				<p>
 					<span class="highlight">{{ searchFilter.keyword }}</span> 악보 ( {{ sheets.length }}개의 결과 )
 				</p>
 			</div>
-			<div class="top-bar-right">
+			<div class="flex items-center gap-[10px]">
 				<select v-model="searchFilter.sort">
 					<option v-for="sort in sortInfo" :value="sort.value">{{ sort.title }}</option>
 				</select>
@@ -84,8 +84,8 @@ watch(searchFilter, () => {
 			</div>
 		</div>
 
-		<div class="panel-container">
-			<div class="left-panel">
+		<div class="flex flex-grow w-full mb-[10px]">
+			<div class="flex-2 w-[200px] bg-purple-300">
 				<span class="text-filter highlight mb-5">검색 필터</span>
 				
 				<div class="filter-group flex flex-col gap-5">
@@ -141,10 +141,10 @@ watch(searchFilter, () => {
 					</template>
 				</div>
 			</div>
-			<div class="right-panel">
-				<div :class="[view === 'card' ? 'scroll-x' : 'scroll-y']">
+			<div class="flex-8 flex-grow bg-green-300">
+				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<template v-if="sheets.length">
-						<div class="scroll-y flex-col">
+						<div class="flex flex-col w-full absolute scroll-y" :class="[view === 'card' ? 'scroll-x' : 'scroll-y']">
 							<SmallSheetCard v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" />
 						</div>
 					</template>
@@ -158,40 +158,6 @@ watch(searchFilter, () => {
 </template>
 
 <style scoped>
-.container {
-	display: flex;
-	flex-direction: column;
-	height: 100vh;
-	box-sizing: border-box;
-}
-
-.top-bar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 20px;
-	background-color: #e0e0e0;
-	box-sizing: border-box;
-}
-
-.top-bar-left {
-	flex: 1;
-	text-align: left;
-}
-
-.top-bar-right {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-
-.panel-container {
-	display: flex;
-	flex: 1;
-	gap: 20px;
-	padding: 20px;
-	box-sizing: border-box;
-}
 
 .left-panel,
 .right-panel {

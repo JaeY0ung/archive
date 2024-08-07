@@ -95,7 +95,7 @@ const closeSongRegisterModal = () => {
 </script>
 
 <template>
-    <div class="form h-full w-[500px] text-center m-auto">
+    <div class="flex flex-col flex-grow form w-[500px] max-w-[500px] rounded-box text-center m-auto p-[10px] bg-slate-300">
         <SongRegisterModal v-if="modalVisibility" @closeModalEvent="closeSongRegisterModal"/>
         <div class="text-5xl mb-10">파일 업로드</div>
         <div class="scroll-x h-[90%] flex flex-col gap-1">
