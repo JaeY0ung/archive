@@ -31,18 +31,15 @@ export const usePlayStore = defineStore('playMode', {
     async fetchOnlineUsers() {
       try {
         const response = await axios.get(`${baseURL}/users/online-users`);
-        console.log("FETCH ONLINE USERS ::::: ",response.data);
         this.onlineUsers = response.data;
       } catch (error) {
         console.error('온라인 유저 목록을 불러오는 것에 실패했습니다', error);
       }
     },
-    async sendInviteAlert(userId) {
+    async sendInviteAlert(userId, roomId) {
 
       const userStore = useUserStore();
-      const route = useRoute();
       const senderId = userStore.userInfo.id;
-      const roomId = route.params.roomId;
 
       try {
         const alertDto = {
