@@ -35,7 +35,7 @@ const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const user = userStore.userInfo;
 
-isReady.value = userStore.userReady;
+// isReady.value = userStore.userReady;
 const onClickStart = () => {
   if (!selectedSheetId.value) {
     alert("악보를 고르세요")
@@ -73,6 +73,7 @@ function connect() {
         withCredentials: true
     });
     stompClient = Stomp.over(socket);
+    stompClient.debug = null;   
     stompClient.connect({}, function (frame) {
         // console.error(sessionStorage.getItem("accessToken"))
 
@@ -255,7 +256,8 @@ if(isQuitting.value || isPopstate.value || isReloading.value){
 
 
 onMounted(() => {   
-    console.log("새로고침 눌렀을 때도?")
+    // isReady.value = userStore.userReady;
+    isReady.value = "false";
     connect();
     // detectReload();
   window.addEventListener('beforeunload', handleBeforeUnload);
@@ -290,7 +292,6 @@ onBeforeRouteLeave(async (to, from, next) => {
       next();
     //   window.location.href = "http://localhost:3000/room/multi/list";
     } else {
-      isExiting.value = false;
       next(false);
     }
   }
