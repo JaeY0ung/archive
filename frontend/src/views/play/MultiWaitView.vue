@@ -174,8 +174,9 @@ const onlineUsers = computed(() => playStore.getOnlineUsers);
 
 const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
-         // 친구 초대 알림 보내기
-        await playStore.sendInviteAlert(selectedFriend.value.id, route.params.roomId);
+        // 친구 초대 알림 보내기
+         console.log("초대 알림 방 ID: " + roomId.value)
+        await playStore.sendInviteAlert(selectedFriend.value.id, roomId.value);
         console.log("Invite selected friend:", selectedFriend.value);
     }
     closeInviteModalStatus();

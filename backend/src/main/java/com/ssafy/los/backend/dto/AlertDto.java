@@ -19,7 +19,7 @@ public class AlertDto {
 
     private Long id;
     private Long receiverId; // User 객체 대신 ID를 사용
-    private Long alertType; // AlertType 객체 대신 ID를 사용
+    private Long alertTypeId; // AlertType 객체 대신 ID를 사용
     private Long referenceId;
     private Boolean readStatus;
     private Timestamp createdAt;
