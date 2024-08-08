@@ -15,39 +15,19 @@ const props = defineProps({
 });
 
 const musicStore = useMusicStore();
-
-const startRecording = () => {
-    musicStore.startRecording();
-};
-
-const stopRecording = () => {
-    musicStore.stopRecording();
-};
-
-const startMusic = () => {
-    musicStore.startMusic();
-};
-
-const pauseMusic = () => {
-    musicStore.pauseMusic();
-};
-
-const stopMusic = () => {
-    musicStore.stopMusic();
-};
-
+const {startRecording, stopRecording, startMusic, pauseMusic, stopMusic } = musicStore;
 </script>
 
 <template>
     <div>
         <Controller v-if="showController" />
         <ScrollContainer :width="props.width" :height="props.height" :sheetId="props.sheetId" />
-        <div>
-            <button @click="startRecording">녹음 시작</button>
+        <div class="flex gap-1">
+            <img width="30px" :src="require('@/assets/img/sheet_play/play.svg')" @click="startMusic"/>
+            <img width="30px" :src="require('@/assets/img/sheet_play/pause.svg')" @click="pauseMusic"/>
+            <img width="30px" :src="require('@/assets/img/sheet_play/reset.svg')" @click="stopMusic"/>
+            <img width="30px" :src="require('@/assets/img/sheet_play/record.svg')" @click="startRecording"/>
             <button @click="stopRecording">녹음 중지</button>
-            <button @click="startMusic">재생</button>
-            <button @click="pauseMusic">일시정지</button>
-            <button @click="stopMusic">정지</button>
         </div>
     </div>
 </template>
