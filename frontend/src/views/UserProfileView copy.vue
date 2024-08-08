@@ -189,7 +189,7 @@ onMounted(async () => {
                         </div>
                         <div class="profile-info">
                             <h2 class="user-name">{{ userProfile?.nickname }}</h2>
-                            <p class="single-score">Single Score {{ userProfile?.singleScore }}</p>
+                            <p class="single-score">Score: {{ userProfile?.singleScore }}</p>
                             <div class="follow-info">
                                 <span class="followers" @click="openFollowModal('followers')">
                                     <strong>{{ followersCount }}</strong> Followers
@@ -269,24 +269,22 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Poppins:wght@300;400;600&display=swap");
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
-
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css");
 .profile-page-container {
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: "Roboto", sans-serif;
 }
 
 .profile-container {
     width: 90%;
     max-width: 1100px;
     height: 600px;
+    background-color: #ffffffc2;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -297,25 +295,24 @@ onMounted(async () => {
 }
 
 .user-profile {
-    padding: 30px;
+    padding: 20px;
     margin-bottom: 20px;
     border-bottom: 1px solid #e0e0e0;
-    background-color: #ffffff8e;
 }
 
 .profile-header {
     display: flex;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .profile-image-container {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     overflow: hidden;
-    margin-right: 30px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-right: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .profile-image,
@@ -326,12 +323,11 @@ onMounted(async () => {
 }
 
 .profile-icon {
-    background-color: #f8f9fa;
+    background-color: #e9ecef;
     display: flex;
     justify-content: center;
     align-items: center;
     color: #6c757d;
-    font-size: 40px;
 }
 
 .profile-info {
@@ -339,200 +335,106 @@ onMounted(async () => {
 }
 
 .user-name {
-    font-family: "Poppins", sans-serif;
-    font-size: 1.8em;
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #2c3e50;
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #343a40;
 }
 
 .single-score {
-    font-size: 1.1em;
-    color: #34495e;
-    margin-bottom: 15px;
-}
-
-.single-score::before {
-    content: "\f091";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    margin-right: 8px;
-    color: #f1c40f;
+    font-size: 1em;
+    color: #6c757d;
+    margin-bottom: 10px;
 }
 
 .follow-info {
     display: flex;
-    gap: 30px;
-    font-size: 1em;
+    gap: 20px;
+    font-size: 0.9em;
 }
 
 .followers,
 .following {
     cursor: pointer;
-    color: #34495e;
-    transition: color 0.3s;
+    color: #495057;
 }
 
 .followers:hover,
 .following:hover {
-    color: #3498db;
-}
-
-.followers::before,
-.following::before {
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    margin-right: 8px;
-}
-
-.followers::before {
-    content: "\f0c0";
-}
-
-.following::before {
-    content: "\f234";
+    text-decoration: underline;
 }
 
 .profile-actions {
     display: flex;
     justify-content: flex-end;
-    gap: 15px;
-    margin-top: 20px;
+    gap: 10px;
 }
 
 .btn {
-    padding: 8px 16px;
+    padding: 6px 12px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 0.95em;
-    transition: all 0.3s;
-    font-family: "Poppins", sans-serif;
+    font-weight: bold;
+    font-size: 0.9em;
+    transition: background-color 0.3s, transform 0.1s;
 }
 
 .btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.follow-btn,
-.unfollow-btn,
-.fight-btn,
-.edit-btn {
-    display: flex;
-    align-items: center;
-}
-
-.follow-btn::before,
-.unfollow-btn::before,
-.fight-btn::before,
-.edit-btn::before {
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    margin-right: 8px;
 }
 
 .follow-btn {
-    background-color: #3498db;
+    background-color: #007bff;
     color: white;
-}
-
-.follow-btn::before {
-    content: "\f234";
 }
 
 .unfollow-btn {
-    background-color: #95a5a6;
+    background-color: #6c757d;
     color: white;
-}
-
-.unfollow-btn::before {
-    content: "\f503";
 }
 
 .fight-btn {
-    background-color: #e74c3c;
+    background-color: #dc3545;
     color: white;
-}
-
-.fight-btn::before {
-    content: "\f6de";
 }
 
 .edit-btn {
-    background-color: #2ecc71;
+    background-color: #28a745;
     color: white;
 }
 
-.edit-btn::before {
-    content: "\f304";
-}
-
 .sheet-sections {
-    padding: 20px 30px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 0 20px;
 }
 
 .sheet-section {
-    margin-bottom: 40px;
-    padding: 25px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    transition: all 0.3s ease;
-}
-
-.sheet-section:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.sheet-section h3 {
     margin-bottom: 20px;
-    font-size: 1.4em;
-    color: #2c3e50;
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 10px;
-    display: inline-block;
+}
+
+h3 {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #343a40;
 }
 
 .scroll-container-wrapper {
     width: 100%;
     overflow-x: hidden;
-    padding: 10px 0;
 }
 
 .scroll-container {
     display: flex;
     overflow-x: auto;
-    gap: 25px;
-    padding-bottom: 20px;
+    gap: 15px;
+    padding-bottom: 10px;
     scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: #3498db #e0e0e0;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 .scroll-container::-webkit-scrollbar {
-    height: 8px;
-}
-
-.scroll-container::-webkit-scrollbar-track {
-    background: #e0e0e0;
-    border-radius: 4px;
-}
-
-.scroll-container::-webkit-scrollbar-thumb {
-    background-color: #3498db;
-    border-radius: 4px;
-}
-
-.scroll-container::-webkit-scrollbar-thumb:hover {
-    background-color: #2980b9;
+    display: none;
 }
 
 .user-not-found {
@@ -541,32 +443,23 @@ onMounted(async () => {
 }
 
 .user-not-found h2 {
-    color: #e74c3c;
-    font-size: 1.8em;
-    margin-bottom: 20px;
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
+    color: #dc3545;
+    font-size: 1.5em;
+    margin-bottom: 15px;
 }
 
 .user-not-found p {
-    color: #34495e;
-    margin-bottom: 25px;
-    font-size: 1.1em;
+    color: #6c757d;
+    margin-bottom: 20px;
 }
 
 .back-btn {
-    background-color: #3498db;
+    background-color: #007bff;
     color: white;
 }
 
 .back-btn:hover {
-    background-color: #2980b9;
+    background-color: #0056b3;
 }
 
-.back-btn::before {
-    content: "\f060";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    margin-right: 8px;
-}
 </style>
