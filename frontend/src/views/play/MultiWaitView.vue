@@ -1,6 +1,6 @@
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
-import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave, onUnmounted } from 'vue-router';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { usePlayStore } from '@/stores/play';
 import SockJS from 'sockjs-client';
@@ -157,9 +157,23 @@ function unLoadEvent (event) {
     event.returnValue = '';
 }
 
+// 새고로침할 때 경고창을 띄워줄 메서드
+const handleBeforeUnload = (event) => {
+  event.preventDefault()
+  event.returnValue = ''
+}
+
 onMounted(() => {
+    // 페이지가 불러와질 때, 웹소켓을 연결
     connect();
+    // 새로고침할 때 경고창을 띄워줄 메서드를 window에 적용
+    window.addEventListener('beforeunload', handleBeforeUnload)
     playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
+})
+
+onUnmounted(() => {
+  //페이지를 빠져나갈 때, 해당 메서드를 window에서 제거
+  window.removeEventListener('beforeunload', handleBeforeUnload)
 })
 
 function quitButton () {
@@ -258,6 +272,23 @@ const getSheetsByCategory = (sort) => {
 const setSheetId = (sheetId) => {
   selectedSheetId.value = sheetId;
 }
+
+// 나가기 버튼 클릭 또는 뒤로가기 등 플레이 페이지가 아닌 다른 곳으로 갈 때 경고창을 띄운다.
+onBeforeRouteLeave(async (to, from, next) => {
+    if(to.name == 'multiPlay'){
+        next();
+    } else{
+        const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
+        if(answer){
+            window.location.href = "http://localhost:3000/room/multi/list"
+            await playStore.exitRoom(route.params.roomId);
+        }else{
+            next(false);
+        }
+    }
+});
+
+
 
 </script>
 
