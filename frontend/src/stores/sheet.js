@@ -4,8 +4,10 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { OpenSheetMusicDisplay, PlaybackManager, BasicAudioPlayer, LinearTimingSource } from '@/assets/js/opensheetmusicdisplay.min.js';
 import { getMusicXmlById } from '@/api/sheet';
+import { localAxios } from "@/util/http-common";
 
 export const useMusicStore = defineStore('music', () => {
+    const local = localAxios();
     const osmd = ref(null);
     const playbackManager = ref(null);
     const audioPlayer = ref(new BasicAudioPlayer());
@@ -143,7 +145,7 @@ export const useMusicStore = defineStore('music', () => {
                     console.log(key, value);
                 }
                 try {
-                    const res = await axios.post('http://localhost:8000/fastapi/playing', formData, {
+                    const res = await local.post('/play/single/sendFile', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         },
