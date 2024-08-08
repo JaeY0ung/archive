@@ -202,8 +202,8 @@ const goToSheetDetail = (sheetId) => {
 		</div>
 
 		<!-- 오른쪽 -->
-		<div class="flex flex-col gap-5 w-[49%] h-full bg-white/50 rounded-xl">
-			<Sheet class="rounded-xl w-full h-full bg-yellow-200" :sheetId="Number(route.params.sheetId)"/>
+		<div class="flex flex-col gap-5 w-[49%]  bg-white/50 rounded-xl mb-[10px]">
+			<Sheet :sheetId="Number(route.params.sheetId)"/>
 		</div>
 	</div>
 </template>
