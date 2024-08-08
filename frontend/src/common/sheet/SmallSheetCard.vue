@@ -10,6 +10,8 @@ const props = defineProps({
   sheet: Object
 });
 
+props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
+
 const goToSheetDetail = () => {
   router.push({ name: 'sheetDetail', params: { sheetId: props.sheet.id } });
 };
