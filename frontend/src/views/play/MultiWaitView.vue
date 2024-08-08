@@ -213,6 +213,7 @@ console.log("isReady : " , isReady.value);
                 <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'play'">대기중</button>
                 <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
                 <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
+                <button class="btn text-white" style="background-color: gray;" @click="openInviteModalStatus" v-if="isInvited == 'false'">친구 초대하기</button>
             </div>
         </div>
 
