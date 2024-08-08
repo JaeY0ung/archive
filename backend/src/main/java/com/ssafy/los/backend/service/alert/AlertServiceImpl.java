@@ -83,6 +83,7 @@ public class AlertServiceImpl implements AlertService {
                 .putData("alertTypeId", alertDto.getAlertTypeId().toString())
                 .putData("referenceId", alertDto.getReferenceId().toString())
                 .putData("readStatus", alertDto.getReadStatus().toString())
+                .putData("roomId", alertDto.getRoomId().toString())
                 .setToken(userFirebaseToken)
                 .build();
 
