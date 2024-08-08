@@ -48,7 +48,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div ref="outerDiv" class="flex h-[90%] overflow-hidden">
+    <div ref="outerDiv" class="flex overflow-hidden">
         <div class="pointer-events-none overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px' }" >
             <div ref="container"></div>
         </div>
