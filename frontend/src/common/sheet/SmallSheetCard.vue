@@ -1,4 +1,5 @@
 <script setup>
+import { watch } from 'vue'
 import { getTitleByLen } from '@/util/string-util';
 import { useRouter, useRoute } from 'vue-router';
 import Tier from "@/common/icons/Tier.vue";
@@ -7,12 +8,11 @@ const router = useRouter();
 const route = useRoute();
 
 const props = defineProps({
-  sheet: Object
+	sheet: Object
 });
 
-// const goToSheetDetail = () => {
-//   router.push({ name: 'sheetDetail', params: { sheetId: props.sheet.id } });
-// };
+props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
+
 </script>
 
 <template>
