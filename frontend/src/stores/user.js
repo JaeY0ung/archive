@@ -266,6 +266,7 @@ export const useUserStore = defineStore(
       isLoginError,
       isValidToken,
       tokenRegenerate,
+      userReady
     };
   },
   { persist: true }

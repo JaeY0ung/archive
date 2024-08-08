@@ -39,12 +39,17 @@ const routes = [
         name: 'singlePlay',
         component: () => import('@/views/play/SinglePlayView.vue'),
     },
-     // -----------------------------------------------
+    //  -----------------------------------------------
     {
         path: '/room/multi/:roomId/wait',
         name: 'multiWait',
         component: () => import('@/views/play/MultiRoomLayout.vue'),
     },
+    // {
+    //     path: '/room/multi/:roomId/wait',
+    //     name: 'multiWait',
+    //     component: () => import('@/views/play/MultiWaitView.vue'),
+    // },
     {
         path: '/room/multi/play/:sheetId',
         name: 'multiPlay',
