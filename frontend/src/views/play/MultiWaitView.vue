@@ -22,16 +22,19 @@ const currentMode = computed(() => playStore.getMode);
 const onlineUsers = computed(() => playStore.getOnlineUsers);
 const isQuitting = ref(false);
 const isPopstate = ref(false);
-const passBeforeLeave = ref(false);
 const isReloading = ref(false);
+const isReady = ref("false");
+const opponentReady = ref("false");
+const isInvited = ref(false);
+const defaultProfileImage = require('@/assets/img/common/default_profile.png');
+const roomId = ref(route.params.roomId);
+var stompClient = null;
 
 // 로그인한 유저 정보 가져오기
 const accessToken = sessionStorage.getItem("accessToken"); 
 userStore.getUserInfo(accessToken);
 const user = userStore.userInfo;
 
-var stompClient = null;
-const isReady = ref("false");
 isReady.value = userStore.userReady;
 const onClickStart = () => {
   if (!selectedSheetId.value) {
@@ -41,10 +44,6 @@ const onClickStart = () => {
     router.push({ name: "multiPlay", params: { sheetId: selectedSheetId.value } });
 };
 
-const opponentReady = ref("false");
-const isInvited = ref(false);
-const defaultProfileImage = require('@/assets/img/common/default_profile.png');
-const roomId = ref(route.params.roomId);
 
 const me = ref({
     userImg: null,
@@ -123,9 +122,11 @@ function disconnect() {
 
 function sendExit(){
     stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'exit', sender : user.nickname, content: 'true' }));
+    userStore.userReady = "false";
+    alert(userStore.userReady);
 }
 
-window.addEventListener('beforeunload', sendExit);
+
 
 const getLiveResult = computed(() => {
     return me.value.score > opponent.value.score ? "win" : "lose";
@@ -240,41 +241,13 @@ const setSheetId = (sheetId) => {
 }
 
 function quitButton () {
-    // 나가기 버튼을 눌렀다.
     isQuitting.value = true;
     router.push('/room/multi/list');
 }
 
-// const quitButton = async () => {
-//   isExiting.value = true;
-  
-//   const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
-//   if (answer) {
-//     await playStore.exitRoom(route.params.roomId);
-//     router.push({ name: 'multiRoomList' }); // 프로그램 방식 네비게이션 사용
-//   } else {
-//     isExiting.value = false;
-//   }
-// };
-
-const detectReload = () => {
-  // performance.navigation API를 사용하여 새로고침 감지
-  const navigationType = performance.getEntriesByType("navigation")[0].type;
-  if (navigationType === 'reload') {
-    isReloading.value = true;
-    alert("fggsdaf");
-  }
-}
-
-const handleBeforeUnload = async (event) => {
-
-    // const navigationType = performance.getEntriesByType("navigation")[0].type;
-    // if (navigationType === 'reload') {
-    //     isReloading.value = true;
-    // }
+const handleBeforeUnload = async () => {
 
 if(isQuitting.value || isPopstate.value || isReloading.value){
-    // router.push({ name: 'multiRoomList' });
 }else{
     await playStore.exitRoom(route.params.roomId);
 }
@@ -290,6 +263,7 @@ onMounted(() => {
   window.addEventListener('popstate', () => {
     isPopstate.value = true;
   });
+  window.addEventListener('beforeunload', sendExit);
   playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
 
 });
