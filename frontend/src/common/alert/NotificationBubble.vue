@@ -38,10 +38,14 @@ watch(notifications, () => {
 
 // 수락 버튼 클릭 시 해당 방으로 이동
 function acceptInvite(roomId) {
+    console.log("수락 버튼 클릭시 이동할 roomId:", roomId); // 디버깅 로그
     if (roomId) {
         router.push({ name: 'multiWait', params: { roomId } });
+    } else {
+        console.error("roomId is undefined or null");
     }
 }
+
 
 // 거절 버튼 클릭 시 말풍선만 닫기
 function declineInvite(notification) {
@@ -52,7 +56,8 @@ function declineInvite(notification) {
 }
 
 // Expose these functions for external use
-window.showNotification =  (title, body, alertType, roomId)  => {
+window.showNotification = (title, body, alertType, roomId) => {
+    console.log("Notification 에서 받은 with roomId:", roomId); // 디버깅 로그
     notifications.value.push({  title, body, alertType, roomId });
     showBadge.value = true;
     showBubble.value = true; // 알림이 오면 말풍선 보이도록 설정
