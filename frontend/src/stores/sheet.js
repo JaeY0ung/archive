@@ -140,6 +140,8 @@ export const useMusicStore = defineStore('music', () => {
                 const formData = new FormData();
                 const blob = new Blob(chunks.value, { type: 'audio/webm' });
                 formData.append('file', blob, `chunk_${audioBlobs.value.length}.webm`);
+                const sheetIdBlob = new Blob([3], { type: 'application/json' });
+                formData.append('sheetId', sheetIdBlob);
                 console.log("formData", formData);
                 for (let [key, value] of formData.entries()) {
                     console.log(key, value);

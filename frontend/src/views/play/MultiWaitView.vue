@@ -1,31 +1,32 @@
 <script setup>
-import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
-import { userConfirm, findById, tokenRegeneration, logout } from "@/api/user";
 import { useUserStore } from '@/stores/user';
 import { usePlayStore } from '@/stores/play';
-import { jwtDecode } from "jwt-decode";
-import axios from "axios";
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
+import UserCardForPlay from '@/common/UserCardForPlay.vue';
+import MultiDefaultSheet from './MultiDefaultSheet.vue';
+import { constructNow } from 'date-fns';
 
+// 소켓 엔드포인트 연결을 위한 주소 설정
 const { VUE_APP_REQUEST_URL } = process.env;
 
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
 const playStore = new usePlayStore();
+
 var stompClient = null;
 
 const isReady = ref("false");
 isReady.value = userStore.userReady;
+console.log("================================================")
+console.log("isReady : " + isReady.value);
 const opponentReady = ref("false");
 const isInvited = ref("false");
 const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 const roomId = ref(route.params.roomId);
-
-console.log("isReady: " + isReady.value);
-console.log("this.router : " + route.name);
 
 const me = ref({
     img: defaultProfileImage,
@@ -35,11 +36,7 @@ const me = ref({
 });
 
 watch(() => isReady.value, (newVal, oldVal) => {
-    console.log(userStore.userReady);
     userStore.userReady = isReady.value;
-    console.log("watch 실행됨");
-    console.log("isReady.value : " + isReady.value);
-    console.log(userStore.userReady);
 });
 
 const opponent = ref({
@@ -51,30 +48,14 @@ const opponent = ref({
 
 const canLeaveSite = ref(false);
 
-// const fetchRoomUsers = async () => {
-//   await playStore.enterRoom(route.params.roomId);
-//     const currentRoomUsers = playStore.currentRoomUsers; 
-//   if (currentRoomUsers && currentRoomUsers.length > 0) {
-//     const opponentUser = currentRoomUsers.find(user => user.email !== me.value.name);
-//     if (opponentUser) {
-//       opponent.value.name = opponentUser.email;
-//       opponent.value.isEmpty = false;
-//     }
-//   }
-// };
-
-
 function connect() {
     // local & https 
     var socket = new SockJS(VUE_APP_REQUEST_URL + '/archive-websocket');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
 
         stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
             const userLogin = JSON.parse(chatMessage.body);
-            console.log("이거 뭐지")
-            console.log(userLogin);
             if (userLogin.id == "profile" && opponent.value.isEmpty && user.nickname != userLogin.email) {
                 stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': user.nickname }));
                 opponent.value.name = userLogin.email;
@@ -86,9 +67,6 @@ function connect() {
 
         stompClient.subscribe(`/wait/socket/ready/{route.params.roomId}`, function (readyStatus) {
             const playerReady = JSON.parse(readyStatus.body);
-            console.log("준비 정보 구독")
-            console.log(playerReady)
-            console.log(user.nickname);
             if(playerReady.sender != user.nickname){
                 opponentReady.value = playerReady.isReady;
             }
@@ -141,16 +119,10 @@ const goToBattle = () => {
     stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'start', 'sender': user.nickname, 'content': 'true' }));
 }
 
+// 로그인한 유저 정보 가져오기
 const accessToken = sessionStorage.getItem("accessToken");
-
 userStore.getUserInfo(accessToken);
-
-console.log("userinfo 찍어보기")
-console.log(userStore.userInfo);
-
-let user = userStore.userInfo;
-
-me.value.name = user.nickname;
+const user = userStore.userInfo;
 
 function readyButton() {
     isReady.value = isReady.value == "false" ? "true" : "false";
@@ -162,10 +134,10 @@ function unLoadEvent (event) {
     event.preventDefault();
     event.returnValue = '';
 }
+
 onMounted(() => {
     connect();
     playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
-    // fetchRoomUsers();
 })
 
 function quitButton () {
@@ -176,6 +148,7 @@ const inviteModalStatus = ref(false);
 const selectedFriend = ref(null);
 
 const openInviteModalStatus = () => {
+    console.log("ONLINE ::::::: ",onlineUsers.value)
     inviteModalStatus.value = true;
 }
 
@@ -202,67 +175,53 @@ const onlineUsers = computed(() => playStore.getOnlineUsers);
 const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
          // 친구 초대 알림 보내기
-        await playStore.sendInviteAlert(selectedFriend.value.id);
+        await playStore.sendInviteAlert(selectedFriend.value.id, route.params.roomId);
         console.log("Invite selected friend:", selectedFriend.value);
     }
     closeInviteModalStatus();
 }
+
+console.log("isReady : " , isReady.value);
 </script>
+
 <template>
-    <div class="container">
-        <div class="up">
+    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
+        <div class="flex w-full h-[70%] rounded-tl-xl rounded-tr-xl bg-blue-300 justify-center">
+            <MultiDefaultSheet />
         </div>
-        <div class="down">
+        <div class="flex flex-grow w-full h-[35%] rounded-bl-xl rounded-br-xl bg-yellow-100 justify-center">
             <div class="player-card">
-                <div class="player-img"><img :src="me.img" alt="Profile Image" /></div>
-                <div class="player-info-text">
-                    <div>{{ me.name }}</div>
-                    <div>현재 스코어 : {{ me.score }}</div>
-                    <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'play'">대기중</button>
-                    <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
-                    <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
-                </div>
+                <UserCardForPlay :user="user" @onClickStart="onClickStart" />
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'multiPlay'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
+
             </div>
-            
             <div class="button-div">
-                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'wait' && (isReady == 'false' || opponentReady == 'false')">
-                    시작하기
-                </button>
                 <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'multiDefault' && (isReady == 'false' || opponentReady == 'false')">
-                    시작하기
-                </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'wait' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
                 <button class="btn btn-primary w-24" v-if="route.name == 'multiDefault' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
-                <!-- <button class="btn btn-primary w-24" v-if="route.name == 'play'" @click="quitButton"> -->
                 <button class="btn btn-primary w-24" @click="quitButton">
                     나가기
                 </button>
             </div>
-            
-            <div class="player-card" v-if="currentMode=='multi'">
-                <div class="player-img">
-                    <img :src="opponent.img" alt="Profile Image" />
-                </div>
-                <div class="player-info-text">
-                    <div>{{ opponent.name }}</div>
-                    <div>현재 스코어 : {{ opponent.score }}</div>
-                    <button class="btn text-white" style="background-color: gray;" @click="openInviteModalStatus" v-if="isInvited == 'false'">친구 초대하기</button>
-                    <button class="btn text-white" style="background-color: gray;" v-if="isInvited == 'true' && opponentReady == 'false' && route.name != 'play'">대기중</button>
-                    <button class="btn text-white" style="background-color: red;" v-if="isInvited == 'true' && opponentReady == 'true' && route.name != 'play'">준비완료</button>
-                    <button class="btn text-white" style="background-color: gray;" v-if="isInvited == 'true' && route.name == 'play'" @click=readyButton>게임중</button>
-                </div>
+            <div class="player-card">
+                <UserCardForPlay :user="user"/>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'play'">대기중</button>
+                <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
+                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
             </div>
         </div>
+
 
         <div v-if="inviteModalStatus" class="invite-modal">
             <div class="modal-content">
                 <h2 class="modal-title">친구 초대하기</h2>
                 <ul>
-                    <li v-for="user in onlineUsers" :key="user.id" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
+                    <li v-for="user in onlineUsers" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
                         <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" />
                         <span>{{ user.nickname }}</span>
                         <span>{{ user.singleScore }}</span>
@@ -275,27 +234,9 @@ const inviteSelectedFriends = async () => {
             </div>
         </div>
     </div>
-    
 </template>
 
 <style scoped>
-.container {
-    margin: 10px auto;
-    width: 90vw;
-    background-color: #f0f0f0;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    opacity: 0.8;
-}
-.up {
-    background-color: #fff;
-    height: 60vh;
-    margin-bottom: 20px;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
 
 .down {
     display: flex;
