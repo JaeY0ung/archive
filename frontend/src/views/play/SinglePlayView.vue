@@ -58,7 +58,7 @@ console.log("route.params.sheetId = " + route.params.sheetId);
 
 .down {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   height: 25vh;
 }
