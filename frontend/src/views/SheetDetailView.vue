@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
@@ -14,31 +14,52 @@ const router = useRouter();
 const sheet = ref({});
 const sameLevelSheets = ref([]);
 const starRateList = ref([]);
-const starRateAvg = ref(0.0); // 별점 평균
-const starRateStatistic = ref([0, 0, 0, 0, 0, 0]); // 별점 0,1,2,3,4,5 인 리뷰들의 수
+const starRateStatistic = ref([0, 0, 0, 0, 0]); // 별점5 인 리뷰들의 수
+
+const totalStarRateCount = computed(() => {
+	let sum = 0;
+	starRateStatistic.value.map(s => sum += s)
+	return sum;
+})
+
+const starRateMaxCount = computed(() => {
+	let max = 0;
+	starRateStatistic.value.map(s => {
+		if (s > max) max = s
+	})
+	return max;
+})
+
+const starRateAvg = computed(() => {
+	starRateStatistic.value = [0, 0, 0, 0, 0];
+	let sum = 0;
+	starRateList.value.map((starRateInfo) => {
+		sum += starRateInfo.starRate;
+		starRateStatistic.value[starRateInfo.starRate - 1]++;
+	});
+	return sum ? round(sum / starRateList.value.length, 2) : "첫번째 별점을 등록해주세요";
+})
 
 const starRateRegisterForm = ref({
 	content: "",
-	starRate: 0,
+	starRate: 5,
 });
 
 const updateStarRate = (starRate) => {
 	starRateRegisterForm.value.starRate = starRate;
 }
 
-
 // 같은 수준의 악보 랜덤으로 가져오기
 const searchRandomSameLevelSheets = () => {
 	searchSheetsByFilter(
-		{
-			levels: sheet.value.level,
-			sort: "RANDOM"
-		},
+		{ levels: sheet.value.level, sort: "RANDOM" },
 		({ data }) => {
 			if (!data) return;
-			sameLevelSheets.value = data;
-			sameLevelSheets.value.map((s) =>
-			s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
+			const sheets = [];
+			data.map(s => {
+				if (s.id != route.params.sheetId) sheets.push(s);
+			})
+			sameLevelSheets.value = sheets;
 		}
 	)
 };
@@ -50,35 +71,31 @@ const searchStarRateList = () => {
 		({ data }) => {
 			if (!data) return;
 			starRateList.value = data;
-			let sum = 0;
-			starRateList.value.map((starRateInfo) => {
-				sum += starRateInfo.starRate;
-				starRateStatistic.value[starRateInfo.starRate]++;
-			});
-			starRateAvg.value = round(sum / starRateList.value.length, 2);
 		}
 	)
 };
 
 // 별점 등록하기
 const registerStarRate = () => {
+	if (!starRateRegisterForm.value.content) {
+		alert("평가 글을 작성해주세요")
+		return;
+	}
+
+	if (!starRateRegisterForm.value.starRate) {
+		alert("별점을 입력해주세요")
+		return;
+	}
 	registerStarRateBySheetId(
 		route.params.sheetId,
 		starRateRegisterForm.value,
-		({ data }) => {
-			if (!data) return;
-			starRateList.value = data;
-			let sum = 0;
-			starRateList.value.map((starRateInfo) => {
-				sum += starRateInfo.starRate;
-				starRateStatistic.value[starRateInfo.starRate]++;
-			});
-			starRateAvg.value = round(sum / starRateList.value.length, 2);
+		(res) => {
+			searchStarRateList()
 		}
 	)
 };
 
-function round(number, place) {
+const round = (number, place) => {
 	return Math.round(number * 10 ** place) / 10 ** place;
 }
 
@@ -87,10 +104,6 @@ searchSheetDetail(
 	({ data }) => {
 		if (!data) return;
 		sheet.value = data;
-		sheet.value.imageUrl = `data:image/jpeg;base64,${data.songImg}`;
-	}, 
-	(err) => {
-		console.error(err);
 	}
 )
 
@@ -117,77 +130,81 @@ const goToSheetDetail = (sheetId) => {
 			<div>
 				<div>비슷한 수준의 악보 추천</div>
 				<div class="line"></div>
-				<div class="scroll-x flex bg-white/50 rounded-xl">
-					<SmallSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer" />
-					<!-- <BigSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" /> -->
+				<div class="scroll-x flex bg-white/50 rounded-xl h-[100px]">
+					<template v-if="sameLevelSheets && sameLevelSheets.length != 0">
+						<template v-for="sheet in sameLevelSheets" :key="sheet.id">
+							<SmallSheetCard :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer h-fit" />
+						</template>
+					</template>
+					<template v-else>
+						<div class="w-full flex justify-center items-center">
+							아직 없습니다.. 죄송합니다 ㅠ
+						</div>
+					</template>
 				</div>
 			</div>
+
 			<div>
 				<div>리뷰</div>
 				<div class="line"></div>
-				<div class="h-full bg-white/50 rounded-xl flex justify-between">
-					<div class="flex flex-1 justify-center items-center">
-						<div>
-							<img :src="require('@/assets/img/star-fill.svg')" alt="별" width="30px" />
+				<div class=" bg-white/50 rounded-xl">
+					<!-- 위 -->
+					<div class="flex">
+						<!-- 왼쪽 -->
+						<div class="w-[20%] flex flex-col justify-center items-center">
+							<div>{{ starRateAvg }}</div>
+							<div class="rating rating-lg">
+								<input type="radio" name="rating-10" class="mask mask-star-2 bg-green-500"/>
+							</div>
+							<div>{{ totalStarRateCount }} 개의 평가</div>
 						</div>
-						<div>{{ starRateAvg }} / 5.00</div>
-					</div>
-
-					<div class="flex flex-1 items-center flex-row gap-3">
-						<div v-for="(starRateCount, index) in starRateStatistic" :key="index">
-							<template v-if="index != 0"> {{ index }} : {{ starRateCount }} </template>
+						<!-- 중간 -->
+						<div class="w-[30%] flex flex-col-reverse">
+							<template v-for="(starRateCount, index) in starRateStatistic" :key="index">
+								<div class="flex text-center">
+									<div class="rating">
+										<input type="radio" name="rating-10" class="mask mask-star-2  bg-green-500"/>
+									</div>
+									<div class="flex items-center">{{ index + 1 }}</div>
+									<div class="flex items-center">
+										<!-- 가장 높은 starRate의 그래프 길이는 일정하도록 설정 -->
+										<div class="bg-blue-600" :style="{'width':  `${starRateCount / starRateMaxCount * 170}px`, 'height': '10px' }"></div>
+									</div>
+								</div>
+							</template>
 						</div>
-					</div>
-				</div>
-				<div class="flex">
-					<div class="w-[60%]">
-						<input v-model="starRateRegisterForm.content" type="text" class="input input-bordered w-full" placeholder="평가" />
-					</div>
-					<div class="starpoint_wrap w-[30%]">
-						<div class="starpoint_box w-full">
-							<label for="starpoint_1" class="label_star" title="0.5"><span class="blind">0.5점</span></label>
-							<label for="starpoint_2" class="label_star" title="1"><span class="blind">1점</span></label>
-							<label for="starpoint_3" class="label_star" title="1.5"><span class="blind">1.5점</span></label>
-							<label for="starpoint_4" class="label_star" title="2"><span class="blind">2점</span></label>
-							<label for="starpoint_5" class="label_star" title="2.5"><span class="blind">2.5점</span></label>
-							<label for="starpoint_6" class="label_star" title="3"><span class="blind">3점</span></label>
-							<label for="starpoint_7" class="label_star" title="3.5"><span class="blind">3.5점</span></label>
-							<label for="starpoint_8" class="label_star" title="4"><span class="blind">4점</span></label>
-							<label for="starpoint_9" class="label_star" title="4.5"><span class="blind">4.5점</span></label>
-							<label for="starpoint_10" class="label_star" title="5"><span class="blind">5점</span></label>
-
-							<input type="radio" name="starpoint" id="starpoint_1" class="star_radio" @change="updateStarRate(0.5)">
-							<input type="radio" name="starpoint" id="starpoint_2" class="star_radio" @change="updateStarRate(1)">
-							<input type="radio" name="starpoint" id="starpoint_3" class="star_radio" @change="updateStarRate(1.5)">
-							<input type="radio" name="starpoint" id="starpoint_4" class="star_radio" @change="updateStarRate(2)">
-							<input type="radio" name="starpoint" id="starpoint_5" class="star_radio" @change="updateStarRate(2.5)">
-							<input type="radio" name="starpoint" id="starpoint_6" class="star_radio" @change="updateStarRate(3)">
-							<input type="radio" name="starpoint" id="starpoint_7" class="star_radio" @change="updateStarRate(3.5)">
-							<input type="radio" name="starpoint" id="starpoint_8" class="star_radio" @change="updateStarRate(4)">
-							<input type="radio" name="starpoint" id="starpoint_9" class="star_radio" @change="updateStarRate(4.5)">
-							<input type="radio" name="starpoint" id="starpoint_10" class="star_radio" @change="updateStarRate(5)">
-							<span class="starpoint_bg"></span>
+						<!-- 오른쪽 -->
+						<div class="w-[50%] h-full m-auto">
+							<form @prevent.default="registerStarRate">
+								<div class="rating rating-lg flex justify-center">
+									<input type="radio" name="rating-10" class="rating-hidden" />
+									<template v-for="i in 5">
+										<input type="radio" name="rating-10" class="mask mask-star-2 bg-green-500" @change="updateStarRate(i)" :checked="{'checked': i == 5}"/>
+									</template>
+								</div>
+								<div class="w-full flex">
+									<textarea type="text" class="input input-bordered w-[90%]" placeholder="평가" v-model="starRateRegisterForm.content" />
+									<div @click="registerStarRate" class="btn btn-primary">등록</div>
+								</div>
+							</form>
 						</div>
 					</div>
-					<div>
-						<button @click="registerStarRate" class="btn btn-primary">등록</button>
-					</div>
-				</div>
-				<span>{{ starRateRegisterForm.starRate }}</span>
-				<div class="flex flex-col gap-3">
-					<div class="flex gap-10" v-for="(starRateInfo, index) in starRateList" :key="index">
-						<div>{{ starRateInfo.nickname }}</div>
-						<div>{{ starRateInfo.content }}</div>
-						<div>{{ starRateInfo.starRate }}</div>
+					<!-- 아래 -->
+					<div class="flex w-full h-[100px] flex-col gap-3 scroll-y">
+						<div class="flex w-full bg-white" v-for="(starRateInfo, index) in starRateList" :key="index">
+							<div class="flex-1">{{ starRateInfo.nickname }}</div>
+							<div class="flex-1">{{ starRateInfo.content }}</div>
+							<div class="flex-1">{{ starRateInfo.starRate }}</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+
 		<!-- 오른쪽 -->
 		<div class="flex flex-col gap-5 w-[49%] h-full p-3 bg-white/50 rounded-xl">
 			<SheetPlayNavigation class="flex-none h-[30px]" @play="isPlay = 'play'" @pause="isPlay = 'pause'"
 				@stop="isPlay = 'stop'" />
-			<!-- <div class="bg-black rounded-xl h-full"></div> -->
 			<Sheet class="rounded-xl h-full"  :sheetId="route.params.sheetId"/>
 		</div>
 	</div>
@@ -200,32 +217,4 @@ const goToSheetDetail = (sheetId) => {
 	border-top: 2px solid rgba(0, 0, 0, 0.5);
 	width: 100%;
 }
-
-.starpoint_wrap{display:inline-block;}
-.starpoint_box{position:relative;background:url(https://ido-archive.github.io/svc/etc/element/img/sp_star.png) 0 0 no-repeat;font-size:0;}
-.starpoint_box .starpoint_bg{display:block;position:absolute;top:0;left:0;height:18px;background:url(https://ido-archive.github.io/svc/etc/element/img/sp_star.png) 0 -20px no-repeat;pointer-events:none;}
-.starpoint_box .label_star{display:inline-block;width:10px;height:18px;box-sizing:border-box;}
-.starpoint_box .star_radio{opacity:0;width:0;height:0;position:absolute;}
-.starpoint_box .star_radio:nth-of-type(1):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(1):checked ~ .starpoint_bg{width:10%;}
-.starpoint_box .star_radio:nth-of-type(2):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(2):checked ~ .starpoint_bg{width:20%;}
-.starpoint_box .star_radio:nth-of-type(3):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(3):checked ~ .starpoint_bg{width:30%;}
-.starpoint_box .star_radio:nth-of-type(4):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(4):checked ~ .starpoint_bg{width:40%;}
-.starpoint_box .star_radio:nth-of-type(5):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(5):checked ~ .starpoint_bg{width:50%;}
-.starpoint_box .star_radio:nth-of-type(6):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(6):checked ~ .starpoint_bg{width:60%;}
-.starpoint_box .star_radio:nth-of-type(7):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(7):checked ~ .starpoint_bg{width:70%;}
-.starpoint_box .star_radio:nth-of-type(8):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(8):checked ~ .starpoint_bg{width:80%;}
-.starpoint_box .star_radio:nth-of-type(9):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(9):checked ~ .starpoint_bg{width:90%;}
-.starpoint_box .star_radio:nth-of-type(10):hover ~ .starpoint_bg,
-.starpoint_box .star_radio:nth-of-type(10):checked ~ .starpoint_bg{width:100%;}
-
-.blind{position:absolute;clip:rect(0 0 0 0);margin:-1px;width:1px;height: 1px;overflow:hidden;}
 </style>

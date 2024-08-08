@@ -2,6 +2,7 @@
 import Controller from "@/common/sheet/Controller.vue";
 import ScrollContainer from "@/common/sheet/ScrollContainer.vue";
 import { useMusicStore } from '@/stores/sheet';
+import { storeToRefs } from "pinia";
 
 const props = defineProps({
     showController: Boolean,
@@ -15,40 +16,20 @@ const props = defineProps({
 });
 
 const musicStore = useMusicStore();
-
-const startRecording = () => {
-    musicStore.startRecording();
-};
-
-const stopRecording = () => {
-    musicStore.stopRecording();
-};
-
-const startMusic = () => {
-    musicStore.startMusic();
-};
-
-const pauseMusic = () => {
-    musicStore.pauseMusic();
-};
-
-const stopMusic = () => {
-    musicStore.stopMusic();
-};
-
+const { isPlay } = storeToRefs(musicStore);
+const { startRecording, stopRecording, startMusic, pauseMusic, stopMusic } = musicStore;
 </script>
 
 <template>
-    <div id="sheet">
-        <Controller v-if="showController" />
-        <ScrollContainer :width="props.width" :height="props.height" :sheetId="sheetId" />
-        <div>
-            <button @click="startRecording">녹음 시작</button>
-            <button @click="stopRecording">녹음 중지</button>
-            <button @click="startMusic">재생</button>
-            <button @click="pauseMusic">일시정지</button>
-            <button @click="stopMusic">정지</button>
+    <div>
+        <div class="flex gap-1">
+            <img width="30px" v-if="!isPlay" :src="require('@/assets/img/sheet_play/play.svg')" @click="startMusic" class="cursor-pointer"/>
+            <img width="30px" v-else :src="require('@/assets/img/sheet_play/pause.svg')" @click="pauseMusic" class="cursor-pointer"/>
+            <img width="30px" :src="require('@/assets/img/sheet_play/reset.svg')" @click="stopMusic" class="cursor-pointer"/>
+            <!-- <img width="30px" :src="require('@/assets/img/sheet_play/mic.svg')" @click="startRecording" class="cursor-pointer"/>
+            <img width="30px" :src="require('@/assets/img/sheet_play/mic_off.svg')" @click="stopRecording" class="cursor-pointer"/> -->
         </div>
+        <ScrollContainer :width="props.width" :height="props.height" :sheetId="props.sheetId" />
     </div>
 </template>
 

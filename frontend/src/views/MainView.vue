@@ -14,7 +14,6 @@ const getPopularsheets = async () => {
 		({ data }) => {
 			if (!data) return;
 			popularSheets.value = data;
-			popularSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); // TODO: songImg가 없으면 기본 로고로.
 		}
 	)
 }
@@ -25,7 +24,6 @@ const getnewsheets = async () => {
 		({ data }) => {
 			if (!data) return;
 			newSheets.value = data;
-			newSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지');
 		}
 	)
 }
@@ -36,7 +34,6 @@ const getRecommendsheets = async () => {
 		({ data }) => {
 			if (!data) return;
 			recommendSheets.value = data;
-			recommendSheets.value.map(s => s.songImg ? s.imageUrl = `data:image/jpeg;base64,${s.songImg}` : '기본 이미지'); 
 		}
 	)
 }
@@ -46,7 +43,6 @@ const getRecentChallengedsheets = async () => {
 		({ data }) => {
 			if (!data) return;
 			recentChallengedSheet.value = data;
-			recentChallengedSheet.imageUrl = recentChallengedSheet.songImg ? `data:image/jpeg;base64,${recentChallengedSheet.songImg}` : '기본 이미지'; 
 		}
 	)
 }

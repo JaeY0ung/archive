@@ -1,23 +1,9 @@
 <script setup>
- 
 </script>
 
 <template>
-    <div>
-        <svg class='text-black' width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#clip0_120_1451)">
-            <path d="M10.8328 20.5834V15.1667H15.1662V20.5834C15.1662 21.1792 15.6537 21.6667 16.2495 21.6667H19.4995C20.0953 21.6667 20.5828 21.1792 20.5828 20.5834V13H22.4245C22.9228 13 23.1612 12.3825 22.782 12.0575L13.7253 3.90003C13.3137 3.5317 12.6853 3.5317 12.2737 3.90003L3.217 12.0575C2.84866 12.3825 3.07616 13 3.5745 13H5.41616V20.5834C5.41616 21.1792 5.90366 21.6667 6.4995 21.6667H9.7495C10.3453 21.6667 10.8328 21.1792 10.8328 20.5834Z" fill="black"/>
-            <!-- :fill="isDarkMode ? 'white' : 'black'" -->
-            </g>
-            <defs>
-            <clipPath id="clip0_120_1451">
-            <rect width="26" height="26" fill="white"/>
-            </clipPath>
-            </defs>
-            </svg>
-    </div>
+    <img src="@/assets/img/navigation-icon/home.svg" alt="홈 이미지">
 </template>
 
 <style scoped>
-
 </style>

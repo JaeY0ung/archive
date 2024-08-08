@@ -24,8 +24,7 @@ const route = useRoute();
                     <div class="flex-1 flex h-full items-center cursor-pointer">
                         <Hamburger class="w-[50px] h-50px max-h-[50px] flex justify-center items-center m-[5px]" @click="leftNavigationStore.changeNavVisibility"/>
                         <RouterLink class="h-[25px] max-h-[50px] flex justify-center items-center" :to="{ name : 'main'}">
-                            <img class="mr-2" :src="require('@/assets/img/piano.svg')" alt="피아노">
-                            <div class="text-xl">악카이브</div>
+                            <img height="50px" width="100px" class="mr-2" :src="require('@/assets/img/common/archive_logo_img.png')" alt="피아노">
                         </RouterLink>
                     </div>
 

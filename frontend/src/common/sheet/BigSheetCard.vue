@@ -1,14 +1,15 @@
 \
 <script setup>
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted, ref, watch } from 'vue';
+import { useRouter } from 'vue-router'
+import { likeSheet, dislikeSheet } from '@/api/likesheet';
+import Tier from "@/common/icons/Tier.vue"
+import ModalComponent from '@/common/modal/ModalComponent';
+import { addToOrder } from "@/util/order";
+
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { likeSheet, dislikeSheet } from "@/api/likesheet";
-import Tier from "@/common/icons/Tier.vue";
-import ModalComponent from "@/common/modal/ModalComponent";
-import { addSheetToOrderAPI } from "@/api/order";
-import { addToOrder } from "@/util/order";
+
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -36,12 +37,11 @@ const sheetInfo = ref(props.sheet);
 // 모달 표시 여부를 관리하는 상태 추가
 const showModal = ref(false);
 
-watch(
-    () => props.sheet,
-    (newSheet) => {
-        sheetInfo.value = newSheet;
-    }
-);
+watch(() => props.sheet, (newSheet) => {
+    sheetInfo.value = newSheet
+    props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
+})
+
 
 const goToUserProfile = () => {
     router.push({ name: "userProfile", params: { nickName: props.sheet.uploaderNickname } });
@@ -53,16 +53,19 @@ const goToPlayRoom = () => {
 };
 
 // 좋아요
-const onClickLikeSheet = async () => {
+const onClickLikeSheet = async () => { 
     if (!isLogin.value) {
         alert("로그인 이후 가능합니다.");
         return;
     }
-    likeSheet(props.sheet.id, (res) => {
-        sheetInfo.value.likeStatus = true;
-        sheetInfo.value.likeCount++;
-    });
-};
+    likeSheet(
+        props.sheet.id,
+        (res)=>{
+            sheetInfo.value.likeStatus = true;
+            sheetInfo.value.likeCount++;
+        }
+    )
+}
 
 // 좋아요 해제
 const onClickDislikeSheet = async () => {
