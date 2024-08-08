@@ -1,11 +1,41 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 import { useRoute } from "vue-router";
 import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
+import Profile from "@/common/icons/Profile.vue";
 import { onClickOutside } from "@vueuse/core";
 import BigSheetCard from "@/common/sheet/BigSheetCardForDifficulty.vue";
+import {
+    Chart,
+    TimeScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+    LineController,
+    ScatterController,
+    CategoryScale,
+} from "chart.js";
+import "chartjs-adapter-date-fns";
+import { ko } from "date-fns/locale";
+import { faL } from "@fortawesome/free-solid-svg-icons";
+
+Chart.register(
+    TimeScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+    LineController,
+    ScatterController,
+    CategoryScale
+);
 
 const userStore = useUserStore();
 const route = useRoute();
@@ -33,9 +63,18 @@ const difficultyMap = {
 };
 
 const currentPage = ref(1);
-const commentsPerPage = 3;
-const totalPages = ref(0);
-const totalItems = ref(0);
+const itemsPerPage = 5;
+
+const chartRef = ref(null);
+let chart = null;
+
+const paginatedComments = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return comments.value.slice(start, end);
+});
+
+const totalPages = computed(() => Math.ceil(comments.value.length / itemsPerPage));
 
 const getImageUrl = (base64String) => {
     return base64String ? `data:image/jpeg;base64,${base64String}` : "";
@@ -82,10 +121,8 @@ const submitCommentAndDifficulty = () => {
             .catch((error) => {
                 console.error("난이도 평가 저장 중 오류 발생:", error);
                 if (error.response && error.response.data) {
-                    // 서버에서 보낸 에러 메시지가 있으면 그 메시지를 표시
                     alert(error.response.data);
                 } else {
-                    // 그 외의 경우 기본 에러 메시지 표시
                     alert("난이도 평가 저장에 실패했습니다. 다시 시도해 주세요.");
                 }
             });
@@ -94,17 +131,10 @@ const submitCommentAndDifficulty = () => {
 
 const fetchCommentsAndDifficulties = () => {
     local
-        .get(`/sheets/${route.params.sheetId}/difficulties`, {
-            params: {
-                page: currentPage.value - 1,
-                size: commentsPerPage,
-                sortBy: "createdAt",
-                sortDir: sortOrder.value,
-            },
-        })
+        .get(`/sheets/${route.params.sheetId}/difficulties/all`)
         .then(({ data }) => {
-            if (data && data.content) {
-                comments.value = data.content.map((item) => ({
+            if (data) {
+                comments.value = data.map((item) => ({
                     difficultyId: item.difficultyId,
                     username: item.username,
                     userAvatar: getImageUrl(item.userImg),
@@ -112,47 +142,39 @@ const fetchCommentsAndDifficulties = () => {
                     sheetFileName: item.sheetFileName,
                     difficulty: difficultyMap[item.level] || "알 수 없음",
                     text: item.content,
-                    createdAt: new Date(item.createdAt),
+                    createdAt: item.createdAt,
                 }));
-                totalItems.value = data.totalElements;
-                totalPages.value = data.totalPages;
-                currentPage.value = data.number + 1;
+                updateChart();
             } else {
                 comments.value = [];
-                totalItems.value = 0;
-                totalPages.value = 0;
             }
         })
         .catch((err) => {
             console.error("난이도 평가 목록을 가져오는 데 실패했습니다:", err);
             alert("난이도 평가 목록을 불러오는 데 실패했습니다.");
             comments.value = [];
-            totalItems.value = 0;
-            totalPages.value = 0;
         });
 };
 
 const toggleSortOrder = () => {
     sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
-    fetchCommentsAndDifficulties();
-};
-
-const goToPage = (page) => {
-    currentPage.value = page;
-    fetchCommentsAndDifficulties();
+    comments.value.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+    });
+    currentPage.value = 1;
 };
 
 const nextPage = () => {
     if (currentPage.value < totalPages.value) {
         currentPage.value++;
-        fetchCommentsAndDifficulties();
     }
 };
 
 const prevPage = () => {
     if (currentPage.value > 1) {
         currentPage.value--;
-        fetchCommentsAndDifficulties();
     }
 };
 
@@ -222,9 +244,116 @@ const toggleMenu = (commentId, event) => {
     menuOpenState.value[commentId] = !menuOpenState.value[commentId];
 };
 
+const prepareChartData = () => {
+    return comments.value
+        .filter((comment) => comment.difficulty && comment.createdAt)
+        .map((comment) => ({
+            x: new Date(comment.createdAt),
+            y: comment.difficulty,
+            difficulty: comment.difficulty,
+        }))
+        .sort((a, b) => a.x - b.x);
+};
+
+const difficultyColors = {
+    브론즈: "rgb(205, 127, 50)",
+    실버: "rgb(192, 192, 192)",
+    골드: "rgb(255, 215, 0)",
+    플래티넘: "rgb(229, 228, 226)",
+    다이아몬드: "rgb(185, 242, 255)",
+};
+
+const createChart = () => {
+    if (chartRef.value) {
+        const ctx = chartRef.value.getContext("2d");
+        const chartData = prepareChartData();
+
+        chart = new Chart(ctx, {
+            type: "scatter",
+            data: {
+                datasets: difficultyOptions.map((difficulty, index) => ({
+                    label: difficulty,
+                    data: chartData.filter((item) => item.difficulty === difficulty),
+                    backgroundColor: difficultyColors[difficulty],
+                    borderColor: difficultyColors[difficulty],
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                })),
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top",
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const point = context.raw;
+                                return `난이도: ${point.difficulty}, 날짜: ${new Date(
+                                    point.x
+                                ).toLocaleDateString()}`;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        type: "time",
+                        time: {
+                            unit: "day",
+                            displayFormats: {
+                                day: "MM/dd",
+                            },
+                        },
+                        adapters: {
+                            date: {
+                                locale: ko,
+                            },
+                        },
+                        title: {
+                            display: false,
+                            text: "날짜",
+                        },
+                    },
+                    y: {
+                        type: "category",
+                        labels: difficultyOptions,
+                        title: {
+                            display: false,
+                            text: "난이도",
+                        },
+                        reverse: true,
+                    },
+                },
+            },
+        });
+    }
+};
+
+const updateChart = () => {
+    if (chart) {
+        const chartData = prepareChartData();
+        chart.data.datasets = difficultyOptions.map((difficulty, index) => ({
+            label: difficulty,
+            data: chartData.filter((item) => item.difficulty === difficulty),
+            backgroundColor: difficultyColors[difficulty],
+            borderColor: difficultyColors[difficulty],
+            pointRadius: 6,
+            pointHoverRadius: 8,
+        }));
+        chart.update();
+    }
+};
+
+watch(comments, updateChart);
+
 onMounted(() => {
     searchSheetDetail();
     fetchCommentsAndDifficulties();
+    createChart();
 });
 </script>
 
@@ -232,6 +361,10 @@ onMounted(() => {
     <div class="difficulty-contribution">
         <div class="sheet-info">
             <BigSheetCard :sheet="sheet" />
+        </div>
+
+        <div class="chart-container">
+            <canvas ref="chartRef"></canvas>
         </div>
 
         <div class="comments-ratings-section">
@@ -272,14 +405,18 @@ onMounted(() => {
                 </div>
 
                 <div class="comments-list">
-                    <div v-for="(comment, index) in comments" :key="index" class="comment-item">
+                    <div
+                        v-for="(comment, index) in paginatedComments"
+                        :key="index"
+                        class="comment-item"
+                    >
                         <img
                             v-if="comment.userAvatar"
                             :src="comment.userAvatar"
                             alt="User avatar"
                             class="user-avatar"
                         />
-                        <div v-else class="user-avatar-placeholder"></div>
+                        <Profile v-else class="profile-icon profile-image" />
                         <div class="comment-content">
                             <div class="comment-header">
                                 <div class="user-info">
@@ -681,5 +818,30 @@ onMounted(() => {
     border-radius: 8px;
     font-size: 16px;
     color: #666;
+}
+
+.chart-container {
+    margin: 10px auto;
+    width: 100%;
+    max-width: 800px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-image {
+    border: 2px solid #fff;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
 }
 </style>

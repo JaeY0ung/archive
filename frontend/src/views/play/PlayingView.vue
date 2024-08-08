@@ -136,7 +136,7 @@ onBeforeRouteLeave( async (to, from, next) => {
 
   if (confirm("방을 나가시겠습니까?\n메인 페이지로 돌아가게 됩니다. battle")) {
     await playStore.exitRoom(props.roomId);
-    window.location.href = "http://localhost:3000/pianosaurus"
+      window.location.href = "http://localhost:3000/room/multi/list"
     next();
   } else {
     next(false);

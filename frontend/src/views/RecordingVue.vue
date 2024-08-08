@@ -5,7 +5,7 @@ import Sheet from "@/common/sheet/Sheet.vue";
 <template>
   <!-- 충전 페이지 -->
   <div style="margin-left: 400px">
-    <Sheet :showController="true" :isRecording="true" :sheetId="11" :width="800" :height="600" />
+    <Sheet :showController="true" :isRecording="true" :sheetId="1" :width="800" :height="600" />
   </div>
 </template>
 

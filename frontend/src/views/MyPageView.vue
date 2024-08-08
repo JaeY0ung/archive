@@ -4,6 +4,7 @@ import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
+import Profile from "@/common/icons/Profile.vue";
 
 const router = useRouter();
 const local = localAxios();
@@ -60,17 +61,15 @@ const checkNicknameDuplicate = async () => {
 
 const resetForm = () => {
     loginUserInfo.value = { ...originalUserInfo.value };
-    imagePreview.value = null;
+    imagePreview.value = currentProfileImage.value;
     isNicknameChecked.value = true;
     isNicknameAvailable.value = true;
     if (fileInputRef.value) {
         fileInputRef.value.value = "";
     }
-    loginUserInfo.value.profileImage = null;
 };
 
 const updateUserInfo = async () => {
-    // 닉네임 변경 시 중복 확인 여부 체크
     if (
         loginUserInfo.value.nickname !== originalUserInfo.value.nickname &&
         (!isNicknameChecked.value || !isNicknameAvailable.value)
@@ -82,24 +81,18 @@ const updateUserInfo = async () => {
     try {
         const formData = new FormData();
 
-        // UserUpdateDto 객체 생성 및 JSON 변환
         const userUpdateDto = {
             nickname: loginUserInfo.value.nickname,
         };
         const userUpdateDtoBlob = new Blob([JSON.stringify(userUpdateDto)], {
-            type: "application/json"
+            type: "application/json",
         });
         formData.append("userUpdateDto", userUpdateDtoBlob);
 
-        // 프로필 이미지가 변경되었을 경우에만 추가
-        if (
-            loginUserInfo.value.profileImage &&
-            loginUserInfo.value.profileImage !== originalUserInfo.value.profileImage
-        ) {
+        if (loginUserInfo.value.profileImage instanceof File) {
             formData.append("profileImage", loginUserInfo.value.profileImage);
         }
 
-        // API 호출
         const response = await local.put("/users", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
@@ -109,7 +102,6 @@ const updateUserInfo = async () => {
         alert("사용자 정보가 성공적으로 업데이트되었습니다.");
         originalUserInfo.value = { ...loginUserInfo.value };
 
-        // 사용자 정보 갱신
         await userStore.getUserInfo();
 
         resetForm();
@@ -143,16 +135,6 @@ const canUpdate = computed(() => {
     return isModified.value;
 });
 
-const goLogout = async () => {
-    try {
-        await userStore.userLogout();
-        router.push({ name: "main" });
-    } catch (error) {
-        console.error("로그아웃 중 오류 발생:", error);
-        alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
-    }
-};
-
 const goToUserProfile = () => {
     if (userInfo.value && userInfo.value.nickname) {
         router.push({ name: "userProfile", params: { nickName: userInfo.value.nickname } });
@@ -161,33 +143,43 @@ const goToUserProfile = () => {
     }
 };
 
-const deleteAccount = async () => {
-    if (!confirm("정말로 회원탈퇴를 하시겠습니까? 이 작업은 되돌릴 수 없습니다.")) {
-        return;
+const currentProfileImage = computed(() => {
+    if (userInfo.value && userInfo.value.userImg) {
+        return `data:image/jpeg;base64,${userInfo.value.userImg}`;
     }
-
-    try {
-        await local.delete(`/users/${userInfo.value.id}`);
-        alert("회원탈퇴가 완료되었습니다.");
-        await userStore.userLogout();
-        router.push({ name: "main" });
-    } catch (error) {
-        console.error("회원탈퇴 중 오류 발생:", error);
-        alert("회원탈퇴 중 오류가 발생했습니다. 다시 시도해주세요.");
-    }
-};
+    return null;
+});
 
 onMounted(() => {
     if (userInfo.value) {
         originalUserInfo.value = { ...userInfo.value };
         loginUserInfo.value = { ...userInfo.value };
+        imagePreview.value = currentProfileImage.value;
     }
 });
 </script>
 
 <template>
     <div class="container">
-        <div class="text-4xl mb-6">마이페이지</div>
+        <div class="mb-4 profile-image-container" @click="triggerFileInput">
+            <img
+                v-if="imagePreview || currentProfileImage"
+                :src="imagePreview || currentProfileImage"
+                alt="Profile Preview"
+                class="profile-preview mx-auto"
+            />
+            <Profile v-else class="profile-icon profile-image" />
+            <div class="profile-image-overlay">
+                <span>클릭하여 변경</span>
+            </div>
+            <input
+                ref="fileInputRef"
+                type="file"
+                @change="handleImageUpload"
+                accept="image/*"
+                class="hidden"
+            />
+        </div>
 
         <div class="form-control w-full mb-4">
             <label class="label">
@@ -222,43 +214,13 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="form-control w-full mb-4">
-            <label class="label">
-                <span class="label-text">프로필 사진</span>
-            </label>
-            <div class="flex items-center">
-                <input
-                    type="text"
-                    :value="
-                        loginUserInfo.profileImage
-                            ? loginUserInfo.profileImage.name
-                            : '선택된 파일 없음'
-                    "
-                    class="input input-bordered flex-grow mr-2"
-                    readonly
-                />
-                <button @click="triggerFileInput" class="btn btn-outline">파일 선택</button>
-                <input
-                    ref="fileInputRef"
-                    type="file"
-                    @change="handleImageUpload"
-                    accept="image/*"
-                    class="hidden"
-                />
+        <div class="flex flex-col items-center mt-4">
+            <div class="mb-2">
+                <button @click="updateUserInfo" class="btn btn-primary mr-2" :disabled="!canUpdate">
+                    수정하기
+                </button>
+                <button @click="goToUserProfile" class="btn btn-info">내 프로필 가기</button>
             </div>
-        </div>
-
-        <div v-if="imagePreview" class="mb-4">
-            <img :src="imagePreview" alt="Profile Preview" class="profile-preview" />
-        </div>
-
-        <div class="flex justify-center mt-4">
-            <button @click="updateUserInfo" class="btn btn-primary mr-2" :disabled="!canUpdate">
-                수정하기
-            </button>
-            <button @click="goToUserProfile" class="btn btn-info mr-2">내 프로필 가기</button>
-            <button @click="goLogout" class="btn btn-secondary mr-2">로그아웃</button>
-            <button @click="deleteAccount" class="btn btn-error">회원탈퇴</button>
         </div>
     </div>
 </template>
@@ -270,22 +232,43 @@ onMounted(() => {
     text-align: center;
 }
 
-.btn-secondary {
-    background-color: #f44336;
-    color: white;
-    border: none;
-}
-
-.btn-secondary:hover {
-    background-color: #d32f2f;
+.profile-image-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
 }
 
 .profile-preview {
-    width: 50px;
-    height: 50px;
-    margin: 0 auto;
-    border-radius: 50%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+}
+
+.profile-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-image-container:hover .profile-image-overlay {
+    opacity: 1;
+}
+
+.profile-image-overlay span {
+    font-size: 16px;
 }
 
 .btn-info {
@@ -298,13 +281,19 @@ onMounted(() => {
     background-color: #2980b9;
 }
 
-.btn-error {
-    background-color: #000000;
-    color: white;
-    border: none;
+.profile-icon {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f0f0f0;
+    border-radius: 50%;
 }
 
-.btn-error:hover {
-    background-color: #3d3837;
+.profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 </style>

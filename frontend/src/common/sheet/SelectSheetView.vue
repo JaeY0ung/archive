@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div>
+    <div class="flex w-full h-full">
         <div>
             <h1 style="color: white;">대기 페이지</h1>
         </div>

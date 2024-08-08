@@ -4,8 +4,10 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { OpenSheetMusicDisplay, PlaybackManager, BasicAudioPlayer, LinearTimingSource } from '@/assets/js/opensheetmusicdisplay.min.js';
 import { getMusicXmlById } from '@/api/sheet';
+import { localAxios } from "@/util/http-common";
 
 export const useMusicStore = defineStore('music', () => {
+    const local = localAxios();
     const osmd = ref(null);
     const playbackManager = ref(null);
     const audioPlayer = ref(new BasicAudioPlayer());
@@ -17,6 +19,8 @@ export const useMusicStore = defineStore('music', () => {
     const chunks = ref([]);
     const triggerSplit = ref(0);
     const volume = ref(50);
+    const f1 = ref([]);
+    const jaccard = ref([]);
 
     const initializeOsmd = (container) => {
         osmd.value = new OpenSheetMusicDisplay(container);
@@ -136,13 +140,21 @@ export const useMusicStore = defineStore('music', () => {
                 const formData = new FormData();
                 const blob = new Blob(chunks.value, { type: 'audio/webm' });
                 formData.append('file', blob, `chunk_${audioBlobs.value.length}.webm`);
+                const sheetIdBlob = new Blob([3], { type: 'application/json' });
+                formData.append('sheetId', sheetIdBlob);
+                console.log("formData", formData);
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, value);
+                }
                 try {
-                    const res = await axios.post('http://localhost:8000/fastapi/playing', formData, {
+                    const res = await local.post('/play/single/sendFile', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                         },
                     });
                     console.log('파일 업로드 성공: ', res.data);
+                    f1.value.push(res.data.similarity_results.f1_score);
+                    jaccard.value.push(res.data.similarity_results.jaccard_similarity);
                 } catch (err) {
                     console.error('파일 업로드 실패: ', err);
                 }
@@ -185,6 +197,8 @@ export const useMusicStore = defineStore('music', () => {
         chunks,
         triggerSplit,
         volume,
+        f1,
+        jaccard,
         initializeOsmd,
         loadAndSetupOsmd,
         setVolume,

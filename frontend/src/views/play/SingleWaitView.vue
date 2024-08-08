@@ -1,0 +1,156 @@
+<script setup>
+import { useRouter } from "vue-router";
+import { ref } from "vue";
+import { useUserStore } from "@/stores/user";
+// import defaultProfileImage from "@/assets/img/common/default_profile.png";
+import UserCardForPlay from "@/common/UserCardForPlay.vue";
+import SelectSheetView from "@/common/sheet/SelectSheetView.vue";
+
+const router = useRouter();
+const userStore = new useUserStore();
+
+const user = ref({
+    img: "",
+    nickname: "악카이브1",
+    score: "0",
+    isEmpty: true,
+});
+
+const accessToken = sessionStorage.getItem("accessToken");
+userStore.getUserInfo(accessToken);
+const loginUser = userStore.userInfo;
+
+const onClickStart = () => {
+    router.push({ name: "singlePlay", params: { sheetId: 3 } });
+};
+
+const onClickQuit = () => {
+    router.push({ name: 'multiRoomList' });
+}
+</script>
+
+<template>
+    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
+        <div class="flex w-full flex-grow-0 h-[70%] justify-center items-center rounded-tl-xl rounded-tr-xl bg-blue-300">
+            <SelectSheetView />
+        </div>
+        <div class="flex flex-grow w-full h-[35%] justify-evenly items-center rounded-bl-xl rounded-br-xl bg-yellow-100">
+          <button class="btn btn-primary w-24" @click="onClickStart">연주하기</button>
+          <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
+          <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+.justify-center {
+    justify-content: center;
+    align-items: center;
+}
+.justify-around {
+    justify-content: space-around;
+}
+
+.container {
+  margin: 10px auto;
+  width: 90vw;
+  background-color: #f0f0f0;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  opacity: 0.8;
+}
+
+.button-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+button {
+  border: 1px solid black;
+  width: 100px;
+  height: 40px;
+  margin: 5px;
+  background-color: #2196f3;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.invite-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-title {
+  padding-bottom: 20px;
+}
+
+.modal-button {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50vw;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.modal-content li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.modal-content li.selected {
+  background-color: #ccc;
+}
+
+.modal-content li img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.modal-content .status {
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.modal-content .status.online {
+  background-color: green;
+  color: white;
+}
+
+.modal-content .status.busy {
+  background-color: red;
+  color: white;
+}
+
+.modal-content .status.offline {
+  background-color: gray;
+  color: white;
+}
+</style>

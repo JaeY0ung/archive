@@ -4,26 +4,70 @@ import com.ssafy.los.backend.domain.entity.SinglePlayResult;
 import com.ssafy.los.backend.dto.play.request.SinglePlayRequestDto;
 import com.ssafy.los.backend.service.play.SinglePlayService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
+@Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/plays/single")
+@RequestMapping("/play/single")
 public class SinglePlayController {
 
     private final SinglePlayService singlePlayService;
 
-    // 싱글결과 생성
+    // 싱글 중간 결과 생성 후 파이썬 전송
+    @PostMapping(value = "/sendFile", consumes = {MediaType.APPLICATION_JSON_VALUE, "multipart/form-data"})
+    public ResponseEntity<?> sendIntermediateScoreToPython(@RequestPart(value = "file", required = false) MultipartFile file) {
+        log.info("Client로부터 중간 점수를 전송 받음: {}", file);
+
+        String url = "http://localhost:8000/fastapi/playing";
+
+        try {
+
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpPost request = new HttpPost(url);
+
+            // 멀티파트 엔티티 생성
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addBinaryBody("file", file.getInputStream(), ContentType.MULTIPART_FORM_DATA, file.getOriginalFilename());
+            HttpEntity multipart = builder.build();
+
+            request.setEntity(multipart);
+
+            HttpResponse response = client.execute(request);
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if (statusCode == 200) {
+                String responseString = EntityUtils.toString(response.getEntity());
+                return ResponseEntity.ok(responseString);
+            } else {
+                return ResponseEntity.status(statusCode).body("파일 전송 실패");
+            }
+//            request.setHeader("Content-Type", "multipart/form-data");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed to send file");
+        }
+    }
+
+    // 싱글 최종 결과 생성
     @PostMapping
     private ResponseEntity<?> saveSinglePlayResult(SinglePlayRequestDto singlePlayRequestDto) {
         Long singePlayResultId = singlePlayService.saveSinglePlayResult(singlePlayRequestDto);

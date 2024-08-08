@@ -24,9 +24,6 @@ public class WaitRoomController {
     @SendTo("/wait/socket/{roomId}")
     public LoginUser sendPlayer(LoginUser loginUser) throws Exception {
         // LoginUser 전송
-        log.info("들어왔습니다. {}", loginUser.toString());
-        log.info("들어왔습니다. {}", loginUser.getId());
-        log.info("들어왔습니다. {}", loginUser.getEmail());
         return LoginUser.builder()
                 .id(loginUser.getId())
                 .email(loginUser.getEmail())
@@ -52,7 +49,6 @@ public class WaitRoomController {
     public PlayerStartDto sendPlayerReady(PlayerStartDto playerStartDto) throws Exception {
         // start 신호 전송
 
-        System.out.println("메시지 전달받음");
         log.info("들어왔습니다. {}", playerStartDto.toString());
 
         return PlayerStartDto.builder()

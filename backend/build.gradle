@@ -63,6 +63,10 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
     // firebase
     implementation 'com.google.firebase:firebase-admin:9.2.0'
+    // Apache HttpClient
+    implementation 'org.apache.httpcomponents:httpclient'
+    // Apache HttpMime
+    implementation 'org.apache.httpcomponents:httpmime:4.5.13'
 
 
     // 파일 관련 (파일 확장자)

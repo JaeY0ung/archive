@@ -24,15 +24,14 @@ const selectMode = (mode) => {
   if (mode === 'multi') {
     playStore.setShowModal(true);
   } else {
-    router.push({ path: 'singleRoom' });
+    router.push({ name: 'singleWait' });
   }
 };
 
 // 방 입장
 const enterRoom = async (roomId) => {
   await playStore.enterRoom(roomId);
-  // router.push({ path: `/room/${roomId}` });
-  router.push({ path: `/room/${roomId}/wait/multiDefault` }); // wait 페이지로 이동
+  router.push({ name: 'multiWait', params: { roomId } }); // wait 페이지로 이동
 }; 
 
 const rankings = ref([
@@ -51,38 +50,35 @@ const rankings = ref([
 </script>
 
 <template>
-    <div class="container">
-    <aside class="ranking">
+    <div class="flex flex-grow w-full h-full bg-red-400">
+    <div class="flex flex-col mt-[10px] mb-[10px] bg-yellow-400 ranking">
       <h2>RANKING</h2>
       <ul>
         <li v-for="(item, index) in rankings" :key="index">
           {{ item.rank }}위 {{ item.name }} 님 {{ item.wins }}승 {{ item.losses }}패
         </li>
       </ul>
-    </aside>
+    </div>
 
-    <main>
-      <section class="menu">
-        <button @click="selectMode('single')">혼자 연습하기</button>
-        <button @click="selectMode('multi')">방 만들기</button>
-      </section>
-      <article class="room-list">
-        <h2>방 리스트</h2>
-        <ul>
-          <li v-if="isLoading.value">Loading...</li>
-          <li 
-            v-else 
-            v-for="room in playStore.getRooms" 
-            :key="room.id" 
-            class="room-item" 
-            @click="enterRoom(room.id)">
-            <span>{{ room.title }}</span>
-            <span class="capacity">{{ room.occupancy }}/{{ room.capacity }}</span>
-            <span>{{ room.status }}</span>
-          </li>
-        </ul>
-      </article>
-    </main>
+    <div class="flex flex-col flex-grow ml-[5px] bg-green-200">
+      <div class="flex gap-[20px] justify-center items-center mt-[10px] h-[50px] bg-blue-200 p-[10px]">
+        <div class="flex-1 flex-col flex-grow h-full justify-center text-center items-center rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('single')">혼자 연습하기</div>
+        <div class="flex-1 flex-col flex-grow h-full justify-center text-center items-center rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('multi')">방 만들기</div>
+      </div>
+      <div class="flex flex-grow flex-col h-full mb-[10px]" >
+        <h2 class="flex items-center h-[50px] mt-[5px] p-[10px] bg-blue-200">방 리스트</h2>
+        <div class="flex flex-grow w-full h-full relative overflow-hidden">
+          <ul class="flex flex-grow flex-col w-full h-full absolute scroll-y p-[10px] gap-[5px] bg-yellow-300">
+            <div v-if="isLoading.value">Loading...</div>
+            <li v-else v-for="room in playStore.getRooms" :key="room.id" class="flex w-full h-[80px] justify-between items-center p-[10px] rounded-md  cursor-pointer bg-red-300" @click="enterRoom(room.id)">
+              <span>{{ room.title }}</span>
+              <span class="capacity">{{ room.occupancy }}/{{ room.capacity }}</span>
+              <span>{{ room.status }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
     <RoomCreateModal />
     </div>
 </template>
@@ -99,23 +95,10 @@ button {
   margin-top: 20px;
 }
 
-.menu {
-  display: flex;
-  gap: 20px;
-}
-
-.container {
-  display: flex;
-  justify-content: space-between;
-  padding: 20px;
-}
 
 .ranking {
   width: 20%;
-  padding: 20px;
-  background-color: #fff;
   border: 1px solid #ccc;
-  border-radius: 10px;
 }
 
 .ranking h2 {
@@ -134,33 +117,10 @@ button {
   border-radius: 5px;
 }
 
-main {
-  width: 75%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 
-.menu {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #2196f3;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-}
 
 .room-list {
   width: 100%;
-  padding: 20px;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;
@@ -182,7 +142,6 @@ button {
   align-items: center;
   padding: 10px;
   margin: 10px 0;
-  background-color: #f9f9f9;
   border-radius: 5px;
 }
 

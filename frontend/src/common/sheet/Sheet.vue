@@ -37,4 +37,8 @@ const { startRecording, stopRecording, startMusic, pauseMusic, stopMusic } = mus
 button {
     margin: 5px;
 }
+
+#sheet{
+    height: 100%;
+}
 </style>
