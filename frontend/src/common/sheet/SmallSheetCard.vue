@@ -10,18 +10,16 @@ const props = defineProps({
   sheet: Object
 });
 
-props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
-
-const goToSheetDetail = () => {
-  router.push({ name: 'sheetDetail', params: { sheetId: props.sheet.id } });
-};
+// const goToSheetDetail = () => {
+//   router.push({ name: 'sheetDetail', params: { sheetId: props.sheet.id } });
+// };
 </script>
 
 <template>
   <div class="m-[5px] p-[5px] flex flex-row justify-between gap-3 bg-white rounded-lg"
 	   style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);">
 
-	<div class="flex justify-start gap-3" @click="goToSheetDetail">
+	<div class="flex justify-start gap-3">
 	  <!-- (왼쪽) 악보 사진 -->
 	  <div class="h-[80px] w-[80px] flex justify-center">
 		<img class="rounded-lg" :src="sheet.imageUrl" alt="원본 곡 이미지">
