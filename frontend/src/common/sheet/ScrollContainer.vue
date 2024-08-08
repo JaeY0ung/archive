@@ -3,22 +3,37 @@ import { ref, onMounted } from "vue";
 import { useMusicStore } from '@/stores/sheet';
 
 const props = defineProps({
-    width: Number,
-    height: Number,
     sheetId: Number,
 });
 
 const musicStore = useMusicStore();
 const container = ref(null);
+const outerDiv = ref(null);
+const containerWidth = ref(0);
+const containerHeight = ref(0);
 
 onMounted(() => {
-    musicStore.loadAndSetupOsmd(container.value, props.sheetId);
+    if (outerDiv.value) {
+        const resizeObserver = new ResizeObserver(entries => {
+            for (let entry of entries) {
+                if (entry.target === outerDiv.value) {
+                    containerWidth.value = entry.contentRect.width;
+                    containerHeight.value = entry.contentRect.height;
+                }
+            }
+        });
+        resizeObserver.observe(outerDiv.value);
+
+        musicStore.loadAndSetupOsmd(container.value, props.sheetId);
+    }
 });
 </script>
 
 <template>
-    <div class="pointer-events-none m-0 p-0 w-full box-border" :style="{ width: props.width + 'px', height: props.height + '%' }" style="overflow-y:scroll;">
-        <div class="m-0 p-0 box-border" ref="container"></div>
+    <div ref="outerDiv" class="flex flex-grow">
+        <div class="pointer-events-none overflow-y-scroll" :style="{ width: containerWidth + 'px', height: containerHeight + 'px' }" >
+            <div ref="container"></div>
+        </div>
     </div>
 </template>
 
