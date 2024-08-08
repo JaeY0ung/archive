@@ -25,8 +25,8 @@ export const useMusicStore = defineStore('music', () => {
     const initializeOsmd = (container) => {
         osmd.value = new OpenSheetMusicDisplay(container);
         osmd.value.setOptions({
-            pageFormat: 'A4 P',
             pageBackgroundColor: 'white',
+            drawPartNames: false,
         });
     };
 
