@@ -122,7 +122,7 @@ const goToSheetDetail = (sheetId) => {
 </script>
 
 <template>
-	<div class="flex justify-between flex-margin h-full">
+	<div class="flex w-full h-full justify-between flex-margin  bg-red-300">
 		<!-- 왼쪽 -->
 		<div class="flex flex-col gap-10 w-[49%] h-full rounded-xl">
 			<!-- TODO: 현재 악보 불러오기 기능 미구현 -->
@@ -202,10 +202,8 @@ const goToSheetDetail = (sheetId) => {
 		</div>
 
 		<!-- 오른쪽 -->
-		<div class="flex flex-col gap-5 w-[49%] h-full p-3 bg-white/50 rounded-xl">
-			<SheetPlayNavigation class="flex-none h-[30px]" @play="isPlay = 'play'" @pause="isPlay = 'pause'"
-				@stop="isPlay = 'stop'" />
-			<Sheet class="rounded-xl h-full"  :sheetId="route.params.sheetId"/>
+		<div class="flex flex-col gap-5 w-[49%]  bg-white/50 rounded-xl mb-[10px]">
+			<Sheet :sheetId="Number(route.params.sheetId)"/>
 		</div>
 	</div>
 </template>

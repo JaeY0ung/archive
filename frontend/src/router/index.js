@@ -43,23 +43,13 @@ const routes = [
     {
         path: '/room/multi/:roomId/wait',
         name: 'multiWait',
-        component: () => import('@/views/play/MultiRoomLayout.vue'),
+        component: () => import('@/views/play/MultiWaitView.vue'),
     },
-    // {
-    //     path: '/room/multi/:roomId/wait',
-    //     name: 'multiWait',
-    //     component: () => import('@/views/play/MultiWaitView.vue'),
-    // },
     {
         path: '/room/multi/play/:sheetId',
         name: 'multiPlay',
         component: () => import('@/views/play/MultiPlayView.vue'),
     },
-    // {
-    //     path: 'play',
-    //     name: 'play',
-    //     component: () => import('@/common/sheet/Sheet2.vue')
-    // },
     // -----------------------------------------------
     {
         path: "/admin",

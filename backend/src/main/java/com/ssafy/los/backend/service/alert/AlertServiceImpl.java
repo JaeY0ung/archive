@@ -40,7 +40,7 @@ public class AlertServiceImpl implements AlertService {
 
         // 1) 알림 유형에 따라 제목 설정
         String title;
-        Long alertTypeId = alertDto.getAlertType();
+        Long alertTypeId = alertDto.getAlertTypeId();
         log.info("alertTypeId: " + alertTypeId);
         switch (alertTypeId.intValue()) {
             case 1:
@@ -80,9 +80,10 @@ public class AlertServiceImpl implements AlertService {
                         .setBody(senderNickname + "님으로부터 " + receiverNickname
                                 + "님에게 새로운 알람이 도착했습니다.")
                         .build())
-                .putData("alertTypeId", alertDto.getAlertType().toString())
+                .putData("alertTypeId", alertDto.getAlertTypeId().toString())
                 .putData("referenceId", alertDto.getReferenceId().toString())
                 .putData("readStatus", alertDto.getReadStatus().toString())
+                .putData("roomId", alertDto.getRoomId().toString())
                 .setToken(userFirebaseToken)
                 .build();
 
@@ -105,14 +106,24 @@ public class AlertServiceImpl implements AlertService {
 
     @Override
     public String saveAlertAndSendMessage(AlertDto alertDto) {
+
+        log.info("Received AlertDto: " + alertDto);
+
         // User 및 AlertType 엔티티 조회
         User receiverUser = userRepository.findById(alertDto.getReceiverId())
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
-        AlertType alertTypeEntity = alertTypeRepository.findById(alertDto.getAlertType())
+        AlertType alertTypeEntity = alertTypeRepository.findById(alertDto.getAlertTypeId())
                 .orElseThrow(() -> new IllegalArgumentException("AlertType not found"));
 
         // AlertDto를 Alert 엔티티로 변환
-        Alert alertEntity = alertDto.toEntity(receiverUser, alertTypeEntity);
+        Alert alertEntity = Alert.builder()
+                .receiver(receiverUser)
+                .alertType(alertTypeEntity)
+                .referenceId(alertDto.getReferenceId())
+                .readStatus(alertDto.getReadStatus())
+                .createdAt(alertDto.getCreatedAt())
+                .senderId(alertDto.getSenderId())
+                .build();
 
         // Alert 엔티티를 데이터베이스에 저장
         Alert savedAlert = alertRepository.save(alertEntity);

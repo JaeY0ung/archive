@@ -1,24 +1,57 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useMusicStore } from '@/stores/sheet';
+import debounce from 'lodash.debounce';
 
 const props = defineProps({
-    width: Number,
-    height: Number,
     sheetId: Number,
 });
 
 const musicStore = useMusicStore();
 const container = ref(null);
+const outerDiv = ref(null);
+const containerWidth = ref(0);
+const containerHeight = ref(0);
+let resizeObserver;
+
+const updateContainerSize = debounce(() => {
+    if (outerDiv.value) {
+        containerWidth.value = outerDiv.value.clientWidth;
+        containerHeight.value = outerDiv.value.clientHeight;
+    }
+}, 100);
+
+const handleResize = entries => {
+    for (let entry of entries) {
+        if (entry.target === outerDiv.value) {
+            updateContainerSize();
+        }
+    }
+};
 
 onMounted(() => {
-    musicStore.loadAndSetupOsmd(container.value, props.sheetId);
+    if (outerDiv.value) {
+        resizeObserver = new ResizeObserver(handleResize);
+        resizeObserver.observe(outerDiv.value);
+
+        musicStore.loadAndSetupOsmd(container.value, props.sheetId);
+    }
+    updateContainerSize();
+});
+
+onUnmounted(() => {
+    if (resizeObserver && outerDiv.value) {
+        resizeObserver.unobserve(outerDiv.value);
+        resizeObserver.disconnect();
+    }
 });
 </script>
 
 <template>
-    <div class="pointer-events-none m-0 p-0 w-full box-border" :style="{ width: props.width + 'px', height: props.height + '%' }" style="overflow-y:scroll;">
-        <div class="m-0 p-0 box-border" ref="container"></div>
+    <div ref="outerDiv" class="flex overflow-hidden">
+        <div class="pointer-events-none overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px' }" >
+            <div ref="container"></div>
+        </div>
     </div>
 </template>
 

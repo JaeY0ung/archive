@@ -49,7 +49,7 @@ public class SongController {
     public ResponseEntity<?> uploadSong(
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestPart("title") String title,
-            @RequestPart("title") String composer,
+            @RequestPart("composer") String composer,
             @RequestPart(value = "genreId", required = false) Long genreId) {
         SongRegisterForm songRegisterForm = SongRegisterForm.builder()
                 .file(file)
@@ -57,7 +57,7 @@ public class SongController {
                 .composer(composer)
                 .genreId(genreId)
                 .build();
-        log.info(songRegisterForm.toString());
+        log.info(title + " " + composer);
         try {
             return new ResponseEntity<>(songService.registerSongAndFile(songRegisterForm).getId(),
                     HttpStatus.CREATED);

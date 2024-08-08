@@ -4,10 +4,13 @@ import { ref } from "vue";
 import { useUserStore } from "@/stores/user";
 // import defaultProfileImage from "@/assets/img/common/default_profile.png";
 import UserCardForPlay from "@/common/UserCardForPlay.vue";
-import SelectSheetView from "@/common/sheet/SelectSheetView.vue";
-
+import SelectCategory from "@/common/sheet/SelectCategory.vue";
+import SelectSheet from "@/common/sheet/SelectSheet.vue";
+import { searchSheetsByFilter } from '@/api/sheet';
 const router = useRouter();
 const userStore = new useUserStore();
+
+const isInCategoryView = ref(true);
 
 const user = ref({
     img: "",
@@ -21,18 +24,78 @@ userStore.getUserInfo(accessToken);
 const loginUser = userStore.userInfo;
 
 const onClickStart = () => {
-    router.push({ name: "singlePlay", params: { sheetId: 3 } });
+  if (!selectedSheetId.value) {
+    alert("악보를 고르세요")
+    return;
+  }
+    router.push({ name: "singlePlay", params: { sheetId: selectedSheetId.value } });
 };
 
 const onClickQuit = () => {
     router.push({ name: 'multiRoomList' });
+}
+
+const sheets = ref([]);
+const selectedSheetId = ref();
+
+const getPopularsheets = async () => {
+	searchSheetsByFilter(
+		{ sort: "POPULAR" },
+		({ data }) => {
+			if (!data) return;
+			sheets.value = data;
+		}
+	)
+}
+
+const getNewsheets = async () => {
+	searchSheetsByFilter(
+		{ sort: "LATEST" },
+		({ data }) => {
+			if (!data) return;
+			sheets.value = data;
+		}
+	)
+}
+
+const getRandomsheets = async () => {
+	searchSheetsByFilter(
+		{ sort: "RANDOM" },
+		({ data }) => {
+			if (!data) return;
+			sheets.value = data;
+		}
+	)
+}
+
+const getUserLevelsheets = async () => {
+	searchSheetsByFilter(
+		{ levels: [1] },
+		({ data }) => {
+			if (!data) return;
+			sheets.value = data;
+		}
+	)
+}
+
+const getSheetsByCategory = (sort) => {
+  isInCategoryView.value = false
+  if (sort == "RANDOM") getRandomsheets();
+  else if (sort == "POPULAR") getPopularsheets();
+  else if (sort == "LATEST") getNewsheets();
+  else if (sort == "LEVEL") getUserLevelsheets();
+}
+
+const setSheetId = (sheetId) => {
+  selectedSheetId.value = sheetId;
 }
 </script>
 
 <template>
     <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
         <div class="flex w-full flex-grow-0 h-[70%] justify-center items-center rounded-tl-xl rounded-tr-xl bg-blue-300">
-            <SelectSheetView />
+            <SelectCategory v-if="isInCategoryView" @send-sheet-category="getSheetsByCategory" />
+            <SelectSheet v-else :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
         </div>
         <div class="flex flex-grow w-full h-[35%] justify-evenly items-center rounded-bl-xl rounded-br-xl bg-yellow-100">
           <button class="btn btn-primary w-24" @click="onClickStart">연주하기</button>
