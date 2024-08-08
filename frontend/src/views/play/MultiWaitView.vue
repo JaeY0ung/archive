@@ -1,33 +1,36 @@
 <script setup>
-import { useRoute, useRouter, onBeforeRouteLeave, onUnmounted } from 'vue-router';
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave, } from 'vue-router';
+import { ref, computed, onMounted, watch, onBeforeUnmount, onUnmounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { usePlayStore } from '@/stores/play';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import UserCardForPlay from '@/common/UserCardForPlay.vue';
-import MultiDefaultSheet from './MultiDefaultSheet.vue';
-import { constructNow } from 'date-fns';
 import SelectSheet from '@/common/sheet/SelectSheet.vue';
 import SelectCategory from '@/common/sheet/SelectCategory.vue';
 import { searchSheetsByFilter } from '@/api/sheet';
 
 const isInCategoryView = ref(true);
-// 소켓 엔드포인트 연결을 위한 주소 설정
-const { VUE_APP_REQUEST_URL } = process.env;
-
+const { VUE_APP_REQUEST_URL } = process.env; // 소켓 엔드포인트 연결을 위한 주소 설정
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
 const playStore = new usePlayStore();
+const sheets = ref([]);
+const selectedSheetId = ref();
+const currentMode = computed(() => playStore.getMode);
+const onlineUsers = computed(() => playStore.getOnlineUsers);
+const isQuitting = ref(false);
+const isPopstate = ref(false);
+const passBeforeLeave = ref(false);
+const isReloading = ref(false);
 
 // 로그인한 유저 정보 가져오기
-const accessToken = sessionStorage.getItem("accessToken");
+const accessToken = sessionStorage.getItem("accessToken"); 
 userStore.getUserInfo(accessToken);
 const user = userStore.userInfo;
 
 var stompClient = null;
-
 const isReady = ref("false");
 isReady.value = userStore.userReady;
 const onClickStart = () => {
@@ -62,6 +65,8 @@ const opponent = ref({
 })
 
 const canLeaveSite = ref(false);
+
+
 
 function connect() {
     // local & https 
@@ -116,19 +121,9 @@ function disconnect() {
     // console.log("disconnect되었다")
 }
 
-onBeforeUnmount(() => {
-    sendExit();
-    window.removeEventListener('beforeunload', unLoadEvent);
-})
-
 function sendExit(){
     stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'exit', sender : user.nickname, content: 'true' }));
 }
-
-onUnmounted(() => {
-    // console.log("onUnmounted 실행");
-    sendExit();
-})
 
 window.addEventListener('beforeunload', sendExit);
 
@@ -151,34 +146,9 @@ function readyButton() {
     stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender: user.nickname, isReady: isReady.value }));
 }
 
-function unLoadEvent (event) {
-    if (canLeaveSite.value) return;
-    event.preventDefault();
-    event.returnValue = '';
-}
 
-// 새고로침할 때 경고창을 띄워줄 메서드
-const handleBeforeUnload = (event) => {
-  event.preventDefault()
-  event.returnValue = ''
-}
 
-onMounted(() => {
-    // 페이지가 불러와질 때, 웹소켓을 연결
-    connect();
-    // 새로고침할 때 경고창을 띄워줄 메서드를 window에 적용
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
-})
 
-onUnmounted(() => {
-  //페이지를 빠져나갈 때, 해당 메서드를 window에서 제거
-  window.removeEventListener('beforeunload', handleBeforeUnload)
-})
-
-function quitButton () {
-    router.push('/room/multi/list');
-}
 
 const inviteModalStatus = ref(false);
 const selectedFriend = ref(null);
@@ -205,8 +175,7 @@ const isFriendSelected = (user) => {
     return selectedFriend.value && selectedFriend.value.id === user.id;
 }
 
-const currentMode = computed(() => playStore.getMode);
-const onlineUsers = computed(() => playStore.getOnlineUsers);
+
 
 const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
@@ -217,10 +186,6 @@ const inviteSelectedFriends = async () => {
     }
     closeInviteModalStatus();
 }
-
-
-const sheets = ref([]);
-const selectedSheetId = ref();
 
 const getPopularsheets = async () => {
 	searchSheetsByFilter(
@@ -274,19 +239,87 @@ const setSheetId = (sheetId) => {
   selectedSheetId.value = sheetId;
 }
 
-// 나가기 버튼 클릭 또는 뒤로가기 등 플레이 페이지가 아닌 다른 곳으로 갈 때 경고창을 띄운다.
+function quitButton () {
+    // 나가기 버튼을 눌렀다.
+    isQuitting.value = true;
+    router.push('/room/multi/list');
+}
+
+// const quitButton = async () => {
+//   isExiting.value = true;
+  
+//   const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
+//   if (answer) {
+//     await playStore.exitRoom(route.params.roomId);
+//     router.push({ name: 'multiRoomList' }); // 프로그램 방식 네비게이션 사용
+//   } else {
+//     isExiting.value = false;
+//   }
+// };
+
+const detectReload = () => {
+  // performance.navigation API를 사용하여 새로고침 감지
+  const navigationType = performance.getEntriesByType("navigation")[0].type;
+  if (navigationType === 'reload') {
+    isReloading.value = true;
+    alert("fggsdaf");
+  }
+}
+
+const handleBeforeUnload = async (event) => {
+
+    // const navigationType = performance.getEntriesByType("navigation")[0].type;
+    // if (navigationType === 'reload') {
+    //     isReloading.value = true;
+    // }
+
+if(isQuitting.value || isPopstate.value || isReloading.value){
+    // router.push({ name: 'multiRoomList' });
+}else{
+    await playStore.exitRoom(route.params.roomId);
+}
+};
+
+
+onMounted(() => {   
+    console.log("새로고침 눌렀을 때도?")
+    connect();
+    // detectReload();
+  window.addEventListener('beforeunload', handleBeforeUnload);
+    // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정
+  window.addEventListener('popstate', () => {
+    isPopstate.value = true;
+  });
+  playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
+
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+  window.addEventListener('popstate', () => {
+    isPopstate.value = true;
+  });
+});
+
 onBeforeRouteLeave(async (to, from, next) => {
-    if(to.name == 'multiPlay'){
-        next();
-    } else{
-        const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
-        if(answer){
-            window.location.href = "http://localhost:3000/room/multi/list"
-            await playStore.exitRoom(route.params.roomId);
-        }else{
-            next(false);
-        }
+
+    if(to.name == from.name){
+        isReloading.value = true;
     }
+
+  if (to.name == 'multiPlay') {
+    next();
+  } else {
+    const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
+    if (answer) {
+      await playStore.exitRoom(route.params.roomId);
+      next();
+    //   window.location.href = "http://localhost:3000/room/multi/list";
+    } else {
+      isExiting.value = false;
+      next(false);
+    }
+  }
 });
 
 
