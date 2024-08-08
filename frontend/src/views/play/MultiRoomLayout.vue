@@ -191,12 +191,11 @@ const inviteSelectedFriends = async () => {
 </script>
 
 <template>
-    <div class="container">
-        <div class="up">
+    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
+        <div class="flex w-full h-[70%] rounded-tl-xl rounded-tr-xl bg-blue-300">
             <Sheet :roomId="roomId" showController="true" isRecording="true"/>
-            <!-- <RouterView :roomId="roomId" /> -->
         </div>
-        <div class="down">
+        <div class="flex flex-grow w-full h-[35%] rounded-bl-xl rounded-br-xl bg-yellow-100">
             <div class="player-card">
                 <div class="player-img"><img :src="me.img" alt="Profile Image" /></div>
                 <div class="player-info-text">
@@ -215,7 +214,6 @@ const inviteSelectedFriends = async () => {
                 <button class="btn btn-primary w-24" v-if="route.name == 'multiDefault' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
-                <!-- <button class="btn btn-primary w-24" v-if="route.name == 'play'" @click="quitButton"> -->
                 <button class="btn btn-primary w-24" @click="quitButton">
                     나가기
                 </button>
@@ -254,27 +252,9 @@ const inviteSelectedFriends = async () => {
             </div>
         </div>
     </div>
-    
 </template>
 
 <style scoped>
-.container {
-    margin: 10px auto;
-    width: 90vw;
-    background-color: #f0f0f0;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    opacity: 0.8;
-}
-.up {
-    background-color: #fff;
-    height: 60vh;
-    margin-bottom: 20px;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
 
 .down {
     display: flex;

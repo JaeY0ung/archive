@@ -61,7 +61,7 @@ const rankings = ref([
     </div>
 
     <div class="flex flex-col flex-grow ml-[5px] bg-green-200">
-      <div class="flex gap-[20px] justify-center items-center mt-[10px] h-[50px] bg-blue-200 p-[5px]">
+      <div class="flex gap-[20px] justify-center items-center mt-[10px] h-[50px] bg-blue-200 p-[10px]">
         <div class="flex-1 flex-col flex-grow h-full justify-center text-center items-center rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('single')">혼자 연습하기</div>
         <div class="flex-1 flex-col flex-grow h-full justify-center text-center items-center rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('multi')">방 만들기</div>
       </div>
