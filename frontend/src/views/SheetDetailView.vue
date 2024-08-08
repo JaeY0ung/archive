@@ -37,8 +37,6 @@ const searchRandomSameLevelSheets = () => {
 		({ data }) => {
 			if (!data) return;
 			sameLevelSheets.value = data;
-			sameLevelSheets.value.map((s) =>
-			s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
 		}
 	)
 };
@@ -87,10 +85,6 @@ searchSheetDetail(
 	({ data }) => {
 		if (!data) return;
 		sheet.value = data;
-		sheet.value.imageUrl = `data:image/jpeg;base64,${data.songImg}`;
-	}, 
-	(err) => {
-		console.error(err);
 	}
 )
 
@@ -118,8 +112,9 @@ const goToSheetDetail = (sheetId) => {
 				<div>비슷한 수준의 악보 추천</div>
 				<div class="line"></div>
 				<div class="scroll-x flex bg-white/50 rounded-xl">
-					<SmallSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer" />
-					<!-- <BigSheetCard v-for="(sheet, index) in sameLevelSheets" :key="index" :sheet="sheet" /> -->
+					<template v-for="sheet in sameLevelSheets" :key="sheet.id">
+						<SmallSheetCard v-if="sheet.id != route.params.sheetId" :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer" />
+					</template>
 				</div>
 			</div>
 			<div>
