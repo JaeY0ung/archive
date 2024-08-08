@@ -166,7 +166,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="profile-container">
+    <div class="flex flex-col w-full items-center pt-[50px] mb-[10px] bg-red-300">
         <div v-if="userNotFound" class="user-not-found">
             <h2>사용자를 찾을 수 없습니다</h2>
             <p>요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.</p>
@@ -205,37 +205,43 @@ onMounted(async () => {
                 <button v-else class="edit-btn" @click="goToEditPage">Edit</button>
             </div>
 
-            <div class="sheets-container">
-                <div class="sheet-section">
+            <div class="flex flex-col w-full gap-[20px]">
+                <div class="flex flex-grow flex-col w-full h-[150px] gap-5">
                     <h3>최근 싱글 플레이</h3>
-                    <div class="scroll-x">
-                        <SmallSheetCard
+                    <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
+                        <div class="flex w-full absolute scroll-x">
+                            <SmallSheetCard
                             v-for="sheet in mockRecentPlayedSheets"
                             :key="sheet.id"
                             :sheet="sheet"
-                        />
+                            />
+                        </div>
                     </div>
                 </div>
 
-                <div class="sheet-section">
+                <div class="flex flex-grow flex-col w-full h-[150px] gap-5">
                     <h3>최근 대결 플레이</h3>
-                    <div class="scroll-x">
-                        <SmallSheetCard
+                    <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
+                        <div class="flex w-full absolute scroll-x">
+                            <SmallSheetCard
                             v-for="sheet in mockRecentBattleSheets"
                             :key="sheet.id"
                             :sheet="sheet"
-                        />
+                            />
+                        </div>
                     </div>
                 </div>
 
-                <div class="sheet-section">
+                <div class="flex flex-grow flex-col w-full h-[150px] gap-5">
                     <h3>좋아요한 악보</h3>
-                    <div class="scroll-x">
-                        <SmallSheetCard
+                    <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
+                        <div class="flex w-full absolute scroll-x">
+                            <SmallSheetCard
                             v-for="sheet in mockLikedSheets"
                             :key="sheet.id"
                             :sheet="sheet"
-                        />
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -251,13 +257,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.profile-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 50px;
-    width: 100%;
-}
 
 .user-profile {
     display: flex;
@@ -336,13 +335,6 @@ onMounted(async () => {
 .unfollow-btn {
     background-color: #333333;
     color: white;
-}
-
-.sheets-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 20px;
 }
 
 .sheet-section {

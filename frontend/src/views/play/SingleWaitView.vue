@@ -30,11 +30,11 @@ const onClickQuit = () => {
 </script>
 
 <template>
-    <div class="container">
-        <div class="up">
+    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
+        <div class="flex w-full flex-grow-0 h-[70%] justify-center items-center rounded-tl-xl rounded-tr-xl bg-blue-300">
             <SelectSheetView />
         </div>
-        <div class="down">
+        <div class="flex flex-grow w-full h-[35%] justify-evenly items-center rounded-bl-xl rounded-br-xl bg-yellow-100">
           <button class="btn btn-primary w-24" @click="onClickStart">연주하기</button>
           <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
           <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
@@ -59,21 +59,6 @@ const onClickQuit = () => {
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   opacity: 0.8;
-}
-.up {
-  background-color: #fff;
-  height: 60vh;
-  margin-bottom: 20px;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.down {
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  height: 25vh;
 }
 
 .button-div {
