@@ -174,8 +174,9 @@ const onlineUsers = computed(() => playStore.getOnlineUsers);
 
 const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
-         // 친구 초대 알림 보내기
-        await playStore.sendInviteAlert(selectedFriend.value.id, route.params.roomId);
+        // 친구 초대 알림 보내기
+         console.log("초대 알림 방 ID: " + roomId.value)
+        await playStore.sendInviteAlert(selectedFriend.value.id, roomId.value);
         console.log("Invite selected friend:", selectedFriend.value);
     }
     closeInviteModalStatus();
@@ -213,6 +214,7 @@ console.log("isReady : " , isReady.value);
                 <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'play'">대기중</button>
                 <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
                 <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
+                <button class="btn text-white" style="background-color: gray;" @click="openInviteModalStatus" v-if="isInvited == 'false'">친구 초대하기</button>
             </div>
         </div>
 

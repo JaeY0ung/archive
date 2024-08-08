@@ -23,10 +23,8 @@ const fileInfo = ref({
     genreId: 0,
 });
 
-// 파일이 바뀔 때마다 파일 ref값 변경
 const handleFileChange = (event) => {
-    console.log(event.target.files[0].type)
-    if (event.target.files[0].type !== "image/jpeg") {
+    if (event.target.files[0].type != "image/jpeg") {
         fileInput.value.value = "";
         alert(".jpg 확장자의 파일을 업로드해 주세요");
         return;
@@ -41,6 +39,12 @@ const uploadSongAndFile = async () => {
         return;
     }
 
+    if (!fileInfo.value.title) {
+        alert("제목을 입력해주세요");
+        return;
+    }
+
+
     if (!fileInfo.value.composer) {
         alert("작곡가를 입력해주세요");
         return;
@@ -53,14 +57,18 @@ const uploadSongAndFile = async () => {
 
     const formData = new FormData();
 
-    formData.append("file", fileInfo.value.file);
+    formData.append( "file", fileInfo.value.file );
     formData.append( "title", new Blob([fileInfo.value.title], { type: "application/json" }) );
     formData.append( "composer", new Blob([fileInfo.value.composer], { type: "application/json" }) );
     formData.append( "genreId", new Blob([fileInfo.value.genreId], { type: "application/json" }) );
     
-    registerSong(formData, ({ data }) => {
-        router.go(0);
-    })
+    registerSong(
+        formData,
+        (res) => {
+            // router.go(0);
+            console.log(fileInfo.value)
+        }
+    )
 };
 </script>
 

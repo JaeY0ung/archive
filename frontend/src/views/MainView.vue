@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from 'vue';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
+import { useRouter } from "vue-router"
 import { searchSheetsByFilter, searchRecentChallengedsheets } from '@/api/sheet';
+
+const router = useRouter();
 
 const popularSheets = ref([]); // 인기 악보 리스트
 const newSheets = ref([]); // 새로 나온(New) 악보 리스트
@@ -38,19 +41,22 @@ const getRecommendsheets = async () => {
 	)
 }
 
-const getRecentChallengedsheets = async () => {
-	searchRecentChallengedsheets(
-		({ data }) => {
-			if (!data) return;
-			recentChallengedSheet.value = data;
-		}
-	)
-}
+// const getRecentChallengedsheets = async () => {
+// 	searchRecentChallengedsheets(
+// 		({ data }) => {
+// 			if (!data) return;
+// 			recentChallengedSheet.value = data;
+// 		}
+// 	)
+// }
 
 getPopularsheets();
 getnewsheets();
 getRecommendsheets();
 // getRecentChallengedsheets();
+const goToSheetDetail = (sheetId) => {
+	router.push({ name: 'sheetDetail', params: { sheetId } });
+};
 </script>
 
 <template>
@@ -62,7 +68,7 @@ getRecommendsheets();
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<div class="flex w-full absolute scroll-x">
 						<template v-if="popularSheets">
-							<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"/>
+							<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet" @click="goToSheetDetail(sheet.id)"/>
 						</template>
 					</div>
 				</div>
