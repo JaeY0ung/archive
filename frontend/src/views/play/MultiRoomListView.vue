@@ -61,16 +61,16 @@ const rankings = ref([
     </div>
 
     <div class="flex flex-col flex-grow ml-[5px] bg-green-200">
-      <div class="flex gap-[20px] justify-center items-center mt-[10px] h-[50px] bg-blue-200">
-        <div class="flex flex-grow h-full text-center items-center  rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('single')">혼자 연습하기</div>
-        <div class="flex flex-grow h-full text-center items-center  rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('multi')">방 만들기</div>
+      <div class="flex gap-[20px] justify-center items-center mt-[10px] h-[50px] bg-blue-200 p-[10px]">
+        <div class="flex-1 flex-col flex-grow h-full justify-center text-center items-center rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('single')">혼자 연습하기</div>
+        <div class="flex-1 flex-col flex-grow h-full justify-center text-center items-center rounded-md text-white text-3xl bg-blue-600 cursor-pointer" @click="selectMode('multi')">방 만들기</div>
       </div>
-      <div class="flex flex-grow flex-col mb-[10px] room-list" >
-        <h2>방 리스트</h2>
+      <div class="flex flex-grow flex-col h-full mb-[10px]" >
+        <h2 class="flex items-center h-[50px] mt-[5px] p-[10px] bg-blue-200">방 리스트</h2>
         <div class="flex flex-grow w-full h-full relative overflow-hidden">
-          <ul class="flex flex-grow flex-col w-full absolute scroll-y">
-            <li v-if="isLoading.value">Loading...</li>
-            <li v-else v-for="room in playStore.getRooms" :key="room.id" class="room-item" @click="enterRoom(room.id)">
+          <ul class="flex flex-grow flex-col w-full h-full absolute scroll-y p-[10px] gap-[5px] bg-yellow-300">
+            <div v-if="isLoading.value">Loading...</div>
+            <li v-else v-for="room in playStore.getRooms" :key="room.id" class="flex w-full h-[80px] justify-between items-center p-[10px] rounded-md  cursor-pointer bg-red-300" @click="enterRoom(room.id)">
               <span>{{ room.title }}</span>
               <span class="capacity">{{ room.occupancy }}/{{ room.capacity }}</span>
               <span>{{ room.status }}</span>
@@ -142,7 +142,6 @@ button {
   align-items: center;
   padding: 10px;
   margin: 10px 0;
-  background-color: #f9f9f9;
   border-radius: 5px;
 }
 
