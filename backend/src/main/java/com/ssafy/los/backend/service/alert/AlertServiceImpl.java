@@ -132,9 +132,10 @@ public class AlertServiceImpl implements AlertService {
         AlertDto savedAlertDto = savedAlert.toDto();
         savedAlertDto.setRoomId(alertDto.getRoomId()); // roomId를 저장된 AlertDto에 설정
         log.info("savedAlert.toDto(): " + savedAlert.toDto());
+        log.info("savedAlertDto: " + savedAlertDto.toString());
 
         // 저장된 Alert 엔티티의 정보를 이용하여 알림 전송
-        return sendMessage(savedAlert.toDto());
+        return sendMessage(savedAlertDto);
     }
 
 }
