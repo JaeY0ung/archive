@@ -113,8 +113,6 @@ function connect() {
                     score: "0",
                     isEmpty: true
                 }
-                opponent.value.name = "유저를 기다리는 중...";
-                opponent.value.isEmpty = true;
                 opponentReady.value = "false";
             }
         })
@@ -131,7 +129,7 @@ function disconnect() {
 }
 
 function sendExit(){
-    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: "exit", sender : user.nickname, content: 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: "exit", sender : user.nickname, content: 'true', sheetId: 0 }));
     userStore.userReady = "false";
 }
 
@@ -269,6 +267,7 @@ const handleBeforeUnload = async () => {
 if(isQuitting.value || isPopstate.value || isReloading.value){
 }else{
     await playStore.exitRoom(route.params.roomId);
+    sendExit();
 }
 };
 
@@ -278,12 +277,12 @@ onMounted(() => {
     isReady.value = "false";
     connect();
     // detectReload();
-  window.addEventListener('beforeunload', handleBeforeUnload);
     // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정
-  window.addEventListener('popstate', () => {
-    isPopstate.value = true;
-  });
-  window.addEventListener('beforeunload', sendExit);
+    window.addEventListener('beforeunload', sendExit);
+    window.addEventListener('popstate', () => {
+        isPopstate.value = true;
+    });
+    window.addEventListener('beforeunload', handleBeforeUnload);
   playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
 
 });
@@ -306,6 +305,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   } else {
     const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
     if (answer) {
+      sendExit();
       await playStore.exitRoom(route.params.roomId);
       next();
     //   window.location.href = "http://localhost:3000/room/multi/list";

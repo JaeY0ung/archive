@@ -36,8 +36,6 @@ public class WaitRoomController {
     @MessageMapping("/wait/ready/{roomId}")
     @SendTo("/wait/socket/ready/{roomId}")
     public PlayerReadyDto sendPlayerReady(PlayerReadyDto playerReadyDto) throws Exception {
-        // LoginUser 전송
-        log.info("들어왔습니다. {}", playerReadyDto.toString());
         return PlayerReadyDto.builder()
                 .sender(playerReadyDto.getSender())
                 .isReady(playerReadyDto.getIsReady())
@@ -50,6 +48,11 @@ public class WaitRoomController {
     @MessageMapping("/wait/start/{roomId}")
     @SendTo("/wait/socket/start/{roomId}")
     public PlayerStartDto sendPlayerReady(PlayerStartDto playerStartDto) throws Exception {
+        log.info("방 퇴장 신호. {}", playerStartDto.toString());
+        log.info("방 퇴장 신호. {}", playerStartDto.getType());
+        log.info("방 퇴장 신호. {}", playerStartDto.getContent());
+        log.info("방 퇴장 신호. {}", playerStartDto.getSender());
+        log.info("방 퇴장 신호. {}", playerStartDto.getSender());
         return playerStartDto;
     }
 
