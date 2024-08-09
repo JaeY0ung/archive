@@ -36,32 +36,45 @@ public class SheetController {
 
     private final SongService songService;
 
-//    @Value("${mid-file.path}")
-//    private String filePath;
-
     @PostMapping(value = "/insert/all", consumes = {"multipart/form-data"})
-    public void uploadSheet(@RequestPart(value = "files", required = false) List<MultipartFile>
-            files) {
+    public ResponseEntity<?> uploadSheet(
+            @RequestPart(value = "files", required = false) List<MultipartFile>
+                    files) {
 
         if (files == null || files.isEmpty()) {
-            log.info("파일이 포함되어 있지 않습니다.");
-            return;
+            log.debug("파일이 포함되어 있지 않습니다.");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-//        File folder = new File(filePath);
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) {
-                log.info("파일이 비어 있습니다.");
-            }
 
-            Song song = songService.registerSongAndFile(
-                    SongRegisterForm.builder()
-                            .composer(file.getOriginalFilename())
-                            .title(file.getOriginalFilename())
-                            .genreId(5L)
-                            .file(null)
-                            .build()
-            );
-            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
+        try {
+            for (MultipartFile file : files) {
+                if (file.isEmpty()) {
+                    log.info("파일이 비어 있습니다.");
+                    continue;
+                }
+
+                Song song = songService.registerSongAndFile(
+                        SongRegisterForm.builder()
+                                .composer(file.getOriginalFilename())
+                                .title(file.getOriginalFilename())
+                                .genreId(5L)
+                                .file(null)
+                                .build()
+                );
+
+                SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
+                        .file(file)
+                        .title(file.getOriginalFilename())
+                        .level(1)
+                        .songId(song.getId())
+                        .build();
+
+                sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm);
+//            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 

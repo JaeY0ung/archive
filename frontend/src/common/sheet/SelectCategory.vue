@@ -1,6 +1,7 @@
 <script setup>
+import { Carousel, Slide } from 'vue3-carousel';
 import { ref } from 'vue';
-
+import 'vue3-carousel/dist/carousel.css';
 const emit = defineEmits(['send-sheet-category'])
 
 const cards = ref([
@@ -12,32 +13,24 @@ const cards = ref([
 </script>
 
 <template>
-    <div class="card-box flex w-full justify-around items-center">
-        <template v-for="card in cards" >
-            <div class="card flex-1 cursor-pointer card-compact" @click="emit('send-sheet-category', card.sort)"> <!-- W-72 -->
-                <figure class="w-full">
-                    <img class="rounded-2xl" width="100%" :src="card.src" alt="card" />
-                </figure>
-                <div class="card-body">
-                    <h2 class="card-title">{{ card.title }}</h2>
-                    <p>{{ card.content }}</p>
-                    <div class="card-actions justify-end"></div>
+    <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
+        <Carousel class="flex h-full w-full items-center absolute" :wrap-around="true" :mouse-drag="true" :items-to-show="2.5" :snap-align="center"  :transition="300">
+            <Slide class="flex flex-grow-0 flex-shrink-0 flex-col w-[80px] h-[400px] cursor-pointer bg-black/80" v-for="(card, index) in cards" :key="index" >
+                <div class="ml-[5px] mr-[5px]" @click="emit('send-sheet-category', card.sort)">
+                    <div class="w-full">
+                        <img class="rounded-2xl" :src="card.src" alt="card" />
+                    </div>
+                    <div class="flex justify-center items-center w-full text-white font-bold" style="font-size:30px;">
+                        <h2>{{ card.title }}</h2>
+                    </div>
                 </div>
-            </div>
-        </template>
+            </Slide>
+        </Carousel>
     </div>
 </template>
 
 <style scoped>
-.card-box:has(div:hover) > div:not(:hover){
-    filter: blur(4px)
-}
 
-.card-box:has(div:hover) > div:hover{
-    width: 20vw;
-}
 
-.card{
-    transition: all 150ms ease-in-out;
-}
+
 </style>

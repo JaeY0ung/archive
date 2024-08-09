@@ -43,6 +43,9 @@ async function getMusicXmlById(sheetId, success){
 async function getMidById(sheetId, success){
     await local.get(`/sheets/${sheetId}/mid`).then(success).catch((err) => console.error(err));
 }
+async function registerdummySheetsByAdmin(params, success) {
+    await local.post(`/sheets/insert/all`, params).then(success).catch((err) => console.error(err));
+}
 
 export {
     searchSheetDetail,
@@ -55,4 +58,5 @@ export {
     dislikeSheet,
     getMusicXmlById,
     getMidById,
+    registerdummySheetsByAdmin,
 };
