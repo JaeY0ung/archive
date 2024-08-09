@@ -24,7 +24,7 @@ const fileInfo = ref({
 });
 
 const handleFileChange = (event) => {
-    if (event.target.files[0].type != "image/jpeg") {
+    if (event.target.files[0] && event.target.files[0].type != "image/jpeg") { // 파일이 있는데, jpg가 아닐 때
         fileInput.value.value = "";
         alert(".jpg 확장자의 파일을 업로드해 주세요");
         return;
@@ -33,10 +33,10 @@ const handleFileChange = (event) => {
 };
 
 const uploadSongAndFile = async () => {
-    // 파일 선택 안하고 제출 시 + 파일 선택했다 취소하고 제출 시
     if (!fileInfo.value.file) {
-        alert("파일을 선택해 주세요");
-        return;
+        if (!confirm("곡 이미지 파일이 없습니다. 제출할까요?")) {
+            return;
+        }
     }
 
     if (!fileInfo.value.title) {
@@ -65,8 +65,8 @@ const uploadSongAndFile = async () => {
     registerSong(
         formData,
         (res) => {
-            // router.go(0);
-            console.log(fileInfo.value)
+            router.go(0);
+            // console.log(fileInfo.value)
         }
     )
 };

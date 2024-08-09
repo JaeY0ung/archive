@@ -10,12 +10,12 @@ import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -26,12 +26,18 @@ public class SheetServiceImpl implements SheetService {
     private final SheetRepository sheetRepository;
     private final SongRepository songRepository;
     private final AuthService authService;
+    private final MusicService musicService;
 
     @Override
-    public Sheet registerSheetAndFile(SheetUploadForm sheetUploadForm)
+    @Transactional
+    public Long registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
-        // TODO : mid -> mp3 변환한 파일 추가로 저장하는 로직 구현하기
-        return registerSheet(sheetUploadForm, saveSheetFile(sheetUploadForm.getFile()));
+        String uuid = UUID.randomUUID().toString();
+        fileUploadUtil.uploadSheet(sheetUploadForm.getFile(), uuid);
+        Sheet sheet = registerSheet(sheetUploadForm, uuid);
+        log.info(sheet.getFileName() + ": 저장되었습니다.");
+        musicService.saveMidFileWithSplit(sheet.getFileName() + ".mid");
+        return sheet.getId();
     }
 
     @Override
@@ -127,9 +133,6 @@ public class SheetServiceImpl implements SheetService {
         return true;
     }
 
-    private String saveSheetFile(MultipartFile file) throws IllegalArgumentException {
-        return fileUploadUtil.uploadSheet(file); // 로컬에 저장
-    }
 
     private Sheet registerSheet(SheetUploadForm sheetUploadForm, String fileName)
             throws IllegalArgumentException {

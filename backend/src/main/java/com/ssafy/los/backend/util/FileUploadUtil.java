@@ -7,7 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -18,6 +17,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Component
 public class FileUploadUtil {
+
+    private final FileValidator fileValidator;
+
+    public FileUploadUtil(FileValidator fileValidator) {
+        this.fileValidator = fileValidator;
+    }
 
     @Value("${file.path.user-img}")
     private String userImgFolderPath;
@@ -34,48 +39,44 @@ public class FileUploadUtil {
     @Value("${file.path.play-record}")
     private String playRecordFolderPath;
 
-    public String uploadUserImg(MultipartFile file) throws IllegalArgumentException {
-        validateImageFile(file);
-        return saveFile(userImgFolderPath, file);
+    public void uploadUserImg(MultipartFile file, String uuid) throws IllegalArgumentException {
+        fileValidator.validateImageFile(getExtension(file));
+        saveFile(userImgFolderPath, file, uuid);
     }
 
-    public String uploadSongImg(MultipartFile file) throws IllegalArgumentException {
-        validateImageFile(file);
-        return saveFile(songImgFolderPath, file);
+    public void uploadSongImg(MultipartFile file, String uuid) throws IllegalArgumentException {
+        fileValidator.validateImageFile(getExtension(file));
+        saveFile(songImgFolderPath, file, uuid);
     }
 
-    public String uploadSheet(MultipartFile file) throws IllegalArgumentException {
-        validateMidFile(file);
-        return saveFile(sheetMidFileFolderPath, file);
+    public void uploadSheet(MultipartFile file, String uuid) throws IllegalArgumentException {
+        fileValidator.validateMidFile(getExtension(file));
+        saveFile(sheetMidFileFolderPath, file, uuid);
     }
 
-    public String uploadPlayRecord(MultipartFile file)
+    public void uploadPlayRecord(MultipartFile file, String uuid)
             throws IllegalArgumentException {
-        validateWebmFile(file);
-        return saveFile(playRecordFolderPath, file);
+        fileValidator.validateWebmFile(getExtension(file));
+        saveFile(playRecordFolderPath, file, uuid);
     }
 
     public Resource downloadSheetFile(String fileName) throws IllegalArgumentException {
         return downloadOneFile(sheetMidFileFolderPath, fileName);
     }
 
-    public String getSongImg(String imgName) {
-        Path path = getSongImgPath(imgName);
+    public String getSongImg(String imgFileNameIncludesExt) {
+        Path path = getSongImgPath(imgFileNameIncludesExt);
         return getFileAsBase64(path);
     }
 
-    // TODO : 바꾸기
     public String getMusicXml(String fileName) {
-        int dotIndex = fileName.lastIndexOf(".");
-        fileName = fileName.substring(0, dotIndex) + ".musicxml";
-        log.info(fileName);
-        Path path = getMusicXmlPath(fileName);
+        Path path = getMusicXmlPath(
+                fileName + ".musicxml");
         return readFileAsString(path);
     }
 
-    // TODO : 바꾸기
     public String getMid(String fileName) {
-        Path path = getMusicXmlPath(fileName);
+        Path path = getMusicXmlPath(fileName + ".mid");
         return readFileAsString(path);
     }
 
@@ -122,14 +123,13 @@ public class FileUploadUtil {
         }
     }
 
-    private String saveFile(String folderPath, MultipartFile file)
+    private void saveFile(String folderPath, MultipartFile file, String uuid)
             throws IllegalArgumentException {
         makeDirectoryIfNotExists(folderPath);
-        String saveFileName = UUID.randomUUID() + "." + getExtension(file);
+        String saveFileName = uuid + "." + getExtension(file);
 
         try {
             file.transferTo(new File(folderPath, saveFileName));
-            return saveFileName;
         } catch (IOException e) {
             throw new IllegalArgumentException("Could not save file " + saveFileName, e);
         }
@@ -168,24 +168,4 @@ public class FileUploadUtil {
         return originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
     }
 
-    private void validateImageFile(MultipartFile file) throws IllegalArgumentException {
-        String ext = getExtension(file);
-        if (!ext.equals("png") && !ext.equals("jpg") && !ext.equals("jpeg")) {
-            throw new IllegalArgumentException("파일의 확장자가 png, jpg, jpeg 증 히나가 아닙니다.");
-        }
-    }
-
-    private void validateMidFile(MultipartFile file) throws IllegalArgumentException {
-        String ext = getExtension(file);
-        if (!ext.equals("mid")) {
-            throw new IllegalArgumentException("파일의 확장자가 mid 가 아닙니다.");
-        }
-    }
-
-    private void validateWebmFile(MultipartFile file) throws IllegalArgumentException {
-        String ext = getExtension(file);
-        if (!ext.equals("webm")) {
-            throw new IllegalArgumentException("파일의 확장자가 webm 가 아닙니다.");
-        }
-    }
 }
