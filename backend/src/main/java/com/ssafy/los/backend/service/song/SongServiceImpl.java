@@ -9,8 +9,11 @@ import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.GenreService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -37,9 +40,15 @@ public class SongServiceImpl implements SongService {
     }
 
     @Override
+    @Transactional
     public Song registerSongAndFile(SongRegisterForm songRegisterForm)
             throws IllegalArgumentException {
-        return registerSong(songRegisterForm, saveSongImgFile(songRegisterForm.getFile()));
+        String uuid = UUID.randomUUID().toString();
+
+        saveSongImgFile(songRegisterForm.getFile(), uuid);
+
+        return registerSong(songRegisterForm,
+                uuid + FilenameUtils.getExtension(songRegisterForm.getFile().getName()));
     }
 
     @Override
@@ -53,8 +62,9 @@ public class SongServiceImpl implements SongService {
         return false;
     }
 
-    private String saveSongImgFile(MultipartFile file) throws IllegalArgumentException {
-        return fileUploadUtil.uploadSongImg(file); // 로컬에 저장
+    private void saveSongImgFile(MultipartFile file, String uuid)
+            throws IllegalArgumentException {
+        fileUploadUtil.uploadSongImg(file, uuid); // 로컬에 저장
     }
 
     private Song registerSong(SongRegisterForm songRegisterForm, String fileName)

@@ -4,17 +4,18 @@ import { useRouter } from "vue-router";
 import { registerSheet } from "@/api/sheet";
 import { searchSongsByFilter } from "@/api/song";
 import SongRegisterModal from "@/common/modal/SongRegisterModal.vue"
+import { tierInfo } from "@/util/tier-info"
 const router = useRouter();
 
 const keyword = ref("");
 const fileInput = ref(null);
 const modalVisibility = ref(false);
 const songs = ref([{
-    id: Number,
-    title: String,
-    composer: String,
-    genreTitle: String,
-    img: String,
+    id: "",
+    title: "",
+    composer: "",
+    genreTitle: "",
+    img: "",
     imageUrl: "",
 }])
 
@@ -46,9 +47,10 @@ const handleFileChange = (event) => {
 const searchSongsByKeyword = () => {
     searchSongsByFilter(
         { keyword: keyword.value },
-        ({data})=>{
+        ({data}) => {
             if (!data) return;
             songs.value = data;
+            console.log(data)
             songs.value.map(s => s.img ? s.imageUrl = `data:image/jpeg;base64,${s.img}` : '기본 이미지'); 
         }
     )
@@ -117,7 +119,11 @@ const closeSongRegisterModal = () => {
                 <div class="label">
                     <span class="label-text">악보 티어</span>
                 </div>
-                <input v-model="fileInfo.level" type="text" class="input input-bordered w-full" />
+                <select v-model="fileInfo.level">
+                    <template v-for="tier in tierInfo" :key="tier.level">
+                        <option v-if="tier.level" :value="tier.level">{{ tier.title }}</option>
+                    </template>
+                </select>
             </label>
 
             <div class="flex flex-row items-center">

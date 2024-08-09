@@ -57,7 +57,6 @@ public class SongController {
                 .composer(composer)
                 .genreId(genreId)
                 .build();
-        log.info(title + " " + composer);
         try {
             return new ResponseEntity<>(songService.registerSongAndFile(songRegisterForm).getId(),
                     HttpStatus.CREATED);
