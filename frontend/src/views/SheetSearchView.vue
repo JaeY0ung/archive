@@ -65,86 +65,115 @@ watch(searchFilter, () => {
 </script>
 
 <template>
-	<div class="flex flex-col w-full h-full mb-[10px] bg-red-500">
-		<div class="flex w-full justify-between items-center p-[20px] bg-yellow-200">
-			<div class="flex-1 text-left">
+	<div class="flex flex-col w-full h-full mb-[10px] bg-red-600 bg-opacity-0">
+		<div class="flex w-full justify-between items-center p-[20px]  bg-white bg-opacity-80 shadow-md rounded-xl mb-2" >
+			<div class="flex-1 text-left text-1g font-semibold text-gray-700">
 				<p>
-					<span class="highlight">{{ searchFilter.keyword }}</span> 악보 ( {{ sheets.length }}개의 결과 )
+					<span class="text-indigo-600">{{ searchFilter.keyword }}</span> 악보 ( {{ sheets.length }}개의 결과 )
 				</p>
 			</div>
-			<div class="flex items-center gap-[10px]">
-				<select v-model="searchFilter.sort">
+			<div class="flex items-center space-x-4">
+				<!-- <select v-model="searchFilter.sort" class="p-2 border rounded-md bg-gray-50">
 					<option v-for="sort in sortInfo" :value="sort.value">{{ sort.title }}</option>
 				</select>
 
-				<select v-model="view">
+				<select v-model="view" class="p-2 border rounded-md bg-gray-50">
+					<option value="list">리스트</option>
+					<option value="card">카드</option>
+				</select> -->
+				<div class="relative">
+				<select v-model="searchFilter.sort" class="p-2 pl-4 pr-8 border rounded-md  bg-gray-50 text-gray-700 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-gray-500">
+					<option v-for="sort in sortInfo" :value="sort.value">{{ sort.title }}</option>
+				</select>
+				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+					<svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293l4.293 4.293 4.293-4.293 1.414 1.414L10 14.414l-5.707-5.707z"/></svg>
+				</div>
+				</div>
+
+				<div class="relative">
+				<select v-model="view" class="p-2 pl-4 pr-8 border rounded-md bg-gray-50 text-gray-700 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-gray-500">
 					<option value="list">리스트</option>
 					<option value="card">카드</option>
 				</select>
+				<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+					<svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293l4.293 4.293 4.293-4.293 1.414 1.414L10 14.414l-5.707-5.707z"/></svg>
+				</div>
+				</div>
 			</div>
 		</div>
 
-		<div class="flex flex-grow w-full mb-[10px]">
-			<div class="flex-2 w-[200px] bg-purple-300">
-				<span class="text-filter highlight mb-5">검색 필터</span>
-				
-				<div class="filter-group flex flex-col gap-5">
+		<div class="flex flex-grow space-x-4 overflow-hidden">
 
-					<div class="filter-item">
-						<span class="filter-category highlight">티어</span>
-						<hr class="filter-divider" />
-						<template v-for="t in tierInfo">
-							<div class="filter-value">
-								<label for="bronze">{{ t.title }}</label>
-								<input type="checkbox" :value="t.level" v-model="searchFilter.levels" />
+			<!-- 검색 필터 -->
+			<div class="flex-shrink-0 w-1/4 bg-white bg-opacity-50 p-4 rounded-lg shadow-md space-y-4 box-border max-h-[calc(100vh-160px)] overflow-y-auto text-sm">
+				<span class="text-filter mb-4 text-gray-800">검색 필터</span>
+
+					<!-- 티어 필터 -->
+					<div class="space-y-1">
+						<span class="text-sm font-semibold text-gray-700">티어</span>
+						<hr class="border-gray-300" />
+						<div class="space-y-1">
+						<template v-for="tier in tierInfo">
+							<div class="flex items-center space-x-2 ml-3">
+								<label>{{ tier.title }}</label>
+								<input type="checkbox" :value="tier.level" v-model="searchFilter.levels" />
 							</div>
 						</template>
-					</div>
-
-					<div class="filter-item">
-						<span class="filter-category highlight">무료/유료</span>
-						<hr class="filter-divider" />
-						<template v-for="price in priceInfo">
-							<div class="filter-value">
-								<label for="free">{{ price.title }}</label>
-								<input type="checkbox" id="free" :value="price.value" v-model="searchFilter.prices" />
-							</div>
-						</template>
+                    </div>
 					</div>
 					
-					<div class="filter-item">
-						<span class="filter-category highlight">장르</span>
-						<hr class="filter-divider" />
-						<template v-for="genre in genres">
-							<div class="filter-value">
-								<label for="ost">{{ genre.title }}</label>
-								<input type="checkbox" :value="genre.id" v-model="searchFilter.genres" />
+					<!-- 무료/유료 필터 -->
+					<div class="space-y-2">
+						<h3 class="font-semibold text-gray-700 text-sm">무료/유료</h3>
+						<hr class="border-gray-300" />
+						<div class="space-y-1">
+							<template v-for="price in priceInfo">
+							<div class="flex items-center space-x-2 ml-2">
+								<label>{{ price.title }}</label>
+								<input type="checkbox" :value="price.value" v-model="searchFilter.prices" />
 							</div>
+							</template>
+						</div>
+					</div>
+					
+					<!-- 장르 필터 -->
+					<div class="space-y-2">
+					<h3 class="text-sm font-semibold text-gray-700">장르</h3>
+					<hr class="border-gray-300" />
+					<div class="space-y-1">
+						<template v-for="genre in genres">
+						<div class="flex items-center space-x-2 ml-2">
+							<label>{{ genre.title }}</label>
+							<input type="checkbox" :value="genre.id" v-model="searchFilter.genres" />
+						</div>
 						</template>
 					</div>
+					</div>
 
+					<!-- 성공 여부 필터 -->
 					<template v-if="isLogin">
-						<div class="filter-item">
-							<span class="filter-category highlight">성공 여부</span>
-							<hr class="filter-divider" />
-
-							<div class="filter-value">
-								<label for="success">성공</label>
-								<input type="checkbox" value="SUCCESS" v-model="searchFilter.successStatuses"/>
+						<div class="space-y-1">
+							<h3 class="text-sm font-semibold text-gray-700">성공 여부</h3>
+							<hr class="border-gray-300" />
+							<div class="space-y-1">
+							<div class="flex items-center space-x-2 ml-2">
+								<label>성공</label>
+								<input type="checkbox" value="SUCCESS" v-model="searchFilter.successStatuses" />
 							</div>
-
-							<div class="filter-value">
-								<label for="fail">실패</label>
-								<input type="checkbox" value="FAIL" v-model="searchFilter.successStatuses"/>
+								<div class="flex items-center space-x-2 ml-2">
+									<label>실패</label>
+									<input type="checkbox" value="FAIL" v-model="searchFilter.successStatuses" />
+								</div>
 							</div>
 						</div>
 					</template>
 				</div>
-			</div>
-			<div class="flex-8 flex-grow bg-green-300">
+			
+		
+			<div class="flex-grow bg-white bg-opacity-50  p-4 rounded-lg shadow-md box-border overflow-y-auto max-h-[calc(100vh-160px)]">
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<template v-if="sheets.length">
-						<div class="flex flex-col w-full absolute scroll-y" :class="[view === 'card' ? 'scroll-x' : 'scroll-y']">
+						<div class="flex flex-col w-full absolute scroll-y mt-3" :class="[view === 'card' ? 'scroll-x' : 'scroll-y']">
 							<SmallSheetCard v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" />
 						</div>
 					</template>
@@ -154,7 +183,7 @@ watch(searchFilter, () => {
 				</div>
 			</div>
 		</div>
-	</div>
+	</div>	
 </template>
 
 <style scoped>
@@ -175,14 +204,11 @@ watch(searchFilter, () => {
 }
 
 .text-filter {
-	font-size: 1.5em;
+	font-size: 1.2em;
 	/* Larger font size for the "검색 필터" text */
 	font-weight: bold;
 }
 
-.highlight {
-	color: #8a8ecd;
-}
 
 .filter-group {
 	margin-top: 10px;
