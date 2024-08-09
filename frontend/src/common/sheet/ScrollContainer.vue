@@ -32,8 +32,12 @@ const handleResize = entries => {
 onMounted(() => {
     resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(outerDiv.value);
-    musicStore.loadAndSetupOsmd(container.value, props.sheetId);
-    updateContainerSize();
+    containerWidth.value = outerDiv.value.offsetWidth;
+    containerHeight.value = outerDiv.value.offsetHeight;
+    musicStore.loadAndSetupOsmd(container.value, props.sheetId)
+    .then(
+        updateContainerSize()
+    );
 });
 
 onUnmounted(() => {
@@ -41,12 +45,16 @@ onUnmounted(() => {
         resizeObserver.unobserve(outerDiv.value);
         resizeObserver.disconnect();
     }
+    if (musicStore.osmd) {
+        musicStore.osmd.clear(); // OSMD 객체 내의 리소스를 해제합니다.
+        musicStore.osmd = null; // OSMD 객체를 null로 설정하여 해제합니다.
+    }
 });
 </script>
 
 <template>
     <div ref="outerDiv" class="flex flex-grow overflow-hidden relative">
-        <div ref="container" class="pointer-events-none absolute overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px' }" ></div>
+        <div ref="container" class="pointer-events-none absolute overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px', maxHeight: containerHeight+'px' }" ></div>
     </div>
 </template>
 
