@@ -57,8 +57,12 @@ export const useUserStore = defineStore(
             const notificationBody = payload.notification.body;
             const alertType = payload.data.alertTypeId ? parseInt(payload.data.alertTypeId, 10) : null;
             const roomId = payload.data.roomId ? parseInt(payload.data.roomId, 10) : null;
+
+            // readStatus 기본값 설정
+            const readStatus = payload.data.readStatus !== undefined ? payload.data.readStatus : false;
+
             if (window && window.showNotification) {
-                window.showNotification(notificationTitle, notificationBody, alertType, roomId);
+                window.showNotification(notificationTitle, notificationBody, alertType, roomId, readStatus);
             }
         });
 
