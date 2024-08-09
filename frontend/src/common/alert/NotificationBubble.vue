@@ -75,8 +75,8 @@ function declineInvite(notification) {
 }
 
 // Expose these functions for external use
-window.showNotification = (title, body, alertType, roomId) => {
-    notifications.value.push({  title, body, alertType, roomId });
+window.showNotification = (title, body, alertType, roomId, readStatus = false) => {
+    notifications.value.push({  title, body, alertType, roomId, readStatus});
     showBadge.value = true;
     showBubble.value = true; // 알림이 오면 말풍선 보이도록 설정
 };
