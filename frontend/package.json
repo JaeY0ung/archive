@@ -29,7 +29,8 @@
     "stompjs": "^2.3.3",
     "sweetalert2": "^11.12.4",
     "vue": "^3.4.29",
-    "vue-router": "^4.0.13"
+    "vue-router": "^4.0.13",
+    "vue3-carousel": "^0.3.3"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -1,22 +1,18 @@
 package com.ssafy.los.backend.dto.user;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LoginUser {
 
     private String id;
     private String nickname;
+    private String userImg;
 
-    // 기본 생성자
-    public LoginUser() {
-    }
-
-    // 빌더 패턴
-    @Builder
-    public LoginUser(String id, String nickname) {
-        this.id = id;
-        this.nickname = nickname;
-    }
 }
