@@ -38,9 +38,13 @@ watch(notifications, () => {
 
 // 수락 버튼 클릭 시 해당 방으로 이동
 function acceptInvite(roomId) {
-    console.log("수락 버튼 클릭시 이동할 roomId:", roomId); // 디버깅 로그
     if (roomId) {
-        router.push({ name: 'multiWait', params: { roomId } });
+      router.push({ name: 'multiWait', params: { roomId } }).then(() => {
+            // 방으로 이동한 후 알림 말풍선 닫기
+            showBubble.value = false;
+        }).catch(err => {
+            console.error("방으로 이동 실패:", err);
+        });
     } else {
         console.error("roomId is undefined or null");
     }
