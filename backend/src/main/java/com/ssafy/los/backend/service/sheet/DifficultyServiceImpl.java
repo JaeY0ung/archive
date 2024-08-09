@@ -134,7 +134,7 @@ public class DifficultyServiceImpl implements DifficultyService {
     }
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
-    public int calculateDifficulty(Long sheetId) {
+        public int calculateDifficulty(Long sheetId) {
         Sheet findSheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
 

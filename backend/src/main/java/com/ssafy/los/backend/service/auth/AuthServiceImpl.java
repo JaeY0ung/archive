@@ -8,7 +8,6 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.user.CustomUserDetails;
 import com.ssafy.los.backend.dto.user.request.UserCreateDto;
 import com.ssafy.los.backend.dto.user.response.UserDetailDto;
-import com.ssafy.los.backend.service.user.UserService;
 import com.ssafy.los.backend.service.user.UserStatusService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import com.ssafy.los.backend.util.JWTUtil;
@@ -30,34 +29,24 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final OAuth2UserService oAuth2UserService;
     private final UserStatusService userStatusService;
-    private final UserService userService;
     private final FileUploadUtil fileUploadUtil;
 
     @Override
     public UserDetailDto getUserInfo(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            String accessToken = bearerToken.substring(7);
-            String email = jwtUtil.getUsername(accessToken);
-            User findUser = userService.searchUserByEmail(email);
-            UserDetailDto userDetailDto = UserDetailDto.builder()
-                    .id(findUser.getId())
-                    .role(findUser.getRole())
-                    .email(findUser.getEmail())
-                    .nickname(findUser.getNickname())
-                    .userImgName(findUser.getUserImg()) // 임시
-                    .birthDate(findUser.getBirthDate())
-                    .gender(findUser.getGender())
-                    .cash(findUser.getCash())
-                    .singleScore(findUser.getSingleScore())
-                    .multiScore(findUser.getMultiScore())
-                    .deletedAt(findUser.getDeletedAt())
-                    .build();
+        User loginUser = getLoginUser();
 
-            userDetailDto.loadUserImg(fileUploadUtil);
-            return userDetailDto;
-        }
-        return null;
+        UserDetailDto userDetailDto = UserDetailDto.builder()
+                .id(loginUser.getId())
+                .role(loginUser.getRole())
+                .nickname(loginUser.getNickname())
+                .userImgName(loginUser.getUserImg())
+                .cash(loginUser.getCash())
+                .singleScore(loginUser.getSingleScore())
+                .multiScore(loginUser.getMultiScore())
+                .build();
+
+        userDetailDto.loadUserImg(fileUploadUtil);
+        return userDetailDto;
     }
 
     @Override
@@ -92,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String email = jwtUtil.getUsername(refreshToken);
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndDeletedAtNull(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 이메일의 유저가 없습니다"));
         String userId = user.getId().toString();
 
@@ -104,7 +93,6 @@ public class AuthServiceImpl implements AuthService {
 
         refreshTokenRepository.deleteById(refreshToken);
         userStatusService.setUserOffline(Long.parseLong(userId));
-
     }
 
     @Override
@@ -124,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = jwtUtil.createRefreshJwt(email, role);
         response.addCookie(createCookie("refreshToken", refreshToken));
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByEmailAndDeletedAtNull(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 이메일의 유저가 없습니다"));
         RefreshToken redis = new RefreshToken(refreshToken, user.getId());
         refreshTokenRepository.save(redis);
@@ -140,7 +128,7 @@ public class AuthServiceImpl implements AuthService {
             return null;
         }
         String email = ((CustomUserDetails) principal).getUsername();
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndDeletedAtNull(email)
                 .orElseThrow(() -> new IllegalArgumentException(
                         LoginMessage.WRONG_LOGIN_REQUEST.getValue()));
     }

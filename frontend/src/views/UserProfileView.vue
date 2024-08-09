@@ -166,245 +166,329 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="flex flex-col w-full items-center pt-[50px] mb-[10px] bg-red-300">
-        <div v-if="userNotFound" class="user-not-found">
-            <h2>사용자를 찾을 수 없습니다</h2>
-            <p>요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.</p>
-            <button class="back-btn" @click="$router.push('/')">메인으로 돌아가기</button>
+    <div class="flex flex-col flex-grow w-full items-center justify-center bg-purple-200">
+        <div class="flex flex-col flex-grow w-[80%] mb-[10px] rounded-xl bg-white shadow-[0 4px 15px 0 rgb(0 0 0 0.1)]">
+            <div v-if="userNotFound" class="user-not-found">
+                <h2>사용자를 찾을 수 없습니다</h2>
+                <p>요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.</p>
+                <button class="btn back-btn" @click="$router.push('/')">메인으로 돌아가기</button>
+            </div>
+
+            <template v-else>
+                <div class="flex w-full h-[200px] justify-between items-center p-[30px] bg-blue-200 rounded-t-xl">
+                    <div class="w-[140px] h-[140px] min-w-[140px] bg-red-300 rounded-[50%] overflow-hidden shadow-[0 2px 5px 0 rgb(0 0 0 0.1)]">
+                        <img
+                            v-if="isValidUserImg"
+                            :src="userImg"
+                            alt="User Profile"
+                            class="profile-image"
+                            @error="handleImageError"
+                        />
+                        <Profile v-else class="profile-icon" />
+                    </div>
+                    <div class="flex-grow ml-[30px]">
+                        <h2 class="user-name">{{ userProfile?.nickname }}</h2>
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <span class="stat-value">{{ userProfile?.singleScore }}</span>
+                                <span class="stat-label">Score</span>
+                            </div>
+                            <div
+                                class="stat-item clickable"
+                                @click="openFollowModal('followers')"
+                            >
+                                <span class="stat-value">{{ followersCount }}</span>
+                                <span class="stat-label">Followers</span>
+                            </div>
+                            <div
+                                class="stat-item clickable"
+                                @click="openFollowModal('followings')"
+                            >
+                                <span class="stat-value">{{ followingsCount }}</span>
+                                <span class="stat-label">Following</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="profile-actions">
+                        <template v-if="!isOwnProfile">
+                            <button
+                                :class="['btn', 'follow-btn', { 'unfollow-btn': isFollowing }]"
+                                @click="toggleFollow"
+                            >
+                                {{ isFollowing ? "Unfollow" : "Follow" }}
+                            </button>
+                            <button class="btn fight-btn">Fight</button>
+                        </template>
+                        <button v-else class="btn edit-btn" @click="goToEditPage">
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col flex-grow w-full bg-yellow-200 rounded-b-xl overflow-hidden">
+                    <div class="">최근 싱글 플레이</div>
+                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
+                        <div class="flex w-full absolute scroll-x">
+                            <SmallSheetCard
+                                v-for="sheet in mockRecentPlayedSheets"
+                                :key="sheet.id"
+                                :sheet="sheet"
+                            />
+                        </div>
+                    </div>
+
+                    <h3>최근 대결 플레이</h3>
+                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
+                        <div class="flex w-full absolute scroll-x">
+                            <SmallSheetCard
+                                v-for="sheet in mockRecentBattleSheets"
+                                :key="sheet.id"
+                                :sheet="sheet"
+                            />
+                        </div>
+                    </div>
+
+                    <h3>좋아요한 악보</h3>
+                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
+                        <div class="flex w-full absolute scroll-x">
+                            <SmallSheetCard
+                                v-for="sheet in mockLikedSheets"
+                                :key="sheet.id"
+                                :sheet="sheet"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </template>
         </div>
 
-        <template v-else>
-            <div class="user-profile">
-                <div class="profile-image-container">
-                    <img
-                        v-if="isValidUserImg"
-                        :src="userImg"
-                        alt="User Profile"
-                        class="profile-image"
-                        @error="handleImageError"
-                    />
-                    <Profile v-else class="profile-icon" />
-                </div>
-                <span class="user-name">{{ userProfile?.nickname }}</span>
-                <span class="single-score">Score: {{ userProfile?.singleScore }}</span>
-                <span class="followers" @click="openFollowModal('followers')"
-                    >Followers: {{ followersCount }}</span
-                >
-                <span class="following" @click="openFollowModal('followings')"
-                    >Following: {{ followingsCount }}</span
-                >
-                <template v-if="!isOwnProfile">
-                    <button
-                        :class="['follow-btn', { 'unfollow-btn': isFollowing }]"
-                        @click="toggleFollow"
-                    >
-                        {{ isFollowing ? "Unfollow" : "Follow" }}
-                    </button>
-                    <button class="fight-btn">Fight</button>
-                </template>
-                <button v-else class="edit-btn" @click="goToEditPage">Edit</button>
-            </div>
-
-            <div class="flex flex-col w-full gap-[20px]">
-                <div class="flex flex-grow flex-col w-full h-[150px] gap-5">
-                    <h3>최근 싱글 플레이</h3>
-                    <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
-                        <div class="flex w-full absolute scroll-x">
-                            <SmallSheetCard
-                            v-for="sheet in mockRecentPlayedSheets"
-                            :key="sheet.id"
-                            :sheet="sheet"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-grow flex-col w-full h-[150px] gap-5">
-                    <h3>최근 대결 플레이</h3>
-                    <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
-                        <div class="flex w-full absolute scroll-x">
-                            <SmallSheetCard
-                            v-for="sheet in mockRecentBattleSheets"
-                            :key="sheet.id"
-                            :sheet="sheet"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex flex-grow flex-col w-full h-[150px] gap-5">
-                    <h3>좋아요한 악보</h3>
-                    <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
-                        <div class="flex w-full absolute scroll-x">
-                            <SmallSheetCard
-                            v-for="sheet in mockLikedSheets"
-                            :key="sheet.id"
-                            :sheet="sheet"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <FollowModal
-                v-if="showFollowersModal || showFollowingsModal"
-                :title="followModalTitle"
-                :follow-list="followList"
-                @close="closeModal"
-            />
-        </template>
+        <FollowModal
+            v-if="showFollowersModal || showFollowingsModal"
+            :title="followModalTitle"
+            :follow-list="followList"
+            @close="closeModal"
+        />
     </div>
 </template>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Poppins:wght@300;400;600&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 10px 20px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+div{
+    font-family: "Roboto", sans-serif;
 }
+
+.profile-container {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
 
 .profile-image-container {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f0f0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.profile-image {
+.profile-image,
+.profile-icon {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
 .profile-icon {
-    width: 100%;
-    height: 100%;
-    color: #666;
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #6c757d;
+    font-size: 40px;
 }
 
-.user-name {
-    font-weight: bold;
-    font-size: 1.2em;
+x.user-name {
+    font-family: "Poppins", sans-serif;
+    font-size: 2em;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #2c3e50;
 }
 
-.single-score,
-.followers,
-.following {
-    color: #555;
+.stats-container {
+    display: flex;
+    gap: 30px;
 }
 
-.followers,
-.following {
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+.clickable {
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.followers:hover,
-.following:hover {
-    text-decoration: underline;
+.clickable:hover {
+    transform: translateY(-2px);
 }
 
-.fight-btn,
-.follow-btn {
-    padding: 5px 15px;
+.clickable:hover .stat-value {
+    color: #3498db;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 1em;
+    transition: all 0.3s;
+    font-family: "Poppins", sans-serif;
 }
 
-.fight-btn {
-    background-color: #ff4444;
-    color: white;
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.follow-btn,
+.unfollow-btn,
+.fight-btn,
+.edit-btn {
+    display: flex;
+    align-items: center;
+}
+
+.follow-btn::before,
+.unfollow-btn::before,
+.fight-btn::before,
+.edit-btn::before {
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 8px;
 }
 
 .follow-btn {
-    background-color: #4444ff;
+    background-color: #3498db;
     color: white;
+}
+
+.follow-btn::before {
+    content: "\f234";
 }
 
 .unfollow-btn {
-    background-color: #333333;
+    background-color: #95a5a6;
     color: white;
 }
 
-.sheet-section {
-    width: 100%;
-    padding: 20px;
-    background-color: rgb(255, 255, 255, 0.5);
-    border-radius: 15px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+.unfollow-btn::before {
+    content: "\f503";
 }
 
-.scroll-x {
-    display: flex;
-    overflow-x: auto;
-    padding: 10px 0;
+.fight-btn {
+    background-color: #e74c3c;
+    color: white;
 }
 
-.card-wrapper {
-    flex: 0 0 auto;
-    width: 180px;
-    margin-right: 15px;
-}
-
-h3 {
-    margin-bottom: 10px;
-    font-size: 1.2em;
-    color: #333;
+.fight-btn::before {
+    content: "\f6de";
 }
 
 .edit-btn {
-    padding: 5px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    background-color: #44ff44;
+    background-color: #2ecc71;
     color: white;
+}
+
+.edit-btn::before {
+    content: "\f304";
+}
+
+
+.sheet-section h3 {
+    margin-bottom: 20px;
+    font-size: 1.4em;
+    color: #2c3e50;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding-bottom: 20px;
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+    background: #e0e0e0;
+    border-radius: 4px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+    background-color: #3498db;
+    border-radius: 4px;
 }
 
 .user-not-found {
     text-align: center;
     padding: 50px;
-    background-color: #f8f8f8;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
 }
 
 .user-not-found h2 {
-    color: #ff4444;
-    font-size: 24px;
-    margin-bottom: 15px;
+    color: #e74c3c;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
 }
 
 .user-not-found p {
-    color: #666;
-    margin-bottom: 20px;
+    color: #34495e;
+    margin-bottom: 25px;
+    font-size: 1.1em;
 }
 
 .back-btn {
-    padding: 10px 20px;
-    background-color: #4444ff;
+    background-color: #3498db;
     color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
 }
 
 .back-btn:hover {
-    background-color: #3333cc;
+    background-color: #2980b9;
+}
+
+.back-btn::before {
+    content: "\f060";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    margin-right: 8px;
 }
 </style>

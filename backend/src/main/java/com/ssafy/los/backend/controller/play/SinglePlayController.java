@@ -15,6 +15,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -31,6 +32,8 @@ import java.io.IOException;
 @RequestMapping("/play/single")
 public class SinglePlayController {
 
+    @Value("${fastapi.server.url}")
+    private String fastapiServerUrl;
     private final SinglePlayService singlePlayService;
     private final SheetService sheetService;
 
@@ -39,7 +42,7 @@ public class SinglePlayController {
     public ResponseEntity<?> sendIntermediateScoreToPython(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("sheetId") Long sheetId) {
         log.info("Client로부터 중간 점수를 전송 받음: {}", file);
 
-        String url = "http://localhost:8000/fastapi/playing";
+        String url = fastapiServerUrl+"/playing";
 
         Sheet sheet = sheetService.searchById(sheetId);
 
