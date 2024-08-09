@@ -1,7 +1,10 @@
 package com.ssafy.los.backend.config.web_socket;
 
+import com.ssafy.los.backend.interceptor.JwtInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -9,10 +12,13 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Value("${cors.allowedOrigins}")
     private String allowedOrigins;
+
+    private final JwtInterceptor jwtInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -31,6 +37,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         // https 웹소켓 지원
         registry.addEndpoint("/archive-websocket").setAllowedOrigins(allowedOrigins)
                 .withSockJS(); // 커넥션을 맺는 경로 설정
+    }
+
+    // 인터셉터 추가
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(jwtInterceptor);
     }
 
 }
