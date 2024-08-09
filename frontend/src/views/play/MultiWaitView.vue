@@ -73,7 +73,7 @@ function connect() {
         withCredentials: true
     });
     stompClient = Stomp.over(socket);
-    stompClient.debug = null;   
+    // stompClient.debug = null;   
     stompClient.connect({}, function (frame) {
         // console.error(sessionStorage.getItem("accessToken"))
 
@@ -98,12 +98,21 @@ function connect() {
         })
 
         stompClient.subscribe(`/wait/socket/start/${route.params.roomId}`, function(socket){
+            console.log("start 및 exit 구독 받았음");
             const message = JSON.parse(socket.body);
             if(message.type == "start" && message.content == "true"){
                 selectedSheetId.value = message.sheetId;
                 router.push({name:'multiPlay', params:{ sheetId: selectedSheetId.value }});
             }
             if(message.type == "exit"){
+                console.log("exit 관련 소켓임을 확인")
+                console.log("")
+                opponent.value = {
+                    userImg: defaultProfileImage,
+                    nickname: "유저를 기다리는 중....",
+                    score: "0",
+                    isEmpty: true
+                }
                 opponent.value.name = "유저를 기다리는 중...";
                 opponent.value.isEmpty = true;
                 opponentReady.value = "false";
@@ -122,9 +131,8 @@ function disconnect() {
 }
 
 function sendExit(){
-    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'exit', sender : user.nickname, content: 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: "exit", sender : user.nickname, content: 'true' }));
     userStore.userReady = "false";
-    alert(userStore.userReady);
 }
 
 
@@ -246,6 +254,16 @@ function quitButton () {
     router.push('/room/multi/list');
 }
 
+// const detectReload = () => {
+//   // performance.navigation API를 사용하여 새로고침 감지
+//   const navigationType = performance.getEntriesByType("navigation")[0].type;
+//   if (navigationType === 'reload') {
+//     isReloading.value = true;
+//     alert("fggsdaf");
+//   }
+// }
+
+
 const handleBeforeUnload = async () => {
 
 if(isQuitting.value || isPopstate.value || isReloading.value){
@@ -292,6 +310,7 @@ onBeforeRouteLeave(async (to, from, next) => {
       next();
     //   window.location.href = "http://localhost:3000/room/multi/list";
     } else {
+        isExiting.value = false;
       next(false);
     }
   }
