@@ -16,7 +16,7 @@ const cards = ref([
         <template v-for="card in cards" >
             <div class="card flex-1 cursor-pointer card-compact" @click="emit('send-sheet-category', card.sort)"> <!-- W-72 -->
                 <figure class="w-full">
-                    <img class="rounded-2xl" width="100%" :src="card.src" alt="card" />
+                    <img class="rounded-2xl" width="93%" :src="card.src" alt="card" />
                 </figure>
                 <div class="card-body">
                     <h2 class="card-title">{{ card.title }}</h2>
@@ -34,10 +34,10 @@ const cards = ref([
 }
 
 .card-box:has(div:hover) > div:hover{
-    width: 20vw;
+    transform: scale(1.05);
 }
 
 .card{
-    transition: all 150ms ease-in-out;
+    transition: all 155ms ease-in-out;
 }
 </style>
