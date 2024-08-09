@@ -115,7 +115,7 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
             "wav_file": wav_file_location,
             "midi_file": midi_file_location,
             "content_type": file.content_type,
-            "similarity_scores": similarity_results
+            "similarity_results": similarity_results
         }
 
     except Exception as e:
