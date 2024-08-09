@@ -1,10 +1,14 @@
 package com.ssafy.los.backend.controller.sheet;
 
+import com.ssafy.los.backend.domain.entity.Song;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
+import com.ssafy.los.backend.dto.song.request.SongRegisterForm;
 import com.ssafy.los.backend.service.sheet.SheetService;
+import com.ssafy.los.backend.service.song.SongService;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -30,6 +34,37 @@ import org.springframework.web.util.UriUtils;
 @RequestMapping("/sheets")
 public class SheetController {
 
+    private final SongService songService;
+
+//    @Value("${mid-file.path}")
+//    private String filePath;
+
+    @PostMapping(value = "/insert/all", consumes = {"multipart/form-data"})
+    public void uploadSheet(@RequestPart(value = "files", required = false) List<MultipartFile>
+            files) {
+
+        if (files == null || files.isEmpty()) {
+            log.info("파일이 포함되어 있지 않습니다.");
+            return;
+        }
+//        File folder = new File(filePath);
+        for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                log.info("파일이 비어 있습니다.");
+            }
+
+            Song song = songService.registerSongAndFile(
+                    SongRegisterForm.builder()
+                            .composer(file.getOriginalFilename())
+                            .title(file.getOriginalFilename())
+                            .genreId(5L)
+                            .file(null)
+                            .build()
+            );
+            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
+        }
+    }
+
     private final SheetService sheetService;
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
@@ -39,7 +74,6 @@ public class SheetController {
             @RequestPart("title") String title,
             @RequestPart("level") Integer level,
             @RequestPart(value = "songId", required = false) Long songId) {
-
         SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
                 .file(file)
                 .title(title)
