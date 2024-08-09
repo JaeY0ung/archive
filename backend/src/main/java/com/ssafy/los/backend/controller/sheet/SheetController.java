@@ -36,16 +36,14 @@ public class SheetController {
 
     private final SongService songService;
 
-//    @Value("${mid-file.path}")
-//    private String filePath;
-
     @PostMapping(value = "/insert/all", consumes = {"multipart/form-data"})
-    public void uploadSheet(@RequestPart(value = "files", required = false) List<MultipartFile>
-            files) {
+    public ResponseEntity<?> uploadSheet(
+            @RequestPart(value = "files", required = false) List<MultipartFile>
+                    files) {
 
         if (files == null || files.isEmpty()) {
             log.info("파일이 포함되어 있지 않습니다.");
-            return;
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         for (MultipartFile file : files) {
             log.info(file.getOriginalFilename() + ": 저장되었습니다.");
@@ -63,6 +61,7 @@ public class SheetController {
             );
             uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
         }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private final SheetService sheetService;
