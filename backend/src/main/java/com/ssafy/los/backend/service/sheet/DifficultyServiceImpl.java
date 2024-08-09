@@ -57,7 +57,7 @@ public class DifficultyServiceImpl implements DifficultyService {
         // 해당 악보 난이도 평가 기록 이력 파악
         boolean isExisted = difficultyRepository.existsByUserAndSheet(user, sheet);
 
-        // TODO : 테스트 완료하면 한 악보당 중복 체크 불가능하도록 만들기
+        // TODO : 개발 테스트 완료하면 한 악보당 중복 체크 불가능하도록 만들기
 //        if (isExisted) {
 //            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
 //        }
@@ -143,7 +143,7 @@ public class DifficultyServiceImpl implements DifficultyService {
     }
 
     // 악보 난이도 AI 예측 호출
-    public int prediectDfficulty(Sheet sheet) {
+    public int predictDifficulty(Sheet sheet) {
 
         String url = fastApiUrl + "/predict_difficulty?sheet=" + sheet.getFileName();
 
@@ -158,7 +158,7 @@ public class DifficultyServiceImpl implements DifficultyService {
                 if (predictionResponse != null) {
                     int result  = predictionResponse.getDifficulty();
 
-                    // TODO : AI 난이도 평가 추가 고민하기
+                    // TODO : AI 난이도 평가 추가하는 것 고민 필요
                     // 악보 난이도 평가 추가
 //                    saveDifficulty(sheet.getId(), 0L, new DifficultyCreateDto(result, ""));
 
