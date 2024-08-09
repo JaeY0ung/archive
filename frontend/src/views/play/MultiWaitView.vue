@@ -35,6 +35,9 @@ const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const user = userStore.userInfo;
 
+console.log("유저 정보를 잠시 출력합니다.");
+console.log(user)
+
 // isReady.value = userStore.userReady;
 const onClickStart = () => {
   if (!selectedSheetId.value) {
@@ -74,7 +77,8 @@ function connect() {
     });
     stompClient = Stomp.over(socket);
     // stompClient.debug = null;   
-    stompClient.connect({}, function (frame) {
+    stompClient.connect({"Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`}, function (frame) {
         // console.error(sessionStorage.getItem("accessToken"))
 
         stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
@@ -82,9 +86,11 @@ function connect() {
             // console.log("상대 유저 정보 구독 성공");
             // console.log(receiveUser);
             if (receiveUser.id == "profile" && opponent.value.isEmpty && user.nickname != receiveUser.nickname) {
-                stompClient.send(`/app/wait/${route.params.roomId}`, { Authorization:`Bearer ${sessionStorage.getItem("accessToken")}` }, JSON.stringify({id : "profile", nickname: user.nickname}));
+                stompClient.send(`/app/wait/${route.params.roomId}`, {"Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`}, JSON.stringify({id : "profile", nickname: user.nickname, userImg: user.userImg}));
                 opponent.value.nickname = receiveUser.nickname;
                 opponent.value.isEmpty = false;
+                opponent.value.userImg = receiveUser.userImg;
                 stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender: user.nickname, isReady: isReady.value }));
                 isInvited.value = true;
             }
@@ -105,8 +111,6 @@ function connect() {
                 router.push({name:'multiPlay', params:{ sheetId: selectedSheetId.value }});
             }
             if(message.type == "exit"){
-                console.log("exit 관련 소켓임을 확인")
-                console.log("")
                 opponent.value = {
                     userImg: defaultProfileImage,
                     nickname: "유저를 기다리는 중....",
@@ -119,7 +123,7 @@ function connect() {
 
         // console.log("연결되었습니다.")
 
-        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ id : "profile", nickname : user.nickname }));
+        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ id : "profile", nickname : user.nickname, userImg : user.userImg }));
         stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender : user.nickname, isReady: isReady.value }));
     });
 }

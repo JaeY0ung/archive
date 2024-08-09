@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.controller.play;
 
+import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.play.PlayerReadyDto;
 import com.ssafy.los.backend.dto.play.PlayerStartDto;
 import com.ssafy.los.backend.dto.user.LoginUser;
@@ -25,11 +26,16 @@ public class WaitRoomController {
     @MessageMapping("/wait/{roomId}")
     @SendTo("/wait/socket/{roomId}")
     public LoginUser sendPlayer(LoginUser loginUser) throws Exception {
-//        User user = userService.searchUserProfileByNickname(loginUser.getNickname());
         // LoginUser 전송
+
+        User user = authService.getLoginUser();
+
+        log.info("유저의 정보를 받았습니다. : {}", user.toString());
+
         return LoginUser.builder()
                 .id(loginUser.getId())
                 .nickname(loginUser.getNickname())
+                .userImg(loginUser.getUserImg())
                 .build();
     }
 
@@ -48,11 +54,6 @@ public class WaitRoomController {
     @MessageMapping("/wait/start/{roomId}")
     @SendTo("/wait/socket/start/{roomId}")
     public PlayerStartDto sendPlayerReady(PlayerStartDto playerStartDto) throws Exception {
-        log.info("방 퇴장 신호. {}", playerStartDto.toString());
-        log.info("방 퇴장 신호. {}", playerStartDto.getType());
-        log.info("방 퇴장 신호. {}", playerStartDto.getContent());
-        log.info("방 퇴장 신호. {}", playerStartDto.getSender());
-        log.info("방 퇴장 신호. {}", playerStartDto.getSender());
         return playerStartDto;
     }
 
