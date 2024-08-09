@@ -21,15 +21,15 @@ const { startRecording, stopRecording, startMusic, pauseMusic, stopMusic } = mus
 </script>
 
 <template>
-    <div>
-        <div class="flex gap-1">
+    <div class="flex flex-col w-full h-full bg-yellow-200">
+        <div class="flex">
             <img width="30px" v-if="!isPlay" :src="require('@/assets/img/sheet_play/play.svg')" @click="startMusic" class="cursor-pointer"/>
             <img width="30px" v-else :src="require('@/assets/img/sheet_play/pause.svg')" @click="pauseMusic" class="cursor-pointer"/>
             <img width="30px" :src="require('@/assets/img/sheet_play/reset.svg')" @click="stopMusic" class="cursor-pointer"/>
-            <!-- <img width="30px" :src="require('@/assets/img/sheet_play/mic.svg')" @click="startRecording" class="cursor-pointer"/>
-            <img width="30px" :src="require('@/assets/img/sheet_play/mic_off.svg')" @click="stopRecording" class="cursor-pointer"/> -->
+            <img width="30px" :src="require('@/assets/img/sheet_play/mic.svg')" @click="startRecording" class="cursor-pointer"/>
+            <img width="30px" :src="require('@/assets/img/sheet_play/mic_off.svg')" @click="stopRecording" class="cursor-pointer"/>
         </div>
-        <ScrollContainer :width="props.width" :height="props.height" :sheetId="props.sheetId" />
+        <ScrollContainer class="flex flex-grow w-full h-50%" :sheetId="props.sheetId" />
     </div>
 </template>
 

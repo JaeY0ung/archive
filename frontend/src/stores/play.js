@@ -43,15 +43,15 @@ export const usePlayStore = defineStore('playMode', {
 
       try {
         const alertDto = {
-          receiver: userId ,
-          alertType: 1, // 대결 초대 알림 타입
+          receiverId: userId ,
+          alertTypeId: 1, // 대결 초대 알림 타입
           referenceId: 123, // 관련 ID, 필요에 따라 설정
           readStatus: false,
           createdAt: new Date().toISOString(),
           senderId: senderId,
           roomId: roomId
         };
-        console.log('Sending alertDto:', alertDto); // 디버깅을 위한 로그
+        console.log('Sending alertDto:', alertDto); 
         const response = await axios.post(`${baseURL}/alert`, alertDto);
         console.log('초대 알림 전송 성공:', response.data);
       } catch (error) {

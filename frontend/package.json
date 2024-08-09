@@ -29,7 +29,7 @@
     "stompjs": "^2.3.3",
     "sweetalert2": "^11.12.4",
     "vue": "^3.4.29",
-    "vue-router": "^4.3.3"
+    "vue-router": "^4.0.13"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

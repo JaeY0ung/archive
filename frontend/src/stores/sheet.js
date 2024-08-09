@@ -5,6 +5,7 @@ import axios from 'axios';
 import { OpenSheetMusicDisplay, PlaybackManager, BasicAudioPlayer, LinearTimingSource } from '@/assets/js/opensheetmusicdisplay.min.js';
 import { getMusicXmlById } from '@/api/sheet';
 import { localAxios } from "@/util/http-common";
+import { useRoute } from 'vue-router';
 
 export const useMusicStore = defineStore('music', () => {
     const local = localAxios();
@@ -20,13 +21,14 @@ export const useMusicStore = defineStore('music', () => {
     const triggerSplit = ref(0);
     const volume = ref(50);
     const f1 = ref([]);
-    const jaccard = ref([]);
+    const jaccard = ref([]);   
+    const route = useRoute();
 
     const initializeOsmd = (container) => {
         osmd.value = new OpenSheetMusicDisplay(container);
         osmd.value.setOptions({
-            pageFormat: 'A4 P',
             pageBackgroundColor: 'white',
+            drawPartNames: false,
         });
     };
 
@@ -140,7 +142,7 @@ export const useMusicStore = defineStore('music', () => {
                 const formData = new FormData();
                 const blob = new Blob(chunks.value, { type: 'audio/webm' });
                 formData.append('file', blob, `chunk_${audioBlobs.value.length}.webm`);
-                const sheetIdBlob = new Blob([3], { type: 'application/json' });
+                const sheetIdBlob = new Blob([route.params.sheetId], { type: 'application/json' });
                 formData.append('sheetId', sheetIdBlob);
                 console.log("formData", formData);
                 for (let [key, value] of formData.entries()) {

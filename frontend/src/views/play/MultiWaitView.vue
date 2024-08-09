@@ -1,67 +1,92 @@
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
-import { ref, computed, onMounted, onBeforeUnmount, onUnmounted, watch } from 'vue';
+import { useRoute, useRouter, onBeforeRouteLeave, } from 'vue-router';
+import { ref, computed, onMounted, watch, onBeforeUnmount, onUnmounted } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { usePlayStore } from '@/stores/play';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import UserCardForPlay from '@/common/UserCardForPlay.vue';
-import MultiDefaultSheet from './MultiDefaultSheet.vue';
-import { constructNow } from 'date-fns';
+import SelectSheet from '@/common/sheet/SelectSheet.vue';
+import SelectCategory from '@/common/sheet/SelectCategory.vue';
+import { searchSheetsByFilter } from '@/api/sheet';
 
-// 소켓 엔드포인트 연결을 위한 주소 설정
-const { VUE_APP_REQUEST_URL } = process.env;
-
+const isInCategoryView = ref(true);
+const { VUE_APP_REQUEST_URL } = process.env; // 소켓 엔드포인트 연결을 위한 주소 설정
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
 const playStore = new usePlayStore();
-
-var stompClient = null;
-
+const sheets = ref([]);
+const selectedSheetId = ref();
+const currentMode = computed(() => playStore.getMode);
+const onlineUsers = computed(() => playStore.getOnlineUsers);
+const isQuitting = ref(false);
+const isPopstate = ref(false);
+const isReloading = ref(false);
 const isReady = ref("false");
-isReady.value = userStore.userReady;
-console.log("================================================")
-console.log("isReady : " + isReady.value);
 const opponentReady = ref("false");
-const isInvited = ref("false");
+const isInvited = ref(false);
 const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 const roomId = ref(route.params.roomId);
+var stompClient = null;
+
+// 로그인한 유저 정보 가져오기
+const accessToken = sessionStorage.getItem("accessToken"); 
+userStore.getUserInfo(accessToken);
+const user = userStore.userInfo;
+
+// isReady.value = userStore.userReady;
+const onClickStart = () => {
+  if (!selectedSheetId.value) {
+    alert("악보를 고르세요")
+    return;
+  }
+    router.push({ name: "multiPlay", params: { sheetId: selectedSheetId.value } });
+};
+
 
 const me = ref({
-    img: defaultProfileImage,
+    userImg: null,
     name: "악카이브1",
     score: "0",
     isEmpty: true
 });
 
-watch(() => isReady.value, (newVal, oldVal) => {
+watch(isReady, (newVal, oldVal) => {
     userStore.userReady = isReady.value;
 });
 
 const opponent = ref({
-    img: defaultProfileImage,
-    name: "유저를 기다리는 중...", 
+    userImg: null,
+    nickname: "유저를 기다리는 중...", 
     score: "0",
     isEmpty: true
 })
 
 const canLeaveSite = ref(false);
 
+
+
 function connect() {
     // local & https 
-    var socket = new SockJS(VUE_APP_REQUEST_URL + '/archive-websocket');
+    const socket = new SockJS(VUE_APP_REQUEST_URL + '/archive-websocket', null, {
+        withCredentials: true
+    });
     stompClient = Stomp.over(socket);
+    stompClient.debug = null;   
     stompClient.connect({}, function (frame) {
+        // console.error(sessionStorage.getItem("accessToken"))
 
         stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
-            const userLogin = JSON.parse(chatMessage.body);
-            if (userLogin.id == "profile" && opponent.value.isEmpty && user.nickname != userLogin.email) {
-                stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': user.nickname }));
-                opponent.value.name = userLogin.email;
+            const receiveUser = JSON.parse(chatMessage.body);
+            // console.log("상대 유저 정보 구독 성공");
+            // console.log(receiveUser);
+            if (receiveUser.id == "profile" && opponent.value.isEmpty && user.nickname != receiveUser.nickname) {
+                stompClient.send(`/app/wait/${route.params.roomId}`, { Authorization:`Bearer ${sessionStorage.getItem("accessToken")}` }, JSON.stringify({id : "profile", nickname: user.nickname}));
+                opponent.value.nickname = receiveUser.nickname;
                 opponent.value.isEmpty = false;
-                stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': user.nickname, 'isReady': isReady.value }));
-                isInvited.value = "true";
+                stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender: user.nickname, isReady: isReady.value }));
+                isInvited.value = true;
             }
         });
 
@@ -75,7 +100,8 @@ function connect() {
         stompClient.subscribe(`/wait/socket/start/${route.params.roomId}`, function(socket){
             const message = JSON.parse(socket.body);
             if(message.type == "start" && message.content == "true"){
-                router.push({name:'play'});
+                selectedSheetId.value = message.sheetId;
+                router.push({name:'multiPlay', params:{ sheetId: selectedSheetId.value }});
             }
             if(message.type == "exit"){
                 opponent.value.name = "유저를 기다리는 중...";
@@ -84,65 +110,47 @@ function connect() {
             }
         })
 
-        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ 'id': "profile", 'email': user.nickname }));
-        stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': user.nickname, 'isReady': isReady.value }));
+        // console.log("연결되었습니다.")
+
+        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ id : "profile", nickname : user.nickname }));
+        stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender : user.nickname, isReady: isReady.value }));
     });
 }
 
 function disconnect() {
-    console.log("disconnect되었다")
+    // console.log("disconnect되었다")
 }
-
-onBeforeUnmount(() => {
-    sendExit();
-    window.removeEventListener('beforeunload', unLoadEvent);
-})
 
 function sendExit(){
-    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'exit', 'sender': user.nickname, 'content': 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'exit', sender : user.nickname, content: 'true' }));
+    userStore.userReady = "false";
+    alert(userStore.userReady);
 }
 
-onUnmounted(() => {
-    console.log("onUnmounted 실행");
-    sendExit();
-})
 
-window.addEventListener('beforeunload', sendExit);
 
 const getLiveResult = computed(() => {
     return me.value.score > opponent.value.score ? "win" : "lose";
 })
 
 const goToBattle = () => {
-    router.push({name:'play'});
+    if(!selectedSheetId.value){
+        alert("악보를 고르세요")
+        return;
+    }
+    router.push({name:'multiPlay', params:{sheetId:selectedSheetId.value}});
     canLeaveSite.value = true;
-    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ 'type': 'start', 'sender': user.nickname, 'content': 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'start', sender: user.nickname, content: 'true', sheetId: selectedSheetId.value }));;
 }
-
-// 로그인한 유저 정보 가져오기
-const accessToken = sessionStorage.getItem("accessToken");
-userStore.getUserInfo(accessToken);
-const user = userStore.userInfo;
 
 function readyButton() {
     isReady.value = isReady.value == "false" ? "true" : "false";
-    stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ 'sender': user.nickname, 'isReady': isReady.value }));
+    stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender: user.nickname, isReady: isReady.value }));
 }
 
-function unLoadEvent (event) {
-    if (canLeaveSite.value) return;
-    event.preventDefault();
-    event.returnValue = '';
-}
 
-onMounted(() => {
-    connect();
-    playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
-})
 
-function quitButton () {
-    router.push('/room/multi/list');
-}
+
 
 const inviteModalStatus = ref(false);
 const selectedFriend = ref(null);
@@ -169,51 +177,162 @@ const isFriendSelected = (user) => {
     return selectedFriend.value && selectedFriend.value.id === user.id;
 }
 
-const currentMode = computed(() => playStore.getMode);
-const onlineUsers = computed(() => playStore.getOnlineUsers);
+
 
 const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
-         // 친구 초대 알림 보내기
-        await playStore.sendInviteAlert(selectedFriend.value.id, route.params.roomId);
+        // 친구 초대 알림 보내기
+        console.log("초대 알림 방 ID: " + roomId.value)
+        await playStore.sendInviteAlert(selectedFriend.value.id, roomId.value);
         console.log("Invite selected friend:", selectedFriend.value);
     }
     closeInviteModalStatus();
 }
 
-console.log("isReady : " , isReady.value);
+const getPopularsheets = async () => {
+	searchSheetsByFilter(
+		{ sort: "POPULAR" },
+		({ data }) => {
+			if (!data) return;
+			sheets.value = data;
+		}
+	)
+}
+
+const getNewsheets = async () => {
+	searchSheetsByFilter(
+		{ sort: "LATEST" },
+		({ data }) => {
+			if (!data) return;
+			sheets.value = data;
+		}
+	)
+}
+
+const getRandomsheets = async () => {
+	searchSheetsByFilter(
+		{ sort: "RANDOM" },
+		({ data }) => {
+			if (!data) return;
+			sheets.value = data;
+		}
+	)
+}
+
+const getUserLevelsheets = async () => {
+	searchSheetsByFilter(
+		{ levels: [1] },
+		({ data }) => {
+			if (!data) return;
+			sheets.value = data;
+		}
+	)
+}
+
+const getSheetsByCategory = (sort) => {
+  isInCategoryView.value = false
+  if (sort == "RANDOM") getRandomsheets();
+  else if (sort == "POPULAR") getPopularsheets();
+  else if (sort == "LATEST") getNewsheets();
+  else if (sort == "LEVEL") getUserLevelsheets();
+}
+
+const setSheetId = (sheetId) => {
+  selectedSheetId.value = sheetId;
+}
+
+function quitButton () {
+    isQuitting.value = true;
+    router.push('/room/multi/list');
+}
+
+const handleBeforeUnload = async () => {
+
+if(isQuitting.value || isPopstate.value || isReloading.value){
+}else{
+    await playStore.exitRoom(route.params.roomId);
+}
+};
+
+
+onMounted(() => {   
+    // isReady.value = userStore.userReady;
+    isReady.value = "false";
+    connect();
+    // detectReload();
+  window.addEventListener('beforeunload', handleBeforeUnload);
+    // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정
+  window.addEventListener('popstate', () => {
+    isPopstate.value = true;
+  });
+  window.addEventListener('beforeunload', sendExit);
+  playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
+
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+  window.addEventListener('popstate', () => {
+    isPopstate.value = true;
+  });
+});
+
+onBeforeRouteLeave(async (to, from, next) => {
+
+    if(to.name == from.name){
+        isReloading.value = true;
+    }
+
+  if (to.name == 'multiPlay') {
+    next();
+  } else {
+    const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
+    if (answer) {
+      await playStore.exitRoom(route.params.roomId);
+      next();
+    //   window.location.href = "http://localhost:3000/room/multi/list";
+    } else {
+      next(false);
+    }
+  }
+});
+
+
+
 </script>
 
 <template>
     <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
         <div class="flex w-full h-[70%] rounded-tl-xl rounded-tr-xl bg-blue-300 justify-center">
-            <MultiDefaultSheet />
+            <SelectCategory v-if="isInCategoryView" @send-sheet-category="getSheetsByCategory" />
+            <SelectSheet v-else :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
         </div>
         <div class="flex flex-grow w-full h-[35%] rounded-bl-xl rounded-br-xl bg-yellow-100 justify-center">
             <div class="player-card">
                 <UserCardForPlay :user="user" @onClickStart="onClickStart" />
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'multiPlay'">대기중</button>
-                <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
-
+                <button class="btn text-white" style="background-color: gray;" v-if="isReady == 'false' && route.name == 'multiWait'" @click="readyButton">대기중</button>
+                <button class="btn text-white" style="background-color: red;"  v-if="isReady == 'true' && route.name == 'multiWait'" @click="readyButton">준비완료</button>
+                <!-- <button class="btn text-white" style="background-color: gray;" v-if="route.name == 'multiPlay'">게임중</button> -->
             </div>
+
             <div class="button-div">
-                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="route.name == 'multiDefault' && (isReady == 'false' || opponentReady == 'false')">
+                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="isReady == 'false' || opponentReady == 'false'">
                     시작하기
                 </button>
-                <button class="btn btn-primary w-24" v-if="route.name == 'multiDefault' && isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
+                <button class="btn btn-primary w-24" v-if="isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                     시작하기
                 </button>
                 <button class="btn btn-primary w-24" @click="quitButton">
                     나가기
                 </button>
             </div>
+
             <div class="player-card">
-                <UserCardForPlay :user="user"/>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="isReady == 'false' && route.name != 'play'">대기중</button>
-                <button class="btn text-white" style="background-color: red;" @click=readyButton v-if="isReady == 'true' && route.name != 'play'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" @click=readyButton v-if="route.name == 'play'">게임중</button>
-                <button class="btn text-white" style="background-color: gray;" @click="openInviteModalStatus" v-if="isInvited == 'false'">친구 초대하기</button>
+                <UserCardForPlay :user="opponent"/>
+                <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false' && route.name == 'multiWait'">대기중</button>
+                <button class="btn text-white" style="background-color: red;"  v-if="opponentReady == 'true' && route.name == 'multiWait'">준비완료</button>
+                <!-- <button class="btn text-white" style="background-color: gray;" v-if="route.name == 'multiPlay'">게임중</button> -->
+                <button class="btn text-white" style="background-color: gray;" v-if="isInvited == false" @click="openInviteModalStatus">친구 초대하기</button>
             </div>
         </div>
 

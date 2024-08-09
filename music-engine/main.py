@@ -1,5 +1,5 @@
 import uvicorn
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.status import HTTP_200_OK
@@ -48,10 +48,11 @@ class FileRequest(BaseModel):
     filename: str
 
 @app.post("/playing")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
     try:
         # 파일 저장 경로 설정
         file_location = os.path.join(UPLOAD_DIR, file.filename)
+        logger.info(sheetName);
         logger.info(f"업로드된 파일을 {file_location}에 저장합니다.")
 
         # 파일 저장
@@ -98,7 +99,8 @@ async def upload_file(file: UploadFile = File(...)):
         logger.info(f"원본 파일 {file_location}을 삭제했습니다.")
 
         # 원본 MIDI 파일 경로 설정
-        original_file_location = os.path.join("original", "original.mid")
+        original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet","mid",sheetName);
+        #original_file_location = os.path.join("original", "original.mid")
 
         if not os.path.exists(original_file_location):
             raise FileNotFoundError(f"original 폴더에 {original_file_location} 파일이 존재하지 않습니다.")
@@ -106,14 +108,14 @@ async def upload_file(file: UploadFile = File(...)):
         start_measure = max(0, int(file_number) * 8 - 1)
         end_measure = (int(file_number) + 1) * 8 + 1
 
-        similarity_scores = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
-        logger.info(similarity_scores)
+        similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
+        logger.info(similarity_results)
         return {
             "filename": file.filename,
             "wav_file": wav_file_location,
             "midi_file": midi_file_location,
             "content_type": file.content_type,
-            "similarity_scores": similarity_scores
+            "similarity_results": similarity_results
         }
 
     except Exception as e:

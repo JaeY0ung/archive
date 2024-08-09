@@ -40,11 +40,6 @@ const routes = [
         component: () => import('@/views/play/SinglePlayView.vue'),
     },
     //  -----------------------------------------------
-    // {
-    //     path: '/room/multi/:roomId/wait',
-    //     name: 'multiWait',
-    //     component: () => import('@/views/play/MultiRoomLayout.vue'),
-    // },
     {
         path: '/room/multi/:roomId/wait',
         name: 'multiWait',
@@ -55,11 +50,6 @@ const routes = [
         name: 'multiPlay',
         component: () => import('@/views/play/MultiPlayView.vue'),
     },
-    // {
-    //     path: 'play',
-    //     name: 'play',
-    //     component: () => import('@/common/sheet/Sheet2.vue')
-    // },
     // -----------------------------------------------
     {
         path: "/admin",

@@ -1,24 +1,60 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useMusicStore } from '@/stores/sheet';
+import debounce from 'lodash.debounce';
 
 const props = defineProps({
-    width: Number,
-    height: Number,
     sheetId: Number,
 });
 
 const musicStore = useMusicStore();
 const container = ref(null);
+const outerDiv = ref(null);
+const containerWidth = ref(0);
+const containerHeight = ref(0);
+let resizeObserver;
+
+const updateContainerSize = () => {
+    if (outerDiv.value) {
+        containerWidth.value = outerDiv.value.offsetWidth;
+        containerHeight.value = outerDiv.value.offsetHeight;
+    }
+}
+
+const handleResize = entries => {
+    for (let entry of entries) {
+        if (entry.target === outerDiv.value) {
+            updateContainerSize();
+        }
+    }
+};
 
 onMounted(() => {
-    musicStore.loadAndSetupOsmd(container.value, props.sheetId);
+    resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(outerDiv.value);
+    containerWidth.value = outerDiv.value.offsetWidth;
+    containerHeight.value = outerDiv.value.offsetHeight;
+    musicStore.loadAndSetupOsmd(container.value, props.sheetId)
+    .then(
+        updateContainerSize()
+    );
+});
+
+onUnmounted(() => {
+    if (resizeObserver && outerDiv.value) {
+        resizeObserver.unobserve(outerDiv.value);
+        resizeObserver.disconnect();
+    }
+    if (musicStore.osmd) {
+        musicStore.osmd.clear(); // OSMD 객체 내의 리소스를 해제합니다.
+        musicStore.osmd = null; // OSMD 객체를 null로 설정하여 해제합니다.
+    }
 });
 </script>
 
 <template>
-    <div class="pointer-events-none m-0 p-0 w-full box-border" :style="{ width: props.width + 'px', height: props.height + '%' }" style="overflow-y:scroll;">
-        <div class="m-0 p-0 box-border" ref="container"></div>
+    <div ref="outerDiv" class="flex flex-grow overflow-hidden relative">
+        <div ref="container" class="pointer-events-none absolute overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px', maxHeight: containerHeight+'px' }" ></div>
     </div>
 </template>
 

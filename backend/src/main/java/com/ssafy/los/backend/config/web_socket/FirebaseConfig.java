@@ -39,27 +39,31 @@ public class FirebaseConfig {
     @PostConstruct
     public void init() {
         try {
-            String firebaseConfig = String.format(
-                    "{" +
-                            "  \"type\": \"service_account\"," +
-                            "  \"project_id\": \"%s\"," +
-                            "  \"private_key_id\": \"729c24674819d140ad95c368be5cc6011c596154\"," +
-                            "  \"private_key\": \"%s\"," +
-                            "  \"client_email\": \"%s\"," +
-                            "  \"client_id\": \"%s\"," +
-                            "  \"auth_uri\": \"%s\"," +
-                            "  \"token_uri\": \"%s\"," +
-                            "  \"auth_provider_x509_cert_url\": \"%s\"," +
-                            "  \"client_x509_cert_url\": \"%s\"" +
-                            "}", projectId, privateKey, clientEmail, clientId, authUri, tokenUri,
-                    authProviderX509CertUrl, clientX509CertUrl
-            );
+            if (FirebaseApp.getApps().isEmpty()) {
+                String firebaseConfig = String.format(
+                        "{" +
+                                "  \"type\": \"service_account\"," +
+                                "  \"project_id\": \"%s\"," +
+                                "  \"private_key_id\": \"729c24674819d140ad95c368be5cc6011c596154\","
+                                +
+                                "  \"private_key\": \"%s\"," +
+                                "  \"client_email\": \"%s\"," +
+                                "  \"client_id\": \"%s\"," +
+                                "  \"auth_uri\": \"%s\"," +
+                                "  \"token_uri\": \"%s\"," +
+                                "  \"auth_provider_x509_cert_url\": \"%s\"," +
+                                "  \"client_x509_cert_url\": \"%s\"" +
+                                "}", projectId, privateKey, clientEmail, clientId, authUri,
+                        tokenUri,
+                        authProviderX509CertUrl, clientX509CertUrl
+                );
 
-            InputStream serviceAccount = new ByteArrayInputStream(firebaseConfig.getBytes());
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
-            FirebaseApp.initializeApp(options);
+                InputStream serviceAccount = new ByteArrayInputStream(firebaseConfig.getBytes());
+                FirebaseOptions options = new FirebaseOptions.Builder()
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .build();
+                FirebaseApp.initializeApp(options);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

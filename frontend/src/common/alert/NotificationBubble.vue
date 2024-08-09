@@ -2,11 +2,11 @@
   <div class="notification-icon">
       <img src="@/assets/img/common/bell.png" alt="Notifications" @click="toggleNotifications" />
       <div v-if="showBubble" class="notification-bubble">
-          <div v-for="notification in notifications" :key="notification.title" class="notification">
+          <div v-for="notification in notifications" :key="notification.title"  v-if="!notification.readStatus" class="notification">
               <div class="title">{{ notification.title }}</div>
               <div class="body">{{ notification.body }}</div>
               <div v-if="notification.alertType === 1" class="actions">
-                <button @click="acceptInvite(notification.roomId)">수락</button>
+                <button @click="acceptInvite(notification)">수락</button>
                 <button @click="declineInvite(notification)">거절</button>
               </div>
           </div>
@@ -18,14 +18,25 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { usePlayStore } from '@/stores/play';
 
 const notifications = ref([]);
 const showBadge = ref(false);
 const showBubble = ref(false); 
 const router = useRouter();
+const playStore = usePlayStore();
 
 function toggleNotifications() {
     showBubble.value = !showBubble.value;
+}
+
+// 알람 상태를 업데이트하고, 읽은 알람은 제거
+function updateNotifications() {
+    notifications.value = notifications.value.filter(notification => !notification.readStatus);
+    showBadge.value = notifications.value.some(notification => !notification.readStatus);
+    if (notifications.value.length === 0) {
+        showBubble.value = false;
+    }
 }
 
 watch(notifications, () => {
@@ -37,26 +48,45 @@ watch(notifications, () => {
 });
 
 // 수락 버튼 클릭 시 해당 방으로 이동
-function acceptInvite(roomId) {
-    if (roomId) {
-        router.push({ name: 'multiWait', params: { roomId } });
+async function acceptInvite(notification) {
+    if (notification.roomId) {
+        try {
+            // 방에 입장하여 인원수를 증가시킴
+            await playStore.enterRoom(notification.roomId);
+            // 방으로 이동
+            await router.push({ name: 'multiWait', params: { roomId: notification.roomId } });
+            // 알람 말풍선 닫기 및 알람 상태 업데이트
+            notification.readStatus = true;
+            updateNotifications();
+        } catch (err) {
+            console.error("방으로 이동 실패:", err);
+        }
+    } else {
+        console.error("roomId가 undefined or null 입니다.");
     }
 }
+
 
 // 거절 버튼 클릭 시 말풍선만 닫기
 function declineInvite(notification) {
-    const index = notifications.value.indexOf(notification);
-    if (index !== -1) {
-        notifications.value.splice(index, 1);
-    }
+
+  notification.readStatus = true;
+  updateNotifications();
 }
 
 // Expose these functions for external use
-window.showNotification =  (title, body, alertType, roomId)  => {
-    notifications.value.push({  title, body, alertType, roomId });
+window.showNotification = (title, body, alertType, roomId, readStatus = false) => {
+  // readStatus가 undefined인 경우 기본값을 false로 설정
+  readStatus = readStatus !== undefined ? readStatus : false;
+
+  notifications.value.push({ title, body, alertType, roomId, readStatus });
     showBadge.value = true;
     showBubble.value = true; // 알림이 오면 말풍선 보이도록 설정
 };
+
+watch(notifications, () => {
+    updateNotifications();
+});
 </script>
 
 <style scoped>
