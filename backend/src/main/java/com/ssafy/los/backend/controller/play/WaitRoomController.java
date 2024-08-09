@@ -1,6 +1,5 @@
 package com.ssafy.los.backend.controller.play;
 
-import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.play.PlayerReadyDto;
 import com.ssafy.los.backend.dto.play.PlayerStartDto;
 import com.ssafy.los.backend.dto.user.LoginUser;
@@ -28,9 +27,9 @@ public class WaitRoomController {
     public LoginUser sendPlayer(LoginUser loginUser) throws Exception {
         // LoginUser 전송
 
-        User user = authService.getLoginUser();
+//        User user = authService.getLoginUser();
 
-        log.info("유저의 정보를 받았습니다. : {}", user.toString());
+//        log.info("유저의 정보를 받았습니다. : {}", user.toString());
 
         return LoginUser.builder()
                 .id(loginUser.getId())

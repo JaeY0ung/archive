@@ -111,6 +111,7 @@ function connect() {
                 router.push({name:'multiPlay', params:{ sheetId: selectedSheetId.value }});
             }
             if(message.type == "exit"){
+                console.log("exit에 들어왔습니다.")
                 opponent.value = {
                     userImg: defaultProfileImage,
                     nickname: "유저를 기다리는 중....",
