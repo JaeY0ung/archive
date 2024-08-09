@@ -189,82 +189,87 @@ onMounted(async () => {
                         </div>
                         <div class="profile-info">
                             <h2 class="user-name">{{ userProfile?.nickname }}</h2>
-                            <p class="single-score">Single Score {{ userProfile?.singleScore }}</p>
-                            <div class="follow-info">
-                                <span class="followers" @click="openFollowModal('followers')">
-                                    <strong>{{ followersCount }}</strong> Followers
-                                </span>
-                                <span class="following" @click="openFollowModal('followings')">
-                                    <strong>{{ followingsCount }}</strong> Following
-                                </span>
+                            <div class="stats-container">
+                                <div class="stat-item">
+                                    <span class="stat-value">{{ userProfile?.singleScore }}</span>
+                                    <span class="stat-label">Score</span>
+                                </div>
+                                <div
+                                    class="stat-item clickable"
+                                    @click="openFollowModal('followers')"
+                                >
+                                    <span class="stat-value">{{ followersCount }}</span>
+                                    <span class="stat-label">Followers</span>
+                                </div>
+                                <div
+                                    class="stat-item clickable"
+                                    @click="openFollowModal('followings')"
+                                >
+                                    <span class="stat-value">{{ followingsCount }}</span>
+                                    <span class="stat-label">Following</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="profile-actions">
-                        <template v-if="!isOwnProfile">
-                            <button
-                                :class="['btn', 'follow-btn', { 'unfollow-btn': isFollowing }]"
-                                @click="toggleFollow"
-                            >
-                                {{ isFollowing ? "Unfollow" : "Follow" }}
+                        <div class="profile-actions">
+                            <template v-if="!isOwnProfile">
+                                <button
+                                    :class="['btn', 'follow-btn', { 'unfollow-btn': isFollowing }]"
+                                    @click="toggleFollow"
+                                >
+                                    {{ isFollowing ? "Unfollow" : "Follow" }}
+                                </button>
+                                <button class="btn fight-btn">Fight</button>
+                            </template>
+                            <button v-else class="btn edit-btn" @click="goToEditPage">
+                                Edit Profile
                             </button>
-                            <button class="btn fight-btn">Fight</button>
-                        </template>
-                        <button v-else class="btn edit-btn" @click="goToEditPage">
-                            Edit Profile
-                        </button>
+                        </div>
                     </div>
                 </div>
 
                 <div class="sheet-sections">
                     <div class="sheet-section">
                         <h3>최근 싱글 플레이</h3>
-                        <div class="scroll-container-wrapper">
-                            <div class="scroll-container">
-                                <SmallSheetCard
-                                    v-for="sheet in mockRecentPlayedSheets"
-                                    :key="sheet.id"
-                                    :sheet="sheet"
-                                />
-                            </div>
+                        <div class="scroll-container">
+                            <SmallSheetCard
+                                v-for="sheet in mockRecentPlayedSheets"
+                                :key="sheet.id"
+                                :sheet="sheet"
+                            />
                         </div>
                     </div>
 
                     <div class="sheet-section">
                         <h3>최근 대결 플레이</h3>
-                        <div class="scroll-container-wrapper">
-                            <div class="scroll-container">
-                                <SmallSheetCard
-                                    v-for="sheet in mockRecentBattleSheets"
-                                    :key="sheet.id"
-                                    :sheet="sheet"
-                                />
-                            </div>
+                        <div class="scroll-container">
+                            <SmallSheetCard
+                                v-for="sheet in mockRecentBattleSheets"
+                                :key="sheet.id"
+                                :sheet="sheet"
+                            />
                         </div>
                     </div>
 
                     <div class="sheet-section">
                         <h3>좋아요한 악보</h3>
-                        <div class="scroll-container-wrapper">
-                            <div class="scroll-container">
-                                <SmallSheetCard
-                                    v-for="sheet in mockLikedSheets"
-                                    :key="sheet.id"
-                                    :sheet="sheet"
-                                />
-                            </div>
+                        <div class="scroll-container">
+                            <SmallSheetCard
+                                v-for="sheet in mockLikedSheets"
+                                :key="sheet.id"
+                                :sheet="sheet"
+                            />
                         </div>
                     </div>
                 </div>
-
-                <FollowModal
-                    v-if="showFollowersModal || showFollowingsModal"
-                    :title="followModalTitle"
-                    :follow-list="followList"
-                    @close="closeModal"
-                />
             </template>
         </div>
+
+        <FollowModal
+            v-if="showFollowersModal || showFollowingsModal"
+            :title="followModalTitle"
+            :follow-list="followList"
+            @close="closeModal"
+        />
     </div>
 </template>
 
@@ -275,38 +280,37 @@ onMounted(async () => {
 .profile-page-container {
     width: 100%;
     height: 100%;
+    max-width: 1000px;
+    max-height: 600px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 20px;
     font-family: "Roboto", sans-serif;
+    overflow: auto;
 }
 
 .profile-container {
-    width: 90%;
-    max-width: 1100px;
-    height: 600px;
+    background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
+    width: 100%;
+    height: 100%;
+    overflow: auto; 
     scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.profile-container::-webkit-scrollbar {
-    display: none;
+    -ms-overflow-style: none; 
 }
 
 .user-profile {
     padding: 30px;
-    margin-bottom: 20px;
+    background-color: #f8f9fa;
     border-bottom: 1px solid #e0e0e0;
-    background-color: #ffffff8e;
 }
 
 .profile-header {
     display: flex;
     align-items: center;
-    margin-bottom: 30px;
+    justify-content: space-between;
 }
 
 .profile-image-container {
@@ -314,8 +318,7 @@ onMounted(async () => {
     height: 100px;
     border-radius: 50%;
     overflow: hidden;
-    margin-right: 30px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .profile-image,
@@ -326,7 +329,7 @@ onMounted(async () => {
 }
 
 .profile-icon {
-    background-color: #f8f9fa;
+    background-color: #e0e0e0;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -336,77 +339,65 @@ onMounted(async () => {
 
 .profile-info {
     flex-grow: 1;
+    margin-left: 30px;
 }
 
 .user-name {
     font-family: "Poppins", sans-serif;
-    font-size: 1.8em;
+    font-size: 2em;
     font-weight: 600;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     color: #2c3e50;
 }
 
-.single-score {
-    font-size: 1.1em;
-    color: #34495e;
-    margin-bottom: 15px;
-}
-
-.single-score::before {
-    content: "\f091";
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    margin-right: 8px;
-    color: #f1c40f;
-}
-
-.follow-info {
+.stats-container {
     display: flex;
     gap: 30px;
-    font-size: 1em;
 }
 
-.followers,
-.following {
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin-top: 5px;
+}
+
+.clickable {
     cursor: pointer;
-    color: #34495e;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
 }
 
-.followers:hover,
-.following:hover {
+.clickable:hover {
+    transform: translateY(-2px);
+}
+
+.clickable:hover .stat-value {
     color: #3498db;
-}
-
-.followers::before,
-.following::before {
-    font-family: "Font Awesome 6 Free";
-    font-weight: 900;
-    margin-right: 8px;
-}
-
-.followers::before {
-    content: "\f0c0";
-}
-
-.following::before {
-    content: "\f234";
 }
 
 .profile-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 20px;
+    gap: 10px;
 }
 
 .btn {
-    padding: 8px 16px;
+    padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: 600;
-    font-size: 0.95em;
+    font-size: 1em;
     transition: all 0.3s;
     font-family: "Poppins", sans-serif;
 }
@@ -470,24 +461,11 @@ onMounted(async () => {
 }
 
 .sheet-sections {
-    padding: 20px 30px;
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 30px;
 }
 
 .sheet-section {
     margin-bottom: 40px;
-    padding: 25px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-    transition: all 0.3s ease;
-}
-
-.sheet-section:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .sheet-section h3 {
@@ -496,29 +474,22 @@ onMounted(async () => {
     color: #2c3e50;
     font-family: "Poppins", sans-serif;
     font-weight: 600;
-    border-bottom: 2px solid #3498db;
+    border-bottom: 2px solid #000000;
     padding-bottom: 10px;
     display: inline-block;
-}
-
-.scroll-container-wrapper {
-    width: 100%;
-    overflow-x: hidden;
-    padding: 10px 0;
 }
 
 .scroll-container {
     display: flex;
     overflow-x: auto;
-    gap: 25px;
+    gap: 20px;
     padding-bottom: 20px;
-    scroll-behavior: smooth;
-    scrollbar-width: thin;
-    scrollbar-color: #3498db #e0e0e0;
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
 }
 
 .scroll-container::-webkit-scrollbar {
-    height: 8px;
+    display: none;
 }
 
 .scroll-container::-webkit-scrollbar-track {
@@ -529,10 +500,6 @@ onMounted(async () => {
 .scroll-container::-webkit-scrollbar-thumb {
     background-color: #3498db;
     border-radius: 4px;
-}
-
-.scroll-container::-webkit-scrollbar-thumb:hover {
-    background-color: #2980b9;
 }
 
 .user-not-found {

@@ -265,7 +265,8 @@ export const useUserStore = defineStore(
             isLoginError,
             isValidToken,
             tokenRegenerate,
-            userReady
+            userReady,
+            OAuth2userLogin
         };
     },
     { persist: true }
