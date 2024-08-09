@@ -21,14 +21,18 @@ public class MusicServiceImpl implements MusicService {
     @Value("${cors.allowedOrigins.music-engine}")
     private String musicEngineBaseUrl;
 
-    public String saveMidFileWithSplit(String midFileName) {
+    public void saveMidFileWithSplit(String midFileName) throws IllegalArgumentException {
         String url = musicEngineBaseUrl + "/sheets/mid-to-xml";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, String> body = new HashMap<>();
-        body.put("filename",midFileName);
+        body.put("filename", midFileName);
         HttpEntity<Object> request = new HttpEntity<>(body, headers);
+        try {
+            restTemplate.postForObject(url, request, String.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("파일 변환 실패: " + midFileName);
+        }
 
-        return restTemplate.postForObject(url, request, String.class);
     }
 }

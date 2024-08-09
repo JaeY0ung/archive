@@ -42,26 +42,40 @@ public class SheetController {
                     files) {
 
         if (files == null || files.isEmpty()) {
-            log.info("파일이 포함되어 있지 않습니다.");
+            log.debug("파일이 포함되어 있지 않습니다.");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        for (MultipartFile file : files) {
-            log.info(file.getOriginalFilename() + ": 저장되었습니다.");
-            if (file.isEmpty()) {
-                log.info("파일이 비어 있습니다.");
-            }
 
-            Song song = songService.registerSongAndFile(
-                    SongRegisterForm.builder()
-                            .composer(file.getOriginalFilename())
-                            .title(file.getOriginalFilename())
-                            .genreId(5L)
-                            .file(null)
-                            .build()
-            );
-            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
+        try {
+            for (MultipartFile file : files) {
+                log.info(file.getOriginalFilename() + ": 저장되었습니다.");
+                if (file.isEmpty()) {
+                    log.info("파일이 비어 있습니다.");
+                    continue;
+                }
+
+                Song song = songService.registerSongAndFile(
+                        SongRegisterForm.builder()
+                                .composer(file.getOriginalFilename())
+                                .title(file.getOriginalFilename())
+                                .genreId(5L)
+                                .file(null)
+                                .build()
+                );
+
+                SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
+                        .file(file)
+                        .title(file.getOriginalFilename())
+                        .level(1)
+                        .songId(song.getId())
+                        .build();
+                sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm);
+//            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private final SheetService sheetService;

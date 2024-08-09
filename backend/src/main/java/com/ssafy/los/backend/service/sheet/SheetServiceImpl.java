@@ -29,6 +29,7 @@ public class SheetServiceImpl implements SheetService {
     private final MusicService musicService;
 
     @Override
+    @Transactional
     public Long registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
         String uuid = UUID.randomUUID().toString();
