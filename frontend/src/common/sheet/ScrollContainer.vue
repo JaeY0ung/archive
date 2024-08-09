@@ -14,12 +14,12 @@ const containerWidth = ref(0);
 const containerHeight = ref(0);
 let resizeObserver;
 
-const updateContainerSize = debounce(() => {
+const updateContainerSize = () => {
     if (outerDiv.value) {
-        containerWidth.value = outerDiv.value.clientWidth;
-        containerHeight.value = outerDiv.value.clientHeight;
+        containerWidth.value = outerDiv.value.offsetWidth;
+        containerHeight.value = outerDiv.value.offsetHeight;
     }
-}, 100);
+}
 
 const handleResize = entries => {
     for (let entry of entries) {
@@ -30,13 +30,14 @@ const handleResize = entries => {
 };
 
 onMounted(() => {
-    if (outerDiv.value) {
-        resizeObserver = new ResizeObserver(handleResize);
-        resizeObserver.observe(outerDiv.value);
-
-        musicStore.loadAndSetupOsmd(container.value, props.sheetId);
-    }
-    updateContainerSize();
+    resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(outerDiv.value);
+    containerWidth.value = outerDiv.value.offsetWidth;
+    containerHeight.value = outerDiv.value.offsetHeight;
+    musicStore.loadAndSetupOsmd(container.value, props.sheetId)
+    .then(
+        updateContainerSize()
+    );
 });
 
 onUnmounted(() => {
@@ -44,14 +45,16 @@ onUnmounted(() => {
         resizeObserver.unobserve(outerDiv.value);
         resizeObserver.disconnect();
     }
+    if (musicStore.osmd) {
+        musicStore.osmd.clear(); // OSMD 객체 내의 리소스를 해제합니다.
+        musicStore.osmd = null; // OSMD 객체를 null로 설정하여 해제합니다.
+    }
 });
 </script>
 
 <template>
-    <div ref="outerDiv" class="flex overflow-hidden">
-        <div class="pointer-events-none overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px' }" >
-            <div ref="container"></div>
-        </div>
+    <div ref="outerDiv" class="flex flex-grow overflow-hidden relative">
+        <div ref="container" class="pointer-events-none absolute overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px', maxHeight: containerHeight+'px' }" ></div>
     </div>
 </template>
 
