@@ -71,10 +71,10 @@ class ConvertService:
     def midi_to_xml(self, midi_file_path, xml_file_path):
         # Parse the MIDI file
         midi_stream = converter.parse(midi_file_path)
-        
+
         # Retrieve existing metadata from the MIDI file if available
         midi_metadata = midi_stream.metadata
-        
+
         # If no metadata exists, create a new metadata object
         if midi_metadata is None:
             midi_metadata = metadata.Metadata()
@@ -84,15 +84,15 @@ class ConvertService:
             midi_metadata.title = "Unknown Title"
         if not midi_metadata.composer:
             midi_metadata.composer = "Unknown Composer"
-        
+
         # Assign the metadata back to the stream
         midi_stream.metadata = midi_metadata
 
         # Write the stream to MusicXML format
         midi_stream.write('musicxml', fp=xml_file_path)
-        
+
         # Read the generated MusicXML file
         with open(xml_file_path, 'rb') as f:
             musicxml_data = f.read()
-        
+
         return musicxml_data

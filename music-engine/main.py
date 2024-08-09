@@ -12,7 +12,6 @@ from service.calculate_service import calculate_similarity
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,10 +41,16 @@ load_dotenv(dotenv_path)
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
-#os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+# os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 class FileRequest(BaseModel):
     filename: str
+
+
+convert_service = ConvertService()
+
 
 @app.post("/playing")
 async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
@@ -64,7 +69,7 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
             raise FileNotFoundError(f"파일이 {file_location}에 저장되지 않았습니다.")
 
         # 파일 변환
-        convert_service = ConvertService()
+        # convert_service = ConvertService()
         logger.info(f"파일 {file_location}을 WAV로 변환합니다.")
         wav_data = convert_service.webm_to_wav(file_location, UPLOAD_DIR)
 
@@ -93,22 +98,23 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
         with open(midi_file_location, "wb") as midi_file:
             midi_file.write(midi_data)
         logger.info(f"MIDI 파일이 {midi_file_location}에 저장되었습니다.")
-        
+
         # 원본 webm 파일 삭제
         os.remove(file_location)
         logger.info(f"원본 파일 {file_location}을 삭제했습니다.")
 
         # 원본 MIDI 파일 경로 설정
-        original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet","mid",sheetName);
-        #original_file_location = os.path.join("original", "original.mid")
+        original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheetName);
+        # original_file_location = os.path.join("original", "original.mid")
 
         if not os.path.exists(original_file_location):
             raise FileNotFoundError(f"original 폴더에 {original_file_location} 파일이 존재하지 않습니다.")
-        
+
         start_measure = max(0, int(file_number) * 8 - 1)
         end_measure = (int(file_number) + 1) * 8 + 1
 
-        similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
+        similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure,
+                                                  end_measure)
         logger.info(similarity_results)
         return {
             "filename": file.filename,
@@ -122,6 +128,7 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
         logger.error(f"파일 업로드 또는 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="내부 서버 오류")
 
+
 @app.post("/sheets/mid-to-xml")
 async def mid2xml(file_request: FileRequest):
     filename = file_request.filename
@@ -132,22 +139,25 @@ async def mid2xml(file_request: FileRequest):
             raise FileNotFoundError(f"{input_mid_path} 파일이 존재하지 않습니다.")
 
         # 출력 파일 경로 설정
-        output_xml_path = os.path.join(PROJECT_ROOT_PATH, "upload-sheet/musicxml", f"{os.path.splitext(filename)[0]}.musicxml")
-
+        output_xml_path = os.path.join(PROJECT_ROOT_PATH, "upload-sheet/musicxml",
+                                       f"{os.path.splitext(filename)[0]}.musicxml")
+        # logger.info("output_xml_path: " + output_xml_path)
         # MIDI 파일을 MusicXML로 변환
-        ConvertService.midi_to_xml(input_mid_path, output_xml_path)
+        convert_service.midi_to_xml(input_mid_path, output_xml_path)
 
         # 결과 확인
         if not os.path.exists(output_xml_path):
             raise FileNotFoundError(f"{output_xml_path} 파일이 생성되지 않았습니다.")
 
-        return JSONResponse(content={"message": "Conversion successful", "output_file": output_xml_path}, status_code=200)
+        return JSONResponse(content={"message": "Conversion successful", "output_file": output_xml_path},
+                            status_code=200)
 
     except Exception as e:
         logger.error(f"파일 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="파일 변환 중 오류 발생")
-    
+
+
 # FastAPI 실행 명령어
-# uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# uvicorn main:app --reload --host localhost --port 8000
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

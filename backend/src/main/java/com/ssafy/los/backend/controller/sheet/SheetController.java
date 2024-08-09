@@ -46,8 +46,9 @@ public class SheetController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        try {
-            for (MultipartFile file : files) {
+
+        for (MultipartFile file : files) {
+            try {
                 if (file.isEmpty()) {
                     log.info("파일이 비어 있습니다.");
                     continue;
@@ -71,11 +72,12 @@ public class SheetController {
 
                 sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm);
 //            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
+            } catch (Exception e) {
+                log.info(e.getMessage());
             }
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     private final SheetService sheetService;
