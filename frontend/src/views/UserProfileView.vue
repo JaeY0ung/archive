@@ -279,9 +279,8 @@ onMounted(async () => {
 
 .profile-page-container {
     width: 100%;
-    height: 100%;
     max-width: 1000px;
-    max-height: 600px;
+    height: calc(100% - 100px);
     display: flex;
     box-sizing: border-box;
     margin: 0 auto;

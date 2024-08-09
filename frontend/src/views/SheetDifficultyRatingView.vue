@@ -497,12 +497,16 @@ onMounted(() => {
 
 <style scoped>
 .difficulty-contribution {
-    max-width: 800px;
+    width: 100%;
+    max-width: 1000px;
+    height: calc(100% - 100px);
     margin: 0 auto;
     padding: 20px;
     background-color: #f9f9f9;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    scrollbar-width: none;
 }
 
 .sheet-info {
