@@ -166,8 +166,8 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="profile-page-container">
-        <div class="profile-container">
+    <div class="flex flex-col flex-grow w-full items-center justify-center bg-purple-200">
+        <div class="flex flex-grow w-[80%] mb-[10px] rounded-xl bg-white shadow-[0 4px 15px 0 rgb(0 0 0 0.1)]">
             <div v-if="userNotFound" class="user-not-found">
                 <h2>사용자를 찾을 수 없습니다</h2>
                 <p>요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.</p>
@@ -175,7 +175,7 @@ onMounted(async () => {
             </div>
 
             <template v-else>
-                <div class="user-profile">
+                <div class="flex w-full h-[200px] user-profile">
                     <div class="profile-header">
                         <div class="profile-image-container">
                             <img
@@ -227,7 +227,7 @@ onMounted(async () => {
                     </div>
                 </div>
 
-                <div class="sheet-sections">
+                <!-- <div class="sheet-sections">
                     <div class="sheet-section">
                         <h3>최근 싱글 플레이</h3>
                         <div class="scroll-container">
@@ -260,7 +260,7 @@ onMounted(async () => {
                             />
                         </div>
                     </div>
-                </div>
+                </div> -->
             </template>
         </div>
 
@@ -277,27 +277,12 @@ onMounted(async () => {
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Poppins:wght@300;400;600&display=swap");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
 
-.profile-page-container {
-    width: 100%;
-    max-width: 1000px;
-    height: calc(100% - 100px);
-    display: flex;
-    box-sizing: border-box;
-    margin: 0 auto;
-    padding: 20px;
+div{
     font-family: "Roboto", sans-serif;
-    overflow: auto;
 }
 
 .profile-container {
-    background-color: #ffffff;
-    border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    height: 100%;
-    overflow: auto; 
-    scrollbar-width: none;
-    -ms-overflow-style: none; 
 }
 
 .user-profile {
