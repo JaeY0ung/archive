@@ -47,8 +47,8 @@ public class SheetController {
             log.info("파일이 포함되어 있지 않습니다.");
             return;
         }
-//        File folder = new File(filePath);
         for (MultipartFile file : files) {
+            log.info(file.getOriginalFilename() + ": 저장되었습니다.");
             if (file.isEmpty()) {
                 log.info("파일이 비어 있습니다.");
             }
