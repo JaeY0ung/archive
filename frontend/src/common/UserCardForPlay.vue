@@ -10,7 +10,13 @@ const props = defineProps({
     user: Object
 })
 const emit = defineEmits(['onClickStart'])
-
+const defaultProfileImage = require('@/assets/img/common/default_profile.png');
+if(props.user.userImg == null){
+    props.user.userImg = defaultProfileImage;
+}else{
+    // img 파일 디코딩
+    props.user.userImg = 'data:image/jpeg;base64,' + props.user.userImg;
+}
 // 반응형 계산을 위한 computed 속성
 const f1Score = computed(() => {
     if (musicStore.f1.length === 0) return 0;
@@ -24,8 +30,6 @@ const jaccardScore = computed(() => {
     return Math.floor(averageScore * 100);
 });
 
-// img 파일 디코딩
-props.user.userImg = 'data:image/jpeg;base64,' + props.user.userImg;
 
 // wait/play 화면의 프로필 ui 변경을 위한 route이름 변수화
 const routeName = route.name;
