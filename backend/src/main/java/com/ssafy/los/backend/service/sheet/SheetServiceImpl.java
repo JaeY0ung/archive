@@ -35,7 +35,8 @@ public class SheetServiceImpl implements SheetService {
         String uuid = UUID.randomUUID().toString();
         fileUploadUtil.uploadSheet(sheetUploadForm.getFile(), uuid);
         Sheet sheet = registerSheet(sheetUploadForm, uuid);
-        musicService.saveMidFileWithSplit(sheet.getFileName());
+        log.info(sheet.getFileName() + ": 저장되었습니다.");
+        musicService.saveMidFileWithSplit(sheet.getFileName() + ".mid");
         return sheet.getId();
     }
 

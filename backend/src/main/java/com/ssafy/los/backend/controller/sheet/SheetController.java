@@ -48,7 +48,6 @@ public class SheetController {
 
         try {
             for (MultipartFile file : files) {
-                log.info(file.getOriginalFilename() + ": 저장되었습니다.");
                 if (file.isEmpty()) {
                     log.info("파일이 비어 있습니다.");
                     continue;
@@ -69,6 +68,7 @@ public class SheetController {
                         .level(1)
                         .songId(song.getId())
                         .build();
+
                 sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm);
 //            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
             }
