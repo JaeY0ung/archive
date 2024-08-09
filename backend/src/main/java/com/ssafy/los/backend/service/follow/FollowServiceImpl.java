@@ -60,7 +60,7 @@ public class FollowServiceImpl implements FollowService {
     // 팔로잉 조회
     @Override
     public List<FollowSimpleListDto> getFollowingList(String nickname) {
-        User user = userRepository.findByNickname(nickname)
+        User user = userRepository.findByNicknameAndDeletedAtNull(nickname)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
         List<Follow> followingList = followRepository.findByFollower(user);
 
@@ -71,7 +71,8 @@ public class FollowServiceImpl implements FollowService {
             User target = userRepository.findById(follow.getFollowed().getId())
                     .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
-            FollowSimpleListDto followSimpleListDto = new FollowSimpleListDto(target.getNickname(), target.getUserImg());
+            FollowSimpleListDto followSimpleListDto = new FollowSimpleListDto(target.getNickname(),
+                    target.getUserImg());
             followSimpleListDto.loadUserImg(fileUploadUtil);
 
             followSimpleListDtoList.add(followSimpleListDto);
@@ -82,7 +83,7 @@ public class FollowServiceImpl implements FollowService {
     // 팔로워 조회
     @Override
     public List<FollowSimpleListDto> getFollowerList(String nickname) {
-        User user = userRepository.findByNickname(nickname)
+        User user = userRepository.findByNicknameAndDeletedAtNull(nickname)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
         List<Follow> followerList = followRepository.findByFollowed(user);
 
@@ -93,7 +94,8 @@ public class FollowServiceImpl implements FollowService {
             User target = userRepository.findById(follow.getFollower().getId())
                     .orElseThrow(() -> new IllegalArgumentException("해당 유저가 존재하지 않습니다."));
 
-            FollowSimpleListDto followSimpleListDto = new FollowSimpleListDto(target.getNickname(), target.getUserImg());
+            FollowSimpleListDto followSimpleListDto = new FollowSimpleListDto(target.getNickname(),
+                    target.getUserImg());
             followSimpleListDto.loadUserImg(fileUploadUtil);
 
             followerSimpleListDtoList.add(followSimpleListDto);

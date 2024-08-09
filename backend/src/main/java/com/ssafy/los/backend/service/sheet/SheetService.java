@@ -9,7 +9,7 @@ import org.springframework.core.io.Resource;
 
 public interface SheetService {
 
-    Sheet registerSheetAndFile(SheetUploadForm sheetUploadForm)
+    Long registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException;
 
     Sheet searchById(Long sheetId) throws IllegalArgumentException;
