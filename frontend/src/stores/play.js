@@ -30,7 +30,7 @@ export const usePlayStore = defineStore('playMode', {
     },
     async fetchOnlineUsers() {
       try {
-        const response = await axios.get(`${baseURL}/users/online-users`);
+        const response = await local.get(`${baseURL}/users/online-users`);
         this.onlineUsers = response.data;
       } catch (error) {
         console.error('온라인 유저 목록을 불러오는 것에 실패했습니다', error);
@@ -52,7 +52,7 @@ export const usePlayStore = defineStore('playMode', {
           roomId: roomId
         };
         console.log('Sending alertDto:', alertDto); 
-        const response = await axios.post(`${baseURL}/alert`, alertDto);
+        const response = await local.post(`${baseURL}/alert`, alertDto);
         console.log('초대 알림 전송 성공:', response.data);
       } catch (error) {
         console.error('초대 알림 전송 실패:', error);

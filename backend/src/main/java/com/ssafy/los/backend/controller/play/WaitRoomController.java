@@ -25,19 +25,22 @@ public class WaitRoomController {
     @MessageMapping("/wait/{roomId}")
     @SendTo("/wait/socket/{roomId}")
     public LoginUser sendPlayer(LoginUser loginUser) throws Exception {
-//        User user = userService.searchUserProfileByNickname(loginUser.getNickname());
         // LoginUser 전송
+
+//        User user = authService.getLoginUser();
+
+//        log.info("유저의 정보를 받았습니다. : {}", user.toString());
+
         return LoginUser.builder()
                 .id(loginUser.getId())
                 .nickname(loginUser.getNickname())
+                .userImg(loginUser.getUserImg())
                 .build();
     }
 
     @MessageMapping("/wait/ready/{roomId}")
     @SendTo("/wait/socket/ready/{roomId}")
     public PlayerReadyDto sendPlayerReady(PlayerReadyDto playerReadyDto) throws Exception {
-        // LoginUser 전송
-        log.info("들어왔습니다. {}", playerReadyDto.toString());
         return PlayerReadyDto.builder()
                 .sender(playerReadyDto.getSender())
                 .isReady(playerReadyDto.getIsReady())

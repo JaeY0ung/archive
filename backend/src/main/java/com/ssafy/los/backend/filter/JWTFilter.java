@@ -28,7 +28,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
             "/users/check-email",
             "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh",
-            "login/oauth2/code/naver", "/api/login/oauth2/code/naver", "/login/oauth2/code/naver"
+            "login/oauth2/code/naver", "/api/login/oauth2/code/naver", "/login/oauth2/code/naver",
+            "/app/**", "/archive-websocket/**"
     );
 
     @Override
@@ -42,16 +43,16 @@ public class JWTFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-//        log.info("----- JWT 필터에 검증요청이 왔습니다. -----");
-//        log.info("요청 URL: {}", request.getRequestURL());
-//        log.info("Servlet 경로: {}", request.getServletPath());
+        log.info("----- JWT 필터에 검증요청이 왔습니다. -----");
+        log.info("요청 URL: {}", request.getRequestURL());
+        log.info("Servlet 경로: {}", request.getServletPath());
 
         String authorization = request.getHeader("Authorization");
-//        log.info("헤더에서 찾은 Authorization 정보입니다. = {}", authorization);
+        log.info("헤더에서 찾은 Authorization 정보입니다. = {}", authorization);
 
         try {
             if (authorization != null && authorization.startsWith("Bearer ")) {
-//                log.info("Access 토큰 인증을 시작합니다.");
+                log.info("Access 토큰 인증을 시작합니다.");
                 if (!handleAccessToken(authorization, request, response)) {
                     return; // 토큰 처리 중 오류 발생 시 필터 체인 중단
                 }
@@ -79,7 +80,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 response.getWriter().write("AccessTokenExpired");
                 return false; // 필터 체인 중단
             }
-//            log.info("유효한 JWT 토큰입니다.");
+            log.info("유효한 JWT 토큰입니다.");
 
             // 유저 정보 저장하기
             setAuthenticationToContext(token);

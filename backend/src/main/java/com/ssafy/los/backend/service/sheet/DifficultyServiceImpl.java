@@ -8,6 +8,7 @@ import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.sheet.request.DifficultyCreateDto;
 import com.ssafy.los.backend.dto.sheet.request.DifficultyUpdateDto;
+import com.ssafy.los.backend.dto.sheet.response.DifficultyPredictResponseDto;
 import com.ssafy.los.backend.dto.sheet.response.DifficultyResponseDto;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.time.LocalDateTime;
@@ -16,26 +17,33 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional
 public class DifficultyServiceImpl implements DifficultyService {
+
+    @Value("${cors.allowedOrigins.music-engine}")
+    private String fastApiUrl;
 
     private final DifficultyRepository difficultyRatingRepository;
     private final SheetRepository sheetRepository;
     private final UserRepository userRepository;
     private final FileUploadUtil fileUploadUtil;
     private final DifficultyRepository difficultyRepository;
+    private final RestTemplate restTemplate;
 
 
     // 난이도 평가 생성
@@ -49,7 +57,7 @@ public class DifficultyServiceImpl implements DifficultyService {
         // 해당 악보 난이도 평가 기록 이력 파악
         boolean isExisted = difficultyRepository.existsByUserAndSheet(user, sheet);
 
-        // TODO : 테스트 완료하면 한 악보당 중복 체크 불가능하도록 만들기
+        // TODO : 개발 테스트 완료하면 한 악보당 중복 체크 불가능하도록 만들기
 //        if (isExisted) {
 //            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
 //        }
@@ -62,7 +70,7 @@ public class DifficultyServiceImpl implements DifficultyService {
                 .build();
 
         // 난이도 업데이트
-//        calculateDifficulty(sheetId);
+        calculateDifficulty(sheetId);
 
         return difficultyRatingRepository.save(difficulty).getId();
     }
@@ -78,7 +86,7 @@ public class DifficultyServiceImpl implements DifficultyService {
                 difficultyUpdateDto.getContents());
 
         // 난이도 업데이트
-//        calculateDifficulty(findDifficultyRating.getSheet().getId());
+        calculateDifficulty(findDifficultyRating.getSheet().getId());
 
         return difficultyId;
     }
@@ -91,14 +99,14 @@ public class DifficultyServiceImpl implements DifficultyService {
                         "해당 난이도 평가가 없습니다. id = " + difficultyId));
 
         // 난이도 업데이트
-//        calculateDifficulty(findDifficultyRating.getSheet().getId());
+        calculateDifficulty(findDifficultyRating.getSheet().getId());
 
         difficultyRatingRepository.deleteById(difficultyId);
 
         return difficultyId;
     }
 
-    // 악보 난이도 평가 목록 조회
+    // 악보 난이도 평가 목록 조회 (페이지 추가)
     @Override
     public Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size, String sortBy, String sortDir) {
 
@@ -117,6 +125,7 @@ public class DifficultyServiceImpl implements DifficultyService {
                 DifficultyResponseDto.toEntity(difficulty, fileUploadUtil));
     }
 
+    // 악보 난이도 평가 목록 조회 (전체)
     @Override
     public List<DifficultyResponseDto> searchDifficultyAllBySheetId(Long sheetId) {
         Sheet sheet = sheetRepository.findById(sheetId)
@@ -133,8 +142,46 @@ public class DifficultyServiceImpl implements DifficultyService {
                 .collect(Collectors.toList());
     }
 
+    // 악보 난이도 AI 예측 호출
+    public int predictDifficulty(Sheet sheet) {
+
+        String url = fastApiUrl + "/predict_difficulty?sheet=" + sheet.getFileName();
+
+        try {
+            // GET 요청 보내기
+            ResponseEntity<DifficultyPredictResponseDto> response = restTemplate.getForEntity(url,
+                    DifficultyPredictResponseDto.class);
+
+            // 응답 처리
+            if (response.getStatusCode().is2xxSuccessful()) {
+                DifficultyPredictResponseDto predictionResponse = response.getBody();
+                if (predictionResponse != null) {
+                    int result  = predictionResponse.getDifficulty();
+
+                    // TODO : AI 난이도 평가 추가하는 것 고민 필요
+                    // 악보 난이도 평가 추가
+//                    saveDifficulty(sheet.getId(), 0L, new DifficultyCreateDto(result, ""));
+
+                    // 악보 난이도 필드 반영
+//                    sheet.updateLevel(result);
+
+                    return result;
+                }
+            }
+
+            // 에러 처리
+            throw new RuntimeException("Failed to predict difficulty: " + response.getStatusCode());
+        } catch (Exception e) {
+            // 예외 처리
+            throw new RuntimeException("Error predicting difficulty: " + e.getMessage(), e);
+        }
+    }
+    
+
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
-        public int calculateDifficulty(Long sheetId) {
+    // TODO : 평가가 하나도 없는 경우 (-1) 로직 처리하기
+    @Override
+    public int calculateDifficulty(Long sheetId) {
         Sheet findSheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
 

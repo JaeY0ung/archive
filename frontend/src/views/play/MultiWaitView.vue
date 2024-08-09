@@ -35,6 +35,9 @@ const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const user = userStore.userInfo;
 
+console.log("유저 정보를 잠시 출력합니다.");
+console.log(user)
+
 // isReady.value = userStore.userReady;
 const onClickStart = () => {
   if (!selectedSheetId.value) {
@@ -73,8 +76,9 @@ function connect() {
         withCredentials: true
     });
     stompClient = Stomp.over(socket);
-    stompClient.debug = null;   
-    stompClient.connect({}, function (frame) {
+    // stompClient.debug = null;   
+    stompClient.connect({"Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`}, function (frame) {
         // console.error(sessionStorage.getItem("accessToken"))
 
         stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
@@ -82,15 +86,17 @@ function connect() {
             // console.log("상대 유저 정보 구독 성공");
             // console.log(receiveUser);
             if (receiveUser.id == "profile" && opponent.value.isEmpty && user.nickname != receiveUser.nickname) {
-                stompClient.send(`/app/wait/${route.params.roomId}`, { Authorization:`Bearer ${sessionStorage.getItem("accessToken")}` }, JSON.stringify({id : "profile", nickname: user.nickname}));
+                stompClient.send(`/app/wait/${route.params.roomId}`, {"Content-Type": "application/json",
+                        "Authorization": `Bearer ${accessToken}`}, JSON.stringify({id : "profile", nickname: user.nickname, userImg: "temp"}));
                 opponent.value.nickname = receiveUser.nickname;
                 opponent.value.isEmpty = false;
+                opponent.value.userImg = receiveUser.userImg;
                 stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender: user.nickname, isReady: isReady.value }));
                 isInvited.value = true;
             }
         });
 
-        stompClient.subscribe(`/wait/socket/ready/{route.params.roomId}`, function (readyStatus) {
+        stompClient.subscribe(`/wait/socket/ready/${route.params.roomId}`, function (readyStatus) {
             const playerReady = JSON.parse(readyStatus.body);
             if(playerReady.sender != user.nickname){
                 opponentReady.value = playerReady.isReady;
@@ -98,21 +104,27 @@ function connect() {
         })
 
         stompClient.subscribe(`/wait/socket/start/${route.params.roomId}`, function(socket){
+            console.log("start 및 exit 구독 받았음");
             const message = JSON.parse(socket.body);
             if(message.type == "start" && message.content == "true"){
                 selectedSheetId.value = message.sheetId;
                 router.push({name:'multiPlay', params:{ sheetId: selectedSheetId.value }});
             }
             if(message.type == "exit"){
-                opponent.value.name = "유저를 기다리는 중...";
-                opponent.value.isEmpty = true;
+                console.log("exit에 들어왔습니다.")
+                opponent.value = {
+                    userImg: defaultProfileImage,
+                    nickname: "유저를 기다리는 중....",
+                    score: "0",
+                    isEmpty: true
+                }
                 opponentReady.value = "false";
             }
         })
 
         // console.log("연결되었습니다.")
 
-        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ id : "profile", nickname : user.nickname }));
+        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ id : "profile", nickname : user.nickname, userImg : "tmp" }));
         stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender : user.nickname, isReady: isReady.value }));
     });
 }
@@ -122,9 +134,8 @@ function disconnect() {
 }
 
 function sendExit(){
-    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'exit', sender : user.nickname, content: 'true' }));
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: "exit", sender : user.nickname, content: 'true', sheetId: 0 }));
     userStore.userReady = "false";
-    alert(userStore.userReady);
 }
 
 
@@ -246,11 +257,22 @@ function quitButton () {
     router.push('/room/multi/list');
 }
 
+// const detectReload = () => {
+//   // performance.navigation API를 사용하여 새로고침 감지
+//   const navigationType = performance.getEntriesByType("navigation")[0].type;
+//   if (navigationType === 'reload') {
+//     isReloading.value = true;
+//     alert("fggsdaf");
+//   }
+// }
+
+
 const handleBeforeUnload = async () => {
 
 if(isQuitting.value || isPopstate.value || isReloading.value){
 }else{
     await playStore.exitRoom(route.params.roomId);
+    sendExit();
 }
 };
 
@@ -260,12 +282,12 @@ onMounted(() => {
     isReady.value = "false";
     connect();
     // detectReload();
-  window.addEventListener('beforeunload', handleBeforeUnload);
     // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정
-  window.addEventListener('popstate', () => {
-    isPopstate.value = true;
-  });
-  window.addEventListener('beforeunload', sendExit);
+    window.addEventListener('beforeunload', sendExit);
+    window.addEventListener('popstate', () => {
+        isPopstate.value = true;
+    });
+    window.addEventListener('beforeunload', handleBeforeUnload);
   playStore.fetchOnlineUsers(); // 초대 모달을 열기 전에 온라인 유저 목록을 가져옴
 
 });
@@ -288,10 +310,12 @@ onBeforeRouteLeave(async (to, from, next) => {
   } else {
     const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
     if (answer) {
+      sendExit();
       await playStore.exitRoom(route.params.roomId);
       next();
     //   window.location.href = "http://localhost:3000/room/multi/list";
     } else {
+        isExiting.value = false;
       next(false);
     }
   }
