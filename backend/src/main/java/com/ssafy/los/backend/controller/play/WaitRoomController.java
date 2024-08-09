@@ -4,6 +4,7 @@ import com.ssafy.los.backend.dto.play.PlayerReadyDto;
 import com.ssafy.los.backend.dto.play.PlayerStartDto;
 import com.ssafy.los.backend.dto.user.LoginUser;
 import com.ssafy.los.backend.service.auth.AuthService;
+import com.ssafy.los.backend.service.user.UserService;
 import com.ssafy.los.backend.service.user.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,14 +20,16 @@ public class WaitRoomController {
     private final UserServiceImpl userServiceImpl;
 
     private final AuthService authService;
+    private final UserService userService;
 
     @MessageMapping("/wait/{roomId}")
     @SendTo("/wait/socket/{roomId}")
     public LoginUser sendPlayer(LoginUser loginUser) throws Exception {
+//        User user = userService.searchUserProfileByNickname(loginUser.getNickname());
         // LoginUser 전송
         return LoginUser.builder()
                 .id(loginUser.getId())
-                .email(loginUser.getEmail())
+                .nickname(loginUser.getNickname())
                 .build();
     }
 
@@ -47,15 +50,7 @@ public class WaitRoomController {
     @MessageMapping("/wait/start/{roomId}")
     @SendTo("/wait/socket/start/{roomId}")
     public PlayerStartDto sendPlayerReady(PlayerStartDto playerStartDto) throws Exception {
-        // start 신호 전송
-
-        log.info("들어왔습니다. {}", playerStartDto.toString());
-
-        return PlayerStartDto.builder()
-                .type(playerStartDto.getType())
-                .sender(playerStartDto.getSender())
-                .content(playerStartDto.getContent())
-                .build();
+        return playerStartDto;
     }
 
 }
