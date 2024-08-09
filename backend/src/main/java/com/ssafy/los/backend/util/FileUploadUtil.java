@@ -36,8 +36,8 @@ public class FileUploadUtil {
     @Value("${file.path.upload-sheet.musicxml}")
     private String sheetMusicXmlFileFolderPath;
 
-    @Value("${file.path.play-record}")
-    private String playRecordFolderPath;
+//    @Value("${file.path.play-record}")
+//    private String playRecordFolderPath;
 
     public void uploadUserImg(MultipartFile file, String uuid) throws IllegalArgumentException {
         fileValidator.validateImageFile(getExtension(file));
@@ -54,14 +54,14 @@ public class FileUploadUtil {
         saveFile(sheetMidFileFolderPath, file, uuid);
     }
 
-    public void uploadPlayRecord(MultipartFile file, String uuid)
-            throws IllegalArgumentException {
-        fileValidator.validateWebmFile(getExtension(file));
-        saveFile(playRecordFolderPath, file, uuid);
-    }
+//    public void uploadPlayRecord(MultipartFile file, String uuid)
+//            throws IllegalArgumentException {
+//        fileValidator.validateWebmFile(getExtension(file));
+//        saveFile(playRecordFolderPath, file, uuid);
+//    }
 
-    public Resource downloadSheetFile(String fileName) throws IllegalArgumentException {
-        return downloadOneFile(sheetMidFileFolderPath, fileName);
+    public Resource downloadSheetFile(String uuid) throws IllegalArgumentException {
+        return downloadOneFile(sheetMidFileFolderPath, uuid + ".mid");
     }
 
     public String getSongImg(String imgFileNameIncludesExt) {
@@ -69,14 +69,14 @@ public class FileUploadUtil {
         return getFileAsBase64(path);
     }
 
-    public String getMusicXml(String fileName) {
+    public String getMusicXml(String fileNameExcludesExt) {
         Path path = getMusicXmlPath(
-                fileName + ".musicxml");
+                fileNameExcludesExt + ".musicxml");
         return readFileAsString(path);
     }
 
-    public String getMid(String fileName) {
-        Path path = getMusicXmlPath(fileName + ".mid");
+    public String getMid(String fileNameExcludesExt) {
+        Path path = getMidPath(fileNameExcludesExt + ".mid");
         return readFileAsString(path);
     }
 
@@ -89,9 +89,16 @@ public class FileUploadUtil {
 
     private Path getMusicXmlPath(String fileName) throws IllegalArgumentException {
         if (fileName == null || fileName.isEmpty()) {
-            throw new IllegalArgumentException("악보에 연결된 곡의 이미지 파일이 없습니다");
+            throw new IllegalArgumentException("악보에 연결된 곡의 musicXml 파일이 없습니다");
         }
         return getPath(sheetMusicXmlFileFolderPath, fileName);
+    }
+
+    private Path getMidPath(String fileName) throws IllegalArgumentException {
+        if (fileName == null || fileName.isEmpty()) {
+            throw new IllegalArgumentException("악보에 연결된 곡의 mid 파일이 없습니다");
+        }
+        return getPath(sheetMidFileFolderPath, fileName);
     }
 
     public String getUserImg(String imgName) {
@@ -139,7 +146,8 @@ public class FileUploadUtil {
     private Resource downloadOneFile(String folderPath, String fileName)
             throws IllegalArgumentException {
         try {
-            UrlResource resource = new UrlResource(getPath(folderPath, fileName).toUri());
+            UrlResource resource = new UrlResource(
+                    getPath(folderPath, fileName).toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             }

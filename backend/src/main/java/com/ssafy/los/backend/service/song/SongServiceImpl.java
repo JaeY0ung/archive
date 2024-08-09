@@ -44,9 +44,10 @@ public class SongServiceImpl implements SongService {
     public Song registerSongAndFile(SongRegisterForm songRegisterForm)
             throws IllegalArgumentException {
         String uuid = UUID.randomUUID().toString();
+
         if (songRegisterForm.getFile() != null) {
             saveSongImgFile(songRegisterForm.getFile(), uuid);
-            String fileName = uuid + FilenameUtils.getExtension(
+            String fileName = uuid + "." + FilenameUtils.getExtension(
                     songRegisterForm.getFile().getOriginalFilename());
             return registerSong(songRegisterForm, fileName);
         }

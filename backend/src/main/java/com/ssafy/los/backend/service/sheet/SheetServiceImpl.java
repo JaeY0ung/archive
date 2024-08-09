@@ -29,7 +29,7 @@ public class SheetServiceImpl implements SheetService {
     private final MusicService musicService;
 
     @Override
-    @Transactional
+//    @Transactional
     public Long registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
         String uuid = UUID.randomUUID().toString();
@@ -59,8 +59,8 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
-    public Resource getSheetFileByFileName(String fileName) throws IllegalArgumentException {
-        return fileUploadUtil.downloadSheetFile(fileName);
+    public Resource getSheetFileByFileName(String uuid) throws IllegalArgumentException {
+        return fileUploadUtil.downloadSheetFile(uuid);
     }
 
     @Override
