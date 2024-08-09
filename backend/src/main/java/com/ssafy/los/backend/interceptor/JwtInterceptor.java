@@ -16,8 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -30,14 +28,23 @@ public class JwtInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         log.info("----- JWT 인터셉터에 검증요청이 왔습니다. -----");
-        log.info("요청 URL: {}", channel.toString());
+
+        // 요청 URL 로깅
+        String requestUrl = getRequestUrl(message);
+        log.info("요청 URL: {}", requestUrl);
+
+        // 모든 헤더 로깅
+//        log.info("모든 헤더:");
+//        for (Map.Entry<String, Object> header : message.getHeaders().entrySet()) {
+//            log.info("  {}: {}", header.getKey(), header.getValue());
+//        }
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            List<String> authorization = accessor.getNativeHeader("Authorization");
+            String authorization = accessor.getNativeHeader("Authorization").get(0);
             log.info("헤더에서 찾은 Authorization 정보입니다. = {}", authorization);
 
             if (authorization != null && !authorization.isEmpty()) {
-                String token = authorization.get(0).replace("Bearer ", "");
+                String token = authorization.replace("Bearer ", "");
                 try {
                     if (jwtUtil.isExpired(token)) {
                         log.info("만료된 JWT 토큰입니다.");
@@ -46,6 +53,7 @@ public class JwtInterceptor implements ChannelInterceptor {
                     log.info("유효한 JWT 토큰입니다.");
 
                     // 유저 정보 저장하기
+                    log.info("유저 정보를 저장합니다.");
                     setAuthenticationToContext(token);
                     accessor.setUser(SecurityContextHolder.getContext().getAuthentication());
                 } catch (Exception e) {
@@ -59,6 +67,21 @@ public class JwtInterceptor implements ChannelInterceptor {
         }
 
         return message;
+    }
+
+    private String getRequestUrl(Message<?> message) {
+        StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        if (accessor != null) {
+            String destination = accessor.getDestination();
+            if (destination != null) {
+                return destination;
+            }
+            // CONNECT 명령의 경우 destination이 없을 수 있으므로, 연결 URL을 반환
+            if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                return "STOMP CONNECT";
+            }
+        }
+        return "Unknown URL";
     }
 
     private void setAuthenticationToContext(String token) {

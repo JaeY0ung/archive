@@ -87,7 +87,7 @@ function connect() {
             // console.log(receiveUser);
             if (receiveUser.id == "profile" && opponent.value.isEmpty && user.nickname != receiveUser.nickname) {
                 stompClient.send(`/app/wait/${route.params.roomId}`, {"Content-Type": "application/json",
-                        "Authorization": `Bearer ${accessToken}`}, JSON.stringify({id : "profile", nickname: user.nickname, userImg: user.userImg}));
+                        "Authorization": `Bearer ${accessToken}`}, JSON.stringify({id : "profile", nickname: user.nickname, userImg: "temp"}));
                 opponent.value.nickname = receiveUser.nickname;
                 opponent.value.isEmpty = false;
                 opponent.value.userImg = receiveUser.userImg;
@@ -96,7 +96,7 @@ function connect() {
             }
         });
 
-        stompClient.subscribe(`/wait/socket/ready/{route.params.roomId}`, function (readyStatus) {
+        stompClient.subscribe(`/wait/socket/ready/${route.params.roomId}`, function (readyStatus) {
             const playerReady = JSON.parse(readyStatus.body);
             if(playerReady.sender != user.nickname){
                 opponentReady.value = playerReady.isReady;
@@ -124,7 +124,7 @@ function connect() {
 
         // console.log("연결되었습니다.")
 
-        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ id : "profile", nickname : user.nickname, userImg : user.userImg }));
+        stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ id : "profile", nickname : user.nickname, userImg : "tmp" }));
         stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender : user.nickname, isReady: isReady.value }));
     });
 }
