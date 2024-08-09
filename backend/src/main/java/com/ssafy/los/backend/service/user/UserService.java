@@ -14,7 +14,7 @@ public interface UserService {
 
     Boolean validateNickname(String email);
 
-    User updateUser(UserUpdateDto userUpdateDto, String uuid);
+    User updateUser(UserUpdateDto userUpdateDto, String fileName);
 
     Long deleteLoginUser();
 

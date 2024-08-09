@@ -100,7 +100,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
                     .otherScore(isWinner ? multiPlayResult.getLoserScore()
                             : multiPlayResult.getWinnerScore())
                     .sheetTitle(multiPlayResult.getSheet().getTitle())
-                    .sheetUrl(multiPlayResult.getSheet().getFileName())
+                    .sheetUrl(multiPlayResult.getSheet().getUuid())
                     .level(multiPlayResult.getSheet().getLevel()).build();
             resultListDtoList.add(result);
         }

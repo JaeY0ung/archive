@@ -35,8 +35,8 @@ public class SheetServiceImpl implements SheetService {
         String uuid = UUID.randomUUID().toString();
         fileUploadUtil.uploadSheet(sheetUploadForm.getFile(), uuid);
         Sheet sheet = registerSheet(sheetUploadForm, uuid);
-        log.info(sheet.getFileName() + ": 저장되었습니다.");
-        musicService.saveMidFileWithSplit(sheet.getFileName() + ".mid");
+        log.info(sheet.getUuid() + ": 저장되었습니다.");
+        musicService.saveMidFileWithSplit(sheet.getUuid() + ".mid");
         return sheet.getId();
     }
 
@@ -84,13 +84,13 @@ public class SheetServiceImpl implements SheetService {
     @Override
     public String getMusicXmlFileById(Long sheetId) {
         SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId);
-        return fileUploadUtil.getMusicXml(sheet.getFileName());
+        return fileUploadUtil.getMusicXmlByUuid(sheet.getUuid());
     }
 
     @Override
     public String getMidFileById(Long sheetId) {
         SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId);
-        return fileUploadUtil.getMid(sheet.getFileName());
+        return fileUploadUtil.getMidByUuid(sheet.getUuid());
     }
 
     @Override
@@ -134,7 +134,7 @@ public class SheetServiceImpl implements SheetService {
     }
 
 
-    private Sheet registerSheet(SheetUploadForm sheetUploadForm, String fileName)
+    private Sheet registerSheet(SheetUploadForm sheetUploadForm, String uuid)
             throws IllegalArgumentException {
         try {
             Sheet sheet = Sheet.builder()
@@ -143,7 +143,7 @@ public class SheetServiceImpl implements SheetService {
                     .title(sheetUploadForm.getTitle())
                     .song(sheetUploadForm.getSongId() != null ? songRepository.findById(
                             sheetUploadForm.getSongId()).orElse(null) : null)
-                    .fileName(fileName)
+                    .uuid(uuid)
                     .build();
             return sheetRepository.save(sheet);
         } catch (Exception e) {

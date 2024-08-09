@@ -98,7 +98,7 @@ public class SheetController {
                     sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm),
                     HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("파일 업로드에 실패했습니다." + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("파일 업로드에 실패했습니다" + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -153,9 +153,9 @@ public class SheetController {
                             String.format("attachment; filename=\"%s.%s\"",
                                     UriUtils.encode(sheet.getTitle(),
                                             StandardCharsets.UTF_8),
-                                    FilenameUtils.getExtension(sheet.getFileName()))
+                                    FilenameUtils.getExtension(sheet.getUuid()))
                     )
-                    .body(sheetService.getSheetFileByFileName(sheet.getFileName()));
+                    .body(sheetService.getSheetFileByFileName(sheet.getUuid()));
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }
@@ -163,9 +163,10 @@ public class SheetController {
 
     @GetMapping("/{sheet-id}/music-xml")
     public ResponseEntity<?> getSheetMusicXmlFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        String musicXmlFile = sheetService.getMusicXmlFileById(sheetId);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(sheetService.getMusicXmlFileById(sheetId));
+                .body(musicXmlFile);
     }
 
     @GetMapping("/{sheet-id}/mid")

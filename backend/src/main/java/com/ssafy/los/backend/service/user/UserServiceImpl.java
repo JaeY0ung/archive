@@ -61,14 +61,14 @@ public class UserServiceImpl implements UserService {
 
     // 회원 수정
     @Override
-    public User updateUser(UserUpdateDto userUpdateDto, String uuid) {
+    public User updateUser(UserUpdateDto userUpdateDto, String fileName) {
         User loginUser = authService.getLoginUser();
         if (loginUser == null) {
             throw new UserUpdateException("로그인 유저 없음");
         }
 
         try {
-            loginUser.updateProfile(userUpdateDto.getNickname(), uuid);
+            loginUser.updateProfile(userUpdateDto.getNickname(), fileName);
         } catch (Exception e) {
             throw new UserUpdateException("사용자 정보 업데이트 중 오류 발생: " + e.getMessage());
         }
@@ -78,9 +78,9 @@ public class UserServiceImpl implements UserService {
 
     // 회원 수정 파일 업로드
     @Override
-    public void registerUserImgFile(MultipartFile profileImg, String uuid) {
+    public void registerUserImgFile(MultipartFile imgFile, String uuid) {
         try {
-            fileUploadUtil.uploadUserImg(profileImg, uuid);
+            fileUploadUtil.uploadUserImg(imgFile, uuid);
         } catch (IllegalArgumentException e) {
             throw new UserUpdateException("프로필 이미지 업로드 중 오류 발생: " + e.getMessage());
         }

@@ -29,7 +29,7 @@ public class SheetDetailForAdminDto implements SheetDetailDto {
 
     private String uploaderNickname;
 
-    private String fileName;
+    private String uuid;
 
     private String songImgName;
 
@@ -62,7 +62,7 @@ public class SheetDetailForAdminDto implements SheetDetailDto {
         if (sheet.getUploader() != null) {
             this.uploaderNickname = sheet.getUploader().getNickname();
         }
-        this.fileName = sheet.getFileName();
+        this.uuid = sheet.getUuid();
         this.price = sheet.getPrice();
         this.level = sheet.getLevel();
         this.status = sheet.getStatus();
@@ -78,7 +78,7 @@ public class SheetDetailForAdminDto implements SheetDetailDto {
     @Override
     public void loadSongImg(FileUploadUtil fileUploadUtil) {
         if (this.songImgName != null) {
-            this.songImg = fileUploadUtil.getSongImg(this.songImgName);
+            this.songImg = fileUploadUtil.getSongImgByFileName(this.songImgName);
         }
     }
 
