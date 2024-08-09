@@ -14,12 +14,12 @@ const containerWidth = ref(0);
 const containerHeight = ref(0);
 let resizeObserver;
 
-const updateContainerSize = debounce(() => {
+const updateContainerSize = () => {
     if (outerDiv.value) {
-        containerWidth.value = outerDiv.value.clientWidth;
-        containerHeight.value = outerDiv.value.clientHeight;
+        containerWidth.value = outerDiv.value.offsetWidth;
+        containerHeight.value = outerDiv.value.offsetHeight;
     }
-}, 100);
+}
 
 const handleResize = entries => {
     for (let entry of entries) {
@@ -30,12 +30,9 @@ const handleResize = entries => {
 };
 
 onMounted(() => {
-    if (outerDiv.value) {
-        resizeObserver = new ResizeObserver(handleResize);
-        resizeObserver.observe(outerDiv.value);
-
-        musicStore.loadAndSetupOsmd(container.value, props.sheetId);
-    }
+    resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(outerDiv.value);
+    musicStore.loadAndSetupOsmd(container.value, props.sheetId);
     updateContainerSize();
 });
 
@@ -48,10 +45,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div ref="outerDiv" class="flex overflow-hidden">
-        <div class="pointer-events-none overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px' }" >
-            <div ref="container"></div>
-        </div>
+    <div ref="outerDiv" class="flex flex-grow overflow-hidden relative">
+        <div ref="container" class="pointer-events-none absolute overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px' }" ></div>
     </div>
 </template>
 
