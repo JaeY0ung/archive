@@ -13,7 +13,7 @@ const userStore = new useUserStore();
 const isInCategoryView = ref(true);
 
 const user = ref({
-    img: "",
+    userImg: "",
     nickname: "악카이브1",
     score: "0",
     isEmpty: true,

@@ -10,7 +10,7 @@ const emit = defineEmits(['send-go-to-back', 'send-sheet-id'])
 </script>
 
 <template>
-    <div>
+    <div class="flex flex-wrap justify-center">
 		<div @click="emit('send-go-to-back')">뒤로가기</div>
 		<SmallSheetCard v-for="sheet in sheets" :sheet="sheet" @click="emit('send-sheet-id', sheet.id)" class="cursor-pointer"/>
 	</div>
