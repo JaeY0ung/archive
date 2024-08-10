@@ -4,23 +4,17 @@ package com.ssafy.los.backend.controller.play;
 import com.ssafy.los.backend.domain.entity.BattleRoom;
 import com.ssafy.los.backend.dto.play.request.BattleRoomRegisterDto;
 import com.ssafy.los.backend.service.play.BattleRoomService;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 @Slf4j
 @RestController
@@ -69,8 +63,6 @@ public class BattleRoomController {
     // 만약 유저가 나간 이후, 인원이 0명이라면 스키마 삭제
     @DeleteMapping("/{room_id}")
     public ResponseEntity<?> deleteBattleRoom(@PathVariable("room_id") Long roomId) {
-        LOGGER.info("퇴장할 방 번호 : " + roomId);
-        // selectAndExitBattleRoom 메서드에서 통합할 것.
         battleRoomService.selectAndExitBattleRoom(roomId);
 
         return new ResponseEntity<>(roomId, HttpStatus.OK);
@@ -80,7 +72,6 @@ public class BattleRoomController {
     @GetMapping
     public ResponseEntity<?> getAllBattleRooms() {
         List<Map<String, Object>> results = battleRoomService.selectAllBattleRooms();
-        LOGGER.info("전체 대결 방 목록: " + results.toString());
         return new ResponseEntity<>(results, HttpStatus.OK);
     }
 

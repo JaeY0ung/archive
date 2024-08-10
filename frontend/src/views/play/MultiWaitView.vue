@@ -81,7 +81,7 @@ function connect() {
                         "Authorization": `Bearer ${accessToken}`}, function (frame) {
         // console.error(sessionStorage.getItem("accessToken"))
 
-        stompClient.subscribe(`/wait/socket/{route.params.roomId}`, function (chatMessage) {
+        stompClient.subscribe(`/wait/socket/${route.params.roomId}`, function (chatMessage) {
             const receiveUser = JSON.parse(chatMessage.body);
             // console.log("상대 유저 정보 구독 성공");
             // console.log(receiveUser);
@@ -403,7 +403,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     background-color: #fff;
     border: 1px solid #ccc;
     border-radius: 10px;
-    width: 40%;
+    width: 65%;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 

@@ -31,6 +31,11 @@ const cards = ref([
 
 <style scoped>
 
+.card-box:has(div:hover) > div:hover{
+    transform: scale(1.05);
+}
 
-
+.card{
+    transition: all 155ms ease-in-out;
+}
 </style>
