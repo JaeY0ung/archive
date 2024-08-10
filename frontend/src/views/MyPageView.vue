@@ -9,7 +9,7 @@ import Profile from "@/common/icons/Profile.vue";
 const router = useRouter();
 const local = localAxios();
 const userStore = useUserStore();
-const { userInfo, getUserInfo } = storeToRefs(userStore);
+const { userInfo } = storeToRefs(userStore);
 
 const originalUserInfo = ref({
     email: "",
