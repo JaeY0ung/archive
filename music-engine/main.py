@@ -115,16 +115,19 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
 
         start_measure = max(0, int(file_number) * 8 - 1)
         end_measure = (int(file_number) + 1) * 8 + 1
-
-        similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure,
-                                                  end_measure)
+        last_measure = ConvertService.get_rounded_measures(original_file_location,8);
+        similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
         logger.info(similarity_results)
+        isLast = 0
+        if last_measure == file_number:
+            isLast = 1
         return {
             "filename": file.filename,
             "wav_file": wav_file_location,
             "midi_file": midi_file_location,
             "content_type": file.content_type,
-            "similarity_results": similarity_results
+            "similarity_results": similarity_results,
+            "isLast" : isLast,
         }
 
     except Exception as e:
