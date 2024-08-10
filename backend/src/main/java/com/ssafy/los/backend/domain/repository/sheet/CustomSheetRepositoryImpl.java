@@ -112,7 +112,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     @Override
     public List<SheetDetailForUserDto> searchByFileName(List<String> fileNames) {
         return createSelectFromQuery()
-                .where(s.fileName.in(fileNames))
+                .where(s.uuid.in(fileNames))
                 .fetch();
     }
 
