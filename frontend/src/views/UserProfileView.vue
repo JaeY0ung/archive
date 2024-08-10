@@ -5,6 +5,8 @@ import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import SmallSheetCardSinglePlay from "@/common/sheet/SmallSheetCardForSinglePlayProfile.vue";
+import SmallSheetCardMultiPlay from "@/common/sheet/SmallSheetCardForMultiPlayProfile.vue";
 import FollowModal from "@/common/modal/FollowModal.vue";
 import Profile from "@/common/icons/Profile.vue";
 
@@ -31,35 +33,81 @@ const mockRecentPlayedSheets = ref([
         id: 1,
         title: "곡 제목 1",
         songComposer: "아티스트 1",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        singleScore: 80,
     },
     {
         id: 2,
         title: "곡 제목 2",
         songComposer: "아티스트 2",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        singleScore: 70,
     },
     {
         id: 3,
         title: "곡 제목 3",
         songComposer: "아티스트 3",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
     },
     {
         id: 4,
         title: "곡 제목 4",
         songComposer: "아티스트 4",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
     },
     {
         id: 5,
         title: "곡 제목 5",
         songComposer: "아티스트 5",
-        imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
     },
 ]);
 
-const mockRecentBattleSheets = ref([...mockRecentPlayedSheets.value]);
+const mockRecentBattleSheets = ref([
+    {
+        id: 1,
+        title: "곡 제목 1",
+        songComposer: "아티스트 1",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        singleScore: 80,
+    },
+    {
+        id: 2,
+        title: "곡 제목 2",
+        songComposer: "아티스트 2",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+        singleScore: 70,
+    },
+    {
+        id: 3,
+        title: "곡 제목 3",
+        songComposer: "아티스트 3",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    },
+    {
+        id: 4,
+        title: "곡 제목 4",
+        songComposer: "아티스트 4",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    },
+    {
+        id: 5,
+        title: "곡 제목 5",
+        songComposer: "아티스트 5",
+        imageUrl:
+            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    },
+]);
+
 const mockLikedSheets = ref([...mockRecentPlayedSheets.value]);
 
 const isOwnProfile = computed(() => {
@@ -117,7 +165,9 @@ const toggleFollow = async () => {
 
     try {
         if (isFollowing.value) {
-            await local.delete(`/follows/followings/${userProfile.value.userId}`);
+            await local.delete(
+                `/follows/followings/${userProfile.value.userId}`
+            );
         } else {
             await local.post(`/follows/followings/${userProfile.value.userId}`);
         }
@@ -131,9 +181,12 @@ const toggleFollow = async () => {
 
 const openFollowModal = async (type) => {
     try {
-        const response = await local.get(`/follows/${type}/${route.params.nickName}`);
+        const response = await local.get(
+            `/follows/${type}/${route.params.nickName}`
+        );
         followList.value = response.data;
-        followModalTitle.value = type === "followers" ? "Followers" : "Following";
+        followModalTitle.value =
+            type === "followers" ? "Followers" : "Following";
         type === "followers"
             ? (showFollowersModal.value = true)
             : (showFollowingsModal.value = true);
@@ -149,7 +202,9 @@ const closeModal = () => {
 
 const isValidUserImg = computed(() => {
     return (
-        userImg.value && userImg.value.trim().length > 0 && !userImg.value.endsWith("base64,null")
+        userImg.value &&
+        userImg.value.trim().length > 0 &&
+        !userImg.value.endsWith("base64,null")
     );
 });
 
@@ -166,96 +221,185 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="flex flex-col flex-grow w-full items-center justify-center bg-purple-200">
-        <div class="flex flex-col flex-grow w-[80%] mb-[10px] rounded-xl bg-white shadow-[0 4px 15px 0 rgb(0 0 0 0.1)]">
-            <div v-if="userNotFound" class="user-not-found">
-                <h2>사용자를 찾을 수 없습니다</h2>
-                <p>요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.</p>
-                <button class="btn back-btn" @click="$router.push('/')">메인으로 돌아가기</button>
+    <div
+        class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-60px)] overflow-hidden py-4"
+    >
+        <div class="w-[80%] h-full flex flex-col">
+            <div
+                v-if="userNotFound"
+                class="flex-grow flex items-center justify-center"
+            >
+                <div class="text-center">
+                    <h2 class="text-2xl font-bold text-red-600 mb-4">
+                        사용자를 찾을 수 없습니다
+                    </h2>
+                    <p class="text-gray-700 mb-6">
+                        요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.
+                    </p>
+                    <button
+                        class="btn back-btn px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
+                        @click="$router.push('/')"
+                    >
+                        메인으로 돌아가기
+                    </button>
+                </div>
             </div>
 
             <template v-else>
-                <div class="flex w-full h-[200px] justify-between items-center p-[30px] bg-blue-200 rounded-t-xl">
-                    <div class="w-[140px] h-[140px] min-w-[140px] bg-red-300 rounded-[50%] overflow-hidden shadow-[0 2px 5px 0 rgb(0 0 0 0.1)]">
-                        <img
-                            v-if="isValidUserImg"
-                            :src="userImg"
-                            alt="User Profile"
-                            class="profile-image"
-                            @error="handleImageError"
-                        />
-                        <Profile v-else class="profile-icon" />
-                    </div>
-                    <div class="flex-grow ml-[30px]">
-                        <h2 class="user-name">{{ userProfile?.nickname }}</h2>
-                        <div class="stats-container">
-                            <div class="stat-item">
-                                <span class="stat-value">{{ userProfile?.singleScore }}</span>
-                                <span class="stat-label">Score</span>
-                            </div>
-                            <div
-                                class="stat-item clickable"
-                                @click="openFollowModal('followers')"
+                <div
+                    class="flex-shrink-0 w-full rounded-t-xl shadow-[0_4px_15px_0_rgba(0,0,0,0.1)]"
+                >
+                    <div
+                        class="flex w-full h-[200px] justify-between items-center p-[30px] rounded-t-xl bg-white bg-opacity-80"
+                    >
+                        <div
+                            class="w-[140px] h-[140px] min-w-[140px] bg-red-300 rounded-full overflow-hidden shadow-[0_2px_5px_0_rgba(0,0,0,0.1)]"
+                        >
+                            <img
+                                v-if="isValidUserImg"
+                                :src="userImg"
+                                alt="User Profile"
+                                class="w-full h-full object-cover"
+                                @error="handleImageError"
+                            />
+                            <Profile
+                                v-else
+                                class="w-full h-full flex items-center justify-center text-gray-500 text-5xl"
+                            />
+                        </div>
+                        <div class="flex-grow ml-[30px]">
+                            <h2
+                                class="text-3xl font-semibold text-gray-800 mb-4"
                             >
-                                <span class="stat-value">{{ followersCount }}</span>
-                                <span class="stat-label">Followers</span>
-                            </div>
-                            <div
-                                class="stat-item clickable"
-                                @click="openFollowModal('followings')"
-                            >
-                                <span class="stat-value">{{ followingsCount }}</span>
-                                <span class="stat-label">Following</span>
+                                {{ userProfile?.nickname }}
+                            </h2>
+                            <div class="flex gap-8">
+                                <div class="text-center">
+                                    <span
+                                        class="block text-2xl font-bold text-gray-700"
+                                        >{{ userProfile?.singleScore }}</span
+                                    >
+                                    <span class="text-sm text-gray-500"
+                                        >Score</span
+                                    >
+                                </div>
+                                <div
+                                    class="text-center cursor-pointer hover:text-blue-500 transition duration-300"
+                                    @click="openFollowModal('followers')"
+                                >
+                                    <span
+                                        class="block text-2xl font-bold text-gray-700"
+                                        >{{ followersCount }}</span
+                                    >
+                                    <span class="text-sm text-gray-500"
+                                        >Followers</span
+                                    >
+                                </div>
+                                <div
+                                    class="text-center cursor-pointer hover:text-blue-500 transition duration-300"
+                                    @click="openFollowModal('followings')"
+                                >
+                                    <span
+                                        class="block text-2xl font-bold text-gray-700"
+                                        >{{ followingsCount }}</span
+                                    >
+                                    <span class="text-sm text-gray-500"
+                                        >Following</span
+                                    >
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="profile-actions">
-                        <template v-if="!isOwnProfile">
+                        <div class="flex flex-col gap-2">
+                            <template v-if="!isOwnProfile">
+                                <button
+                                    :class="[
+                                        'btn',
+                                        'px-4 py-2 rounded font-semibold transition duration-300',
+                                        isFollowing
+                                            ? 'bg-gray-400 hover:bg-gray-500'
+                                            : 'bg-blue-500 hover:bg-blue-600',
+                                    ]"
+                                    @click="toggleFollow"
+                                >
+                                    {{ isFollowing ? "Unfollow" : "Follow" }}
+                                </button>
+                                <button
+                                    class="btn px-4 py-2 rounded font-semibold bg-red-500 hover:bg-red-600 text-white transition duration-300"
+                                >
+                                    Fight
+                                </button>
+                            </template>
                             <button
-                                :class="['btn', 'follow-btn', { 'unfollow-btn': isFollowing }]"
-                                @click="toggleFollow"
+                                v-else
+                                class="btn px-4 py-2 rounded font-semibold bg-green-500 hover:bg-green-600 text-white transition duration-300"
+                                @click="goToEditPage"
                             >
-                                {{ isFollowing ? "Unfollow" : "Follow" }}
+                                Edit Profile
                             </button>
-                            <button class="btn fight-btn">Fight</button>
-                        </template>
-                        <button v-else class="btn edit-btn" @click="goToEditPage">
-                            Edit Profile
-                        </button>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-col flex-grow w-full bg-yellow-200 rounded-b-xl overflow-hidden">
-                    <div class="">최근 싱글 플레이</div>
-                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
-                        <div class="flex w-full absolute scroll-x">
-                            <SmallSheetCard
-                                v-for="sheet in mockRecentPlayedSheets"
-                                :key="sheet.id"
-                                :sheet="sheet"
-                            />
+                <div
+                    class="flex-grow overflow-y-auto bg-white rounded-b-xl shadow-[0_4px_15px_0_rgba(0,0,0,0.1)] custom-scrollbar"
+                >
+                    <div class="p-6">
+                        <h3
+                            class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-300"
+                        >
+                            최근 싱글 플레이
+                        </h3>
+                        <div
+                            class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
+                        >
+                            <div class="flex absolute">
+                                <SmallSheetCardSinglePlay
+                                    v-for="sheet in mockRecentPlayedSheets"
+                                    :key="sheet.id"
+                                    :sheet="sheet"
+                                    class="mr-4"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <h3>최근 대결 플레이</h3>
-                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
-                        <div class="flex w-full absolute scroll-x">
-                            <SmallSheetCard
-                                v-for="sheet in mockRecentBattleSheets"
-                                :key="sheet.id"
-                                :sheet="sheet"
-                            />
+                    <div class="p-6">
+                        <h3
+                            class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-300"
+                        >
+                            최근 대결 플레이
+                        </h3>
+                        <div
+                            class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
+                        >
+                            <div class="flex absolute">
+                                <SmallSheetCardMultiPlay
+                                    v-for="sheet in mockRecentBattleSheets"
+                                    :key="sheet.id"
+                                    :sheet="sheet"
+                                    class="mr-4"
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <h3>좋아요한 악보</h3>
-                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
-                        <div class="flex w-full absolute scroll-x">
-                            <SmallSheetCard
-                                v-for="sheet in mockLikedSheets"
-                                :key="sheet.id"
-                                :sheet="sheet"
-                            />
+                    <div class="p-6">
+                        <h3
+                            class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-300"
+                        >
+                            좋아요한 악보
+                        </h3>
+                        <div
+                            class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
+                        >
+                            <div class="flex absolute">
+                                <SmallSheetCard
+                                    v-for="sheet in mockLikedSheets"
+                                    :key="sheet.id"
+                                    :sheet="sheet"
+                                    class="mr-4"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -275,14 +419,28 @@ onMounted(async () => {
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Poppins:wght@300;400;600&display=swap");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
 
-div{
+* {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+*::-webkit-scrollbar {
+    display: none;
+}
+
+html,
+body {
+    overflow: hidden;
+}
+
+/* 기존 스타일 유지 */
+div {
     font-family: "Roboto", sans-serif;
 }
 
 .profile-container {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
-
 
 .profile-image-container {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -304,7 +462,7 @@ div{
     font-size: 40px;
 }
 
-x.user-name {
+.user-name {
     font-family: "Poppins", sans-serif;
     font-size: 2em;
     font-weight: 600;
@@ -422,7 +580,6 @@ x.user-name {
     content: "\f304";
 }
 
-
 .sheet-section h3 {
     margin-bottom: 20px;
     font-size: 1.4em;
@@ -432,29 +589,6 @@ x.user-name {
     border-bottom: 2px solid #000000;
     padding-bottom: 10px;
     display: inline-block;
-}
-
-.scroll-container {
-    display: flex;
-    overflow-x: auto;
-    gap: 20px;
-    padding-bottom: 20px;
-    scrollbar-width: none; 
-    -ms-overflow-style: none;
-}
-
-.scroll-container::-webkit-scrollbar {
-    display: none;
-}
-
-.scroll-container::-webkit-scrollbar-track {
-    background: #e0e0e0;
-    border-radius: 4px;
-}
-
-.scroll-container::-webkit-scrollbar-thumb {
-    background-color: #3498db;
-    border-radius: 4px;
 }
 
 .user-not-found {
