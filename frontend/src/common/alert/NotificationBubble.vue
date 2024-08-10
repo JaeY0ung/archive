@@ -19,16 +19,26 @@
 import { ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePlayStore } from '@/stores/play';
+import { useUserStore } from '@/stores/user';
+
 
 const notifications = ref([]);
 const showBadge = ref(false);
 const showBubble = ref(false);
 const router = useRouter();
 const playStore = usePlayStore();
+const userStore = useUserStore();
+
+// // 읽지 않은 알림만 필터링하여 반환
+// const unreadNotifications = computed(() => {
+//   return notifications.value.filter(notification => !notification.readStatus);
+// });
 
 // 읽지 않은 알림만 필터링하여 반환
 const unreadNotifications = computed(() => {
-  return notifications.value.filter(notification => !notification.readStatus);
+  return notifications.value.filter(notification =>
+      !notification.readStatus && notification.senderId !== userStore.userInfo.id
+  );
 });
 
 function toggleNotifications() {
@@ -73,10 +83,20 @@ function declineInvite(notification) {
 }
 
 // 외부에서 알림을 추가하는 함수
-window.showNotification = (title, body, alertType, roomId, readStatus = false) => {
-  notifications.value.push({ title, body, alertType, roomId, readStatus });
-  showBadge.value = true;
-  showBubble.value = true;
+// window.showNotification = (title, body, alertType, roomId, readStatus = false) => {
+//   notifications.value.push({ title, body, alertType, roomId, readStatus });
+//   showBadge.value = true;
+//   showBubble.value = true;
+// };
+
+// 외부에서 알림을 추가하는 함수
+window.showNotification = (title, body, alertType, roomId, senderId, readStatus) => {
+  // 현재 사용자가 sender가 아닌 경우에만 알림을 추가
+  if (senderId !== userStore.userInfo.id) {
+    notifications.value.push({ title, body, alertType, roomId, senderId, readStatus });
+    showBadge.value = true;
+    showBubble.value = true;
+  }
 };
 
 watch(notifications, () => {
