@@ -59,7 +59,9 @@ export const useUserStore = defineStore(
             const roomId = payload.data.roomId ? parseInt(payload.data.roomId, 10) : null;
 
             // readStatus 기본값 설정
-            const readStatus = payload.data.readStatus !== undefined ? payload.data.readStatus : false;
+            console.log("readStatus play.js에서 기본값 설정 전: " + readStatus);
+            const readStatus = payload.data.readStatus === "true";
+            console.log("readStatus play.js에서 기본값 설정 후: " + readStatus);
 
             if (window && window.showNotification) {
                 window.showNotification(notificationTitle, notificationBody, alertType, roomId, readStatus);

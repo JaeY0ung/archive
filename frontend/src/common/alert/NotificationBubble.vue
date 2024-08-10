@@ -2,7 +2,7 @@
   <div class="notification-icon">
       <img src="@/assets/img/common/bell.png" alt="Notifications" @click="toggleNotifications" />
       <div v-if="showBubble" class="notification-bubble">
-          <div v-for="notification in notifications" :key="notification.title"  v-if="!notification.readStatus" class="notification">
+          <div v-for="notification in notifications" :key="notification.title"  v-if="notification.readStatus !== undefined && !notification.readStatus" class="notification">
               <div class="title">{{ notification.title }}</div>
               <div class="body">{{ notification.body }}</div>
               <div v-if="notification.alertType === 1" class="actions">
@@ -77,8 +77,11 @@ function declineInvite(notification) {
 // Expose these functions for external use
 window.showNotification = (title, body, alertType, roomId, readStatus = false) => {
   // readStatus가 undefined인 경우 기본값을 false로 설정
+  console.log("readStatus 처리 전: " + readStatus)
   readStatus = readStatus !== undefined ? readStatus : false;
-
+  console.log("readStatus 처리 후: " + readStatus)
+  console.log("{ title, body, alertType, roomId, readStatus }: " +{ title, body, alertType, roomId, readStatus });
+  console.log("notifications.value: " + notifications.value);
   notifications.value.push({ title, body, alertType, roomId, readStatus });
     showBadge.value = true;
     showBubble.value = true; // 알림이 오면 말풍선 보이도록 설정
