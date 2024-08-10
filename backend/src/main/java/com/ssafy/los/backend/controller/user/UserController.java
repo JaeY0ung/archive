@@ -79,4 +79,17 @@ public class UserController {
         return new ResponseEntity<>(userProfileDto, HttpStatus.OK);
     }
 
+    // 프로필을 위한 싱글 플레이한 악보 및 결과 가져오기
+    @GetMapping("/users/profile/single/{user-id}")
+    public ResponseEntity<?> getUserProfileSinglePlay(@PathVariable("user-id") Long userId) {
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+    // 프로필을 위한 멀티 플레이한 악보 및 결과 가져오기
+    @GetMapping("/users/profile/single/{user-id}")
+    public ResponseEntity<?> getUserProfileMultiPlay(@PathVariable("user-id") Long userId) {
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

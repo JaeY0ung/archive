@@ -5,6 +5,8 @@ import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import SmallSheetCardSinglePlay from "@/common/sheet/SmallSheetCardForSinglePlayProfile.vue";
+import SmallSheetCardMultiPlay from "@/common/sheet/SmallSheetCardForMultiPlayProfile.vue";
 import FollowModal from "@/common/modal/FollowModal.vue";
 import Profile from "@/common/icons/Profile.vue";
 
@@ -32,12 +34,14 @@ const mockRecentPlayedSheets = ref([
     title: "곡 제목 1",
     songComposer: "아티스트 1",
     imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    singleScore: 80,
   },
   {
     id: 2,
     title: "곡 제목 2",
     songComposer: "아티스트 2",
     imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    singleScore: 70
   },
   {
     id: 3,
@@ -59,7 +63,41 @@ const mockRecentPlayedSheets = ref([
   },
 ]);
 
-const mockRecentBattleSheets = ref([...mockRecentPlayedSheets.value]);
+const mockRecentBattleSheets = ref([
+  {
+    id: 1,
+    title: "곡 제목 1",
+    songComposer: "아티스트 1",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    singleScore: 80,
+  },
+  {
+    id: 2,
+    title: "곡 제목 2",
+    songComposer: "아티스트 2",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+    singleScore: 70
+  },
+  {
+    id: 3,
+    title: "곡 제목 3",
+    songComposer: "아티스트 3",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+  },
+  {
+    id: 4,
+    title: "곡 제목 4",
+    songComposer: "아티스트 4",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+  },
+  {
+    id: 5,
+    title: "곡 제목 5",
+    songComposer: "아티스트 5",
+    imageUrl: "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
+  },
+]);
+
 const mockLikedSheets = ref([...mockRecentPlayedSheets.value]);
 
 const isOwnProfile = computed(() => {
@@ -291,7 +329,7 @@ onMounted(async () => {
               class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
             >
               <div class="flex absolute">
-                <SmallSheetCard
+                <SmallSheetCardSinglePlay
                   v-for="sheet in mockRecentPlayedSheets"
                   :key="sheet.id"
                   :sheet="sheet"
@@ -311,7 +349,7 @@ onMounted(async () => {
               class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
             >
               <div class="flex absolute">
-                <SmallSheetCard
+                <SmallSheetCardMultiPlay
                   v-for="sheet in mockRecentBattleSheets"
                   :key="sheet.id"
                   :sheet="sheet"

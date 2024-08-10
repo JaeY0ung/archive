@@ -4,6 +4,7 @@ import com.ssafy.los.backend.domain.entity.Song;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
+import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
 import com.ssafy.los.backend.dto.song.request.SongRegisterForm;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.service.song.SongService;
@@ -177,4 +178,12 @@ public class SheetController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(sheetService.getMidFileById(sheetId));
     }
+
+//    @GetMapping("/profile/like/{user-id}")
+//    public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
+//        List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
+//        return new ResponseEntity<List<SheetDetailForUserDto>>(sheetList, HttpStatus.OK);
+//    }
+
+
 }
