@@ -173,7 +173,16 @@ watch(searchFilter, () => {
 			<div class="flex-grow bg-white bg-opacity-50  p-4 rounded-lg shadow-md box-border overflow-y-auto max-h-[calc(100vh-160px)]">
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<template v-if="sheets.length">
-						<div class="flex flex-col w-full absolute scroll-y mt-3" :class="[view === 'card' ? 'scroll-x' : 'scroll-y']">
+						<!-- <div class="flex flex-col w-full absolute scroll-y mt-3" :class="[view === 'card' ? 'scroll-x' : 'scroll-y']">
+							<SmallSheetCard v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" />
+						</div> -->
+						<!-- 리스트 버전 -->
+						<div v-if="view === 'list'" class="flex flex-col w-full absolute scroll-y mt-3">
+							<SmallSheetCard v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" />
+						</div>
+
+						<!-- 카드 버전 -->
+						<div v-if="view === 'card'" class="grid grid-cols-3 gap-4">
 							<SmallSheetCard v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" />
 						</div>
 					</template>

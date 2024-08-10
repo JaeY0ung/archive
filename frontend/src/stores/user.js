@@ -59,7 +59,7 @@ export const useUserStore = defineStore(
             const roomId = payload.data.roomId ? parseInt(payload.data.roomId, 10) : null;
 
             // readStatus 기본값 설정
-            const readStatus = payload.data.readStatus !== undefined ? payload.data.readStatus : false;
+            const readStatus = payload.data.readStatus === "true";
 
             if (window && window.showNotification) {
                 window.showNotification(notificationTitle, notificationBody, alertType, roomId, readStatus);
