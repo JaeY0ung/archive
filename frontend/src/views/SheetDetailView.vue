@@ -122,14 +122,14 @@ const goToSheetDetail = (sheetId) => {
 </script>
 
 <template>
-	<div class="flex w-full h-full justify-between flex-margin  bg-red-300">
+	<div class="flex w-full h-full justify-between flex-margin  ">
 		<!-- 왼쪽 -->
-		<div class="flex flex-col gap-10 w-[50%]  mb-[10px] rounded-xl bg-blue-200">
+		<div class="flex flex-col gap-10 w-[50%]  mb-[10px] rounded-b-xl ">
 			<BigSheetCard :sheet="sheet" />
 			<div>
-				<div>비슷한 수준의 악보 추천</div>
+				<div style="font-size:20px; font-weight:600; ">비슷한 수준의 악보 추천</div>
 				<div class="line"></div>
-				<div class="scroll-x flex bg-white/50 rounded-xl h-[100px]">
+				<div class="scroll-x flex bg-white/50 rounded-b-xl h-[100px]  shadow-xl">
 					<template v-if="sameLevelSheets && sameLevelSheets.length != 0">
 						<template v-for="sheet in sameLevelSheets" :key="sheet.id">
 							<SmallSheetCard :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer h-fit" />
@@ -143,8 +143,8 @@ const goToSheetDetail = (sheetId) => {
 				</div>
 			</div>
 
-			<div class="flex flex-col flex-grow w-full rounded-b-xl bg-green-200">
-				<div>리뷰</div>
+			<div class="flex flex-col flex-grow w-full rounded-b-xl shadow-xl ">
+				<div style="font-size:20px; font-weight:600; ">리뷰</div>
 				<div class="line"></div>
 				<!-- 위 -->
 				<div class="flex w-full bg-yellow-200">
@@ -152,7 +152,7 @@ const goToSheetDetail = (sheetId) => {
 					<div class="w-[20%] flex flex-col justify-center items-center">
 						<div>{{ starRateAvg }}</div>
 						<div class="rating rating-lg">
-							<input type="radio" name="rating-10" class="mask mask-star-2 bg-green-500"/>
+							<input type="radio" name="rating-10" class="mask mask-star-2 "/>
 						</div>
 						<div>{{ totalStarRateCount }} 개의 평가</div>
 					</div>
@@ -201,7 +201,7 @@ const goToSheetDetail = (sheetId) => {
 		</div>
 
 		<!-- 오른쪽 -->
-		<div class="flex flex-col gap-5 w-[49%]  bg-white/50 rounded-xl mb-[10px]">
+		<div class="flex flex-col gap-5 w-[49%]  bg-white rounded-xl mb-[10px] shadow-xl">
 			<Sheet :sheetId="Number(route.params.sheetId)"/>
 		</div>
 	</div>
