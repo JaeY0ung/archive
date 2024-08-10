@@ -174,19 +174,10 @@ public class SheetController {
     public ResponseEntity<?> getRecommendSheet() {
         try {
             List<SheetDetailForUserDto> recommendedSheets = sheetService.getRecommendedSheets();
-            for (int i = 0; i < recommendedSheets.size(); i++) {
-                System.out.println("recommendedSheets = " + recommendedSheets.get(i).getTitle());
-            }
             return new ResponseEntity<>(recommendedSheets, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-//    private List<SheetDetailForUserDto> createSheetDtoList(List<String> fileNames) {
-//        return sheetService.searchSheetDetailByFileName(fileNames);
-//    }
-
-
 }

@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
 import { useRouter } from "vue-router"
-import {searchSheetsByFilter, searchRecentChallengedsheets, getRecommendSheets} from '@/api/sheet';
+import {searchSheetsByFilter, getRecommendSheetByUserRecentPlay} from '@/api/sheet';
 
 const router = useRouter();
 
@@ -31,20 +31,16 @@ const getnewsheets = async () => {
 	)
 }
 
-const getRecommendsheets = async () => {
-  try {
-    const response = getRecommendSheets();
-    console.log("==== Response Data:", response.data);
-
-    // 응답 데이터가 배열인지, 객체인지, 그 구조가 맞는지 확인
-    if (response && response.data) {
-      recommendSheets.value = response.data; // 객체 내 data에 접근해서 할당
-    } else {
-      console.error('No valid data structure returned from searchSheetRecommand');
-    }
-  } catch (error) {
-    console.error('Error fetching recommended sheets:', error);
-  }
+const getRecommendSheets = async () => {
+    await getRecommendSheetByUserRecentPlay(
+        (res) => {
+            if (res && res.data) {
+              recommendSheets.value = res.data; // 객체 내 data에 접근해서 할당
+              return
+            }
+            console.error('No valid data structure returned from searchSheetRecommand');
+        }
+    )
 }
 
 // const getRecentChallengedsheets = async () => {
@@ -58,8 +54,7 @@ const getRecommendsheets = async () => {
 
 getPopularsheets();
 getnewsheets();
-getRecommendsheets();
-// getRecentChallengedsheets();
+getRecommendSheets();
 const goToSheetDetail = (sheetId) => {
 	router.push({ name: 'sheetDetail', params: { sheetId } });
 };

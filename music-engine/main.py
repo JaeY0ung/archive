@@ -154,66 +154,6 @@ async def mid2xml(file_request: FileRequest):
 class MidiRequest(BaseModel):
     filename: str
 
-# @app.post("/process-midi")
-# async def process_midi(request: MidiRequest):
-#     original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet","mid",request.filename);
-#     try:
-#         # similar_songs, input_features = midi_service.find_similar_songs(request.filename)
-#         similar_songs, input_features = midi_service.find_similar_songs(request.filename)
-#
-#         return JSONResponse(content={
-#             "similar_songs": similar_songs,
-#             "input_features": input_features
-#         })
-#     except FileNotFoundError as e:
-#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=404, detail=str(e))
-#     except Exception as e:
-#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-# @app.post("/process-midi")
-# async def process_midi(request: MidiRequest):
-#     try:
-#         sheet_name = request.filename  # 필요한 sheet 이름 정보로 경로 결정
-#         train_data_path = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheet_name)
-#
-#         midi_service.initialize(train_data_path)  # 여기서 경로를 설정하고 초기화
-#
-#         similar_songs, input_features = midi_service.find_similar_songs(request.filename)
-#
-#         return JSONResponse(content={
-#             "similar_songs": similar_songs,
-#             "input_features": input_features
-#         })
-#     except FileNotFoundError as e:
-#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=404, detail=str(e))
-#     except Exception as e:
-#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
-
-# @app.post("/process-midi")
-# async def process_midi(request: MidiRequest):
-#     try:
-#         sheet_name = request.filename
-#         train_data_path = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheet_name)
-#
-#         midi_service = MidiService(train_data_path)  # 인스턴스 매 요청마다 생성
-#         similar_songs, input_features = midi_service.find_similar_songs(request.filename)
-#
-#         return JSONResponse(content={
-#             "similar_songs": similar_songs,
-#             "input_features": input_features
-#         })
-#     except FileNotFoundError as e:
-#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=404, detail=str(e))
-#     except Exception as e:
-#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-
 @app.post("/process-midi")
 async def process_midi(request: MidiRequest):
     try:

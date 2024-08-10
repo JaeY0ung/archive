@@ -149,15 +149,15 @@ public class SheetServiceImpl implements SheetService {
     @Override
     public List<SheetDetailForUserDto> getRecommendedSheets() {
         try {
-//            Sheet sheet = searchSheetPlayLatest();
+            Sheet sheet = searchSheetPlayLatest();
 
             // Python 서버에 파일 이름을 보내고 JSON 응답을 받음
-//            String response = musicService.saveMidFileWithSplit(
-//                    musicEngineBaseUrl + "/process-midi",
-//                    sheet.getFileName());
             String response = musicService.searchRecommendMidFile(
                     musicEngineBaseUrl + "/process-midi",
-                    "아로하.mid");
+                    sheet.getFileName());
+//            String response = musicService.searchRecommendMidFile(
+//                    musicEngineBaseUrl + "/process-midi",
+//                    "아로하.mid");
 
             // JSON 응답을 파싱하여 file_name 값들을 추출
             ObjectMapper objectMapper = new ObjectMapper();
