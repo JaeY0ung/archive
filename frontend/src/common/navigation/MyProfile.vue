@@ -88,7 +88,7 @@ const logout = async () => {
     <transition name="dropdown">
       <div v-if="isLogin && isDropdownOpen" class="user-profile-menu">
         <a @click="goToUserProfile" class="menu-item profile-view">
-          <span class="menu-text">프로필보기</span>
+          <span class="menu-text">프로필 보기</span>
         </a>
         <a @click="goToEditProfile" class="menu-item edit-view">
           <span class="menu-text">정보 수정</span>
@@ -166,7 +166,7 @@ const logout = async () => {
 .menu-item {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 10px 16px;
   font-size: 14px;
   color: #374151;
@@ -194,7 +194,7 @@ const logout = async () => {
 }
 
 .menu-text {
-  text-align: right;
+  text-align: center;
 }
 
 .dropdown-enter-active,
