@@ -115,7 +115,8 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
 
         start_measure = max(0, int(file_number) * 8 - 1)
         end_measure = (int(file_number) + 1) * 8 + 1
-        last_measure = ConvertService.get_rounded_measures(original_file_location,8);
+        logger.info(original_file_location)
+        last_measure = ConvertService.get_rounded_measures(original_file_location);
         similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
         logger.info(similarity_results)
         isLast = 0
