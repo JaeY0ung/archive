@@ -35,8 +35,6 @@ const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const user = userStore.userInfo;
 
-console.log("유저 정보를 잠시 출력합니다.");
-console.log(user)
 
 // isReady.value = userStore.userReady;
 const onClickStart = () => {
@@ -44,13 +42,13 @@ const onClickStart = () => {
     alert("악보를 고르세요")
     return;
   }
-    router.push({ name: "multiPlay", params: { sheetId: selectedSheetId.value } });
+    router.push({ name: "multiPlay", params: { roomId: route.params.roomId ,sheetId: selectedSheetId.value } });
 };
 
 
 const me = ref({
     userImg: null,
-    name: "악카이브1",
+    nickname: "악카이브1",
     score: "0",
     isEmpty: true
 });
@@ -83,14 +81,17 @@ function connect() {
 
         stompClient.subscribe(`/wait/socket/${route.params.roomId}`, function (chatMessage) {
             const receiveUser = JSON.parse(chatMessage.body);
-            // console.log("상대 유저 정보 구독 성공");
-            // console.log(receiveUser);
             if (receiveUser.id == "profile" && opponent.value.isEmpty && user.nickname != receiveUser.nickname) {
                 stompClient.send(`/app/wait/${route.params.roomId}`, {"Content-Type": "application/json",
                         "Authorization": `Bearer ${accessToken}`}, JSON.stringify({id : "profile", nickname: user.nickname, userImg: user.userImg}));
+
+                // 상대방의 유저 정보를 저장.
                 opponent.value.nickname = receiveUser.nickname;
                 opponent.value.isEmpty = false;
                 opponent.value.userImg = receiveUser.userImg;
+                // userStore.opponentUser.nickname = receiveUser.nickname;
+                userStore.opponentUser.nickname = receiveUser.sender;
+                userStore.opponentUser.userImg = receiveUser.userImg;
                 stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender: user.nickname, isReady: isReady.value }));
                 isInvited.value = true;
             }
@@ -108,7 +109,7 @@ function connect() {
             const message = JSON.parse(socket.body);
             if(message.type == "start" && message.content == "true"){
                 selectedSheetId.value = message.sheetId;
-                router.push({name:'multiPlay', params:{ sheetId: selectedSheetId.value }});
+                router.push({name:'multiPlay', params:{ roomId: route.params.roomId , sheetId: selectedSheetId.value }});
             }
             if(message.type == "exit"){
                 console.log("exit에 들어왔습니다.")
@@ -149,7 +150,7 @@ const goToBattle = () => {
         alert("악보를 고르세요")
         return;
     }
-    router.push({name:'multiPlay', params:{sheetId:selectedSheetId.value}});
+    router.push({name:'multiPlay', params:{ roomId: route.params.roomId ,sheetId:selectedSheetId.value}});
     canLeaveSite.value = true;
     stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'start', sender: user.nickname, content: 'true', sheetId: selectedSheetId.value }));;
 }
@@ -273,6 +274,8 @@ if(isQuitting.value || isPopstate.value || isReloading.value){
 }else{
     await playStore.exitRoom(route.params.roomId);
     sendExit();
+    userStore.opponentUser.nickname = "";
+    userStore.opponentUser.userImg = null;
 }
 };
 
@@ -312,10 +315,11 @@ onBeforeRouteLeave(async (to, from, next) => {
     if (answer) {
       sendExit();
       await playStore.exitRoom(route.params.roomId);
+      userStore.opponentUser.nickname = "";
+      userStore.opponentUser.userImg = null;
       next();
-    //   window.location.href = "http://localhost:3000/room/multi/list";
     } else {
-        isExiting.value = false;
+        // isExiting.value = false;
       next(false);
     }
   }
@@ -336,7 +340,6 @@ onBeforeRouteLeave(async (to, from, next) => {
                 <UserCardForPlay :user="user" @onClickStart="onClickStart" />
                 <button class="btn text-white" style="background-color: gray;" v-if="isReady == 'false' && route.name == 'multiWait'" @click="readyButton">대기중</button>
                 <button class="btn text-white" style="background-color: red;"  v-if="isReady == 'true' && route.name == 'multiWait'" @click="readyButton">준비완료</button>
-                <!-- <button class="btn text-white" style="background-color: gray;" v-if="route.name == 'multiPlay'">게임중</button> -->
             </div>
 
             <div class="button-div">
@@ -355,7 +358,6 @@ onBeforeRouteLeave(async (to, from, next) => {
                 <UserCardForPlay :user="opponent"/>
                 <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false' && route.name == 'multiWait'">대기중</button>
                 <button class="btn text-white" style="background-color: red;"  v-if="opponentReady == 'true' && route.name == 'multiWait'">준비완료</button>
-                <!-- <button class="btn text-white" style="background-color: gray;" v-if="route.name == 'multiPlay'">게임중</button> -->
                 <button class="btn text-white" style="background-color: gray;" v-if="isInvited == false" @click="openInviteModalStatus">친구 초대하기</button>
             </div>
         </div>

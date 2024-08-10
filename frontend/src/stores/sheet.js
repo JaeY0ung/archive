@@ -30,6 +30,7 @@ export const useMusicStore = defineStore('music', () => {
             pageBackgroundColor: 'white',
             drawPartNames: false,
         });
+        console.log("악보가 나타났는지 체크하는333");
     };
 
     const loadMusicXML = async (sheetId) => {

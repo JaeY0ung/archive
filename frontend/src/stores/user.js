@@ -19,6 +19,10 @@ export const useUserStore = defineStore(
     const isLoginError = ref(false);
     const isValidToken = ref(false);
     const userReady = ref("false");
+    const opponentUser = ref({
+        nickname: "",
+        userImg: null,
+    });
 
         // 세션 타임아웃 관련
         const lastActivityTime = ref(null);
@@ -273,6 +277,7 @@ export const useUserStore = defineStore(
             isValidToken,
             tokenRegenerate,
             userReady,
+            opponentUser,
             OAuth2userLogin
         };
     },

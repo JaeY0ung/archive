@@ -19,8 +19,6 @@ const onClickQuit = () => {
     router.push("/room/multi/list");
 }
 
-
-console.log("route.params.sheetId = " + route.params.sheetId);
 </script>
 
 <template>
