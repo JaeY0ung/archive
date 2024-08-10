@@ -26,7 +26,7 @@ onMounted(() => {
 
 <template>
     <div class="flex w-full h-full bg-red-600">
-        <div class="flex flex-col flex-shrink-0 w-[30%] h-full bg-yellow-300">
+        <div class="flex flex-col flex-shrink-0 w-[300px] h-full bg-yellow-300">
             <div @click="emit('send-go-to-back')">뒤로가기</div>
             <div class="flex w-full " v-if="selectedSheet">
                 <img 
@@ -35,8 +35,12 @@ onMounted(() => {
                 class="object-cover w-full h-full"
                 />
             </div>
-            <div class="flex flex-col flex-grow w-full bg-blue-400" v-if="selectedSheet">
-                {{ selectedSheet }}
+            <div class="flex flex-grow w-full h-[300px] bg-blue-400" v-if="selectedSheet">
+                <div class="flex flex-col flex-grow">
+                    <div class="flex-1 flex-col justify-center items-center text-start">{{selectedSheet.title}}</div>
+                    <div class="flex-1 flex-col items-center text-start">{{selectedSheet.uploaderNickname}}</div>
+                </div>
+                <div class="flex h-full w-[50px] bg-purple-200">{{selectedSheet.level}}</div>
             </div>
         </div>
         <div class="flex flex-grow flex-col h-full relative overflow-hidden items-center bg-green-300" >
