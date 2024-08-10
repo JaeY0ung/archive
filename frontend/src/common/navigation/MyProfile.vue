@@ -1,15 +1,16 @@
 <script setup>
-import { onMounted, computed } from 'vue';
-import Profile from '@/common/icons/Profile.vue'
-import { RouterLink, useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user';
-import { storeToRefs } from 'pinia';
+import { ref, onMounted, onUnmounted, computed } from "vue";
+import { RouterLink, useRouter } from "vue-router";
+import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faUserCircle } from "@fortawesome/free-solid-svg-icons";
 
 const router = useRouter();
 const userStore = useUserStore();
 const { isLogin, userInfo } = storeToRefs(userStore);
 
-const userNickname = computed(() => userInfo.value?.nickname || '사용자');
+const userNickname = computed(() => userInfo.value?.nickname || "사용자");
 const userImg = computed(() => {
   if (userInfo.value?.userImg) {
     return `data:image/jpeg;base64,${userInfo.value.userImg}`;
@@ -17,97 +18,179 @@ const userImg = computed(() => {
   return null;
 });
 
-const goToMyPage = () => {
-  if (router.currentRoute.value.name === 'mypage') {
-    router.go(-1);
-  } else {
-    router.push({ name: 'mypage' });
+const isDropdownOpen = ref(false);
+
+const toggleDropdown = (event) => {
+  event.stopPropagation();
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
+
+const closeDropdown = (event) => {
+  if (!event.target.closest(".user-profile-dropdown")) {
+    isDropdownOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  document.addEventListener("click", closeDropdown);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", closeDropdown);
+});
+
+const goToEditProfile = () => {
+  router.push({ name: "mypage" });
+  isDropdownOpen.value = false;
+};
+
+const goToUserProfile = () => {
+    if (userInfo.value && userInfo.value.nickname) {
+        router.push({ name: "userProfile", params: { nickName: userInfo.value.nickname } });
+    } else {
+        alert("사용자 정보를 불러올 수 없습니다.");
+    }
+};
+
+const logout = async () => {
+  try {
+    await userStore.userLogout();
+    router.push({ name: "login" });
+  } catch (error) {
+    console.error("로그아웃 중 오류 발생:", error);
+    alert("로그아웃 중 오류가 발생했습니다. 다시 시도해주세요.");
   }
 };
 </script>
 
 <template>
-  <div class="flex justify-end ml-auto mr-[15px] ">
-    <div class="profile-content">
-      <!-- 로그인 완료 시 -->
-      <template v-if="isLogin && userInfo">
-        <div class="user-info" @click="goToMyPage">
-          <img v-if="userImg" :src="userImg" alt="User Profile" class="user-image">
-          <Profile v-else class="profile-icon"/>
-          <span class="user-name">{{ userNickname }}</span>
-        </div>
-      </template>
-      <!-- 비 로그인 시 -->
-      <RouterLink v-else :to="{ name : 'login' }" class="login-link">
-        <Profile class="profile-icon"/>
-          <span>로그인하기</span>
-      </RouterLink>
+  <div class="user-profile-dropdown">
+    <div
+      class="user-profile-button"
+      @click="isLogin ? toggleDropdown($event) : router.push({ name: 'login' })"
+    >
+      <img
+        v-if="isLogin && userImg"
+        :src="userImg"
+        alt="User Profile"
+        class="user-image"
+      />
+      <FontAwesomeIcon v-else :icon="faUserCircle" class="user-icon" />
+      <span class="user-name">
+        {{ isLogin ? userNickname : "로그인하기" }}
+      </span>
     </div>
+
+    <transition name="dropdown">
+      <div v-if="isLogin && isDropdownOpen" class="user-profile-menu">
+        <a @click="goToUserProfile" class="menu-item">
+          <span class="menu-text">프로필보기</span>
+        </a>
+        <a @click="goToEditProfile" class="menu-item">
+          <span class="menu-text">정보 수정</span>
+        </a>
+        <a @click="logout" class="menu-item logout">
+          <span class="menu-text">로그아웃</span>
+        </a>
+      </div>
+    </transition>
   </div>
 </template>
 
 <style scoped>
-.profile-content {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 240, 0.9));
-  border-radius: 25px;
-  padding: 0 20px;
+.user-profile-dropdown {
+  position: relative;
   display: flex;
-  width:160px;
-  align-items: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  height: 48px;
+  justify-content: flex-end;
+  width: 100%;
+  padding-right: 15px;
 }
 
-.profile-content:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(245, 245, 245, 0.95));
-}
-
-.user-info, .login-link {
+.user-profile-button {
   display: flex;
   align-items: center;
+  padding: 6px 14px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  height: 100%;
-}
-
-.profile-icon {
-  width: 28px;
-  height: 28px;
-  margin-right: 12px;
-  fill: #333;
-  transition: fill 0.3s ease;
-  flex-shrink: 0; 
-}
-
-.user-info:hover .profile-icon, .login-link:hover .profile-icon {
-  fill: #3498db;
-}
-
-.user-name, .login-link span {
-  font-weight: 600;
-  color: #333;
-  font-size: 0.95rem;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
   white-space: nowrap;
 }
 
-.user-info:hover .user-name, .login-link:hover span {
-  color: #3498db;
-}
-
-.login-link {
-  text-decoration: none;
+.user-profile-button:hover {
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .user-image {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
   margin-right: 12px;
-  flex-shrink: 0;
+}
+
+.user-icon {
+  width: 32px;
+  height: 32px;
+  color: #4b5563;
+  margin-right: 12px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  padding: 0 4px;
+}
+
+.user-profile-menu {
+  position: absolute;
+  right: 15px;
+  top: 100%;
+  margin-top: 8px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  overflow: hidden;
+  width: auto;
+  min-width: 120px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.menu-item:hover {
+  background-color: #f3f4f6;
+}
+
+.menu-item.logout:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.menu-text {
+  text-align: right;
+}
+
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.3s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

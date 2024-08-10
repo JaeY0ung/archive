@@ -1,8 +1,6 @@
 <script setup>
 import { useRouter } from "vue-router";
-import { ref } from "vue";
 import { useUserStore } from "@/stores/user";
-import defaultProfileImage from "@/assets/img/common/default_profile.png";
 import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import { useRoute } from "vue-router";
