@@ -94,7 +94,7 @@ onUnmounted(() => {});
 
 <template>
     <div
-        class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-60px)] overflow-hidden py-4"
+        class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-80px)] overflow-hidden py-4"
     >
         <div
             class="flex flex-col w-full max-w-[95%] h-full max-h-[95%] rounded-xl shadow-xl relative bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200"
@@ -123,18 +123,20 @@ onUnmounted(() => {});
                 />
             </div>
             <div
-                class="flex flex-grow w-full justify-evenly items-center rounded-b-xl bg-yellow-100 p-4"
+                class="flex h-[200px] w-full justify-evenly items-center rounded-b-xl border-t-yellow-100"
+                style="border-top: 2px solid #fef9c3 ;"
             >
-                <button class="btn btn-primary w-24" @click="onClickStart">
-                    연주하기
-                </button>
                 <UserCardForPlay
                     :user="loginUser"
-                    @onClickStart="onClickStart"
                 />
-                <button class="btn btn-primary w-24" @click="onClickQuit">
-                    나가기
-                </button>
+                <div class="flex w-[400px] h-full p-[5px] gap-[5px] bg-black font-bold">
+                    <div class="flex flex-grow flex-1 items-center justify-center cursor-pointer rounded-xl bg-yellow-300" @click="onClickStart">
+                        연주하기
+                    </div>
+                    <div class="flex flex-grow flex-1 items-center justify-center cursor-pointer rounded-xl bg-yellow-300" @click="onClickQuit">
+                        나가기
+                    </div>
+                </div>
             </div>
         </div>
     </div>
