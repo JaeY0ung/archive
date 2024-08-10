@@ -87,7 +87,7 @@ public class UserController {
     }
     
     // 프로필을 위한 멀티 플레이한 악보 및 결과 가져오기
-    @GetMapping("/users/profile/single/{user-id}")
+    @GetMapping("/users/profile/multi/{user-id}")
     public ResponseEntity<?> getUserProfileMultiPlay(@PathVariable("user-id") Long userId) {
 
         return new ResponseEntity<>(HttpStatus.OK);
