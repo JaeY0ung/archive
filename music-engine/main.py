@@ -107,7 +107,7 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
         logger.info(f"원본 파일 {file_location}을 삭제했습니다.")
 
         # 원본 MIDI 파일 경로 설정
-        original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheetName);
+        original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheetName+".mid");
         # original_file_location = os.path.join("original", "original.mid")
 
         if not os.path.exists(original_file_location):
