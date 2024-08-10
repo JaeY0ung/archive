@@ -22,6 +22,10 @@ async function registerSheet(params, success) {
 async function updateSheet(sheetId, params, success) {
     await local.put(`/sheets/${ sheetId }`, params).then(success).catch((err) => console.error(err));
 }
+
+async function getRecommendSheetByUserRecentPlay(success) {
+    await local.get(`/sheets/recommend`).then(success).catch((err) => console.error(err));
+}
 // =============== =============== =============== 악보 좋아요, 좋아요 해제  =============== =============== ===============
 async function likeSheet(sheetId, success) {
     await local.post(`/likes/sheets/${sheetId}`).then(success).catch((err) => console.error(err));
@@ -55,7 +59,7 @@ async function registerdummySheetsByAdmin(params, success) {
 }
 
 async function searchSheetByStatusForAdmin(status, success) {
-    await local.get(`/sheets/status/${ status }`).then(success).catch((err) => console.error(err));
+    await local.get(`/sheets/status/${status}`).then(success).catch((err) => console.error(err));
 }
 
 export {
@@ -64,6 +68,7 @@ export {
     registerSheet,
     searchRecentChallengedsheets,
     updateSheet,
+    getRecommendSheetByUserRecentPlay,
 
     likeSheet,
     dislikeSheet,

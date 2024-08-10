@@ -27,10 +27,6 @@ public class WaitRoomController {
     public LoginUser sendPlayer(LoginUser loginUser) throws Exception {
         // LoginUser 전송
 
-//        User user = authService.getLoginUser();
-
-//        log.info("유저의 정보를 받았습니다. : {}", user.toString());
-
         return LoginUser.builder()
                 .id(loginUser.getId())
                 .nickname(loginUser.getNickname())

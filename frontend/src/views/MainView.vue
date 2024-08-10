@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
 import { useRouter } from "vue-router"
-import { searchSheetsByFilter, searchRecentChallengedsheets } from '@/api/sheet';
+import {searchSheetsByFilter, getRecommendSheetByUserRecentPlay} from '@/api/sheet';
 
 const router = useRouter();
 
@@ -31,14 +31,16 @@ const getnewsheets = async () => {
 	)
 }
 
-const getRecommendsheets = async () => {
-	searchSheetsByFilter(
-		{ levels: 1, sort: "RANDOM" },
-		({ data }) => {
-			if (!data) return;
-			recommendSheets.value = data;
-		}
-	)
+const getRecommendSheets = async () => {
+    await getRecommendSheetByUserRecentPlay(
+        (res) => {
+            if (res && res.data) {
+              recommendSheets.value = res.data; // 객체 내 data에 접근해서 할당
+              return
+            }
+            console.error('No valid data structure returned from searchSheetRecommand');
+        }
+    )
 }
 
 // const getRecentChallengedsheets = async () => {
@@ -52,8 +54,7 @@ const getRecommendsheets = async () => {
 
 getPopularsheets();
 getnewsheets();
-getRecommendsheets();
-// getRecentChallengedsheets();
+getRecommendSheets();
 const goToSheetDetail = (sheetId) => {
 	router.push({ name: 'sheetDetail', params: { sheetId } });
 };
@@ -62,7 +63,7 @@ const goToSheetDetail = (sheetId) => {
 <template>
 	<div class="flex w-full h-full flex-col ">
 		<div class="flex flex-col w-full gap-[50px] bg-white/50 rounded-xl mb-[50px]">
-			
+
 			<div class="flex flex-grow flex-col w-full h-[150px] gap-5">
 				<div class="bold">인기</div>
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">

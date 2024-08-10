@@ -13,7 +13,7 @@ const cards = ref([
 </script>
 
 <template>
-    <div class="flex flex-grow w-full h-full relative overflow-hidden">
+    <div class="w-full h-full relative overflow-hidden">
         <Carousel class="h-full w-full absolute" :wrap-around="true" :mouse-drag="true" :items-to-show="2.5" :snap-align="'center'" :transition="300" :autoplay="3000" :pause-autoplay-on-hover="true" >
             <Slide class="flex flex-grow-0 flex-shrink-0 flex-col w-[calc(100%/3)] h-full bg-black/80" v-for="(card, index) in cards" :key="index">
                 <div class="flex flex-col flex-grow-0 flex-shrink-0 w-full h-full items-center justify-center overflow-hidden " @click="emit('send-sheet-category', card.sort)">

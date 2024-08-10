@@ -5,8 +5,10 @@ import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUpdateFormDto;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
-import java.util.List;
+import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
 import org.springframework.core.io.Resource;
+
+import java.util.List;
 
 public interface SheetService {
 
@@ -37,4 +39,11 @@ public interface SheetService {
     List<SheetDetailDto> searchAllSheetsByStatusForAdmin(Integer status);
 
     Sheet updateSheet(Long sheetId, SheetUpdateFormDto sheetUpdateFormDto);
+    
+    Sheet searchSheetPlayLatest();
+
+    List<SheetDetailForUserDto> searchSheetDetailByFileName(List<String> fileNames);
+
+    List<SheetDetailForUserDto> getRecommendedSheets();
+
 }

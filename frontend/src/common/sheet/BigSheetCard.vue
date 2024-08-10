@@ -49,7 +49,7 @@ const goToUserProfile = () => {
 
 // 싱글 배틀 페이지로 이동하기.
 const goToPlayRoom = () => {
-    router.push({ name: "waitBattle" });
+    router.push({ name: "singlePlay", params: { sheetId : props.sheet.id} });
 };
 
 // 좋아요
@@ -106,11 +106,15 @@ const continueShopping = () => {
     // 모달 숨기기
     showModal.value = false;
 };
+
+const goToDifficultyRatingPage = () => {
+    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheet.id } })
+}
 </script>
 
 <template>
     <div
-        class="flex flex-row gap-3 text-[1.25vw] p-3 bg-white/80 shadow-2xl rounded-t-xl shadow-pink-500/50 pr-3"
+        class="flex flex-row gap-3 text-[1.25vw] p-3 bg-white/80 shadow-xl rounded-xl shadow-pink-500/50 pr-3"
     >
         <!-- 이미지 -->
         <div class="img flex-none">
@@ -171,11 +175,12 @@ const continueShopping = () => {
             </div>
             <div class="items-center flex justify-between">
                 <div>
-                    <RouterLink
-                        class="underline"
-                        :to="{ name: 'sheetDifficultyRating', params: { sheetId: sheet.id } }"
+                    <!-- <RouterLink class="underline" :to="{ name: 'sheetDifficultyRating', params: { sheetId: sheet?.id } }"
                         >난이도 기여하러 가기
-                    </RouterLink>
+                    </RouterLink> -->
+                    <div class="underline" @click="goToDifficultyRatingPage"
+                        >난이도 기여하러 가기
+                    </div>
                 </div>
                 <div>
                     <button class="btn btn-primary w-[100px] h-1 max-w-[8vw]" @click="goToPlayRoom">

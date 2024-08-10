@@ -9,8 +9,8 @@ const musicStore = useMusicStore();
 const props = defineProps({
     user: Object
 })
-const emit = defineEmits(['onClickStart'])
 const defaultProfileImage = require('@/assets/img/common/default_profile.png');
+
 if(props.user.userImg == null){
     props.user.userImg = defaultProfileImage;
 }else{
@@ -40,22 +40,23 @@ console.log(routeName);
 </script>
 
 <template>
-    <div class="player-card">
-        <div class="player-img">
-            <img :src="user.userImg" alt="Profile Image" class="rounded-xl"/>
+    <div class="flex flex-grow h-[198px] justify-center bg-black rounded-bl-xl overflow-hidden">
+        <div class="flex w-[198px] h-[198px] justify-center items-center ">
+            <div class="flex flex-shrink-0 w-[150px] h-[150px] justify-center items-center rounded-full overflow-hidden bg-white">
+                <img :src="user.userImg" alt="Profile Image" class="object-cover h-full w-full" />
+            </div>
             <span class="pt-3" v-if="routeName=='singlePlay'">랭킹 13위</span>
         </div>
-        <div class="player-info-text">
-            <div class="info-item">{{ user.nickname }}</div>
-            <div class="info-item">
+        <div class="flex flex-col flex-grow  h-full pl-[10px] " style="font-size:30px; color:white">
+            <div class="flex flex-1  items-center ">
+                {{ user.nickname }}
+            </div>
+            <div class="flex flex-1  items-center ">
                 유저 총점수
             </div>
-            <div class="info-item">
+            <div class="flex flex-1  items-center ">
                 유저 티어
             </div>
-            <!-- <button  class="btn text-white" style="background-color: gray" @click="emit('onClickStart')" v-if="routeName=='singleWait'">
-                채점 시작
-            </button> -->
         </div>
         <div v-if="routeName == 'singlePlay'">
             <div>현재 스코어(f1) : {{ f1Score }}</div>
@@ -65,41 +66,4 @@ console.log(routeName);
 </template>
 
 <style scoped>
-.player-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0px 2%;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  width: 30%;
-  height: 80%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.player-img {
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-img {
-    height: 100px;
-    width: 100px;
-}
-
-.player-info-text {
-  text-align: center;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  flex: 1; /* This ensures it takes up the remaining space */
-  justify-content: space-around;
-}
-
-.info-item{
-    margin-bottom: 5%;
-}
 </style>
