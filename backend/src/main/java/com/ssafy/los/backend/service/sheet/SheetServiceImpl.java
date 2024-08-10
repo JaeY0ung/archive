@@ -5,6 +5,7 @@ import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.domain.repository.song.SongRepository;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
+import com.ssafy.los.backend.dto.sheet.request.SheetUpdateFormDto;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.service.auth.AuthService;
@@ -115,6 +116,26 @@ public class SheetServiceImpl implements SheetService {
         Sheet sheet = sheetRepository.findById(sheetId).orElseThrow();
         sheet.updateStatus(2);
         sheetRepository.save(sheet);
+    }
+
+    @Override
+    public List<SheetDetailDto> searchAllSheetsByStatusForAdmin(Integer status) throws IllegalArgumentException {
+        User loginUser = authService.getLoginUser();
+        if (loginUser == null || !loginUser.getRole().equals("ROLE_ADMIN")) {
+            throw new IllegalArgumentException();
+        }
+        return sheetRepository.findSheetsByStatusForAdmin(status)
+                .stream()
+                .peek(dto -> dto.loadSongImg(fileUploadUtil))
+                .toList();
+
+    }
+
+    @Override
+    public Sheet updateSheet(Long sheetId, SheetUpdateFormDto sheetUpdateFormDto) {
+        Sheet sheet = sheetRepository.findById(sheetId).orElseThrow();
+        sheet.updateTitleAndLevel(sheetUpdateFormDto.getTitle(), sheetUpdateFormDto.getLevel());
+        return sheetRepository.save(sheet);
     }
 
     @Override

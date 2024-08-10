@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.dto.song.response;
 
+import com.ssafy.los.backend.domain.entity.Genre;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,8 @@ public class SongDto {
 
     private String genreTitle;
 
+    private Long genreId;
+
     private String img;
 
     public void loadSongImg(FileUploadUtil fileUploadUtil) {
@@ -26,12 +29,13 @@ public class SongDto {
         }
     }
 
-    public SongDto(Long id, String title, String composer, String imgName, String genreTitle) {
+    public SongDto(Long id, String title, String composer, String imgName, Genre genre) {
         this.id = id;
         this.title = title;
         this.composer = composer;
         this.imgName = imgName;
-        this.genreTitle = genreTitle;
+        this.genreTitle = genre.getTitle();
+        this.genreId = genre.getId();
     }
 
 }

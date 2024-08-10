@@ -2,6 +2,7 @@ package com.ssafy.los.backend.service.sheet;
 
 import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
+import com.ssafy.los.backend.dto.sheet.request.SheetUpdateFormDto;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import java.util.List;
@@ -32,4 +33,8 @@ public interface SheetService {
     void changeStatusToApproved(Long sheetId);
 
     void changeStatusToRejected(Long sheetId);
+
+    List<SheetDetailDto> searchAllSheetsByStatusForAdmin(Integer status);
+
+    Sheet updateSheet(Long sheetId, SheetUpdateFormDto sheetUpdateFormDto);
 }

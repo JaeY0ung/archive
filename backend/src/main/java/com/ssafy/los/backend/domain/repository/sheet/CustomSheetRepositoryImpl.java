@@ -58,8 +58,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     public List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
             User loginUser) {
         if (loginUser.getRole().equals("ROLE_ADMIN")) {
-            List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin(
-                    loginUser)
+            List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
                     .where(s.deletedAt.isNull(),
                             s.createdAt.isNotNull(),
                             containKeyword(sheetSearchFilter.getKeyword()),
@@ -85,6 +84,18 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                     .fetch();
             return new ArrayList<>(sheetDetailForUserDtoList);
         }
+    }
+
+    @Override
+    public List<SheetDetailDto> findSheetsByStatusForAdmin(Integer status) {
+        List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
+                .where(s.deletedAt.isNull(),
+                        s.createdAt.isNotNull(),
+                        s.status.eq(status)
+                )
+                .orderBy(createOrderSpecifier(Sort.LATEST))
+                .fetch();
+        return new ArrayList<>(sheetDetailForAdminDtoList);
     }
 
 
@@ -131,13 +142,12 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         )).from(s);
     }
 
-    private JPAQuery<SheetDetailForAdminDto> createSelectFromQueryForAdmin(User loginUser) {
+    private JPAQuery<SheetDetailForAdminDto> createSelectFromQueryForAdmin() {
         return queryFactory.select(Projections.constructor(SheetDetailForAdminDto.class,
                 s,
                 JPAExpressions.select(ls.count())
                         .from(ls)
-                        .where(ls.sheet.eq(s)),
-                createLikeStatusExpression(loginUser)
+                        .where(ls.sheet.eq(s))
         )).from(s);
     }
 

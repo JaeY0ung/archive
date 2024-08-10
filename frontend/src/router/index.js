@@ -54,17 +54,22 @@ const routes = [
     {
         path: "/admin",
         name: "admin",
-        component: () => import("@/views/AdminView.vue"),
+        component: () => import("@/layouts/AdminLayout.vue"),
         children: [
             {
-                path: "sheet/manage",
+                path: "manage/sheet",
                 name: "manageSheet",
-                component: () => import("@/views/AdminSheetManageView.vue"),
+                component: () => import("@/views/admin/AdminSheetManageView.vue"),
+            },
+            {
+                path: "manage/song",
+                name: "manageSong",
+                component: () => import("@/views/admin/AdminSongManageView.vue"),
             },
             {
                 path: "sheet/upload",
                 name: "adminUploadSheet",
-                component: () => import("@/views/AdminUploadSheetView.vue"),
+                component: () => import("@/views/admin/AdminUploadSheetView.vue"),
             },
         ],
     },

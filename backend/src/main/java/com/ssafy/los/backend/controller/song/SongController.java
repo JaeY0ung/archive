@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.controller.song;
 
 import com.ssafy.los.backend.dto.song.request.SongRegisterForm;
+import com.ssafy.los.backend.dto.song.request.SongUpdateForm;
 import com.ssafy.los.backend.service.song.SongService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -64,5 +66,30 @@ public class SongController {
             return new ResponseEntity<>("파일 업로드에 실패했습니다." + e.getMessage(),
                     HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PutMapping(value = "/{song-id}", consumes = {MediaType.APPLICATION_JSON_VALUE,
+            "multipart/form-data"})
+    public ResponseEntity<?> updateSong(
+            @PathVariable("song-id") Long songId,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart("title") String title,
+            @RequestPart("composer") String composer,
+            @RequestPart(value = "genreId", required = false) Long genreId) {
+        SongUpdateForm songUpdateForm = SongUpdateForm.builder()
+                .file(file)
+                .title(title)
+                .composer(composer)
+                .genreId(genreId)
+                .build();
+        try {
+            return new ResponseEntity<>(songService.updateSongAndFile(songId, songUpdateForm).getId(),
+                    HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("[곡 수정 실패] " + e.getMessage(),
+                    HttpStatus.BAD_REQUEST);
+        }
+
+
     }
 }

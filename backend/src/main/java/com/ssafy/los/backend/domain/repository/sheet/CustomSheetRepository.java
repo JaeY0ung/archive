@@ -1,6 +1,5 @@
 package com.ssafy.los.backend.domain.repository.sheet;
 
-import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
@@ -13,6 +12,7 @@ public interface CustomSheetRepository {
     List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
             User loginUser);
 
+    List<SheetDetailDto> findSheetsByStatusForAdmin(Integer status);
 
     SheetDetailDto findSheetDetailViewDtoById(Long sheetId);
 
