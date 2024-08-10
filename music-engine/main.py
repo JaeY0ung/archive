@@ -9,8 +9,11 @@ import logging
 import re
 from service.convert_service import ConvertService
 from service.calculate_service import calculate_similarity
+from service.calculate_service import process_midi_file
 from pydantic import BaseModel
 from dotenv import load_dotenv
+
+from service.midi_service import midi_service
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -155,6 +158,32 @@ async def mid2xml(file_request: FileRequest):
     except Exception as e:
         logger.error(f"파일 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="파일 변환 중 오류 발생")
+
+class MidiRequest(BaseModel):
+    filename: str
+
+@app.post("/process-midi")
+async def process_midi(request: MidiRequest):
+    try:
+        sheet_name = request.filename  # 필요한 sheet 이름 정보로 경로 결정
+        train_data_path = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheet_name)
+
+        midi_service.initialize(train_data_path)  # 여기서 경로를 설정하고 초기화
+
+        similar_songs, input_features = midi_service.find_similar_songs(request.filename)
+
+        return JSONResponse(content={
+            "similar_songs": similar_songs,
+            "input_features": input_features
+        })
+    except FileNotFoundError as e:
+        logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
 
 
 # FastAPI 실행 명령어

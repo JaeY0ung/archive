@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useUserStore } from "@/stores/user";
 // import defaultProfileImage from "@/assets/img/common/default_profile.png";
 import UserCardForPlay from "@/common/UserCardForPlay.vue";
@@ -89,20 +89,33 @@ const getSheetsByCategory = (sort) => {
 const setSheetId = (sheetId) => {
   selectedSheetId.value = sheetId;
 }
+
+onMounted(() => {
+    // 강제 리플로우 유도
+    document.body.style.height = '100.1%';
+    setTimeout(() => {
+        document.body.style.height = '100%';
+    }, 0);
+});
+
+onUnmounted(()=>{
+
+})
+
 </script>
 
 <template>
-    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px]">
-        <div class="relative flex w-full flex-grow-0 h-[70%] justify-center items-center rounded-tl-xl rounded-tr-xl bg-black border border-gray-700 rounded-lg shadow-2xl overflow-hidden">
+    <div class="flex flex-grow w-full flex-col rounded-xl shadow-xl mb-[10px] relative">
+        <div class="relative w-full h-[70%] rounded-t-xl bg-black border-gray-700 rounded-lg shadow-2xl overflow-hidden">
             <div class="absolute inset-0 bg-cover bg-center opacity-70" :style="{ backgroundImage: `url(${require('@/assets/img/sheet_play/play-background.jpg')})`, backgroundBlendMode: 'multiply' }"></div>
-                <SelectCategory v-if="isInCategoryView" @send-sheet-category="getSheetsByCategory" />
-                <SelectSheet v-else :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
-            </div>
-            <div class="flex flex-grow w-full h-[35%] justify-evenly items-center rounded-bl-xl rounded-br-xl bg-yellow-100">
+            <SelectCategory v-if="isInCategoryView" class="absolute overflow-hidden opacity-80"  @send-sheet-category="getSheetsByCategory" />
+            <SelectSheet class="absolute overflow-hidden" v-else :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
+        </div>
+        <div class="flex flex-grow w-full justify-evenly items-center rounded-b-xl bg-yellow-100">
             <button class="btn btn-primary w-24" @click="onClickStart">연주하기</button>
             <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
             <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
-            </div>
+        </div>
     </div>
 </template>
 
@@ -115,15 +128,7 @@ const setSheetId = (sheetId) => {
     justify-content: space-around;
 }
 
-.container {
-  margin: 10px auto;
-  width: 90vw;
-  background-color: #f0f0f0;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0.8;
-}
+
 
 .button-div {
   display: flex;

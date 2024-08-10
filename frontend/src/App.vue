@@ -16,9 +16,7 @@ const route = useRoute();
 <template>
     <div class="w-screen h-screen bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200">
         <div class="flex w-full h-full">
-            <LeftNavigation class="flex flex-col flex-shrink-1 h-screen" :class="{ 'w-[200px]' : leftNavigationStore.navVisibility, 'w-[0px]': !leftNavigationStore.navVisibility }"
-                style="transition: width 0.5s ease;"
-            />
+            <LeftNavigation class="flex flex-col flex-shrink-1 h-screen" :class="{ 'w-[200px]' : leftNavigationStore.navVisibility, 'w-[0px]': !leftNavigationStore.navVisibility }" style="transition: width 0.5s ease;"/>
             <div class="flex flex-col flex-grow h-full">
                 <div class="flex flex-row align-middle w-full h-[60px] items-center"> 
                     <div class="flex-1 flex h-full items-center cursor-pointer">
