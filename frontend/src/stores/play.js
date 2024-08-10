@@ -36,14 +36,20 @@ export const usePlayStore = defineStore('playMode', {
         console.error('온라인 유저 목록을 불러오는 것에 실패했습니다', error);
       }
     },
-    async sendInviteAlert(userId, roomId) {
 
+    async sendInviteAlert(userId, roomId) {
       const userStore = useUserStore();
       const senderId = userStore.userInfo.id;
 
+      // sender와 receiver가 같은 경우 알림을 보내지 않음
+      if (senderId === userId) {
+        console.log('자기 자신에게는 초대 알림을 보내지 않습니다.');
+        return;
+      }
+
       try {
         const alertDto = {
-          receiverId: userId ,
+          receiverId: userId,
           alertTypeId: 1, // 대결 초대 알림 타입
           referenceId: 123, // 관련 ID, 필요에 따라 설정
           readStatus: false,
@@ -51,16 +57,40 @@ export const usePlayStore = defineStore('playMode', {
           senderId: senderId,
           roomId: roomId
         };
-        console.log('Sending alertDto:', alertDto); 
+        console.log('Sending alertDto:', alertDto);
         const response = await local.post(`${baseURL}/alert`, alertDto);
         console.log('초대 알림 전송 성공:', response.data);
       } catch (error) {
         console.error('초대 알림 전송 실패:', error);
       }
     },
+
+    // async sendInviteAlert(userId, roomId) {
+    //
+    //   const userStore = useUserStore();
+    //   const senderId = userStore.userInfo.id;
+    //
+    //   try {
+    //     const alertDto = {
+    //       receiverId: userId ,
+    //       alertTypeId: 1, // 대결 초대 알림 타입
+    //       referenceId: 123, // 관련 ID, 필요에 따라 설정
+    //       readStatus: false,
+    //       createdAt: new Date().toISOString(),
+    //       senderId: senderId,
+    //       roomId: roomId
+    //     };
+    //     console.log('Sending alertDto:', alertDto);
+    //     const response = await local.post(`${baseURL}/alert`, alertDto);
+    //     console.log('초대 알림 전송 성공:', response.data);
+    //   } catch (error) {
+    //     console.error('초대 알림 전송 실패:', error);
+    //   }
+    // },
+
     async createRoom() {
       try {
-        const battleRoomRegisterDto = { 
+        const battleRoomRegisterDto = {
           title: this.roomTitle
         };
         const response = await local.post(`${baseURL}/battle-rooms`, battleRoomRegisterDto);

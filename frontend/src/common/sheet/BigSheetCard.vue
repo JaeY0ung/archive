@@ -113,7 +113,7 @@ const goToDifficultyRatingPage = () => {
 
 <template>
     <div
-        class="flex flex-row gap-3 text-[1.25vw] p-3 bg-white/80 shadow-2xl rounded-t-xl shadow-pink-500/50 pr-3"
+        class="flex flex-row gap-3 text-[1.25vw] p-3 bg-white/80 shadow-xl rounded-xl shadow-pink-500/50 pr-3"
     >
         <!-- 이미지 -->
         <div class="img flex-none">

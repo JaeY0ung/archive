@@ -3,6 +3,9 @@ import pretty_midi
 import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
 
+from service.feature_extraction import extract_features_from_data
+
+
 # 노트 필터링 함수
 def filter_notes(notes):
     return [note for note in notes if note[2] > 0.05]  # 길이가 0.05초보다 짧은 노트는 제거
@@ -267,4 +270,24 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
         'unmatched_shifted_notes': unmatched_shifted_notes,  # Result의 파란점
         'best_shift': best_shift  # 최적의 시간 이동
     }
+
+# K-평균 클러스터링
+def perform_clustering(feature_matrix, n_clusters=3):
+    from sklearn.cluster import KMeans
+    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(feature_matrix)
+    return kmeans.labels_, kmeans.cluster_centers_
+
+# MIDI 파일 처리 함수
+def process_midi_file(file_data):
+    features = extract_features_from_data(file_data)
+
+    feature_matrix = np.array([features])
+    from sklearn.decomposition import PCA
+    pca = PCA(n_components=2)
+    reduced_features = pca.fit_transform(feature_matrix)
+    labels, centers = perform_clustering(reduced_features)
+
+    return labels, centers
+
+
 

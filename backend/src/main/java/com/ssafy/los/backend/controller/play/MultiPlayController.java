@@ -77,4 +77,6 @@ public class MultiPlayController {
         Long deletedSingleResultId = multiPlayService.removeMultiPlayResult(singleResultId);
         return new ResponseEntity<>(deletedSingleResultId, HttpStatus.OK);
     }
+
+    // 프로필용 멀티 기록 가져오기
 }

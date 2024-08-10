@@ -4,8 +4,10 @@ import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
-import java.util.List;
+import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
 import org.springframework.core.io.Resource;
+
+import java.util.List;
 
 public interface SheetService {
 
@@ -32,4 +34,11 @@ public interface SheetService {
     void changeStatusToApproved(Long sheetId);
 
     void changeStatusToRejected(Long sheetId);
+
+    Sheet searchSheetPlayLatest();
+
+    List<SheetDetailForUserDto> searchSheetDetailByFileName(List<String> fileNames);
+
+    List<SheetDetailForUserDto> getRecommendedSheets();
+
 }

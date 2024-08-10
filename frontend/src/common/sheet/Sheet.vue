@@ -33,7 +33,7 @@ const { startRecording, stopRecording, startMusic, pauseMusic, stopMusic } = mus
 </script>
 
 <template>
-    <div class="flex flex-col w-full h-full bg-yellow-200">
+    <div class="flex flex-col w-full h-full ">
         <div class="flex">
             <img width="30px" v-if="!isPlay" :src="require('@/assets/img/sheet_play/play.svg')" @click="startMusic" class="cursor-pointer"/>
             <img width="30px" v-else :src="require('@/assets/img/sheet_play/pause.svg')" @click="pauseMusic" class="cursor-pointer"/>
