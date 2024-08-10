@@ -153,8 +153,7 @@ public class SheetServiceImpl implements SheetService {
 
             // Python 서버에 파일 이름을 보내고 JSON 응답을 받음
             String response = musicService.searchRecommendMidFile(
-                    musicEngineBaseUrl + "/process-midi",
-                    sheet.getFileName());
+                    musicEngineBaseUrl + "/process-midi", sheet.getUuid() + ".mid");
 //            String response = musicService.searchRecommendMidFile(
 //                    musicEngineBaseUrl + "/process-midi",
 //                    "아로하.mid");
