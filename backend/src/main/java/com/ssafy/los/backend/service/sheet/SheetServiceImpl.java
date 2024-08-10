@@ -1,32 +1,44 @@
 package com.ssafy.los.backend.service.sheet;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.los.backend.domain.entity.Sheet;
+import com.ssafy.los.backend.domain.entity.SinglePlayResult;
 import com.ssafy.los.backend.domain.entity.User;
+import com.ssafy.los.backend.domain.repository.play.SinglePlayResultRepository;
 import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.domain.repository.song.SongRepository;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
+import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class SheetServiceImpl implements SheetService {
 
+    @Value("${cors.allowedOrigins.music-engine}")
+    private String musicEngineBaseUrl;
+
     private final FileUploadUtil fileUploadUtil;
     private final SheetRepository sheetRepository;
     private final SongRepository songRepository;
     private final AuthService authService;
     private final MusicService musicService;
+    private final SinglePlayResultRepository singlePlayResultRepository;
 
     @Override
 //    @Transactional
@@ -115,6 +127,55 @@ public class SheetServiceImpl implements SheetService {
         Sheet sheet = sheetRepository.findById(sheetId).orElseThrow();
         sheet.updateStatus(2);
         sheetRepository.save(sheet);
+    }
+
+    // 최근에 플레이한 싱글 플레와 멀티 플레이를 가져온다.
+    @Override
+    public Sheet searchSheetPlayLatest() {
+        User loginUser = authService.getLoginUser();
+        if (loginUser != null) {
+            SinglePlayResult singleLatest = singlePlayResultRepository.findByUserOrderCreatedAt(
+                    loginUser);
+            return singleLatest.getSheet();
+        }
+        return null;
+    }
+
+    @Override
+    public List<SheetDetailForUserDto> searchSheetDetailByFileName(List<String> fileNames) {
+        return sheetRepository.searchByFileName(fileNames);
+    }
+
+    @Override
+    public List<SheetDetailForUserDto> getRecommendedSheets() {
+        try {
+//            Sheet sheet = searchSheetPlayLatest();
+
+            // Python 서버에 파일 이름을 보내고 JSON 응답을 받음
+//            String response = musicService.saveMidFileWithSplit(
+//                    musicEngineBaseUrl + "/process-midi",
+//                    sheet.getFileName());
+            String response = musicService.searchRecommendMidFile(
+                    musicEngineBaseUrl + "/process-midi",
+                    "아로하.mid");
+
+            // JSON 응답을 파싱하여 file_name 값들을 추출
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(response);
+            JsonNode similarSongsNode = rootNode.get("similar_songs");
+
+            List<String> fileNames = new ArrayList<>();
+            for (JsonNode songNode : similarSongsNode) {
+                String fileName = songNode.get("file_name").asText();
+                fileNames.add(fileName);
+            }
+
+            // 추출한 file_name을 기반으로 Sheet 정보를 조회하고, SheetDto로 변환
+            return searchSheetDetailByFileName(fileNames);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching recommended sheets", e);
+        }
     }
 
     @Override

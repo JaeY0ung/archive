@@ -47,6 +47,11 @@ async function registerdummySheetsByAdmin(params, success) {
     await local.post(`/sheets/insert/all`, params).then(success).catch((err) => console.error(err));
 }
 
+async function getRecommendSheets(success) {
+    await local.get(`/sheets/recommend`
+    ).then(success).catch((err) => console.error(err));
+}
+
 export {
     searchSheetDetail,
     searchSheetsByFilter,
@@ -59,4 +64,5 @@ export {
     getMusicXmlById,
     getMidById,
     registerdummySheetsByAdmin,
+    getRecommendSheets,
 };

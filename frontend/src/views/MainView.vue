@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
 import { useRouter } from "vue-router"
-import { searchSheetsByFilter, searchRecentChallengedsheets } from '@/api/sheet';
+import {searchSheetsByFilter, searchRecentChallengedsheets, getRecommendSheets} from '@/api/sheet';
 
 const router = useRouter();
 
@@ -32,13 +32,19 @@ const getnewsheets = async () => {
 }
 
 const getRecommendsheets = async () => {
-	searchSheetsByFilter(
-		{ levels: 1, sort: "RANDOM" },
-		({ data }) => {
-			if (!data) return;
-			recommendSheets.value = data;
-		}
-	)
+  try {
+    const response = getRecommendSheets();
+    console.log("==== Response Data:", response.data);
+
+    // 응답 데이터가 배열인지, 객체인지, 그 구조가 맞는지 확인
+    if (response && response.data) {
+      recommendSheets.value = response.data; // 객체 내 data에 접근해서 할당
+    } else {
+      console.error('No valid data structure returned from searchSheetRecommand');
+    }
+  } catch (error) {
+    console.error('Error fetching recommended sheets:', error);
+  }
 }
 
 // const getRecentChallengedsheets = async () => {
@@ -62,7 +68,7 @@ const goToSheetDetail = (sheetId) => {
 <template>
 	<div class="flex w-full h-full flex-col ">
 		<div class="flex flex-col w-full gap-[50px] bg-white/50 rounded-xl mb-[50px]">
-			
+
 			<div class="flex flex-grow flex-col w-full h-[150px] gap-5">
 				<div class="bold">인기</div>
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
