@@ -23,4 +23,6 @@ public interface CustomSheetRepository {
 
     List<SheetDetailForUserDto> searchByFileName(List<String> fileNames);
 
+    List<SheetDetailForUserDto> searchByUserLike(Long userId);
+
 }
