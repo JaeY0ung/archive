@@ -13,15 +13,17 @@ const cards = ref([
 </script>
 
 <template>
-    <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
-        <Carousel class="flex h-full w-full items-center absolute" :wrap-around="true" :mouse-drag="true" :items-to-show="2.5" :snap-align="center"  :transition="300">
-            <Slide class="flex flex-grow-0 flex-shrink-0 flex-col w-[80px] h-[400px] cursor-pointer bg-black/80" v-for="(card, index) in cards" :key="index" >
-                <div class="ml-[5px] mr-[5px]" @click="emit('send-sheet-category', card.sort)">
-                    <div class="w-full">
-                        <img class="rounded-2xl" :src="card.src" alt="card" />
-                    </div>
-                    <div class="flex justify-center items-center w-full text-white font-bold" style="font-size:30px;">
-                        <h2>{{ card.title }}</h2>
+    <div class="flex flex-grow w-full h-full relative overflow-hidden">
+        <Carousel class="h-full w-full absolute" :wrap-around="true" :mouse-drag="true" :items-to-show="2.5" :snap-align="'center'" :transition="300" :autoplay="3000" :pause-autoplay-on-hover="true" >
+            <Slide class="flex flex-grow-0 flex-shrink-0 flex-col w-[calc(100%/3)] h-full bg-black/80" v-for="(card, index) in cards" :key="index">
+                <div class="flex flex-col flex-grow-0 flex-shrink-0 w-full h-full items-center justify-center overflow-hidden " @click="emit('send-sheet-category', card.sort)">
+                    <div class="flex flex-col w-[300px] h-[400px] rounded-2xl bg-black">
+                        <div class="w-[300px] h-[300px] bg-red-500 rounded-t-2xl flex items-center justify-center overflow-hidden">
+                            <img class="object-cover w-full h-full" :src="card.src" alt="카드">
+                        </div>  
+                        <div class="flex flex-grow flex-col justify-center items-center text-center w-full text-white font-bold" style="font-size:30px;">
+                            <h2>{{ card.title }}</h2>
+                        </div>
                     </div>
                 </div>
             </Slide>
@@ -29,8 +31,12 @@ const cards = ref([
     </div>
 </template>
 
-<style scoped>
+<style>
+.carousel__viewport  {
+    height: 100% !important; /* carousel_viewport의 높이를 100%로 설정 */
+}
 
-
-
+.carousel__track {
+height: 100% !important; /* carousel_track의 높이를 100%로 설정 */
+}
 </style>
