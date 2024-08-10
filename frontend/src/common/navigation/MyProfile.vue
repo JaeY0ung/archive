@@ -45,11 +45,15 @@ const goToEditProfile = () => {
 };
 
 const goToUserProfile = () => {
-    if (userInfo.value && userInfo.value.nickname) {
-        router.push({ name: "userProfile", params: { nickName: userInfo.value.nickname } });
-    } else {
-        alert("사용자 정보를 불러올 수 없습니다.");
-    }
+  if (userInfo.value && userInfo.value.nickname) {
+    router.push({
+      name: "userProfile",
+      params: { nickName: userInfo.value.nickname },
+    });
+    isDropdownOpen.value = false;
+  } else {
+    alert("사용자 정보를 불러올 수 없습니다.");
+  }
 };
 
 const logout = async () => {
@@ -83,10 +87,10 @@ const logout = async () => {
 
     <transition name="dropdown">
       <div v-if="isLogin && isDropdownOpen" class="user-profile-menu">
-        <a @click="goToUserProfile" class="menu-item">
-          <span class="menu-text">프로필보기</span>
+        <a @click="goToUserProfile" class="menu-item profile-view">
+          <span class="menu-text">프로필 보기</span>
         </a>
-        <a @click="goToEditProfile" class="menu-item">
+        <a @click="goToEditProfile" class="menu-item edit-view">
           <span class="menu-text">정보 수정</span>
         </a>
         <a @click="logout" class="menu-item logout">
@@ -162,7 +166,7 @@ const logout = async () => {
 .menu-item {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 10px 16px;
   font-size: 14px;
   color: #374151;
@@ -174,13 +178,23 @@ const logout = async () => {
   background-color: #f3f4f6;
 }
 
+.menu-item.profile-view:hover {
+  background-color: #e8f4fd;
+  color: #2196f3;
+}
+
+.menu-item.edit-view:hover {
+  background-color: #e8f5e9;
+  color: #4caf50;
+}
+
 .menu-item.logout:hover {
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-color: #ffebee;
+  color: #f44336;
 }
 
 .menu-text {
-  text-align: right;
+  text-align: center;
 }
 
 .dropdown-enter-active,

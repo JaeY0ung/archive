@@ -171,7 +171,7 @@ public class SheetController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(sheetService.getMidFileById(sheetId));
     }
-
+    
     // 추천 악보를 보내준다.
     @GetMapping("/recommend")
     public ResponseEntity<?> getRecommendSheet() {
@@ -183,4 +183,11 @@ public class SheetController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    //    @GetMapping("/profile/like/{user-id}")
+    //    public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
+    //        List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
+    //        return new ResponseEntity<List<SheetDetailForUserDto>>(sheetList, HttpStatus.OK);
+    //    }
+
 }
