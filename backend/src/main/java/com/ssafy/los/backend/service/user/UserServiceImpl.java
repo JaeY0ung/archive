@@ -7,6 +7,7 @@ import com.ssafy.los.backend.dto.user.request.UserUpdateDto;
 import com.ssafy.los.backend.dto.user.response.UserProfileDto;
 import com.ssafy.los.backend.exception.user.UserNotFoundException;
 import com.ssafy.los.backend.exception.user.UserUpdateException;
+import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.auth.PasswordService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.util.Optional;
@@ -25,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final FileUploadUtil fileUploadUtil;
     private final PasswordService passwordService;
+    private final AuthService authService;
 
     // 회원 등록
     @Override
@@ -48,35 +50,37 @@ public class UserServiceImpl implements UserService {
     // 이메일 중복 확인
     @Override
     public Boolean validateEmail(String email) {
-        return userRepository.existsByEmail(email);
+        return userRepository.existsByEmailAndDeletedAtNull(email);
     }
 
     // 닉네임 중복 확인
     @Override
     public Boolean validateNickname(String nickname) {
-        return userRepository.existsByNickname(nickname);
+        return userRepository.existsByNicknameAndDeletedAtNull(nickname);
     }
 
     // 회원 수정
     @Override
-    public Long updateUser(Long userId, UserUpdateDto userUpdateDto, String uuid) {
-        User findUser = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("찾을 수 없는 아이디 입니다: " + userId));
+    public User updateUser(UserUpdateDto userUpdateDto, String fileName) {
+        User loginUser = authService.getLoginUser();
+        if (loginUser == null) {
+            throw new UserUpdateException("로그인 유저 없음");
+        }
 
         try {
-            findUser.updateProfile(userUpdateDto.getNickname(), uuid);
+            loginUser.updateProfile(userUpdateDto.getNickname(), fileName);
         } catch (Exception e) {
             throw new UserUpdateException("사용자 정보 업데이트 중 오류 발생: " + e.getMessage());
         }
 
-        return userId;
+        return loginUser;
     }
 
     // 회원 수정 파일 업로드
     @Override
-    public String registerUserImgFile(MultipartFile profileImg) {
+    public void registerUserImgFile(MultipartFile imgFile, String uuid) {
         try {
-            return fileUploadUtil.uploadUserImg(profileImg);
+            fileUploadUtil.uploadUserImg(imgFile, uuid);
         } catch (IllegalArgumentException e) {
             throw new UserUpdateException("프로필 이미지 업로드 중 오류 발생: " + e.getMessage());
         }
@@ -85,7 +89,7 @@ public class UserServiceImpl implements UserService {
     // 유저 프로필 조회
     @Override
     public UserProfileDto searchUserProfileByNickname(String nickname) {
-        User findUser = userRepository.findByNickname(nickname)
+        User findUser = userRepository.findByNicknameAndDeletedAtNull(nickname)
                 .orElseThrow(
                         () -> new UserNotFoundException("찾을 수 없는 닉네임 입니다: " + nickname));
 
@@ -102,22 +106,26 @@ public class UserServiceImpl implements UserService {
 
     // 회원 삭제
     @Override
-    public Long deleteUser(Long id) {
-        userRepository.deleteById(id);
-        return id;
+    public Long deleteLoginUser() {
+        User loginUser = authService.getLoginUser();
+        if (loginUser == null) {
+            return 0L;
+        }
+        userRepository.deleteById(loginUser.getId());
+        return loginUser.getId();
     }
 
     // 이메일 기반 조회
     @Override
     public User searchUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+        return userRepository.findByEmailAndDeletedAtNull(email)
                 .orElseThrow(() -> new UserNotFoundException("찾을 수 없는 이메일 입니다: " + email));
     }
 
     // 아이디 기반 조회
     @Override
     public User selectUserById(Long userId) {
-        User user = userRepository.findUserById(userId).orElse(null);
+        User user = userRepository.findUserByIdAndDeletedAtNull(userId).orElse(null);
         if (user == null) {
             log.info("repository에서 해당 id에 맞는 User를 찾을 수 없습니다: " + userId);
         }

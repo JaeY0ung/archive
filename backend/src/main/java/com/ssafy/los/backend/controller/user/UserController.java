@@ -1,11 +1,11 @@
 package com.ssafy.los.backend.controller.user;
 
-import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.user.request.UserCreateDto;
 import com.ssafy.los.backend.dto.user.request.UserUpdateDto;
 import com.ssafy.los.backend.dto.user.response.UserProfileDto;
-import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.user.UserService;
+import com.ssafy.los.backend.util.FileUploadUtil;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
-    private final AuthService authService;
+    private final FileUploadUtil fileUploadUtil;
 
     // 회원 등록
     @PostMapping
@@ -53,47 +53,30 @@ public class UserController {
         return new ResponseEntity<>(isDuplicated, HttpStatus.OK);
     }
 
-    // 회원 수정
     @PutMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateUser(
-            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImageFile,
             @RequestPart("userUpdateDto") UserUpdateDto userUpdateDto) {
 
-        log.info("userUpdateDto = {}", userUpdateDto.getNickname());
-
-        // 권한 확인
-        User loginUser = authService.getLoginUser();
-
-        // 이미지 처리
-        String uuid = null;
-        if (profileImage != null && !profileImage.isEmpty()) {
-            uuid = userService.registerUserImgFile(profileImage);
+        String uuid = UUID.randomUUID().toString();
+        String fileName = null;
+        if (profileImageFile != null && !profileImageFile.isEmpty()) {
+            userService.registerUserImgFile(profileImageFile, uuid);
+            fileName = uuid + "." + fileUploadUtil.getExtension(profileImageFile);
         }
 
-        Long updatedId = userService.updateUser(loginUser.getId(), userUpdateDto, uuid);
-
-        return new ResponseEntity<>(updatedId, HttpStatus.OK);
+        return new ResponseEntity<>(userService.updateUser(userUpdateDto, fileName), HttpStatus.OK);
     }
 
-    // 회원 삭제
-    // TODO : cascade 추가해야 함
-    // TODO : deletedAt만 수정하면 됨
-    @DeleteMapping("/{user-id}")
-    public ResponseEntity<?> deleteUser(@PathVariable("user-id") Long userId) {
-        User loginUser = authService.getLoginUser();
-        if (!userId.equals(loginUser.getId())) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-
-        Long deleteId = userService.deleteUser(userId);
-        return new ResponseEntity<>(deleteId, HttpStatus.OK);
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser() {
+        return new ResponseEntity<>(userService.deleteLoginUser(), HttpStatus.OK);
     }
 
-    // 회원 프로필 제공
     @GetMapping("/{user-nickname}")
-    public ResponseEntity<?> getUser(@PathVariable("user-nickname") String userNickname) {
+    public ResponseEntity<?> getUserProfile(@PathVariable("user-nickname") String userNickname) {
         UserProfileDto userProfileDto = userService.searchUserProfileByNickname(userNickname);
         return new ResponseEntity<>(userProfileDto, HttpStatus.OK);
     }
-    
+
 }

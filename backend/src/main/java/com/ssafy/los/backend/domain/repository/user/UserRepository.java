@@ -8,14 +8,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailAndDeletedAtNull(String email);
 
-    boolean existsByNickname(String nickname);
+    boolean existsByNicknameAndDeletedAtNull(String nickname);
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByEmailAndDeletedAtNull(String email);
 
-    Optional<User> findUserById(Long id);
+    Optional<User> findUserByIdAndDeletedAtNull(Long id);
 
-    Optional<User> findByNickname(String nickname);
+    Optional<User> findByNicknameAndDeletedAtNull(String nickname);
 
 }

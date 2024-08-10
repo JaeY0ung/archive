@@ -1,14 +1,14 @@
 package com.ssafy.los.backend.controller.sheet;
 
-import com.ssafy.los.backend.domain.entity.Sheet;
-import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
+import com.ssafy.los.backend.domain.entity.Song;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
-import com.ssafy.los.backend.service.auth.AuthService;
-import com.ssafy.los.backend.service.sheet.MusicService;
+import com.ssafy.los.backend.dto.song.request.SongRegisterForm;
 import com.ssafy.los.backend.service.sheet.SheetService;
+import com.ssafy.los.backend.service.song.SongService;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -34,10 +34,53 @@ import org.springframework.web.util.UriUtils;
 @RequestMapping("/sheets")
 public class SheetController {
 
+    private final SongService songService;
+
+    @PostMapping(value = "/insert/all", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> uploadSheet(
+            @RequestPart(value = "files", required = false) List<MultipartFile>
+                    files) {
+
+        if (files == null || files.isEmpty()) {
+            log.debug("파일이 포함되어 있지 않습니다.");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+
+        for (MultipartFile file : files) {
+            try {
+                if (file.isEmpty()) {
+                    log.info("파일이 비어 있습니다.");
+                    continue;
+                }
+
+                Song song = songService.registerSongAndFile(
+                        SongRegisterForm.builder()
+                                .composer(file.getOriginalFilename())
+                                .title(file.getOriginalFilename())
+                                .genreId(5L)
+                                .file(null)
+                                .build()
+                );
+
+                SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
+                        .file(file)
+                        .title(file.getOriginalFilename())
+                        .level(1)
+                        .songId(song.getId())
+                        .build();
+
+                sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm);
+//            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
+            } catch (Exception e) {
+                log.info(e.getMessage());
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
     private final SheetService sheetService;
-    private final AuthService authService;
-    private final MusicService musicService;
-    private final SheetRepository sheetRepository;
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
@@ -46,7 +89,6 @@ public class SheetController {
             @RequestPart("title") String title,
             @RequestPart("level") Integer level,
             @RequestPart(value = "songId", required = false) Long songId) {
-
         SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
                 .file(file)
                 .title(title)
@@ -54,11 +96,11 @@ public class SheetController {
                 .songId(songId)
                 .build();
         try { // 악보 데이터 및 파일 저장
-            Sheet sheet = sheetService.registerSheetAndFile(sheetUploadForm);
-            musicService.saveMidFileWithSplit(sheet.getFileName());
-            return new ResponseEntity<>(sheet.getId(), HttpStatus.CREATED);
+            return new ResponseEntity<>(
+                    sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm),
+                    HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("파일 업로드에 실패했습니다." + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("파일 업로드에 실패했습니다" + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -103,7 +145,7 @@ public class SheetController {
     }
 
     @GetMapping("/{sheet-id}/download")
-    public ResponseEntity<?> downloadSheet(@PathVariable("sheet-id") Long sheetId) {
+    public ResponseEntity<?> downloadSheetMidFile(@PathVariable("sheet-id") Long sheetId) {
         // TODO : 구매여부 확인
         SheetDetailDto sheet = sheetService.searchSheetDetailById(sheetId);
         try {
@@ -113,9 +155,9 @@ public class SheetController {
                             String.format("attachment; filename=\"%s.%s\"",
                                     UriUtils.encode(sheet.getTitle(),
                                             StandardCharsets.UTF_8),
-                                    FilenameUtils.getExtension(sheet.getFileName()))
+                                    FilenameUtils.getExtension(sheet.getUuid()))
                     )
-                    .body(sheetService.getSheetFileByFileName(sheet.getFileName()));
+                    .body(sheetService.getSheetFileByFileName(sheet.getUuid()));
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }
@@ -123,9 +165,10 @@ public class SheetController {
 
     @GetMapping("/{sheet-id}/music-xml")
     public ResponseEntity<?> getSheetMusicXmlFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        String musicXmlFile = sheetService.getMusicXmlFileById(sheetId);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(sheetService.getMusicXmlFileById(sheetId));
+                .body(musicXmlFile);
     }
 
     @GetMapping("/{sheet-id}/mid")

@@ -1,5 +1,5 @@
 import subprocess
-from music21 import converter
+from music21 import converter, metadata
 import os
 
 class ConvertService:
@@ -68,13 +68,31 @@ class ConvertService:
         
         return midi_data
 
-    def midi_to_xml(midi_file_path, xml_file_path):
-        # Convert the MIDI file to MusicXML and save it to the specified output path
+    def midi_to_xml(self, midi_file_path, xml_file_path):
+        # Parse the MIDI file
         midi_stream = converter.parse(midi_file_path)
+
+        # Retrieve existing metadata from the MIDI file if available
+        midi_metadata = midi_stream.metadata
+
+        # If no metadata exists, create a new metadata object
+        if midi_metadata is None:
+            midi_metadata = metadata.Metadata()
+
+        # Example: Setting the title and composer if not already set
+        if not midi_metadata.title:
+            midi_metadata.title = "Unknown Title"
+        if not midi_metadata.composer:
+            midi_metadata.composer = "Unknown Composer"
+
+        # Assign the metadata back to the stream
+        midi_stream.metadata = midi_metadata
+
+        # Write the stream to MusicXML format
         midi_stream.write('musicxml', fp=xml_file_path)
-        
+
         # Read the generated MusicXML file
         with open(xml_file_path, 'rb') as f:
             musicxml_data = f.read()
-        
+
         return musicxml_data

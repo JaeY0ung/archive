@@ -4,8 +4,8 @@ import com.ssafy.los.backend.domain.entity.MultiPlayResult;
 import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.play.MultiPlayResultRepository;
-import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
+import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultListDto;
@@ -47,10 +47,12 @@ public class MultiPlayServiceImpl implements MultiPlayService {
                 .orElseThrow(() -> new RuntimeException("multi play result not found"));
 
         if (!multiPlayResult.isStatus()) {
-            User myUser = userRepository.findUserById(multiResultAfterDto.getMyUserId())
+            User myUser = userRepository.findUserByIdAndDeletedAtNull(
+                            multiResultAfterDto.getMyUserId())
                     .orElseThrow(() -> new RuntimeException("user not found"));
 
-            User otherUser = userRepository.findUserById(multiResultAfterDto.getOtherUserId())
+            User otherUser = userRepository.findUserByIdAndDeletedAtNull(
+                            multiResultAfterDto.getOtherUserId())
                     .orElseThrow(() -> new RuntimeException("other user not found"));
 
             Float myScore = multiResultAfterDto.getMyScore();
@@ -98,7 +100,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
                     .otherScore(isWinner ? multiPlayResult.getLoserScore()
                             : multiPlayResult.getWinnerScore())
                     .sheetTitle(multiPlayResult.getSheet().getTitle())
-                    .sheetUrl(multiPlayResult.getSheet().getFileName())
+                    .sheetUrl(multiPlayResult.getSheet().getUuid())
                     .level(multiPlayResult.getSheet().getLevel()).build();
             resultListDtoList.add(result);
         }

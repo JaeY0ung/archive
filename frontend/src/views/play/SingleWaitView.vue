@@ -92,16 +92,17 @@ const setSheetId = (sheetId) => {
 </script>
 
 <template>
-    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
-        <div class="flex w-full flex-grow-0 h-[70%] justify-center items-center rounded-tl-xl rounded-tr-xl bg-blue-300">
-            <SelectCategory v-if="isInCategoryView" @send-sheet-category="getSheetsByCategory" />
-            <SelectSheet v-else :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
-        </div>
-        <div class="flex flex-grow w-full h-[35%] justify-evenly items-center rounded-bl-xl rounded-br-xl bg-yellow-100">
-          <button class="btn btn-primary w-24" @click="onClickStart">연주하기</button>
-          <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
-          <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
-        </div>
+    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px]">
+        <div class="relative flex w-full flex-grow-0 h-[70%] justify-center items-center rounded-tl-xl rounded-tr-xl bg-black border border-gray-700 rounded-lg shadow-2xl overflow-hidden">
+            <div class="absolute inset-0 bg-cover bg-center opacity-70" :style="{ backgroundImage: `url(${require('@/assets/img/sheet_play/play-background.jpg')})`, backgroundBlendMode: 'multiply' }"></div>
+                <SelectCategory v-if="isInCategoryView" @send-sheet-category="getSheetsByCategory" />
+                <SelectSheet v-else :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
+            </div>
+            <div class="flex flex-grow w-full h-[35%] justify-evenly items-center rounded-bl-xl rounded-br-xl bg-yellow-100">
+            <button class="btn btn-primary w-24" @click="onClickStart">연주하기</button>
+            <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
+            <button class="btn btn-primary w-24" @click="onClickQuit">나가기</button>
+            </div>
     </div>
 </template>
 

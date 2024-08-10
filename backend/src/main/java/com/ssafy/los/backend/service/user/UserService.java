@@ -14,11 +14,11 @@ public interface UserService {
 
     Boolean validateNickname(String email);
 
-    Long updateUser(Long id, UserUpdateDto userUpdateDto, String uuid);
+    User updateUser(UserUpdateDto userUpdateDto, String fileName);
 
-    Long deleteUser(Long id);
+    Long deleteLoginUser();
 
-    String registerUserImgFile(MultipartFile userImg);
+    void registerUserImgFile(MultipartFile userImg, String uuid);
 
     User searchUserByEmail(String email);
 

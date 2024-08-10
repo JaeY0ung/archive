@@ -61,6 +61,11 @@ const routes = [
                 name: "manageSheet",
                 component: () => import("@/views/AdminSheetManageView.vue"),
             },
+            {
+                path: "sheet/upload",
+                name: "adminUploadSheet",
+                component: () => import("@/views/AdminUploadSheetView.vue"),
+            },
         ],
     },
     // -----------------------------------------------

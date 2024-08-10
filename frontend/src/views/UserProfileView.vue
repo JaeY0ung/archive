@@ -167,7 +167,7 @@ onMounted(async () => {
 
 <template>
     <div class="flex flex-col flex-grow w-full items-center justify-center bg-purple-200">
-        <div class="flex flex-grow w-[80%] mb-[10px] rounded-xl bg-white shadow-[0 4px 15px 0 rgb(0 0 0 0.1)]">
+        <div class="flex flex-col flex-grow w-[80%] mb-[10px] rounded-xl bg-white shadow-[0 4px 15px 0 rgb(0 0 0 0.1)]">
             <div v-if="userNotFound" class="user-not-found">
                 <h2>사용자를 찾을 수 없습니다</h2>
                 <p>요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.</p>
@@ -175,62 +175,60 @@ onMounted(async () => {
             </div>
 
             <template v-else>
-                <div class="flex w-full h-[200px] user-profile">
-                    <div class="profile-header">
-                        <div class="profile-image-container">
-                            <img
-                                v-if="isValidUserImg"
-                                :src="userImg"
-                                alt="User Profile"
-                                class="profile-image"
-                                @error="handleImageError"
-                            />
-                            <Profile v-else class="profile-icon" />
-                        </div>
-                        <div class="profile-info">
-                            <h2 class="user-name">{{ userProfile?.nickname }}</h2>
-                            <div class="stats-container">
-                                <div class="stat-item">
-                                    <span class="stat-value">{{ userProfile?.singleScore }}</span>
-                                    <span class="stat-label">Score</span>
-                                </div>
-                                <div
-                                    class="stat-item clickable"
-                                    @click="openFollowModal('followers')"
-                                >
-                                    <span class="stat-value">{{ followersCount }}</span>
-                                    <span class="stat-label">Followers</span>
-                                </div>
-                                <div
-                                    class="stat-item clickable"
-                                    @click="openFollowModal('followings')"
-                                >
-                                    <span class="stat-value">{{ followingsCount }}</span>
-                                    <span class="stat-label">Following</span>
-                                </div>
+                <div class="flex w-full h-[200px] justify-between items-center p-[30px] bg-blue-200 rounded-t-xl">
+                    <div class="w-[140px] h-[140px] min-w-[140px] bg-red-300 rounded-[50%] overflow-hidden shadow-[0 2px 5px 0 rgb(0 0 0 0.1)]">
+                        <img
+                            v-if="isValidUserImg"
+                            :src="userImg"
+                            alt="User Profile"
+                            class="profile-image"
+                            @error="handleImageError"
+                        />
+                        <Profile v-else class="profile-icon" />
+                    </div>
+                    <div class="flex-grow ml-[30px]">
+                        <h2 class="user-name">{{ userProfile?.nickname }}</h2>
+                        <div class="stats-container">
+                            <div class="stat-item">
+                                <span class="stat-value">{{ userProfile?.singleScore }}</span>
+                                <span class="stat-label">Score</span>
+                            </div>
+                            <div
+                                class="stat-item clickable"
+                                @click="openFollowModal('followers')"
+                            >
+                                <span class="stat-value">{{ followersCount }}</span>
+                                <span class="stat-label">Followers</span>
+                            </div>
+                            <div
+                                class="stat-item clickable"
+                                @click="openFollowModal('followings')"
+                            >
+                                <span class="stat-value">{{ followingsCount }}</span>
+                                <span class="stat-label">Following</span>
                             </div>
                         </div>
-                        <div class="profile-actions">
-                            <template v-if="!isOwnProfile">
-                                <button
-                                    :class="['btn', 'follow-btn', { 'unfollow-btn': isFollowing }]"
-                                    @click="toggleFollow"
-                                >
-                                    {{ isFollowing ? "Unfollow" : "Follow" }}
-                                </button>
-                                <button class="btn fight-btn">Fight</button>
-                            </template>
-                            <button v-else class="btn edit-btn" @click="goToEditPage">
-                                Edit Profile
+                    </div>
+                    <div class="profile-actions">
+                        <template v-if="!isOwnProfile">
+                            <button
+                                :class="['btn', 'follow-btn', { 'unfollow-btn': isFollowing }]"
+                                @click="toggleFollow"
+                            >
+                                {{ isFollowing ? "Unfollow" : "Follow" }}
                             </button>
-                        </div>
+                            <button class="btn fight-btn">Fight</button>
+                        </template>
+                        <button v-else class="btn edit-btn" @click="goToEditPage">
+                            Edit Profile
+                        </button>
                     </div>
                 </div>
 
-                <!-- <div class="sheet-sections">
-                    <div class="sheet-section">
-                        <h3>최근 싱글 플레이</h3>
-                        <div class="scroll-container">
+                <div class="flex flex-col flex-grow w-full bg-yellow-200 rounded-b-xl overflow-hidden">
+                    <div class="">최근 싱글 플레이</div>
+                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
+                        <div class="flex w-full absolute scroll-x">
                             <SmallSheetCard
                                 v-for="sheet in mockRecentPlayedSheets"
                                 :key="sheet.id"
@@ -239,9 +237,9 @@ onMounted(async () => {
                         </div>
                     </div>
 
-                    <div class="sheet-section">
-                        <h3>최근 대결 플레이</h3>
-                        <div class="scroll-container">
+                    <h3>최근 대결 플레이</h3>
+                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
+                        <div class="flex w-full absolute scroll-x">
                             <SmallSheetCard
                                 v-for="sheet in mockRecentBattleSheets"
                                 :key="sheet.id"
@@ -250,9 +248,9 @@ onMounted(async () => {
                         </div>
                     </div>
 
-                    <div class="sheet-section">
-                        <h3>좋아요한 악보</h3>
-                        <div class="scroll-container">
+                    <h3>좋아요한 악보</h3>
+                    <div class="flex w-full h-[150px]  relative overflow-hidden items-center bg-red-200">
+                        <div class="flex w-full absolute scroll-x">
                             <SmallSheetCard
                                 v-for="sheet in mockLikedSheets"
                                 :key="sheet.id"
@@ -260,7 +258,7 @@ onMounted(async () => {
                             />
                         </div>
                     </div>
-                </div> -->
+                </div>
             </template>
         </div>
 
@@ -285,23 +283,8 @@ div{
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.user-profile {
-    padding: 30px;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.profile-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
 
 .profile-image-container {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -321,12 +304,7 @@ div{
     font-size: 40px;
 }
 
-.profile-info {
-    flex-grow: 1;
-    margin-left: 30px;
-}
-
-.user-name {
+x.user-name {
     font-family: "Poppins", sans-serif;
     font-size: 2em;
     font-weight: 600;
@@ -444,13 +422,6 @@ div{
     content: "\f304";
 }
 
-.sheet-sections {
-    padding: 30px;
-}
-
-.sheet-section {
-    margin-bottom: 40px;
-}
 
 .sheet-section h3 {
     margin-bottom: 20px;

@@ -5,6 +5,7 @@ import com.ssafy.los.backend.domain.entity.SinglePlayResult;
 import com.ssafy.los.backend.dto.play.request.SinglePlayRequestDto;
 import com.ssafy.los.backend.service.play.SinglePlayService;
 import com.ssafy.los.backend.service.sheet.SheetService;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -21,10 +22,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -39,14 +44,15 @@ public class SinglePlayController {
 
     // 싱글 중간 결과 생성 후 파이썬 전송
     @PostMapping(value = "/sendFile")
-    public ResponseEntity<?> sendIntermediateScoreToPython(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("sheetId") Long sheetId) {
+    public ResponseEntity<?> sendIntermediateScoreToPython(
+            @RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("sheetId") Long sheetId) {
         log.info("Client로부터 중간 점수를 전송 받음: {}", file);
 
-        String url = fastapiServerUrl+"/playing";
+        String url = fastapiServerUrl + "/playing";
 
         Sheet sheet = sheetService.searchById(sheetId);
 
-        String sheetName = sheet.getFileName();
+        String sheetName = sheet.getUuid();
 
         try {
 
@@ -55,7 +61,8 @@ public class SinglePlayController {
 
             // 멀티파트 엔티티 생성
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addBinaryBody("file", file.getInputStream(), ContentType.MULTIPART_FORM_DATA, file.getOriginalFilename());
+            builder.addBinaryBody("file", file.getInputStream(), ContentType.MULTIPART_FORM_DATA,
+                    file.getOriginalFilename());
             builder.addTextBody("sheetName", sheetName, ContentType.TEXT_PLAIN);
             HttpEntity multipart = builder.build();
 

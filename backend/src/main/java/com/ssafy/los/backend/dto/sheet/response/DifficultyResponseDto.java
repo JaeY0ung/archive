@@ -1,9 +1,8 @@
 package com.ssafy.los.backend.dto.sheet.response;
 
 import com.ssafy.los.backend.domain.entity.Difficulty;
-import java.time.LocalDateTime;
-
 import com.ssafy.los.backend.util.FileUploadUtil;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -29,7 +28,7 @@ public class DifficultyResponseDto {
                 .userImgName(difficulty.getUser().getUserImg())
                 .singleScore(difficulty.getUser().getSingleScore())
                 .sheetTitle(difficulty.getSheet().getTitle())
-                .sheetFileName(difficulty.getSheet().getFileName())
+                .sheetFileName(difficulty.getSheet().getUuid())
                 .level(difficulty.getLevel())
                 .content(difficulty.getContent())
                 .createdAt(difficulty.getCreatedAt())
