@@ -224,7 +224,7 @@ onMounted(async () => {
     <div
         class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-60px)] overflow-hidden py-4"
     >
-        <div class="w-[80%] h-full flex flex-col">
+        <div class="w-[95%] h-full flex flex-col">
             <div
                 v-if="userNotFound"
                 class="flex-grow flex items-center justify-center"
