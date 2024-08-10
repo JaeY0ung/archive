@@ -1,5 +1,5 @@
 import subprocess
-from music21 import converter, metadata
+from music21 import converter, meter, stream
 import os
 
 class ConvertService:
@@ -96,3 +96,28 @@ class ConvertService:
             musicxml_data = f.read()
 
         return musicxml_data
+    def get_rounded_measures(self, midi_file_path, measures_per_section=8):
+        """
+        MIDI 파일을 파싱하여 전체 마디 수를 계산하고,
+        주어진 마디 수로 나눈 나머지가 있다면 올림하여 반환합니다.
+
+        :param midi_file_path: 분석할 MIDI 파일의 경로
+        :param measures_per_section: 나눌 마디 수 (기본값은 8)
+        :return: (총 마디 수, 나머지 마디 수, 올림된 마디 수)
+        """
+        # MIDI 파일을 파싱
+        midi_stream = converter.parse(midi_file_path)
+
+        # 전체 마디 수 계산
+        total_measures = len(midi_stream.parts[0].getElementsByClass(stream.Measure))
+        rounded_measures = total_measures
+        # 8로 나눈 나머지 계산
+        remainder = total_measures % measures_per_section
+
+        # 나머지가 있을 경우 올림된 마디 수 계산
+        if remainder > 0:
+            rounded_measures = total_measures + (measures_per_section - remainder)
+        else:
+            rounded_measures = total_measures
+        # 7마디면 chunk_0이기 때문에 -1 해야됨
+        return rounded_measures-1
