@@ -11,21 +11,18 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.los.backend.constant.Role;
 import com.ssafy.los.backend.constant.Sort;
 import com.ssafy.los.backend.constant.SuccessStatus;
-import com.ssafy.los.backend.domain.entity.QLikeSheet;
-import com.ssafy.los.backend.domain.entity.QSheet;
-import com.ssafy.los.backend.domain.entity.QSheetStarRate;
-import com.ssafy.los.backend.domain.entity.QSinglePlayResult;
-import com.ssafy.los.backend.domain.entity.User;
+import com.ssafy.los.backend.domain.entity.*;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForAdminDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -110,6 +107,13 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .set(s.viewCount, s.viewCount.add(1))
                 .where(s.id.eq(sheetId))
                 .execute();
+    }
+
+    @Override
+    public List<SheetDetailForUserDto> searchByFileName(List<String> fileNames) {
+        return createSelectFromQuery()
+                .where(s.fileName.in(fileNames))
+                .fetch();
     }
 
     private JPAQuery<SheetDetailForUserDto> createSelectFromQuery(User loginUser) {
