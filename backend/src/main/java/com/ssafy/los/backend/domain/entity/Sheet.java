@@ -39,7 +39,7 @@ public class Sheet {
     @ManyToOne
     private User uploader;
 
-    private String fileName;
+    private String uuid;
 
     private Integer price;
 
@@ -63,14 +63,14 @@ public class Sheet {
 
     @Builder
     public Sheet(Long id, Integer level, String title, Song song, Integer price,
-            User uploader, String fileName) {
+            User uploader, String uuid) {
         this.id = id;
         this.uploader = uploader;
         this.level = level;
         this.title = title;
         this.song = song;
         this.price = price;
-        this.fileName = fileName;
+        this.uuid = uuid;
         this.status = 0;
         this.viewCount = 0;
     }

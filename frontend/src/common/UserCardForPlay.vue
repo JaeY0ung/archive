@@ -40,12 +40,12 @@ console.log(routeName);
 </script>
 
 <template>
-    <div class="player-card">
+    <div class="player-card flex justify-center">
         <div class="player-img">
             <img :src="user.userImg" alt="Profile Image" class="rounded-xl"/>
             <span class="pt-3" v-if="routeName=='singlePlay'">랭킹 13위</span>
         </div>
-        <div class="player-info-text">
+        <div class="player-info-text w-1">
             <div class="info-item">{{ user.nickname }}</div>
             <div class="info-item">
                 유저 총점수
@@ -66,14 +66,12 @@ console.log(routeName);
 
 <style scoped>
 .player-card {
-  display: flex;
   flex-direction: row;
   align-items: center;
-  padding: 0px 2%;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;
-  width: 30%;
+  width: 100%;
   height: 80%;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }

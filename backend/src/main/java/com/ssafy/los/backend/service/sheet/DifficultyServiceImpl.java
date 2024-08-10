@@ -108,7 +108,8 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     // 악보 난이도 평가 목록 조회 (페이지 추가)
     @Override
-    public Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size, String sortBy, String sortDir) {
+    public Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size, String sortBy,
+            String sortDir) {
 
         Sheet sheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
@@ -117,7 +118,7 @@ public class DifficultyServiceImpl implements DifficultyService {
         Sort.Direction direction = Sort.Direction.fromString(sortDir);
         Sort sort = Sort.by(direction, sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        
+
         // 악보에 해당하는 난이도 평가들 반환
         Page<Difficulty> difficultyPage = difficultyRatingRepository.findAllBySheet(sheet, pageable);
 
@@ -145,7 +146,7 @@ public class DifficultyServiceImpl implements DifficultyService {
     // 악보 난이도 AI 예측 호출
     public int predictDifficulty(Sheet sheet) {
 
-        String url = fastApiUrl + "/predict_difficulty?sheet=" + sheet.getFileName();
+        String url = fastApiUrl + "/predict_difficulty?sheet=" + sheet.getUuid();
 
         try {
             // GET 요청 보내기
@@ -156,7 +157,7 @@ public class DifficultyServiceImpl implements DifficultyService {
             if (response.getStatusCode().is2xxSuccessful()) {
                 DifficultyPredictResponseDto predictionResponse = response.getBody();
                 if (predictionResponse != null) {
-                    int result  = predictionResponse.getDifficulty();
+                    int result = predictionResponse.getDifficulty();
 
                     // TODO : AI 난이도 평가 추가하는 것 고민 필요
                     // 악보 난이도 평가 추가
@@ -176,7 +177,7 @@ public class DifficultyServiceImpl implements DifficultyService {
             throw new RuntimeException("Error predicting difficulty: " + e.getMessage(), e);
         }
     }
-    
+
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
     // TODO : 평가가 하나도 없는 경우 (-1) 로직 처리하기
@@ -227,7 +228,8 @@ public class DifficultyServiceImpl implements DifficultyService {
         return result;
     }
 
-    private double calculateWeight(LocalDateTime opinionTime, int opinionIndex, LocalDateTime mostRecentTime, int totalOpinions) {
+    private double calculateWeight(LocalDateTime opinionTime, int opinionIndex, LocalDateTime mostRecentTime,
+            int totalOpinions) {
         long daysDifference = ChronoUnit.DAYS.between(opinionTime, mostRecentTime);
         int indexDifference = totalOpinions - opinionIndex - 1;
 

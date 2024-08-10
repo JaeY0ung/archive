@@ -80,7 +80,7 @@ const goToSheetDetail = (sheetId) => {
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<div class="flex w-full absolute scroll-x">
 						<template v-if="newSheets">
-							<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" />
+							<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" @click="goToSheetDetail(sheet.id)"/>
 						</template>
 					</div>
 				</div>
@@ -93,7 +93,7 @@ const goToSheetDetail = (sheetId) => {
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<div class="flex w-full absolute scroll-x">
 						<template v-if="recommendSheets">
-							<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" />
+							<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" @click="goToSheetDetail(sheet.id)"/>
 						</template>
 					</div>
 				</div>

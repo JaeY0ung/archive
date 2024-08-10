@@ -41,17 +41,33 @@ public class FileUploadUtil {
 
     public void uploadUserImg(MultipartFile file, String uuid) throws IllegalArgumentException {
         fileValidator.validateImageFile(getExtension(file));
-        saveFile(userImgFolderPath, file, uuid);
+        saveFileByUuid(userImgFolderPath, file, uuid);
     }
 
     public void uploadSongImg(MultipartFile file, String uuid) throws IllegalArgumentException {
         fileValidator.validateImageFile(getExtension(file));
-        saveFile(songImgFolderPath, file, uuid);
+        saveFileByUuid(songImgFolderPath, file, uuid);
     }
 
     public void uploadSheet(MultipartFile file, String uuid) throws IllegalArgumentException {
         fileValidator.validateMidFile(getExtension(file));
-        saveFile(sheetMidFileFolderPath, file, uuid);
+        saveFileByUuid(sheetMidFileFolderPath, file, uuid);
+    }
+
+    public String getSongImgByFileName(String fileName) {
+        Path path = getSongImgPathByFileName(fileName);
+        return getFileAsBase64(path);
+    }
+
+    public String getMusicXmlByUuid(String uuid) {
+        Path path = getMusicXmlPathByFileName(
+                uuid + ".musicxml");
+        return readFileAsString(path);
+    }
+
+    public String getMidByUuid(String uuid) {
+        Path path = getMidPathByFileName(uuid + ".mid");
+        return readFileAsString(path);
     }
 
 //    public void uploadPlayRecord(MultipartFile file, String uuid)
@@ -64,41 +80,26 @@ public class FileUploadUtil {
         return downloadOneFile(sheetMidFileFolderPath, uuid + ".mid");
     }
 
-    public String getSongImg(String imgFileNameIncludesExt) {
-        Path path = getSongImgPath(imgFileNameIncludesExt);
-        return getFileAsBase64(path);
-    }
 
-    public String getMusicXml(String fileNameExcludesExt) {
-        Path path = getMusicXmlPath(
-                fileNameExcludesExt + ".musicxml");
-        return readFileAsString(path);
-    }
-
-    public String getMid(String fileNameExcludesExt) {
-        Path path = getMidPath(fileNameExcludesExt + ".mid");
-        return readFileAsString(path);
-    }
-
-    private Path getSongImgPath(String fileName) throws IllegalArgumentException {
+    private Path getSongImgPathByFileName(String fileName) throws IllegalArgumentException {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("악보에 연결된 곡의 이미지 파일이 없습니다");
         }
-        return getPath(songImgFolderPath, fileName);
+        return getPathByFileName(songImgFolderPath, fileName);
     }
 
-    private Path getMusicXmlPath(String fileName) throws IllegalArgumentException {
+    private Path getMusicXmlPathByFileName(String fileName) throws IllegalArgumentException {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("악보에 연결된 곡의 musicXml 파일이 없습니다");
         }
-        return getPath(sheetMusicXmlFileFolderPath, fileName);
+        return getPathByFileName(sheetMusicXmlFileFolderPath, fileName);
     }
 
-    private Path getMidPath(String fileName) throws IllegalArgumentException {
+    private Path getMidPathByFileName(String fileName) throws IllegalArgumentException {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("악보에 연결된 곡의 mid 파일이 없습니다");
         }
-        return getPath(sheetMidFileFolderPath, fileName);
+        return getPathByFileName(sheetMidFileFolderPath, fileName);
     }
 
     public String getUserImg(String imgName) {
@@ -110,7 +111,7 @@ public class FileUploadUtil {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("유저에 연결된 곡의 이미지 파일이 없습니다");
         }
-        return getPath(userImgFolderPath, fileName);
+        return getPathByFileName(userImgFolderPath, fileName);
     }
 
     public String getFileAsBase64(Path path) {
@@ -130,7 +131,7 @@ public class FileUploadUtil {
         }
     }
 
-    private void saveFile(String folderPath, MultipartFile file, String uuid)
+    private void saveFileByUuid(String folderPath, MultipartFile file, String uuid)
             throws IllegalArgumentException {
         makeDirectoryIfNotExists(folderPath);
         String saveFileName = uuid + "." + getExtension(file);
@@ -147,7 +148,7 @@ public class FileUploadUtil {
             throws IllegalArgumentException {
         try {
             UrlResource resource = new UrlResource(
-                    getPath(folderPath, fileName).toUri());
+                    getPathByFileName(folderPath, fileName).toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;
             }
@@ -157,7 +158,7 @@ public class FileUploadUtil {
         }
     }
 
-    private Path getPath(String folderPath, String fileName) {
+    private Path getPathByFileName(String folderPath, String fileName) {
         return Paths.get(folderPath, fileName);
     }
 
@@ -168,7 +169,7 @@ public class FileUploadUtil {
         }
     }
 
-    private String getExtension(MultipartFile file) throws IllegalArgumentException {
+    public String getExtension(MultipartFile file) throws IllegalArgumentException {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename == null || originalFilename.isEmpty()) {
             throw new IllegalArgumentException("파일의 이름이 없습니다."); // NO_FILE_NAME_MESSAGE

@@ -6,7 +6,7 @@ public interface SheetDetailDto {
 
     void loadSongImg(FileUploadUtil fileUploadUtil);
 
-    String getFileName();
+    String getUuid();
 
     String getTitle();
 }

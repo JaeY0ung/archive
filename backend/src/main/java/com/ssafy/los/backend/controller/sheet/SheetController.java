@@ -40,8 +40,9 @@ public class SheetController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        try {
-            for (MultipartFile file : files) {
+
+        for (MultipartFile file : files) {
+            try {
                 if (file.isEmpty()) {
                     log.info("파일이 비어 있습니다.");
                     continue;
@@ -65,11 +66,12 @@ public class SheetController {
 
                 sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm);
 //            uploadSheet(file, file.getOriginalFilename(), 1, song.getId());
+            } catch (Exception e) {
+                log.info(e.getMessage());
             }
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     private final SheetService sheetService;
@@ -92,7 +94,7 @@ public class SheetController {
                     sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm),
                     HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>("파일 업로드에 실패했습니다." + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("파일 업로드에 실패했습니다" + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -147,9 +149,9 @@ public class SheetController {
                             String.format("attachment; filename=\"%s.%s\"",
                                     UriUtils.encode(sheet.getTitle(),
                                             StandardCharsets.UTF_8),
-                                    FilenameUtils.getExtension(sheet.getFileName()))
+                                    FilenameUtils.getExtension(sheet.getUuid()))
                     )
-                    .body(sheetService.getSheetFileByFileName(sheet.getFileName()));
+                    .body(sheetService.getSheetFileByFileName(sheet.getUuid()));
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }
@@ -157,9 +159,10 @@ public class SheetController {
 
     @GetMapping("/{sheet-id}/music-xml")
     public ResponseEntity<?> getSheetMusicXmlFileBySheetId(@PathVariable("sheet-id") Long sheetId) {
+        String musicXmlFile = sheetService.getMusicXmlFileById(sheetId);
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(sheetService.getMusicXmlFileById(sheetId));
+                .body(musicXmlFile);
     }
 
     @GetMapping("/{sheet-id}/mid")

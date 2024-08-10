@@ -3,8 +3,8 @@ package com.ssafy.los.backend.controller.user;
 import com.ssafy.los.backend.dto.user.request.UserCreateDto;
 import com.ssafy.los.backend.dto.user.request.UserUpdateDto;
 import com.ssafy.los.backend.dto.user.response.UserProfileDto;
-import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.user.UserService;
+import com.ssafy.los.backend.util.FileUploadUtil;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
-    private final AuthService authService;
+    private final FileUploadUtil fileUploadUtil;
 
     // 회원 등록
     @PostMapping
@@ -59,11 +59,13 @@ public class UserController {
             @RequestPart("userUpdateDto") UserUpdateDto userUpdateDto) {
 
         String uuid = UUID.randomUUID().toString();
+        String fileName = null;
         if (profileImageFile != null && !profileImageFile.isEmpty()) {
             userService.registerUserImgFile(profileImageFile, uuid);
+            fileName = uuid + "." + fileUploadUtil.getExtension(profileImageFile);
         }
 
-        return new ResponseEntity<>(userService.updateUser(userUpdateDto, uuid), HttpStatus.OK);
+        return new ResponseEntity<>(userService.updateUser(userUpdateDto, fileName), HttpStatus.OK);
     }
 
     @DeleteMapping
