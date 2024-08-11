@@ -163,7 +163,7 @@
             console.log("Sending formData", formData);
             
             try {
-                const res = await local.post('/play/single/sendFile', formData, {
+                const res = await local.post('/plays/single/sendFile', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

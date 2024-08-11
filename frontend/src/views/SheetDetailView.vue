@@ -50,8 +50,8 @@ const updateStarRate = (starRate) => {
 }
 
 // 같은 수준의 악보 랜덤으로 가져오기
-const searchRandomSameLevelSheets = () => {
-	searchSheetsByFilter(
+const searchRandomSameLevelSheets = async () => {
+	await searchSheetsByFilter(
 		{ levels: sheet.value.level, sort: "RANDOM" },
 		({ data }) => {
 			if (!data) return;
@@ -65,8 +65,8 @@ const searchRandomSameLevelSheets = () => {
 };
 
 // 별점 가져오기
-const searchStarRateList = () => {
-	searchStarRateListBySheetId(
+const searchStarRateList = async () => {
+	await searchStarRateListBySheetId(
 		route.params.sheetId,
 		({ data }) => {
 			if (!data) return;
@@ -76,21 +76,19 @@ const searchStarRateList = () => {
 };
 
 // 별점 등록하기
-const registerStarRate = () => {
+const registerStarRate = async () => {
 	if (!starRateRegisterForm.value.content) {
 		alert("평가 글을 작성해주세요")
 		return;
-	}
-
-	if (!starRateRegisterForm.value.starRate) {
+	} else if (!starRateRegisterForm.value.starRate) {
 		alert("별점을 입력해주세요")
 		return;
 	}
-	registerStarRateBySheetId(
+	await registerStarRateBySheetId(
 		route.params.sheetId,
 		starRateRegisterForm.value,
-		(res) => {
-			searchStarRateList()
+		async (res) => {
+			await searchStarRateList()
 		}
 	)
 };
@@ -107,9 +105,10 @@ searchSheetDetail(
 	}
 )
 
-watch(sheet, () => {
-	searchRandomSameLevelSheets();
+watch(sheet, async () => {
+	await searchRandomSameLevelSheets();
 });
+
 searchStarRateList();
 
 const goToSheetDetail = (sheetId) => {
