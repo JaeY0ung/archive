@@ -10,18 +10,21 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.los.backend.constant.Sort;
 import com.ssafy.los.backend.constant.SuccessStatus;
-import com.ssafy.los.backend.domain.entity.*;
+import com.ssafy.los.backend.domain.entity.QLikeSheet;
+import com.ssafy.los.backend.domain.entity.QSheet;
+import com.ssafy.los.backend.domain.entity.QSheetStarRate;
+import com.ssafy.los.backend.domain.entity.QSinglePlayResult;
+import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForAdminDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -35,76 +38,42 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     QSheetStarRate ssr = QSheetStarRate.sheetStarRate;
 
     @Override
-    public List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter) {
-        List<SheetDetailForUserDto> sheetDetailForUserDtoList = createSelectFromQuery()
-                .where(s.deletedAt.isNull(),
-                        s.createdAt.isNotNull(),
-                        containKeyword(sheetSearchFilter.getKeyword()),
-                        inLevels(sheetSearchFilter.getLevels()),
-                        inGenre(sheetSearchFilter.getGenres()),
-                        inPrice(sheetSearchFilter.getPrices()),
-                        isStatusNotRejected()
-                )
-                .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
-                .fetch();
-        return new ArrayList<>(sheetDetailForUserDtoList);
-    }
-
-    @Override
-    public List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
-                                                   User loginUser) {
-        if (loginUser.getRole().equals("ROLE_ADMIN")) {
+    public List<SheetDetailDto> findSheetsByFilterAndLoginUser(SheetSearchFilter sheetSearchFilter,
+            User loginUser) {
+        if (loginUser == null) { // 비 로그인 유저
+            List<SheetDetailForUserDto> sheetDetailForUserDtoList = createSelectFromQuery(null)
+                    .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1}))
+                    .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
+                    .fetch();
+            return new ArrayList<>(sheetDetailForUserDtoList);
+        } else if (loginUser.getRole().equals("ROLE_ADMIN")) { // 관리자 계정
             List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
-                    .where(s.deletedAt.isNull(),
-                            s.createdAt.isNotNull(),
-                            containKeyword(sheetSearchFilter.getKeyword()),
-                            inLevels(sheetSearchFilter.getLevels()),
-                            inGenre(sheetSearchFilter.getGenres()),
-                            inPrice(sheetSearchFilter.getPrices())
-                    )
+                    .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1, 2}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                     .fetch();
             return new ArrayList<>(sheetDetailForAdminDtoList);
-        } else {
+        } else { // 로그인 유저
             List<SheetDetailForUserDto> sheetDetailForUserDtoList = createSelectFromJoinQuery(
                     sheetSearchFilter.getSuccessStatuses(), loginUser)
-                    .where(s.deletedAt.isNull(),
-                            s.createdAt.isNotNull(),
-                            containKeyword(sheetSearchFilter.getKeyword()),
-                            inLevels(sheetSearchFilter.getLevels()),
-                            inGenre(sheetSearchFilter.getGenres()),
-                            inPrice(sheetSearchFilter.getPrices()),
-                            isStatusNotRejected()
-                    )
+                    .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                     .fetch();
             return new ArrayList<>(sheetDetailForUserDtoList);
         }
     }
 
+    // Admin 악보 관리 페이지 에서 사용
     @Override
-    public List<SheetDetailDto> findSheetsByStatusForAdmin(Integer status) {
+    public List<SheetDetailDto> findSheetsByStatusForAdmin(SheetSearchFilter sheetSearchFilter) {
         List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
-                .where(s.deletedAt.isNull(),
-                        s.createdAt.isNotNull(),
-                        s.status.eq(status)
-                )
-                .orderBy(createOrderSpecifier(Sort.LATEST))
+                .where(createWhereClause(sheetSearchFilter), inStatuses(sheetSearchFilter.getStatuses()))
+                .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                 .fetch();
         return new ArrayList<>(sheetDetailForAdminDtoList);
     }
 
-
-    @Override
-    public SheetDetailDto findSheetDetailViewDtoById(Long sheetId) {
-        return createSelectFromQuery()
-                .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
-                .fetchOne();
-    }
-
     @Override
     public SheetDetailDto findSheetDetailViewDtoById(Long sheetId, User loginUser) {
-
         return createSelectFromQuery(loginUser)
                 .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
                 .fetchOne();
@@ -121,7 +90,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
 
     @Override
     public List<SheetDetailForUserDto> searchByFileName(List<String> fileNames) {
-        return createSelectFromQuery()
+        return createSelectFromQuery(null)
                 .where(s.uuid.in(fileNames))
                 .fetch();
     }
@@ -140,7 +109,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .where(ls.user.id.eq(userId)
                         .and(s.deletedAt.isNull())
                         .and(s.createdAt.isNotNull())
-                        .and(isStatusNotRejected()))
+                        .and(inStatuses(new Integer[]{0, 1})))
                 .orderBy(s.createdAt.desc())
                 .fetch();
     }
@@ -152,15 +121,6 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                         .from(ls)
                         .where(ls.sheet.eq(s)),
                 createLikeStatusExpression(loginUser)
-        )).from(s);
-    }
-
-    private JPAQuery<SheetDetailForUserDto> createSelectFromQuery() {
-        return queryFactory.select(Projections.constructor(SheetDetailForUserDto.class,
-                s,
-                JPAExpressions.select(ls.count())
-                        .from(ls)
-                        .where(ls.sheet.eq(s))
         )).from(s);
     }
 
@@ -229,8 +189,19 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .where(ls.sheet.eq(s).and(ls.user.eq(loginUser))).exists();
     }
 
+    private BooleanExpression createWhereClause(SheetSearchFilter sheetSearchFilter) {
+        return s.deletedAt.isNull()
+                .and(s.createdAt.isNotNull())
+                .and(containKeyword(sheetSearchFilter.getKeyword()))
+                .and(inLevels(sheetSearchFilter.getLevels()))
+                .and(inGenre(sheetSearchFilter.getGenres()))
+                .and(inPrice(sheetSearchFilter.getPrices()));
+    }
+
     private BooleanExpression containKeyword(String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
+        if (keyword == null) {
+            return null;
+        } else if (keyword.isEmpty()) {
             return null;
         }
         return s.title.contains(keyword)
@@ -240,36 +211,39 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     }
 
     private BooleanExpression inLevels(Integer[] level) {
-        if (level == null || level.length == 0) {
+        if (level == null) {
+            return null;
+        } else if (level.length == 0) {
             return Expressions.FALSE;
         }
         return s.level.in(level);
     }
 
     private BooleanExpression inGenre(Integer[] genre) {
-        if (genre == null || genre.length == 0) {
+        if (genre == null) {
+            return null;
+        } else if (genre.length == 0) {
             return Expressions.FALSE;
         }
         return s.song.genre.id.in(genre);
     }
 
-    private BooleanExpression isStatusNotRejected() {
-        return s.status.ne(2);
+    private BooleanExpression inStatuses(Integer[] statuses) {
+        return s.status.in(statuses);
     }
 
     private BooleanExpression inPrice(Integer[] prices) {
-        if (prices == null || prices.length == 0) return Expressions.FALSE;
-        if (prices.length == 2) {
+        if (prices == null || prices.length == 2) {
             return null;
+        } else if (prices.length == 0) {
+            return Expressions.FALSE;
         }
-
-//        BooleanExpression priceExpression = s.price.eq(0).or(s.price.eq((Integer) null));
-        BooleanExpression priceExpression = s.price.eq(0).or(s.price.isNull());
 
         if (prices[0].equals(1)) {  // 유료
-            priceExpression = s.price.gt(0);
+            return s.price.gt(0);
+        } else {
+            return s.price.isNull().or(s.price.eq(0));
         }
-        return priceExpression;
     }
 
     private OrderSpecifier<?> createOrderSpecifier(Sort sort) {

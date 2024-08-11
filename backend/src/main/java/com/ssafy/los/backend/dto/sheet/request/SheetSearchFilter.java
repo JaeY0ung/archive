@@ -26,5 +26,11 @@ public class SheetSearchFilter {
 
     private HashSet<SuccessStatus> successStatuses;
 
+    private Integer[] statuses;
+
     private Sort sort;
+
+    private Integer page;
+
+    private static final Integer size = 10;
 }

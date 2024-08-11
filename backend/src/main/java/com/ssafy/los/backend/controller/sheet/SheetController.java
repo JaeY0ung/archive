@@ -9,6 +9,10 @@ import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
 import com.ssafy.los.backend.dto.song.request.SongRegisterForm;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.service.song.SongService;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -16,14 +20,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriUtils;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 @RestController
@@ -34,6 +42,37 @@ public class SheetController {
 
     private final SheetService sheetService;
     private final SongService songService;
+
+    @GetMapping
+    public ResponseEntity<?> getSheetListByFilter(
+            @ModelAttribute SheetSearchFilter sheetSearchFilter) {
+        log.info(
+                "[Controller Text] keyword: {}, levels: {}, sort : {}, prices : {}, genres : {}, statuses : {}, page : {}",
+                sheetSearchFilter.getKeyword(),
+                sheetSearchFilter.getLevels(),
+                sheetSearchFilter.getSort(),
+                sheetSearchFilter.getPrices(),
+                sheetSearchFilter.getGenres(),
+                sheetSearchFilter.getStatuses(),
+                sheetSearchFilter.getPage());
+        try {
+            return new ResponseEntity<>(sheetService.searchSheetByFilter(sheetSearchFilter),
+                    HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/{sheet-id}")
+    public ResponseEntity<?> getSheetById(@PathVariable("sheet-id") Long sheetId) {
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(sheetService.searchSheetDetailById(sheetId));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
@@ -97,30 +136,6 @@ public class SheetController {
         return new ResponseEntity<>("[업로드 완료]", HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getSheetListByFilter(
-            @ModelAttribute SheetSearchFilter sheetSearchFilter) {
-        log.info("======{}====={}, {}, {}", sheetSearchFilter.getKeyword(), sheetSearchFilter.getLevels(), sheetSearchFilter.getSort(), sheetSearchFilter.getPrices());
-        try {
-            return new ResponseEntity<>(sheetService.searchSheetByFilter(sheetSearchFilter),
-                    HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-    }
-
-    @GetMapping("/{sheet-id}")
-    public ResponseEntity<?> getSheetInfo(@PathVariable("sheet-id") Long sheetId) {
-        try {
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(sheetService.searchSheetDetailById(sheetId));
-        } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
     @PutMapping("/{sheet-id}")
     public ResponseEntity<?> updateSheet(@PathVariable("sheet-id") Long sheetId,
             @RequestBody SheetUpdateFormDto sheetUpdateFormDto) {
@@ -151,22 +166,27 @@ public class SheetController {
             @PathVariable("sheet-id") Long sheetId) {
         if (!new ArrayList<>(Arrays.asList(0, 1, 2)).contains(status)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else if (status.equals(0)) {
-            sheetService.changeStatusToWaiting(sheetId);
-        } else if (status.equals(1)) {
-            sheetService.changeStatusToApproved(sheetId);
-        } else if (status.equals(2)) {
-            sheetService.changeStatusToRejected(sheetId);
         }
+
+        sheetService.changeStatusByStatus(sheetId, status);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<?> getSheetListByStatusForAdmin(@PathVariable("status") Integer status) {
-        if (!new ArrayList<>(Arrays.asList(0, 1, 2)).contains(status)) {
+    @GetMapping("/admin")
+    public ResponseEntity<?> getSheetListByStatusForAdmin(@ModelAttribute() SheetSearchFilter sheetSearchFilter) {
+        if (!checkRightStatuses(sheetSearchFilter.getStatuses())) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(sheetService.searchAllSheetsByStatusForAdmin(status), HttpStatus.OK);
+        return new ResponseEntity<>(sheetService.searchAllSheetsByStatusForAdmin(sheetSearchFilter), HttpStatus.OK);
+    }
+
+    private boolean checkRightStatuses(Integer[] statuses) {
+        for (Integer status : statuses) {
+            if (!status.equals(0) && !status.equals(1) && !status.equals(2)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @GetMapping("/{sheet-id}/download")
@@ -202,7 +222,7 @@ public class SheetController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(sheetService.getMidFileById(sheetId));
     }
-    
+
     // 추천 악보를 보내준다.
     @GetMapping("/recommend")
     public ResponseEntity<?> getRecommendSheet() {
@@ -215,11 +235,11 @@ public class SheetController {
         }
     }
 
-        @GetMapping("/profile/like/{user-id}")
-        public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
-            List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
-            log.info(sheetList.toString());
-            return new ResponseEntity<>(sheetList, HttpStatus.OK);
-        }
+    @GetMapping("/profile/like/{user-id}")
+    public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
+        List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
+        log.info(sheetList.toString());
+        return new ResponseEntity<>(sheetList, HttpStatus.OK);
+    }
 
 }
