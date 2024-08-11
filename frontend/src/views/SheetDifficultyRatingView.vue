@@ -22,7 +22,6 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { ko } from "date-fns/locale";
-import { faL } from "@fortawesome/free-solid-svg-icons";
 
 Chart.register(
     TimeScale,
@@ -80,8 +79,8 @@ const getImageUrl = (base64String) => {
     return base64String ? `data:image/jpeg;base64,${base64String}` : "";
 };
 
-const searchSheetDetail = () => {
-    local
+const searchSheetDetail = async () => {
+    await local
         .get(`/sheets/${route.params.sheetId}`)
         .then(({ data }) => {
             sheet.value = data;
@@ -97,7 +96,7 @@ const setDifficulty = (difficulty) => {
     newDifficulty.value = difficulty;
 };
 
-const submitCommentAndDifficulty = () => {
+const submitCommentAndDifficulty = async () => {
     if (!newDifficulty.value) {
         alert("난이도를 선택해주세요.");
         return;
@@ -111,7 +110,7 @@ const submitCommentAndDifficulty = () => {
             content: newComment.value.trim(),
         };
 
-        local
+        await local
             .post(`/sheets/${route.params.sheetId}/difficulties`, difficultyData)
             .then((response) => {
                 fetchCommentsAndDifficulties();
@@ -129,8 +128,8 @@ const submitCommentAndDifficulty = () => {
     }
 };
 
-const fetchCommentsAndDifficulties = () => {
-    local
+const fetchCommentsAndDifficulties = async () => {
+    await local
         .get(`/sheets/${route.params.sheetId}/difficulties/all`)
         .then(({ data }) => {
             if (data) {
@@ -178,9 +177,9 @@ const prevPage = () => {
     }
 };
 
-const deleteDifficulty = (difficultyId) => {
+const deleteDifficulty = async (difficultyId) => {
     if (confirm("정말로 이 난이도 평가를 삭제하시겠습니까?")) {
-        local
+        await local
             .delete(`/sheets/difficulties/${difficultyId}`)
             .then(() => {
                 fetchCommentsAndDifficulties();
@@ -204,7 +203,7 @@ const cancelEditing = () => {
     editedDifficulty.value = "";
 };
 
-const saveEdit = () => {
+const saveEdit = async () => {
     if (!editedDifficulty.value) {
         alert("난이도를 선택해주세요.");
         return;
@@ -217,7 +216,7 @@ const saveEdit = () => {
         contents: editedContent.value.trim(),
     };
 
-    local
+    await local
         .put(`/sheets/difficulties/${editingComment.value.difficultyId}`, updatedData)
         .then(() => {
             alert("난이도 평가가 수정되었습니다.");
@@ -350,9 +349,9 @@ const updateChart = () => {
 
 watch(comments, updateChart);
 
-onMounted(() => {
-    searchSheetDetail();
-    fetchCommentsAndDifficulties();
+onMounted(async () => {
+    await searchSheetDetail();
+    await fetchCommentsAndDifficulties();
     createChart();
 });
 </script>

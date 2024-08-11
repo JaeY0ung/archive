@@ -34,8 +34,8 @@ const searchFilter = ref({
 
 const view = ref("list")
 
-const search = () => {
-	searchSheetsByFilter(
+const search = async () => {
+	await searchSheetsByFilter(
 		{
 			keyword: searchFilter.value.keyword,
 			levels: searchFilter.value.levels.join(","),
@@ -47,7 +47,6 @@ const search = () => {
 		},
 		({ data }) => { 
 			sheets.value = data;
-			// sheets.value.map((s) => s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
 		}
 	)
 }
@@ -55,20 +54,20 @@ getAllGenres(({ data }) => genres.value = data)
 
 
 // 다른 페이지에서 넘어왔을 때
-onMounted(() => {
+onMounted(async () => {
     searchFilter.value.keyword = route.query.keyword || "";
-    search();
+    await search();
 });
 
 // 검색 필터 감지
-watch(searchFilter, () => {
-	search();
+watch(searchFilter, async() => {
+	await search();
 }, { deep: true });
 
 watch(
     searchFilter,
-    () => {
-        search();
+    async () => {
+        await search();
     },
     { deep: true }
 );
