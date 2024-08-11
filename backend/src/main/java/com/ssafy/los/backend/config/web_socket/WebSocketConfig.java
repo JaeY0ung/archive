@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/wait"); // 발행자가 /room 경로로 준비완료 신호를 보내면 구독자들에게 전달.
+        config.enableSimpleBroker("/wait", "/play"); // 발행자가 /경로로 준비완료 신호를 보내면 구독자들에게 전달.
         config.setApplicationDestinationPrefixes(
                 "/app"); // 발행자가 /app 경로로 메시지를 보내면 '가공'해서 구독자들에게 전달.
     }

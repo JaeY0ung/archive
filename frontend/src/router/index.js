@@ -47,7 +47,7 @@ const routes = [
         component: () => import('@/views/play/MultiWaitView.vue'),
     },
     {
-        path: '/room/multi/play/:sheetId',
+        path: '/room/multi/:roomId/play/:sheetId',
         name: 'multiPlay',
         component: () => import('@/views/play/MultiPlayView.vue'),
     },

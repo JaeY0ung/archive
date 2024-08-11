@@ -7,7 +7,9 @@ const route = useRoute();
 const musicStore = useMusicStore();
 
 const props = defineProps({
-    user: Object
+    user: Object,
+    f1Score: Number,
+    jaccardScore: Number
 })
 const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 
@@ -17,18 +19,24 @@ if(props.user.userImg == null){
     // img 파일 디코딩
     props.user.userImg = 'data:image/jpeg;base64,' + props.user.userImg;
 }
-// 반응형 계산을 위한 computed 속성
-const f1Score = computed(() => {
-    if (musicStore.f1.length === 0) return 0;
-    const averageScore = musicStore.f1.reduce((acc, score) => acc + score, 0) / musicStore.f1.length;
-    return Math.floor(averageScore * 100);
-});
 
-const jaccardScore = computed(() => {
-    if (musicStore.jaccard.length === 0) return 0;
-    const averageScore = musicStore.jaccard.reduce((acc, score) => acc + score, 0) / musicStore.jaccard.length;
-    return Math.floor(averageScore * 100);
-});
+/*
+이곳에 있는 점수를 가져오는 메서드는 위로 올린다.
+'위'  : SinglePlayView, MultiPlayView로 올려서 UserCardForPlay로 내려주는 방식을 사용하자.
+*/
+
+// 반응형 계산을 위한 computed 속성
+// const f1Score = computed(() => {
+//     if (musicStore.f1.length === 0) return 0;
+//     const averageScore = musicStore.f1.reduce((acc, score) => acc + score, 0) / musicStore.f1.length;
+//     return Math.floor(averageScore * 100);
+// });
+
+// const jaccardScore = computed(() => {
+//     if (musicStore.jaccard.length === 0) return 0;
+//     const averageScore = musicStore.jaccard.reduce((acc, score) => acc + score, 0) / musicStore.jaccard.length;
+//     return Math.floor(averageScore * 100);
+// });
 
 
 // wait/play 화면의 프로필 ui 변경을 위한 route이름 변수화
@@ -58,7 +66,7 @@ console.log(routeName);
                 유저 티어
             </div>
         </div>
-        <div v-if="routeName == 'singlePlay'">
+        <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'">
             <div>현재 스코어(f1) : {{ f1Score }}</div>
             <div>현재 스코어(jaccard) : {{ jaccardScore }}</div>
         </div>

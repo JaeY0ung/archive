@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 public class BattleRoomController {
 
     private final BattleRoomService battleRoomService;
-    private static final Logger LOGGER = Logger.getLogger(BattleRoomController.class.getName());
 
     private final RedisTemplate redisTemplate;
 
@@ -63,6 +62,7 @@ public class BattleRoomController {
     // 만약 유저가 나간 이후, 인원이 0명이라면 스키마 삭제
     @DeleteMapping("/{room_id}")
     public ResponseEntity<?> deleteBattleRoom(@PathVariable("room_id") Long roomId) {
+        log.info("유저가 방을 나갔습니다. : {} ", roomId);
         battleRoomService.selectAndExitBattleRoom(roomId);
 
         return new ResponseEntity<>(roomId, HttpStatus.OK);
@@ -71,6 +71,7 @@ public class BattleRoomController {
     // 전체 대결방 목록 가져오기
     @GetMapping
     public ResponseEntity<?> getAllBattleRooms() {
+        log.info("전체 대결방 목록을 가져왔습니다.");
         List<Map<String, Object>> results = battleRoomService.selectAllBattleRooms();
         return new ResponseEntity<>(results, HttpStatus.OK);
     }

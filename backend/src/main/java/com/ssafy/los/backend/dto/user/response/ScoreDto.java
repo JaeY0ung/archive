@@ -8,8 +8,8 @@ import lombok.Data;
 public class ScoreDto {
 
     private String nickname;
-    private String userImg;
-    private Integer score;
+    private Integer f1Score;
+    private Integer jaccardScore;
 
 
 }
