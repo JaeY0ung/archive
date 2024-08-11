@@ -78,4 +78,9 @@ public class Sheet {
     public void updateStatus(int status) {
         this.status = status;
     }
+
+    public void updateTitleAndLevel(String title, Integer level) {
+        this.title = title;
+        this.level = level;
+    }
 }

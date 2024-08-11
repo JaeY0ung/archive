@@ -55,8 +55,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     public List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
             User loginUser) {
         if (loginUser.getRole().equals("ROLE_ADMIN")) {
-            List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin(
-                    loginUser)
+            List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
                     .where(s.deletedAt.isNull(),
                             s.createdAt.isNotNull(),
                             containKeyword(sheetSearchFilter.getKeyword()),
@@ -82,6 +81,18 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                     .fetch();
             return new ArrayList<>(sheetDetailForUserDtoList);
         }
+    }
+
+    @Override
+    public List<SheetDetailDto> findSheetsByStatusForAdmin(Integer status) {
+        List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
+                .where(s.deletedAt.isNull(),
+                        s.createdAt.isNotNull(),
+                        s.status.eq(status)
+                )
+                .orderBy(createOrderSpecifier(Sort.LATEST))
+                .fetch();
+        return new ArrayList<>(sheetDetailForAdminDtoList);
     }
 
 
@@ -116,6 +127,25 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .fetch();
     }
 
+    @Override
+    public List<SheetDetailForUserDto> searchByUserLike(Long userId) {
+        return queryFactory
+                .select(Projections.constructor(SheetDetailForUserDto.class,
+                        s,
+                        JPAExpressions.select(ls.count())
+                                .from(ls)
+                                .where(ls.sheet.eq(s)),
+                        Expressions.constant(true)))
+                .from(ls)
+                .join(ls.sheet, s)
+                .where(ls.user.id.eq(userId)
+                        .and(s.deletedAt.isNull())
+                        .and(s.createdAt.isNotNull())
+                        .and(isStatusNotRejected()))
+                .orderBy(s.createdAt.desc())
+                .fetch();
+    }
+
     private JPAQuery<SheetDetailForUserDto> createSelectFromQuery(User loginUser) {
         return queryFactory.select(Projections.constructor(SheetDetailForUserDto.class,
                 s,
@@ -135,13 +165,12 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         )).from(s);
     }
 
-    private JPAQuery<SheetDetailForAdminDto> createSelectFromQueryForAdmin(User loginUser) {
+    private JPAQuery<SheetDetailForAdminDto> createSelectFromQueryForAdmin() {
         return queryFactory.select(Projections.constructor(SheetDetailForAdminDto.class,
                 s,
                 JPAExpressions.select(ls.count())
                         .from(ls)
-                        .where(ls.sheet.eq(s)),
-                createLikeStatusExpression(loginUser)
+                        .where(ls.sheet.eq(s))
         )).from(s);
     }
 
@@ -285,4 +314,6 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
             default -> new OrderSpecifier<>(Order.DESC, s.createdAt);
         };
     }
+
+
 }

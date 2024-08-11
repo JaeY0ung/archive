@@ -4,6 +4,7 @@ import com.ssafy.los.backend.domain.entity.Song;
 import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.song.SongRepository;
 import com.ssafy.los.backend.dto.song.request.SongRegisterForm;
+import com.ssafy.los.backend.dto.song.request.SongUpdateForm;
 import com.ssafy.los.backend.dto.song.response.SongDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.GenreService;
@@ -56,6 +57,20 @@ public class SongServiceImpl implements SongService {
     }
 
     @Override
+    @Transactional
+    public Song updateSongAndFile(Long songId, SongUpdateForm songUpdateForm) {
+        String uuid = UUID.randomUUID().toString();
+
+        if (songUpdateForm.getFile() != null) {
+            saveSongImgFile(songUpdateForm.getFile(), uuid);
+            String fileName = uuid + "." + FilenameUtils.getExtension(
+                    songUpdateForm.getFile().getOriginalFilename());
+            return updateSong(songId, songUpdateForm, fileName);
+        }
+        return updateSong(songId, songUpdateForm, null);
+    }
+
+    @Override
     public boolean deleteById(Long songId) {
         User loginUser = authService.getLoginUser();
         Song song = songRepository.findById(songId).orElse(null);
@@ -78,8 +93,24 @@ public class SongServiceImpl implements SongService {
                     .title(songRegisterForm.getTitle())
                     .composer(songRegisterForm.getComposer())
                     .imgName(fileName)
-                    .genre(genreService.searchGenreById(songRegisterForm.getGenreId()))
+                    .genre(genreService.selectGenreById(songRegisterForm.getGenreId()))
                     .build();
+            return songRepository.save(song);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("곡 저장 실패");
+        }
+    }
+
+    private Song updateSong(Long songId, SongUpdateForm songUpdateForm, String fileName)
+            throws IllegalArgumentException {
+        try {
+            Song song = songRepository.findById(songId).orElseThrow();
+            song.update(
+                    songUpdateForm.getTitle(),
+                    songUpdateForm.getComposer(),
+                    fileName,
+                    genreService.selectGenreById(songUpdateForm.getGenreId())
+            );
             return songRepository.save(song);
         } catch (Exception e) {
             throw new IllegalArgumentException("곡 저장 실패");

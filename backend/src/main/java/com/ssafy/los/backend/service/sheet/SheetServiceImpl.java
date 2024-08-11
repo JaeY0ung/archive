@@ -9,6 +9,7 @@ import com.ssafy.los.backend.domain.repository.play.SinglePlayResultRepository;
 import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.domain.repository.song.SongRepository;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
+import com.ssafy.los.backend.dto.sheet.request.SheetUpdateFormDto;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -178,6 +180,26 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
+    public List<SheetDetailDto> searchAllSheetsByStatusForAdmin(Integer status) throws IllegalArgumentException {
+        User loginUser = authService.getLoginUser();
+        if (loginUser == null || !loginUser.getRole().equals("ROLE_ADMIN")) {
+            throw new IllegalArgumentException();
+        }
+        return sheetRepository.findSheetsByStatusForAdmin(status)
+                .stream()
+                .peek(dto -> dto.loadSongImg(fileUploadUtil))
+                .toList();
+
+    }
+
+    @Override
+    public Sheet updateSheet(Long sheetId, SheetUpdateFormDto sheetUpdateFormDto) {
+        Sheet sheet = sheetRepository.findById(sheetId).orElseThrow();
+        sheet.updateTitleAndLevel(sheetUpdateFormDto.getTitle(), sheetUpdateFormDto.getLevel());
+        return sheetRepository.save(sheet);
+    }
+
+    @Override
     @Transactional
     public boolean deleteSheet(Long sheetId) {
         User loginUser = authService.getLoginUser();
@@ -209,6 +231,13 @@ public class SheetServiceImpl implements SheetService {
         } catch (Exception e) {
             throw new IllegalArgumentException("악보 저장 실패");
         }
+    }
+
+    @Override
+    public List<SheetDetailForUserDto> searchSheetByUserLike(Long userId) {
+        return sheetRepository.searchByUserLike(userId).stream()
+                .peek(sheet -> sheet.loadSongImg(fileUploadUtil))
+                .collect(Collectors.toList());
     }
 
 }

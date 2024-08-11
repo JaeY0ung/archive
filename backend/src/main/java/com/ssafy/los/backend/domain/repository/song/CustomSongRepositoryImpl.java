@@ -23,7 +23,7 @@ public class CustomSongRepositoryImpl implements CustomSongRepository {
                         s.title,
                         s.composer,
                         s.imgName,
-                        s.genre.title))
+                        s.genre))
                 .from(s)
                 .where(containsKeyword(keyword))
                 .fetch();
@@ -37,7 +37,7 @@ public class CustomSongRepositoryImpl implements CustomSongRepository {
                         s.title,
                         s.composer,
                         s.imgName,
-                        s.genre.title))
+                        s.genre))
                 .from(s)
                 .where(s.id.eq(songId))
                 .fetchOne();

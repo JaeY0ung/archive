@@ -40,4 +40,20 @@ public class Song {
         this.imgName = imgName;
         this.genre = genre;
     }
+
+    public Song update(String title, String composer, String imgName, Genre genre) {
+        if (title != null && !title.isEmpty()) {
+            this.title = title;
+        }
+        if (composer != null && !composer.isEmpty()) {
+            this.composer = composer;
+        }
+        if (imgName != null && !imgName.isEmpty()) {
+            this.imgName = imgName;
+        }
+        if (genre != null) {
+            this.genre = genre;
+        }
+        return this;
+    }
 }

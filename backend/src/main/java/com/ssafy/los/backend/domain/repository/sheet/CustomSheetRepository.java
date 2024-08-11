@@ -14,6 +14,7 @@ public interface CustomSheetRepository {
     List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
             User loginUser);
 
+    List<SheetDetailDto> findSheetsByStatusForAdmin(Integer status);
 
     SheetDetailDto findSheetDetailViewDtoById(Long sheetId);
 
@@ -22,5 +23,7 @@ public interface CustomSheetRepository {
     long updateViewCount(Long sheetId);
 
     List<SheetDetailForUserDto> searchByFileName(List<String> fileNames);
+
+    List<SheetDetailForUserDto> searchByUserLike(Long userId);
 
 }

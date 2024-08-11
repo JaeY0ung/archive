@@ -18,7 +18,7 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    public Genre searchGenreById(Long genreId) {
+    public Genre selectGenreById(Long genreId) {
         return genreRepository.findById(genreId).orElse(null);
     }
 }

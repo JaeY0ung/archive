@@ -1,21 +1,35 @@
 <script setup>
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import { getTitleByLen } from '@/util/string-util';
-import { useRouter, useRoute } from 'vue-router';
 import Tier from "@/common/icons/Tier.vue";
+import { tierInfo } from '@/util/tier-info';
+import { updateSheet } from '@/api/sheet';
 
-const router = useRouter();
-const route = useRoute();
+const emit = defineEmits(['update-sheet-event'])
 
 const props = defineProps({
 	sheet: Object
 });
 
+const updateForm = ref({
+	title: props.sheet.title,
+	level: props.sheet.level,
+})
+
+const updateSheetById = () => {
+	updateSheet(
+		props.sheet.id,
+		updateForm.value,
+		(res) => {
+			emit('update-sheet-event', props.sheet.id)
+		}
+	)
+}
+
 watch(() => props.sheet, () => {
 	props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
 })
 props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
-
 </script>
 
 <template>
@@ -30,21 +44,32 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 
 			<!-- (오른쪽) 악보 정보 -->
 			<div class="min-w-[160px] m-auto flex flex-col gap-1">
-				<div class="bold flex justify-between" style="font-size: 18px;">
-					<div class="flex items-center">{{ getTitleByLen(sheet.title, 12) }}</div>
+				<div class="bold flex justify-between gap-3" style="font-size: 18px;">
+					<!-- 제목 -->
+					<div class="flex items-center w-32">
+						<input type="text" v-model="updateForm.title" class="w-full"/>
+					</div>
+					<!-- 티어 -->
 					<div class="flex items-center">
-						<Tier class="w-[18px] h-[18px]" :level="sheet.level" />
+						<Tier class="w-[18px] h-[18px]" :level="updateForm.level" />
+						<select v-model="updateForm.level">
+							<option v-for="tier in tierInfo" :value="tier.level">{{ tier.title }}</option>
+						</select>
 					</div>
 				</div>
-				<div class="medium mb-3" style="font-size: 12px;">{{ getTitleByLen(sheet.songComposer,20) }}</div>
+				<div class="medium mb-3" style="font-size: 12px;">
+					{{ getTitleByLen(sheet.songComposer,20) }}
+				</div>
 				<div class="medium flex items-center gap-1" style="font-size: 12px;">
 					업로더 {{ sheet.uploaderNickname }}
-					<span class="ml-5" v-if="route.name === 'order'"> {{ sheet.price }}원</span>
+					<span class="ml-5">{{ sheet.price }}원</span>
 				</div>
 			</div>
 
 			<div class="m-auto flex flex-col items-center justify-center">
-				<slot class="h-full"/>
+				<div class="h-full flex flex-col items-center gap-1">
+					<div class="bg-blue-500 rounded-xl p-2 cursor-pointer" @click="updateSheetById">완료</div>
+				</div>
 			</div>
 		</div>
 	</div>
