@@ -26,6 +26,10 @@ async function updateSheet(sheetId, params, success) {
 async function getRecommendSheetByUserRecentPlay(success) {
     await local.get(`/sheets/recommend`).then(success).catch((err) => console.error(err));
 }
+
+async function deleteSheet(sheetId, success) {
+    await local.delete(`/sheets/${ sheetId }`).then(success).catch((err) => console.error(err));
+}
 // =============== =============== =============== 악보 좋아요, 좋아요 해제  =============== =============== ===============
 async function likeSheet(sheetId, success) {
     await local.post(`/likes/sheets/${sheetId}`).then(success).catch((err) => console.error(err));
@@ -73,6 +77,7 @@ export {
     searchRecentChallengedsheets,
     updateSheet,
     getRecommendSheetByUserRecentPlay,
+    deleteSheet,
 
     likeSheet,
     dislikeSheet,

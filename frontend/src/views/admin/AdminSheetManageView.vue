@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { changeSheetStatusBySheetId, searchSheetByStatusForAdmin } from "@/api/sheet";
+import { changeSheetStatusBySheetId, deleteSheet, searchSheetByStatusForAdmin } from "@/api/sheet";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 import SmallSheetCardForUpdate from "@/common/sheet/SmallSheetCardForUpdate.vue";
 import { localAxios } from "@/util/http-common"
@@ -38,10 +38,7 @@ const removeSheet = (sheetId) => {
     if (!confirm("정말로 삭제 하시겠습니까?")) {
         return;
     }
-    local.delete(`/sheets/${ sheetId }`)
-        .then(({ data }) => {
-            searchSheets();
-        })
+    deleteSheet( sheetId, (res) => { searchSheets() } )
 }
 
 const updatingSheetId = ref('');
