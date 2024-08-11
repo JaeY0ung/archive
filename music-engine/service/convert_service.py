@@ -125,16 +125,14 @@ class ConvertService:
 
         # 전체 마디 수 계산
         total_measures = len(midi_stream.parts[0].getElementsByClass(stream.Measure))
-        rounded_measures = total_measures
+        rounded_measures = total_measures / measures_per_section
 
         # 8로 나눈 나머지 계산
         remainder = total_measures % measures_per_section
 
         # 나머지가 있을 경우 올림된 마디 수 계산
         if remainder > 0:
-            rounded_measures = total_measures + (measures_per_section - remainder)
-        else:
-            rounded_measures = total_measures
+            rounded_measures += 1
 
         # 7마디면 chunk_0이기 때문에 -1 해야됨
         return rounded_measures - 1
