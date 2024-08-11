@@ -222,10 +222,11 @@ public class SheetController {
         }
     }
 
-    //    @GetMapping("/profile/like/{user-id}")
-    //    public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
-    //        List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
-    //        return new ResponseEntity<List<SheetDetailForUserDto>>(sheetList, HttpStatus.OK);
-    //    }
+        @GetMapping("/profile/like/{user-id}")
+        public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
+            List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
+            log.info(sheetList.toString());
+            return new ResponseEntity<>(sheetList, HttpStatus.OK);
+        }
 
 }

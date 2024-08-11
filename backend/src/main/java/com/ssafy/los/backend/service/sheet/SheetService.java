@@ -46,4 +46,5 @@ public interface SheetService {
 
     List<SheetDetailForUserDto> getRecommendedSheets();
 
+    List<SheetDetailForUserDto> searchSheetByUserLike(Long userId);
 }

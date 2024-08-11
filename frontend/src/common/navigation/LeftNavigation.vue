@@ -23,7 +23,6 @@ const authRequiredRoutes = ["mypage", "order", "sheetUpload", "multiRoomList", "
 
 const pages = ref([
     { name: "main", title: "메인 페이지", src: HomeSvg },
-    { name: "mypage", title: "마이페이지", src: MySvg },
     { name: "sheetSearch", title: "악보 검색", src: SearchSvg },
     { name: "order", title: "장바구니", src: OrderSvg },
     { name: "sheetUpload", title: "악보 업로드", src: UploadSvg },
