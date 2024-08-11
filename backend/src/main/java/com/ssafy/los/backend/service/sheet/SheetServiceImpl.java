@@ -151,6 +151,7 @@ public class SheetServiceImpl implements SheetService {
     public List<SheetDetailForUserDto> getRecommendedSheets() {
         try {
             Sheet sheet = searchSheetPlayLatest();
+            log.info("가장 최근에 플레이한 악보의 제목: {}", sheet.getTitle());
 
             // Python 서버에 파일 이름을 보내고 JSON 응답을 받음
             String response = musicService.searchRecommendMidFile(
@@ -164,14 +165,14 @@ public class SheetServiceImpl implements SheetService {
             JsonNode rootNode = objectMapper.readTree(response);
             JsonNode similarSongsNode = rootNode.get("similar_songs");
 
-            List<String> fileNames = new ArrayList<>();
+            List<String> uuids = new ArrayList<>();
             for (JsonNode songNode : similarSongsNode) {
-                String fileName = songNode.get("file_name").asText();
-                fileNames.add(fileName);
+                String uuid = songNode.get("uuid").asText();
+                uuids.add(uuid);
             }
 
             // 추출한 file_name을 기반으로 Sheet 정보를 조회하고, SheetDto로 변환
-            return searchSheetDetailByFileName(fileNames);
+            return searchSheetDetailByFileName(uuids);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error fetching recommended sheets", e);

@@ -8,7 +8,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.los.backend.constant.Role;
 import com.ssafy.los.backend.constant.Sort;
 import com.ssafy.los.backend.constant.SuccessStatus;
 import com.ssafy.los.backend.domain.entity.*;
@@ -53,7 +52,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
 
     @Override
     public List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
-            User loginUser) {
+                                                   User loginUser) {
         if (loginUser.getRole().equals("ROLE_ADMIN")) {
             List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
                     .where(s.deletedAt.isNull(),
@@ -221,51 +220,35 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .or(s.song.composer.contains(keyword));
     }
 
-    private BooleanExpression isStatusNotRejected(User loginUser) {
-        if (loginUser.getRole().equals(Role.ROLE_ADMIN.getValue())) {
-            return null;
-        }
-        return s.status.eq(0).or(s.status.eq(1));
-    }
-
     private BooleanExpression inLevels(Integer[] level) {
         if (level == null || level.length == 0) {
-            return null;
+            return Expressions.FALSE;
         }
         return s.level.in(level);
     }
 
     private BooleanExpression inGenre(Integer[] genre) {
         if (genre == null || genre.length == 0) {
-            return null;
+            return Expressions.FALSE;
         }
         return s.song.genre.id.in(genre);
     }
 
     private BooleanExpression isStatusNotRejected() {
-        return s.status.in(new Integer[]{null, 0, 1});
+        return s.status.ne(2);
     }
 
-    private BooleanExpression inPrice(Integer[] price) {
-        if (price == null || price.length == 0) {
+    private BooleanExpression inPrice(Integer[] prices) {
+        if (prices == null || prices.length == 0) return Expressions.FALSE;
+        if (prices.length == 2) {
             return null;
         }
 
-        BooleanExpression priceExpression = null;
-        for (Integer p : price) {
-            if (p == 0) {  // 무료
-                if (priceExpression == null) {
-                    priceExpression = s.price.eq(0);
-                } else {
-                    priceExpression = priceExpression.or(s.price.eq(0));
-                }
-            } else if (p == 1) {  // 유료
-                if (priceExpression == null) {
-                    priceExpression = s.price.gt(0);
-                } else {
-                    priceExpression = priceExpression.or(s.price.gt(0));
-                }
-            }
+//        BooleanExpression priceExpression = s.price.eq(0).or(s.price.eq((Integer) null));
+        BooleanExpression priceExpression = s.price.eq(0).or(s.price.isNull());
+
+        if (prices[0].equals(1)) {  // 유료
+            priceExpression = s.price.gt(0);
         }
         return priceExpression;
     }
