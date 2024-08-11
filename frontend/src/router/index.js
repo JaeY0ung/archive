@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/user";
 
+
 const routes = [
     {
         path: '/',
@@ -153,6 +154,12 @@ const authRequiredRoutes = ["mypage", "order", "sheetUpload", "pianoSaurus", "re
 // 전역 네비게이션 가드 수정
 router.beforeEach((to, from, next) => {
     const userStore = useUserStore();
+
+    if (to.meta.title) {
+        document.title = to.meta.title;
+    } else {
+        document.title = '악카이브: 악보 실시간 대결 서비스'; // 기본 타이틀
+    }
 
     // '/login' 경로로 이동 관리
     if (to.path === "/login") {

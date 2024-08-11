@@ -1,6 +1,26 @@
+from starlette.status import HTTP_200_OK
+from dotenv import load_dotenv
 import subprocess
-from music21 import converter, meter, stream
+from music21 import converter, meter, stream, metadata
 import os
+import logging
+
+# 로깅 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path)
+
+PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
+MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
+
+if MUSESCORE_ENV_PATH:
+    MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
+    # r이 포함된 상태로 가져왔다면 이를 제거해야 합니다
+    if MUSESCORE_ENV_PATH.startswith('r"') or MUSESCORE_ENV_PATH.startswith("r'"):
+        MUSESCORE_ENV_PATH = MUSESCORE_ENV_PATH[2:-1]
 
 class ConvertService:
     def __init__(self, mp3_bitrate=192, channels=2, sample_rate=44100):
@@ -69,33 +89,24 @@ class ConvertService:
         return midi_data
 
     def midi_to_xml(self, midi_file_path, xml_file_path):
-        # Parse the MIDI file
-        midi_stream = converter.parse(midi_file_path)
+        if not os.path.isfile(midi_file_path):
+            raise FileNotFoundError(f"The MIDI file was not found: {midi_file_path}")
 
-        # Retrieve existing metadata from the MIDI file if available
-        midi_metadata = midi_stream.metadata
-
-        # If no metadata exists, create a new metadata object
-        if midi_metadata is None:
-            midi_metadata = metadata.Metadata()
-
-        # Example: Setting the title and composer if not already set
-        if not midi_metadata.title:
-            midi_metadata.title = "Unknown Title"
-        if not midi_metadata.composer:
-            midi_metadata.composer = "Unknown Composer"
-
-        # Assign the metadata back to the stream
-        midi_stream.metadata = midi_metadata
-
-        # Write the stream to MusicXML format
-        midi_stream.write('musicxml', fp=xml_file_path)
-
-        # Read the generated MusicXML file
+        # MuseScore를 사용하여 MIDI를 MusicXML로 변환
+        try:
+            subprocess.run(["xvfb-run", MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
+            logger.info(f"Successfully converted {midi_file_path} to {xml_file_path} using MuseScore.")
+        except subprocess.CalledProcessError as e:
+            logger.info(f"An error occurred while converting {midi_file_path} to MusicXML: {e}")
+        except Exception as e:
+            logger.info(f"Unexpected error: {e}")
+        
+        # 변환된 MusicXML 파일 읽기
         with open(xml_file_path, 'rb') as f:
             musicxml_data = f.read()
-
+        
         return musicxml_data
+    
     def get_rounded_measures(self, midi_file_path, measures_per_section=8):
         """
         MIDI 파일을 파싱하여 전체 마디 수를 계산하고,
