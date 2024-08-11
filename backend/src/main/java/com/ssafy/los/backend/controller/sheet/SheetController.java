@@ -222,11 +222,12 @@ public class SheetController {
         }
     }
 
-        @GetMapping("/profile/like/{user-id}")
-        public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
-            List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
-            log.info(sheetList.toString());
-            return new ResponseEntity<>(sheetList, HttpStatus.OK);
-        }
+    // 유저가 좋아요한 악보 조회
+    @GetMapping("/like/{user-id}")
+    public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
+        List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
+        log.info(sheetList.toString());
+        return new ResponseEntity<>(sheetList, HttpStatus.OK);
+    }
 
 }
