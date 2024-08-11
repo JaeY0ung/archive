@@ -154,10 +154,10 @@
             mediaRecorder.value.start();
             isRecording.value = true;
         };
-        
+
         const sendToServer = async (blob) => {
             const formData = new FormData();
-            formData.append('file', blob, `chunk_${audioBlobs.value.length}.webm`);
+            formData.append('file', blob, `chunk_${audioBlobs.value.length-1}.webm`);
             const sheetIdBlob = new Blob([route.params.sheetId], { type: 'application/json' });
             formData.append('sheetId', sheetIdBlob);
             console.log("Sending formData", formData);
@@ -168,7 +168,18 @@
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                console.log('파일 업로드 성공: ', res.data);
+                console.log('채점 성공: ', res.data);
+                // console.log(route.params.sheetId)
+                // console.log(res.data.similarity_results)
+                //     local.post(`/play/single`,{
+                //         sheetId: route.params.sheetId,
+                //         score: res.data.similarity_results.f1_score+res.data.similarity_results.jaccard,
+                //     })
+                //     .then((res)=>{
+                //         console.log(res);
+                //     }).catch((err)=>{
+                //         console.error(err);
+                //     })
                 f1.value.push(res.data.similarity_results.f1_score);
                 jaccard.value.push(res.data.similarity_results.jaccard_similarity);
             } catch (err) {
