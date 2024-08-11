@@ -40,12 +40,12 @@ function localAxios() {
                 try {
                     // 리프레시 토큰 다시 요청
                     // 리프레시 토큰으로 검증하므로 accessToken 불필요, 이후 삭제 예상
-                    const accessToken = sessionStorage.getItem("accessToken");
+                    const refreshToken = sessionStorage.getItem("refreshToken");
                     // TODO: axios 관리 필요
                     const response = await axios.get(`${VUE_APP_REQUEST_URL}/auth/refresh`, {
                         withCredentials: true,
                         headers: {
-                            Authorization: accessToken ? `Bearer ${accessToken}` : ''
+                            Authorization: refreshToken ? `Bearer ${refreshToken}` : ''
                         }
                     });
                     // response.data가 객체인지 확인
