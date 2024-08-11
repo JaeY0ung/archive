@@ -24,7 +24,7 @@ const priceInfo = ref([
 const searchFilter = ref({
 	keyword: "", // 검색어 없음
 	levels: [0, 1, 2, 3, 4, 5], // 모든 레벨
-	genres: [1, 2, 3, 4, 5, 6], // 모든 장르
+	genres: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // 모든 장르
 	prices: [0, 1], // 무료, 유료 (전부)
 	successStatuses: [], // 필터 없음
 	sort: "LATEST", // 최신순
@@ -44,7 +44,7 @@ const search = () => {
 		},
 		({ data }) => { 
 			sheets.value = data;
-			sheets.value.map((s) => s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
+			// sheets.value.map((s) => s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
 		}
 	)
 }
@@ -59,6 +59,7 @@ onMounted(() => {
 
 // 검색 필터 감지
 watch(searchFilter, () => {
+  console.log(searchFilter.value.keyword)
 	search();
 }, { deep: true });
 
