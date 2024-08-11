@@ -21,6 +21,7 @@ public class PlayRoomController {
     @MessageMapping("/play/{roomId}")
     @SendTo("/play/socket/{roomId}")
     public ScoreDto sendScore(ScoreDto scoreDto) throws Exception {
+        log.info("점수를 받았습니다. : {}");
         return scoreDto;
     }
 
