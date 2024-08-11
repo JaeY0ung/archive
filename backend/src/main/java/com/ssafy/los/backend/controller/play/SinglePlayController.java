@@ -52,7 +52,7 @@ public class SinglePlayController {
             @RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("sheetId") Long sheetId) {
         log.info("Client로부터 중간 점수를 전송 받음: {}", file);
 
-        String url = fastapiServerUrl;
+        String url = fastapiServerUrl+"/playing";
 
         Sheet sheet = sheetService.searchById(sheetId);
 
