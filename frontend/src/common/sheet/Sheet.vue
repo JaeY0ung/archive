@@ -6,7 +6,6 @@ import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
 
 onMounted(() => {
-	console.log("악보가 나타났을 때를 감지")
 })
 
 const props = defineProps({

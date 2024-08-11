@@ -7,7 +7,9 @@ const route = useRoute();
 const musicStore = useMusicStore();
 
 const props = defineProps({
-    user: Object
+    user: Object,
+    f1Score: Number,
+    jaccardScore: Number
 })
 const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 

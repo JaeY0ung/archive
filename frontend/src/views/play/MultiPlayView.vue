@@ -70,22 +70,70 @@ function connect() {
     );
 }
 
-// 플레이 점수를 가져온다.
-const myF1Score = computed(() => {
-    if (musicStore.f1.length === 0) return 0;
-    const averageScore =
-        musicStore.f1.reduce((acc, score) => acc + score, 0) /
-        musicStore.f1.length;
-    return Math.floor(averageScore * 100);
-});
+const myF1Score = ref(0);
+const myJaccardScore = ref(0);
 
-const myJaccardScore = computed(() => {
-    if (musicStore.jaccard.length === 0) return 0;
-    const averageScore =
-        musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
-        musicStore.jaccard.length;
-    return Math.floor(averageScore * 100);
-});
+// 플레이 점수를 가져온다.
+// const myF1Score = computed(() => {
+//     if (musicStore.f1.length === 0) return 0;
+//     const averageScore =
+//         musicStore.f1.reduce((acc, score) => acc + score, 0) /
+//         musicStore.f1.length;
+//     return Math.floor(averageScore * 100);
+// });
+
+if (musicStore.f1.length !== 0) {
+    myF1Score.value = Math.floor(
+        (musicStore.f1.reduce((acc, score) => acc + score, 0) /
+            musicStore.f1.length) * 100
+    );
+}
+
+// const myJaccardScore = computed(() => {
+//     if (musicStore.jaccard.length === 0) return 0;
+//     const averageScore =
+//     musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
+//     musicStore.jaccard.length;
+//     return Math.floor(averageScore * 100);
+// });
+if (musicStore.jaccard.length !== 0) {
+    myJaccardScore.value = Math.floor(
+        (musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
+            musicStore.jaccard.length) * 100
+    );
+}
+
+// watch를 사용하여 f1 배열의 변화를 감지하고 myF1Score를 업데이트
+watch(
+    () => musicStore.f1,
+    (newF1Scores) => {
+        if (newF1Scores.length !== 0) {
+            myF1Score.value = Math.floor(
+                (newF1Scores.reduce((acc, score) => acc + score, 0) /
+                    newF1Scores.length) * 100
+            );
+        } else {
+            myF1Score.value = 0;
+        }
+    },
+    { deep: true } // 배열 내부의 변화도 감지
+);
+
+// watch를 사용하여 jaccard 배열의 변화를 감지하고 myJaccardScore를 업데이트
+watch(
+    () => musicStore.jaccard,
+    (newJaccardScores) => {
+        if (newJaccardScores.length !== 0) {
+            myJaccardScore.value = Math.floor(
+                (newJaccardScores.reduce((acc, score) => acc + score, 0) /
+                    newJaccardScores.length) * 100
+            );
+        } else {
+            myJaccardScore.value = 0;
+        }
+    },
+    { deep: true } // 배열 내부의 변화도 감지
+);
 
 // jaccardScore의 값이 변경될 때마다 실행될 watch
 watch(myJaccardScore, (newScore, oldScore) => {
