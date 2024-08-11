@@ -4,19 +4,13 @@ import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.dto.sheet.request.SheetSearchFilter;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
-
 import java.util.List;
 
 public interface CustomSheetRepository {
 
-    List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter);
+    List<SheetDetailDto> findSheetsByFilterAndLoginUser(SheetSearchFilter sheetSearchFilter, User loginUser);
 
-    List<SheetDetailDto> findSheetsByFilter(SheetSearchFilter sheetSearchFilter,
-            User loginUser);
-
-    List<SheetDetailDto> findSheetsByStatusForAdmin(Integer status);
-
-    SheetDetailDto findSheetDetailViewDtoById(Long sheetId);
+    List<SheetDetailDto> findSheetsByStatusForAdmin(SheetSearchFilter sheetSearchFilter);
 
     SheetDetailDto findSheetDetailViewDtoById(Long sheetId, User loginUser);
 

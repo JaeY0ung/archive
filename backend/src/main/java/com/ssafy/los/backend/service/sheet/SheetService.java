@@ -6,9 +6,8 @@ import com.ssafy.los.backend.dto.sheet.request.SheetUpdateFormDto;
 import com.ssafy.los.backend.dto.sheet.request.SheetUploadForm;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
-import org.springframework.core.io.Resource;
-
 import java.util.List;
+import org.springframework.core.io.Resource;
 
 public interface SheetService {
 
@@ -30,16 +29,12 @@ public interface SheetService {
 
     boolean deleteSheet(Long sheetId);
 
-    void changeStatusToWaiting(Long sheetId);
+    void changeStatusByStatus(Long sheetId, Integer status);
 
-    void changeStatusToApproved(Long sheetId);
-
-    void changeStatusToRejected(Long sheetId);
-
-    List<SheetDetailDto> searchAllSheetsByStatusForAdmin(Integer status);
+    List<SheetDetailDto> searchAllSheetsByStatusForAdmin(SheetSearchFilter sheetSearchFilter);
 
     Sheet updateSheet(Long sheetId, SheetUpdateFormDto sheetUpdateFormDto);
-    
+
     Sheet searchSheetPlayLatest();
 
     List<SheetDetailForUserDto> searchSheetDetailByFileName(List<String> fileNames);

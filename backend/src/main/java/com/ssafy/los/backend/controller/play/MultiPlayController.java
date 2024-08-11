@@ -1,20 +1,14 @@
 package com.ssafy.los.backend.controller.play;
 
-import com.ssafy.los.backend.domain.entity.User;
-import com.ssafy.los.backend.dto.play.PlayerStartDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
-import com.ssafy.los.backend.dto.play.response.MultiPlayResultListDto;
-import com.ssafy.los.backend.dto.user.response.ScoreDto;
-import com.ssafy.los.backend.service.auth.AuthService;
+import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
 import com.ssafy.los.backend.service.play.MultiPlayService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
