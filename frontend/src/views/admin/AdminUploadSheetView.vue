@@ -1,38 +1,15 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { registerSheet } from "@/api/sheet";
 import { registerdummySheetsByAdmin } from "@/api/sheet";
-import SongRegisterModal from "@/common/modal/SongRegisterModal.vue"
 import { tierInfo } from "@/util/tier-info"
 const router = useRouter();
 
-const keyword = ref("");
 const fileInput = ref(null);
-const modalVisibility = ref(false);
-
-const songs = ref([{
-    id: "",
-    title: "",
-    composer: "",
-    genreTitle: "",
-    img: "",
-    imageUrl: "",
-}])
-
-const selectedSong = ref({
-    id: "",
-    title: "",
-    composer: "",
-    genreTitle: "",
-    img: "",
-    imageUrl: "",
-});
 
 const fileInfo = ref({
     files: "",
-    title: "",
-    level: "",
+    level: "3",
 });
 
 // 파일이 바뀔 때마다 파일 ref값 변경
@@ -50,10 +27,11 @@ const uploadFile = async () => {
     Array.from(fileInfo.value.files).forEach(file => {
         formData.append("files", file);
     });
-    // formData.append( "files", fileInfo.value.files );
+
+    formData.append("level", fileInfo.value.level);
     
-    registerdummySheetsByAdmin(formData, ({ data }) => { // 성공 시, 악보 디테일 페이지로 이동
-        alert("성공");
+    registerdummySheetsByAdmin(formData, (res) => { // 성공 시, 악보 디테일 페이지로 이동
+        alert("업로드 성공!");
     })
 };
 
@@ -62,12 +40,22 @@ const uploadFile = async () => {
 <template>
     <div class="flex flex-col flex-grow form w-[500px] max-w-[500px] rounded-box text-center m-auto p-[10px] bg-slate-300">
         <div class="text-5xl mb-10">파일 업로드</div>
+
         <div class="scroll-x h-[90%] flex flex-col gap-1">
             <label class="form-control w-full">
                 <div class="label">
-                    <span class="label-text">악보 파일</span>
+                    <span class="label-text">파일</span>
                 </div>
                 <input @change="handleFileChange" type="file" class="file-input input-bordered w-full" ref="fileInput" multiple />
+            </label>
+
+            <label class="form-control w-full">
+                <div class="label">
+                    <span class="label-text">레벨</span>
+                </div>
+                <select v-model="fileInfo.level">
+                    <option v-for="tier in tierInfo" :value="tier.level">{{ tier.title }}</option>
+                </select>
             </label>
 
             <div class="flex flex-row gap-10 justify-end items-center">
