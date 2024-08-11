@@ -1,5 +1,5 @@
 import subprocess
-from music21 import converter, meter, stream
+from music21 import converter, meter, stream, metadata
 import os
 
 class ConvertService:
@@ -69,33 +69,29 @@ class ConvertService:
         return midi_data
 
     def midi_to_xml(self, midi_file_path, xml_file_path):
-        # Parse the MIDI file
-        midi_stream = converter.parse(midi_file_path)
+        # MuseScore 실행 파일의 전체 경로 지정
+        
+        
+        #musescore_executable = r"C:\Program Files\MuseScore 4\bin\MuseScore4.exe"
+        musescore_executable = "musescore"
 
-        # Retrieve existing metadata from the MIDI file if available
-        midi_metadata = midi_stream.metadata
+        # MIDI 파일 경로 유효성 확인
+        if not os.path.isfile(midi_file_path):
+            raise FileNotFoundError(f"The MIDI file was not found: {midi_file_path}")
 
-        # If no metadata exists, create a new metadata object
-        if midi_metadata is None:
-            midi_metadata = metadata.Metadata()
-
-        # Example: Setting the title and composer if not already set
-        if not midi_metadata.title:
-            midi_metadata.title = "Unknown Title"
-        if not midi_metadata.composer:
-            midi_metadata.composer = "Unknown Composer"
-
-        # Assign the metadata back to the stream
-        midi_stream.metadata = midi_metadata
-
-        # Write the stream to MusicXML format
-        midi_stream.write('musicxml', fp=xml_file_path)
-
-        # Read the generated MusicXML file
+        # MuseScore를 사용하여 MIDI를 MusicXML로 변환
+        try:
+            subprocess.run([musescore_executable, midi_file_path, "-o", xml_file_path], check=True)
+            print(f"Successfully converted {midi_file_path} to {xml_file_path} using MuseScore.")
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred while converting {midi_file_path} to MusicXML: {e}")
+        
+        # 변환된 MusicXML 파일 읽기
         with open(xml_file_path, 'rb') as f:
             musicxml_data = f.read()
-
+        
         return musicxml_data
+    
     def get_rounded_measures(self, midi_file_path, measures_per_section=8):
         """
         MIDI 파일을 파싱하여 전체 마디 수를 계산하고,
