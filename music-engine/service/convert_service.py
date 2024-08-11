@@ -1,6 +1,24 @@
+from starlette.status import HTTP_200_OK
+from dotenv import load_dotenv
 import subprocess
 from music21 import converter, meter, stream, metadata
 import os
+
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path)
+
+PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
+MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
+
+if MUSESCORE_ENV_PATH:
+    MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
+    # r이 포함된 상태로 가져왔다면 이를 제거해야 합니다
+    if MUSESCORE_ENV_PATH.startswith('r"') or MUSESCORE_ENV_PATH.startswith("r'"):
+        MUSESCORE_ENV_PATH = MUSESCORE_ENV_PATH[2:-1]
+    print(MUSESCORE_ENV_PATH)
+
+print(MUSESCORE_ENV_PATH)  # "C:\Program Files\MuseScore 4\bin\MuseScore4.exe"
+
 
 class ConvertService:
     def __init__(self, mp3_bitrate=192, channels=2, sample_rate=44100):
@@ -69,19 +87,12 @@ class ConvertService:
         return midi_data
 
     def midi_to_xml(self, midi_file_path, xml_file_path):
-        # MuseScore 실행 파일의 전체 경로 지정
-        
-        
-        #musescore_executable = r"C:\Program Files\MuseScore 4\bin\MuseScore4.exe"
-        musescore_executable = "musescore"
-
-        # MIDI 파일 경로 유효성 확인
         if not os.path.isfile(midi_file_path):
             raise FileNotFoundError(f"The MIDI file was not found: {midi_file_path}")
 
         # MuseScore를 사용하여 MIDI를 MusicXML로 변환
         try:
-            subprocess.run([musescore_executable, midi_file_path, "-o", xml_file_path], check=True)
+            subprocess.run([MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
             print(f"Successfully converted {midi_file_path} to {xml_file_path} using MuseScore.")
         except subprocess.CalledProcessError as e:
             print(f"An error occurred while converting {midi_file_path} to MusicXML: {e}")
