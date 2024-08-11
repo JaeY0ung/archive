@@ -32,5 +32,5 @@ public class SheetSearchFilter {
 
     private Integer page;
 
-    private static final Integer size = 10;
+    private Integer size = 20;
 }

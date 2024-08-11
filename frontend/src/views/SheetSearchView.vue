@@ -27,7 +27,7 @@ const searchFilter = ref({
 	genres: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // 모든 장르
 	prices: [0, 1], // 무료, 유료 (전부)
 	successStatuses: [], // 필터 없음
-	sort: "LATEST", // 최신순
+    sort: "LATEST", // 최신순
 })
 
 const view = ref("list")
@@ -40,7 +40,8 @@ const search = () => {
 			genres: searchFilter.value.genres.join(","),
 			prices: searchFilter.value.prices.join(","),
 			successStatuses: searchFilter.value.successStatuses.join(","),
-			sort: searchFilter.value.sort,
+            sort: searchFilter.value.sort,
+            page: searchFilter.value.page,
 		},
 		({ data }) => { 
 			sheets.value = data;

@@ -40,16 +40,24 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     @Override
     public List<SheetDetailDto> findSheetsByFilterAndLoginUser(SheetSearchFilter sheetSearchFilter,
             User loginUser) {
+        if (sheetSearchFilter.getPage() == null) {
+            sheetSearchFilter.setPage(0);
+        }
+        
         if (loginUser == null) { // 비 로그인 유저
             List<SheetDetailForUserDto> sheetDetailForUserDtoList = createSelectFromQuery(null)
                     .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
+                    .limit(sheetSearchFilter.getSize()) // limit 추가
+                    .offset((long) sheetSearchFilter.getPage() * sheetSearchFilter.getSize()) // offset 추가
                     .fetch();
             return new ArrayList<>(sheetDetailForUserDtoList);
         } else if (loginUser.getRole().equals("ROLE_ADMIN")) { // 관리자 계정
             List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
                     .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1, 2}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
+                    .limit(sheetSearchFilter.getSize()) // limit 추가
+                    .offset((long) sheetSearchFilter.getPage() * sheetSearchFilter.getSize()) // offset 추가
                     .fetch();
             return new ArrayList<>(sheetDetailForAdminDtoList);
         } else { // 로그인 유저
@@ -57,6 +65,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                     sheetSearchFilter.getSuccessStatuses(), loginUser)
                     .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
+                    .limit(sheetSearchFilter.getSize()) // limit 추가
+                    .offset((long) sheetSearchFilter.getPage() * sheetSearchFilter.getSize()) // offset 추가
                     .fetch();
             return new ArrayList<>(sheetDetailForUserDtoList);
         }
@@ -271,6 +281,4 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
             default -> new OrderSpecifier<>(Order.DESC, s.createdAt);
         };
     }
-
-
 }
