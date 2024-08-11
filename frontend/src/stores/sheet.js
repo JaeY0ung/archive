@@ -128,52 +128,56 @@
                     autoGainControl: false,
                 },
             });
-
+        
             mediaRecorder.value = new MediaRecorder(stream);
-
+        
             mediaRecorder.value.ondataavailable = (event) => {
                 if (event.data.size > 0) {
                     chunks.value.push(event.data);
                 }
             };
-
-            mediaRecorder.value.onstop = async () => {
+        
+            mediaRecorder.value.onstop = () => {
                 if (chunks.value.length > 0) {
-                    const formData = new FormData();
                     const blob = new Blob(chunks.value, { type: 'audio/webm' });
-                    formData.append('file', blob, `chunk_${audioBlobs.value.length}.webm`);
-                    const sheetIdBlob = new Blob([route.params.sheetId], { type: 'application/json' });
-                    formData.append('sheetId', sheetIdBlob);
-                    console.log("formData", formData);
-                    for (let [key, value] of formData.entries()) {
-                        console.log(key, value);
-                    }
-                    try {
-                        const res = await local.post('/play/single/sendFile', formData, {
-                            headers: {
-                                'Content-Type': 'multipart/form-data',
-                            },
-                        });
-                        console.log('파일 업로드 성공: ', res.data);
-                        f1.value.push(res.data.similarity_results.f1_score);
-                        jaccard.value.push(res.data.similarity_results.jaccard_similarity);
-                    } catch (err) {
-                        console.error('파일 업로드 실패: ', err);
-                    }
+                    console.log(`Blob size: ${blob.size} bytes`);
                     audioBlobs.value.push({ blob });
                     chunks.value = [];
+                    sendToServer(blob); // 서버로 비동기 전송
                 }
-
+        
                 if (isRecording.value) {
                     mediaRecorder.value.start();
                 }
             };
-
+        
             mediaRecorder.value.start();
             isRecording.value = true;
         };
+        
+        const sendToServer = async (blob) => {
+            const formData = new FormData();
+            formData.append('file', blob, `chunk_${audioBlobs.value.length}.webm`);
+            const sheetIdBlob = new Blob([route.params.sheetId], { type: 'application/json' });
+            formData.append('sheetId', sheetIdBlob);
+            console.log("Sending formData", formData);
+            
+            try {
+                const res = await local.post('/play/single/sendFile', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+                console.log('파일 업로드 성공: ', res.data);
+                f1.value.push(res.data.similarity_results.f1_score);
+                jaccard.value.push(res.data.similarity_results.jaccard_similarity);
+            } catch (err) {
+                console.error('파일 업로드 실패: ', err);
+            }
+        };        
 
         const splitRecording = () => {
+            console.log("SPLIT")
             if (isRecording.value && mediaRecorder.value.state === 'recording') {
                 mediaRecorder.value.stop();
             }

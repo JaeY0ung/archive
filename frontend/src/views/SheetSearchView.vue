@@ -3,15 +3,17 @@ import { tierInfo } from "@/util/tier-info";
 import { sortInfo } from "@/util/sort";
 import { searchSheetsByFilter } from "@/api/sheet";
 import { onMounted, onUpdated, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { getAllGenres } from "@/api/genre";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import SmallSheetCardVer2 from "@/common/sheet/SmallSheetCardVer2.vue";
 
 const { isLogin } = storeToRefs(useUserStore());
 
 const route = useRoute();
+const router = useRouter();
 
 const genres = ref([]);
 const sheets = ref([]);
@@ -22,37 +24,35 @@ const priceInfo = ref([
 ]);
 
 const searchFilter = ref({
-    keyword: "", // 검색어 없음
-    levels: [0, 1, 2, 3, 4, 5], // 모든 레벨
-    genres: [1, 2, 3, 4, 5, 6], // 모든 장르
-    prices: [0, 1], // 무료, 유료 (전부)
-    successStatuses: [], // 필터 없음
+	keyword: "", // 검색어 없음
+	levels: [0, 1, 2, 3, 4, 5], // 모든 레벨
+	genres: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // 모든 장르
+	prices: [0, 1], // 무료, 유료 (전부)
+	successStatuses: [], // 필터 없음
     sort: "LATEST", // 최신순
-});
+})
 
-const view = ref("list");
+const view = ref("list")
 
 const search = () => {
-    searchSheetsByFilter(
-        {
-            keyword: searchFilter.value.keyword,
-            levels: searchFilter.value.levels.join(","),
-            genres: searchFilter.value.genres.join(","),
-            prices: searchFilter.value.prices.join(","),
-            successStatuses: searchFilter.value.successStatuses.join(","),
+	searchSheetsByFilter(
+		{
+			keyword: searchFilter.value.keyword,
+			levels: searchFilter.value.levels.join(","),
+			genres: searchFilter.value.genres.join(","),
+			prices: searchFilter.value.prices.join(","),
+			successStatuses: searchFilter.value.successStatuses.join(","),
             sort: searchFilter.value.sort,
-        },
-        ({ data }) => {
-            sheets.value = data;
-            sheets.value.map((s) =>
-                s.songImg
-                    ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`)
-                    : "기본 이미지"
-            );
-        }
-    );
-};
-getAllGenres(({ data }) => (genres.value = data));
+            page: searchFilter.value.page,
+		},
+		({ data }) => { 
+			sheets.value = data;
+			// sheets.value.map((s) => s.songImg ? (s.imageUrl = `data:image/jpeg;base64,${s.songImg}`) : "기본 이미지");
+		}
+	)
+}
+getAllGenres(({ data }) => genres.value = data)
+
 
 // 다른 페이지에서 넘어왔을 때
 onMounted(() => {
@@ -61,6 +61,10 @@ onMounted(() => {
 });
 
 // 검색 필터 감지
+watch(searchFilter, () => {
+	search();
+}, { deep: true });
+
 watch(
     searchFilter,
     () => {
@@ -68,6 +72,10 @@ watch(
     },
     { deep: true }
 );
+
+const goToSheetDetail = (sheetId) => {
+	router.push({ name: 'sheetDetail', params: { sheetId } });
+};
 </script>
 
 <template>
@@ -240,24 +248,30 @@ watch(
                         <!-- 리스트 버전 -->
                         <div
                             v-if="view === 'list'"
-                            class="flex flex-col w-full absolute scroll-y mt-3"
+                            class="flex flex-col w-full absolute overflow-hidden-scroll overflow-y-auto mt-3"
                         >
-                            <SmallSheetCard
+                            <SmallSheetCardVer2 
                                 v-for="sheet in sheets"
                                 :key="sheet.id"
                                 :sheet="sheet"
+                                :restrictTitle="false" 
+                                @click="goToSheetDetail(sheet.id)"
+                                
                             />
                         </div>
 
                         <!-- 카드 버전 -->
                         <div
                             v-if="view === 'card'"
-                            class="grid grid-cols-3 gap-4"
+                            class="flex flex-wrap justify-center overflow-y-auto gap-4"
                         >
                             <SmallSheetCard
                                 v-for="sheet in sheets"
                                 :key="sheet.id"
                                 :sheet="sheet"
+                                :restrictTitle="true"
+                                @click="goToSheetDetail(sheet.id)"
+                                class="max-w-[400px] w-full sm:w-auto"
                             />
                         </div>
                     </template>
@@ -331,14 +345,29 @@ watch(
     flex-direction: row;
 }
 
-.hide-scrollbar {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+
+
+/* 스크롤바 숨기기 */
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
 }
 
-.hide-scrollbar::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    display: none;
+.ms-overflow-style: none; /* IE와 Edge */
+scrollbar-width: none; /* Firefox */
+
+/* 추가적으로 스크롤 영역의 스크롤바를 숨기기 위한 클래스 */
+.overflow-hidden-scroll {
+    overflow-y: scroll; /* 기능적 스크롤을 유지하기 위해 scroll 설정 */
+    -ms-overflow-style: none;  /* IE와 Edge에서 스크롤바 숨김 */
+    scrollbar-width: none;  /* Firefox에서 스크롤바 숨김 */
 }
+
+.overflow-hidden-scroll::-webkit-scrollbar {
+    width: 0px;  /* Chrome, Safari, Opera에서 스크롤바 숨김 */
+    height: 0px;
+    background: transparent; /* 스크롤바 배경을 투명하게 */
+}
+
+
 </style>
