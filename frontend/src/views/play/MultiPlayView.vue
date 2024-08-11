@@ -9,7 +9,9 @@ import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { computed } from "vue";
 import { ref } from "vue";
+import { onMounted } from "vue";
 
+const { VUE_APP_REQUEST_URL } = process.env; // 소켓 엔드포인트 연결을 위한 주소 설정
 const musicStore = useMusicStore();
 const { startRecording, stopRecording, startMusic, pauseMusic, stopMusic } = musicStore;
 var stompClient = null;
@@ -25,7 +27,6 @@ const loginUser = userStore.userInfo;
 // pinia에 저장되어 있는 상대방의 정보를 가져온다.
 const opponentUser = userStore.opponentUser;
 
-//
 const opponentF1Score = ref(0);
 const opponentJaccardScore = ref(0);
 
@@ -54,9 +55,13 @@ function connect() {
             }
           });
 
-          stompClient.subscribe(`/play/start/socket/${route.params.roomId}`, function(Socket){
+          stompClient.subscribe(`/play/start/socket/${route.params.roomId}`, function(socket){
             const message = JSON.parse(socket.body);
-            if(loginUser.nickname != message){
+            console.log("시작 구독 성공")
+            console.log(loginUser.nickname);
+            console.log(message.sender);
+            if(loginUser.nickname != message.sender){
+                console.log("되냐?")
               startRecording();
             }
           })
@@ -90,7 +95,9 @@ watch(myJaccardScore, (newScore, oldScore) => {
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
 const onStartRecordingEmit = () => {
-  stompClient.send(`/app/play/start/${route.params.roomId}`, {}, JSON.stringify(loginUser.nickname));
+    console.log("onStartRocordingEmit 실행")
+    console.log(route.params.roomId);
+  stompClient.send(`/app/play/start/${route.params.roomId}`, {}, JSON.stringify({type: "start", sender: loginUser.nickname, content: "start", sheetId: route.params.sheetId}));
   startRecording();
 }
 
@@ -98,7 +105,10 @@ const onClickQuit = () => {
     router.push("/room/multi/list");
 };
 
-console.log("route.params.sheetId = " + route.params.sheetId);
+onMounted(() => {
+    connect();
+})
+
 </script>
 <template>
     <div class="container">

@@ -1,6 +1,7 @@
 package com.ssafy.los.backend.controller.play;
 
 import com.ssafy.los.backend.domain.entity.User;
+import com.ssafy.los.backend.dto.play.PlayerStartDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultListDto;
@@ -9,6 +10,7 @@ import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.play.MultiPlayService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/play")
@@ -28,18 +31,6 @@ public class MultiPlayController {
 
     private final MultiPlayService multiPlayService;
     private final AuthService authService;
-
-    @MessageMapping("/{roomId}")
-    @SendTo("/socket/{roomId}")
-    public ScoreDto sendScore(ScoreDto scoreDto) throws Exception {
-        return scoreDto;
-    }
-
-    @MessageMapping("/start/{roomId}")
-    @SendTo("/start/socket/{roomId}")
-    public String sendRecordStart(ScoreDto scoreDto) throws Exception {
-        return "start";
-    }
 
     // 게임 시작 시, 멀티 결과 생성
     @PostMapping

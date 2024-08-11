@@ -89,8 +89,7 @@ function connect() {
                 opponent.value.nickname = receiveUser.nickname;
                 opponent.value.isEmpty = false;
                 opponent.value.userImg = receiveUser.userImg;
-                // userStore.opponentUser.nickname = receiveUser.nickname;
-                userStore.opponentUser.nickname = receiveUser.sender;
+                userStore.opponentUser.nickname = receiveUser.nickname;
                 userStore.opponentUser.userImg = receiveUser.userImg;
                 stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender: user.nickname, isReady: isReady.value }));
                 isInvited.value = true;
@@ -272,10 +271,10 @@ const handleBeforeUnload = async () => {
 
 if(isQuitting.value || isPopstate.value || isReloading.value){
 }else{
-    await playStore.exitRoom(route.params.roomId);
-    sendExit();
     userStore.opponentUser.nickname = "";
     userStore.opponentUser.userImg = null;
+    await playStore.exitRoom(route.params.roomId);
+    sendExit();
 }
 };
 
