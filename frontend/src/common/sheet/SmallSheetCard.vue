@@ -8,7 +8,11 @@ const router = useRouter();
 const route = useRoute();
 
 const props = defineProps({
-	sheet: Object
+	sheet: Object,
+	restrictTitle: {
+		type: Boolean,
+		default: true
+	}
 });
 
 watch(() => props.sheet, () => {
@@ -19,7 +23,7 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 </script>
 
 <template>
-	<div class="h-[80px] m-[5px] p-[5px] flex flex-row justify-between gap-3 bg-white rounded-lg max-w-[400px]"
+	<div class="h-[80px] m-[5px] p-[5px] flex flex-row justify-between gap-3 bg-white rounded-lg "
 		style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);">
 
 		<div class="h-full flex justify-start gap-3">
@@ -31,7 +35,9 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 			<!-- (오른쪽) 악보 정보 -->
 			<div class="min-w-[160px] m-auto flex flex-col gap-1">
 				<div class="bold flex justify-between" style="font-size: 18px;">
-					<div class="flex items-center">{{ getTitleByLen(sheet.title, 12) }}</div>
+					<div class="flex items-center truncate w-[12rem]">
+						{{ restrictTitle? getTitleByLen(sheet.title, 12) : sheet.title  }}
+					</div>
 					<div class="flex items-center">
 						<Tier class="w-[18px] h-[18px]" :level="sheet.level" />
 					</div>

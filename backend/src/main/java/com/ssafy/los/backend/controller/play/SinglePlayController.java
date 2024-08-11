@@ -3,9 +3,12 @@ package com.ssafy.los.backend.controller.play;
 import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.domain.entity.SinglePlayResult;
 import com.ssafy.los.backend.dto.play.request.SinglePlayRequestDto;
+import com.ssafy.los.backend.dto.play.response.SingePlayResultProfileDto;
 import com.ssafy.los.backend.service.play.SinglePlayService;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import java.io.IOException;
+import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -34,7 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/play/single")
+// TODO : play -> plays로 변환하기
+@RequestMapping("/plays/single")
 public class SinglePlayController {
 
     @Value("${fastapi.server.url}")
@@ -102,7 +106,15 @@ public class SinglePlayController {
         return new ResponseEntity<>(singlePlayResultList, HttpStatus.OK);
     }
 
-    @DeleteMapping("/single-result-id")
+    // 특정 유저에 대해서 멀티 결과 기록들을 조회한다. (프로필 페이지)
+    @GetMapping("/{user-id}")
+    private ResponseEntity<?> getSinglePlayResultAllByUser(@PathVariable("user-id") Long userId) {
+        List<SingePlayResultProfileDto> singlePlayResultList = singlePlayService.getSinglePlayResultListByUser(userId);
+
+        return new ResponseEntity<>(singlePlayResultList, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{single-result-id}")
     private ResponseEntity<?> deleteSinglePlayResult(
             @PathVariable("single-result-id") Long singleResultId) {
         Long deletedSingleResultId = singlePlayService.removeSinglePlayResult(singleResultId);

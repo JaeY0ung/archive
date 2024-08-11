@@ -12,5 +12,4 @@ public class MultiPlayResultAfterDto {
     private Long otherUserId;
     private Float otherScore;
 
-
 }

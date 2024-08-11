@@ -49,8 +49,10 @@ const fetchUserProfile = async () => {
             userProfile.value = response.data;
             userImg.value = `data:image/jpeg;base64,${response.data.userImg}`;
             userNotFound.value = false;
-            // 프로필 정보를 가져온 후 좋아요한 악보 정보도 가져옵니다
-            await fetchLikedSheets(response.data.userId); // 닉네임으로 전체 통일하는 방법도 있음
+            // 프로필 정보를 가져온 후 악보
+            await fetchLikedSheets(response.data.userId); // TODO : 닉네임으로 전체 통일하는 방법도 있음
+            await fetchMultiPlaySheets(response.data.userId);
+            await fetchSinglePlaySheets(response.data.userId);
         } else {
             userNotFound.value = true;
         }
@@ -61,37 +63,72 @@ const fetchUserProfile = async () => {
 };
 
 // 싱글 플레이 악보 정보
-const singlePlaySheets = ref([
-    {
-        id: 1,
-        title: "곡 제목 1",
-        songComposer: "아티스트 1",
-        songImg: null,
-        singleScore: 80,
-    },
-]);
+const singlePlaySheets = ref([]);
+
+const fetchSinglePlaySheets = async (userId) => {
+    try {
+        const response = await local.get(`/plays/single/${userId}`);
+        console.log('싱글 플레이 악보 >>> ', response.data);
+        singlePlaySheets.value = response.data.map((sheet) => ({
+            id: sheet.id,
+            title: sheet.sheetTitle,
+            songComposer: sheet.songComposer,
+            uploaderNickname: sheet.uploaderNickname,
+            songImg: sheet.songImg,
+            singleScore: sheet.score,
+            nickname: sheet.nickname,
+            userImg: sheet.userImg,
+            level: sheet.level,
+            playTime: sheet.playTime
+        }));
+    } catch (error) {
+        console.error("싱글 플레이 악보를 가져오는데 실패했습니다:", error);
+        singlePlaySheets.value = [];
+    }
+};
 
 // 멀티 플레이 악보 정보
-const multiPlaySheets = ref([
-    {
-        id: 1,
-        title: "곡 제목 1",
-        songComposer: "아티스트 1",
-        songImg: null,
-        singleScore: 80,
-    },
-]);
+const multiPlaySheets = ref([]);
+
+const fetchMultiPlaySheets = async (userId) => {
+    try {
+        const response = await local.get(`/plays/multi/${userId}`);
+        console.log('멀티 플레이 악보 >>> ', response.data);
+        multiPlaySheets.value = response.data.map((sheet) => ({
+            id: sheet.id,
+            title: sheet.sheetTitle,
+            songComposer: sheet.songComposer,
+            songImg: sheet.songImg,
+            uploaderNickname: sheet.uploaderNickname,
+            myScore: sheet.myScore,
+            otherScore: sheet.otherScore,
+            myNickname: sheet.myNickname,
+            otherNickname: sheet.otherNickname,
+            myProfileImg: sheet.myProfileImg,
+            otherProfileImg: sheet.otherProfileImg,
+            level: sheet.level,
+            playTime: sheet.playTime,
+            draw: sheet.draw
+        }));
+    } catch (error) {
+        console.error("멀티 플레이 악보를 가져오는데 실패했습니다:", error);
+        multiPlaySheets.value = [];
+    }
+};
+
 
 // 좋아요한 악보 정보
 const fetchLikedSheets = async (userId) => {
     try {
-        const response = await local.get(`/sheets/profile/like/${userId}`);
+        const response = await local.get(`/sheets/like/${userId}`);
         console.log('좋아요 악보 >>> ', response.data)
         likedSheets.value = response.data.map((sheet) => ({
             id: sheet.id,
             title: sheet.title,
+            uploaderNickname: sheet.uploaderNickname,
             songComposer: sheet.songComposer,
             songImg: sheet.songImg,
+            level: sheet.level
         }));
     } catch (error) {
         console.error("좋아요한 악보를 가져오는데 실패했습니다:", error);
@@ -278,10 +315,11 @@ onMounted(async () => {
                                 <button
                                     :class="[
                                         'btn',
+                                        'w-24',
                                         'px-4 py-2 rounded font-semibold transition duration-300',
                                         isFollowing
                                             ? 'bg-gray-400 hover:bg-gray-500'
-                                            : 'bg-blue-500 hover:bg-blue-600',
+                                            : 'bg-blue-500 text-white hover:bg-blue-600',
                                     ]"
                                     @click="toggleFollow"
                                 >

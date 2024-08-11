@@ -219,7 +219,7 @@ onMounted(() => {
                 <button @click="updateUserInfo" class="btn btn-primary mr-2" :disabled="!canUpdate">
                     수정하기
                 </button>
-                <button @click="goToUserProfile" class="btn btn-info">내 프로필 가기</button>
+                <!-- <button @click="goToUserProfile" class="btn btn-info">내 프로필 가기</button> -->
             </div>
         </div>
     </div>

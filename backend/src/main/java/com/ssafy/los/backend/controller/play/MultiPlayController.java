@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MultiPlayController {
 
     private final MultiPlayService multiPlayService;
-    private final AuthService authService;
 
     // 게임 시작 시, 멀티 결과 생성
     @PostMapping
@@ -51,23 +50,23 @@ public class MultiPlayController {
         return new ResponseEntity<>(multiPlayResult, HttpStatus.OK);
     }
 
-    // 로그인한 유저에 대해서 멀티 결과 기록들을 조회한다.
-    @GetMapping
-    public ResponseEntity<?> getMultiResultAll() {
-        User loginUser = authService.getLoginUser();
-        List<MultiPlayResultListDto> multiPlayResultList = multiPlayService.getMultiPlayResultList(
-                loginUser);
-
-        return new ResponseEntity<>(multiPlayResultList, HttpStatus.OK);
+    // 특정 유저에 대해서 멀티 결과 기록들을 조회한다. (프로필 페이지)
+    @GetMapping("/{user-id}")
+    public ResponseEntity<?> getMultiPlayResultAllByUser(@PathVariable("user-id") Long userId) {
+        List<MultiPlayResultProfileDto> multiPlayResultProfileDtoList = multiPlayService.getMultiPlayResultList(
+                userId);
+        log.info("MultiPlayResultProfileDtoList: {}", multiPlayResultProfileDtoList.toString());
+        return new ResponseEntity<>(multiPlayResultProfileDtoList, HttpStatus.OK);
     }
 
     // 멀티 기록 삭제
-    @DeleteMapping("/multi-result-id")
-    public ResponseEntity<?> deleteSinglePlayResult(
-            @PathVariable("single-result-id") Long singleResultId) {
-        Long deletedSingleResultId = multiPlayService.removeMultiPlayResult(singleResultId);
+    // TODO: ADMIN 만 멀티 결과에 대해 삭제할 수 있다.
+    @DeleteMapping("/{multi-result-id}")
+    public ResponseEntity<?> deleteMultiPlayResult(
+            @PathVariable("multi-result-id") Long multiResultId) {
+        Long deletedSingleResultId = multiPlayService.removeMultiPlayResult(multiResultId);
+
         return new ResponseEntity<>(deletedSingleResultId, HttpStatus.OK);
     }
 
-    // 프로필용 멀티 기록 가져오기
 }

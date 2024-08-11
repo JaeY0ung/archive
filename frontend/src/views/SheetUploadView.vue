@@ -171,14 +171,14 @@ modalVisibility.value = false;
             </label>
 
             <template v-if="selectedSong.id">
-                <SmallSongCard :song="selectedSong">
+                <SmallSongCard :song="selectedSong" class="max-w-[400px] w-full">
                 <img
                     :src="require('@/assets/img/close.png')"
                     alt="체크 표시"
                     @click="selectedSong=''"
                     class="absolute top-1 right-1 w-4 h-4"
                 />
-                </SmallSongCard>
+                </SmallSongCard class="max-w-[400px] w-full">
             </template>
             <template v-else>
                 <div class="mt-3 ml-4 mr-2 mb-0 pt-2  bg-opacity-0 shadow-md rounded-lg w-[13vw] flex flex-col justify-center items-center">
@@ -200,7 +200,7 @@ modalVisibility.value = false;
     style="-ms-overflow-style:none; scrollbar-width:none;"
     >
     <template v-for="song in songs">
-        <SmallSongCard @click="selectedSong = song" :song>
+        <SmallSongCard @click="selectedSong = song" :song class="max-w-[400px] w-full">
         <template v-if="selectedSong?.id == song.id">
             <img
             :src="require('@/assets/img/check.png')"
