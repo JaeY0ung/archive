@@ -3,11 +3,8 @@ package com.ssafy.los.backend.dto.sheet.response;
 import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import java.sql.Timestamp;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Getter
@@ -16,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @Builder
 @Slf4j
+@ToString
 public class SheetDetailForUserDto implements SheetDetailDto {
 
     private Long id;

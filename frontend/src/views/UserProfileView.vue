@@ -14,10 +14,14 @@ const local = localAxios();
 const userStore = useUserStore();
 const route = useRoute();
 const router = useRouter();
-
 const { userInfo } = storeToRefs(userStore);
+
+// 유저 관련
 const userProfile = ref(null);
 const userImg = ref("");
+const userNotFound = ref(false);
+
+// 팔로우 관련
 const followersCount = ref(0);
 const followingsCount = ref(0);
 const isFollowing = ref(false);
@@ -25,90 +29,9 @@ const showFollowersModal = ref(false);
 const showFollowingsModal = ref(false);
 const followList = ref([]);
 const followModalTitle = ref("");
-const userNotFound = ref(false);
 
-// 악보 정보
-const mockRecentPlayedSheets = ref([
-    {
-        id: 1,
-        title: "곡 제목 1",
-        songComposer: "아티스트 1",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-        singleScore: 80,
-    },
-    {
-        id: 2,
-        title: "곡 제목 2",
-        songComposer: "아티스트 2",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-        singleScore: 70,
-    },
-    {
-        id: 3,
-        title: "곡 제목 3",
-        songComposer: "아티스트 3",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-    {
-        id: 4,
-        title: "곡 제목 4",
-        songComposer: "아티스트 4",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-    {
-        id: 5,
-        title: "곡 제목 5",
-        songComposer: "아티스트 5",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-]);
-
-const mockRecentBattleSheets = ref([
-    {
-        id: 1,
-        title: "곡 제목 1",
-        songComposer: "아티스트 1",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-        singleScore: 80,
-    },
-    {
-        id: 2,
-        title: "곡 제목 2",
-        songComposer: "아티스트 2",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-        singleScore: 70,
-    },
-    {
-        id: 3,
-        title: "곡 제목 3",
-        songComposer: "아티스트 3",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-    {
-        id: 4,
-        title: "곡 제목 4",
-        songComposer: "아티스트 4",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-    {
-        id: 5,
-        title: "곡 제목 5",
-        songComposer: "아티스트 5",
-        imageUrl:
-            "https://www.spochoo.com/news/photo/202307/105812_212618_410.jpg",
-    },
-]);
-
-const mockLikedSheets = ref([...mockRecentPlayedSheets.value]);
+// 악보 관련
+const likedSheets = ref([])
 
 const isOwnProfile = computed(() => {
     return userInfo.value?.nickname === route.params.nickName;
@@ -126,12 +49,53 @@ const fetchUserProfile = async () => {
             userProfile.value = response.data;
             userImg.value = `data:image/jpeg;base64,${response.data.userImg}`;
             userNotFound.value = false;
+            // 프로필 정보를 가져온 후 좋아요한 악보 정보도 가져옵니다
+            await fetchLikedSheets(response.data.userId); // 닉네임으로 전체 통일하는 방법도 있음
         } else {
             userNotFound.value = true;
         }
     } catch (error) {
         console.error("사용자 프로필을 가져오는데 실패했습니다:", error);
         userNotFound.value = true;
+    }
+};
+
+// 싱글 플레이 악보 정보
+const singlePlaySheets = ref([
+    {
+        id: 1,
+        title: "곡 제목 1",
+        songComposer: "아티스트 1",
+        songImg: null,
+        singleScore: 80,
+    },
+]);
+
+// 멀티 플레이 악보 정보
+const multiPlaySheets = ref([
+    {
+        id: 1,
+        title: "곡 제목 1",
+        songComposer: "아티스트 1",
+        songImg: null,
+        singleScore: 80,
+    },
+]);
+
+// 좋아요한 악보 정보
+const fetchLikedSheets = async (userId) => {
+    try {
+        const response = await local.get(`/sheets/profile/like/${userId}`);
+        console.log('좋아요 악보 >>> ', response.data)
+        likedSheets.value = response.data.map((sheet) => ({
+            id: sheet.id,
+            title: sheet.title,
+            songComposer: sheet.songComposer,
+            songImg: sheet.songImg,
+        }));
+    } catch (error) {
+        console.error("좋아요한 악보를 가져오는데 실패했습니다:", error);
+        likedSheets.value = [];
     }
 };
 
@@ -354,7 +318,7 @@ onMounted(async () => {
                         >
                             <div class="flex absolute">
                                 <SmallSheetCardSinglePlay
-                                    v-for="sheet in mockRecentPlayedSheets"
+                                    v-for="sheet in singlePlaySheets"
                                     :key="sheet.id"
                                     :sheet="sheet"
                                     class="mr-4"
@@ -374,7 +338,7 @@ onMounted(async () => {
                         >
                             <div class="flex absolute">
                                 <SmallSheetCardMultiPlay
-                                    v-for="sheet in mockRecentBattleSheets"
+                                    v-for="sheet in multiPlaySheets"
                                     :key="sheet.id"
                                     :sheet="sheet"
                                     class="mr-4"
@@ -394,7 +358,7 @@ onMounted(async () => {
                         >
                             <div class="flex absolute">
                                 <SmallSheetCard
-                                    v-for="sheet in mockLikedSheets"
+                                    v-for="sheet in likedSheets"
                                     :key="sheet.id"
                                     :sheet="sheet"
                                     class="mr-4"
@@ -420,8 +384,8 @@ onMounted(async () => {
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
 
 * {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 *::-webkit-scrollbar {
@@ -433,7 +397,6 @@ body {
     overflow: hidden;
 }
 
-/* 기존 스타일 유지 */
 div {
     font-family: "Roboto", sans-serif;
 }

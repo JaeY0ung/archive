@@ -12,9 +12,7 @@ const textColor = computed(() =>
     isSuccess.value ? "text-green-500" : "text-red-500"
 );
 
-props.sheet.imageUrl = props.sheet.songImg
-    ? `data:image/jpeg;base64,${props.sheet.songImg}`
-    : require("@/assets/img/default/song_img.png");
+props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
 </script>
 
 <template>

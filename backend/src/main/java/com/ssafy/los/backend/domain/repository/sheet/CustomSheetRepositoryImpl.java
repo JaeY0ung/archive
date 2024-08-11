@@ -126,6 +126,25 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 .fetch();
     }
 
+    @Override
+    public List<SheetDetailForUserDto> searchByUserLike(Long userId) {
+        return queryFactory
+                .select(Projections.constructor(SheetDetailForUserDto.class,
+                        s,
+                        JPAExpressions.select(ls.count())
+                                .from(ls)
+                                .where(ls.sheet.eq(s)),
+                        Expressions.constant(true)))
+                .from(ls)
+                .join(ls.sheet, s)
+                .where(ls.user.id.eq(userId)
+                        .and(s.deletedAt.isNull())
+                        .and(s.createdAt.isNotNull())
+                        .and(isStatusNotRejected()))
+                .orderBy(s.createdAt.desc())
+                .fetch();
+    }
+
     private JPAQuery<SheetDetailForUserDto> createSelectFromQuery(User loginUser) {
         return queryFactory.select(Projections.constructor(SheetDetailForUserDto.class,
                 s,
@@ -278,4 +297,6 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
             default -> new OrderSpecifier<>(Order.DESC, s.createdAt);
         };
     }
+
+
 }

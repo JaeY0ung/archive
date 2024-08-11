@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -231,6 +232,13 @@ public class SheetServiceImpl implements SheetService {
         } catch (Exception e) {
             throw new IllegalArgumentException("악보 저장 실패");
         }
+    }
+
+    @Override
+    public List<SheetDetailForUserDto> searchSheetByUserLike(Long userId) {
+        return sheetRepository.searchByUserLike(userId).stream()
+                .peek(sheet -> sheet.loadSongImg(fileUploadUtil))
+                .collect(Collectors.toList());
     }
 
 }

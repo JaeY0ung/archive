@@ -1,8 +1,15 @@
-# Python 3.9-slim 이미지 사용
-FROM python:3.9-slim
+# Python 3.9 기본 이미지 사용
+FROM python:3.9
 
-# 시스템 패키지 업데이트 및 Docker CLI 설치
-RUN apt-get update && apt-get install -y ffmpeg docker.io
+# 시스템 패키지 업데이트 및 필수 패키지 설치
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    software-properties-common \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    musescore \
+    xvfb
 
 # 작업 디렉토리 설정
 WORKDIR /app
