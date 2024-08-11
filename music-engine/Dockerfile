@@ -7,8 +7,9 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     apt-transport-https \
     ca-certificates \
-    docker.io \
-    musescore
+    gnupg \
+    musescore \
+    xvfb
 
 # 작업 디렉토리 설정
 WORKDIR /app
