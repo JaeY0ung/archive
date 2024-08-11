@@ -1,5 +1,5 @@
 <script setup>
-import { ref} from 'vue';
+import { ref } from 'vue';
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia';
 import { useRouter, onBeforeRouteLeave } from 'vue-router';
@@ -42,32 +42,32 @@ const naverLogin = () => {
             로그인
         </div>
         <label class="form-control w-full mb-5">
-        <div class="label">
-            <span class="label-text">이메일</span>
-        </div>
-        <input v-model="loginForm.email" type="email" class="input input-bordered w-full" required/>
+            <div class="label">
+                <span class="label-text">이메일</span>
+            </div>
+            <input v-model="loginForm.email" type="email" class="input input-bordered w-full" required />
         </label>
 
         <label class="form-control w-full mb-10">
-        <div class="label">
-            <span class="label-text">비밀번호</span>
-        </div>
-        <input v-model="loginForm.password" type="password" class="input input-bordered w-full" required />
+            <div class="label">
+                <span class="label-text">비밀번호</span>
+            </div>
+            <input v-model="loginForm.password" type="password" class="input input-bordered w-full" required />
         </label>
 
         <div class="button-container">
-        <button type="submit" class="btn btn-primary">
-            로그인
-        </button>
-        <button type="button" class="btn btn-secondary" @click="goToRegister">
-            회원가입
-        </button>
+            <button type="submit" class="btn btn-primary">
+                로그인
+            </button>
+            <button type="button" class="btn btn-secondary" @click="goToRegister">
+                회원가입
+            </button>
         </div>
-        
+
         <div class="mt-5">
-        <button type="button" class="btn btn-success" @click="naverLogin">
-            네이버로 로그인
-        </button>
+            <button type="button" class="btn btn-success" @click="naverLogin">
+                네이버로 로그인
+            </button>
         </div>
     </form>
 </template>
