@@ -103,14 +103,19 @@ class ConvertService:
 
         :param midi_file_path: 분석할 MIDI 파일의 경로
         :param measures_per_section: 나눌 마디 수 (기본값은 8)
-        :return: (총 마디 수, 나머지 마디 수, 올림된 마디 수)
+        :return: (올림된 마디 수)
         """
+        # 파일 경로가 올바른지 확인 (파일이어야 함)
+        if not os.path.isfile(midi_file_path):
+            raise ValueError(f"Provided path is not a valid file: {midi_file_path}")
+
         # MIDI 파일을 파싱
         midi_stream = converter.parse(midi_file_path)
 
         # 전체 마디 수 계산
         total_measures = len(midi_stream.parts[0].getElementsByClass(stream.Measure))
         rounded_measures = total_measures
+
         # 8로 나눈 나머지 계산
         remainder = total_measures % measures_per_section
 
@@ -119,5 +124,6 @@ class ConvertService:
             rounded_measures = total_measures + (measures_per_section - remainder)
         else:
             rounded_measures = total_measures
+
         # 7마디면 chunk_0이기 때문에 -1 해야됨
-        return rounded_measures-1
+        return rounded_measures - 1

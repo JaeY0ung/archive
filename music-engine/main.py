@@ -107,7 +107,7 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
         logger.info(f"원본 파일 {file_location}을 삭제했습니다.")
 
         # 원본 MIDI 파일 경로 설정
-        original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheetName);
+        original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheetName+".mid");
         # original_file_location = os.path.join("original", "original.mid")
 
         if not os.path.exists(original_file_location):
@@ -115,7 +115,8 @@ async def upload_file(file: UploadFile = File(...), sheetName: str = Form(...)):
 
         start_measure = max(0, int(file_number) * 8 - 1)
         end_measure = (int(file_number) + 1) * 8 + 1
-        last_measure = ConvertService.get_rounded_measures(original_file_location,8);
+        logger.info(original_file_location)
+        last_measure = convert_service.get_rounded_measures(original_file_location,8);
         similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
         logger.info(similarity_results)
         isLast = 0

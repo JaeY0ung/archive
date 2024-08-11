@@ -7,5 +7,5 @@ public interface GenreService {
 
     List<Genre> searchAllGenres();
 
-    Genre searchGenreById(Long genreId);
+    Genre selectGenreById(Long genreId);
 }

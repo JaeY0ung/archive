@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 const props = defineProps({
     card: {
         type: Object,
@@ -11,6 +11,12 @@ const props = defineProps({
         }
     } 
 })
+
+
+watch(() => props.card, () => {
+	props.card.imageUrl = props.card.img ? `data:image/jpeg;base64,${props.card.img}` : require('@/assets/img/default/song_img.png');
+})
+props.card.imageUrl = props.card.img ? `data:image/jpeg;base64,${props.card.img}` : require('@/assets/img/default/song_img.png');
 </script>
 
 <template>
@@ -24,4 +30,4 @@ const props = defineProps({
 
 <style scoped>
 
-</style>
+</style> -->

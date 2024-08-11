@@ -39,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
                 .id(loginUser.getId())
                 .role(loginUser.getRole())
                 .nickname(loginUser.getNickname())
+                .email(loginUser.getEmail())
                 .userImgName(loginUser.getUserImg())
                 .cash(loginUser.getCash())
                 .singleScore(loginUser.getSingleScore())
