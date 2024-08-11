@@ -131,6 +131,9 @@ watch(
         } else {
             myJaccardScore.value = 0;
         }
+        // 변화된 점수를 상대방에게 전송하는 소켓 메서드
+        console.log("확인")
+        stompClient.send(`/app/play/${route.params.roomId}`, {}, JSON.stringify({nickname: loginUser.nickname, f1Score: myF1Score.value, jaccardScore: myJaccardScore.value}));
     },
     { deep: true } // 배열 내부의 변화도 감지
 );
@@ -138,7 +141,6 @@ watch(
 // jaccardScore의 값이 변경될 때마다 실행될 watch
 watch(myJaccardScore, (newScore, oldScore) => {
     // 소켓 send 메서드 실행;
-    stompClient.send(`/app/play/${route.params.roomId}`, {}, JSON.stringify({nickname: loginUser.nickname, f1Score: myF1Score, jaccardScore: myJaccardScore}));
 });
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
