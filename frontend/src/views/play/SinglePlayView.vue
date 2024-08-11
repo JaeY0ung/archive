@@ -4,11 +4,13 @@ import { useUserStore } from "@/stores/user";
 import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import { useRoute } from "vue-router";
+import { useMusicStore } from "@/stores/sheet";
 
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
-
+const musicStore = useMusicStore();
+const { startRecording, stopRecording, startMusic, pauseMusic, stopMusic } = musicStore;
 const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const loginUser = userStore.userInfo;
@@ -19,14 +21,16 @@ const onClickQuit = () => {
     router.push("/room/multi/list");
 }
 
-
-console.log("route.params.sheetId = " + route.params.sheetId);
+// Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
+const onStartRecordingEmit = () => {
+  startRecording();
+}
 </script>
 
 <template>
     <div class="container">
       <div class="up">
-        <Sheet :sheetId="route.params.sheetId" height="95"/>
+        <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
       </div>
       <div class="down">
         <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
