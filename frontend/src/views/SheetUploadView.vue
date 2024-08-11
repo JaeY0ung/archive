@@ -116,7 +116,8 @@ modalVisibility.value = false;
     v-if="modalVisibility"
     @closeModalEvent="closeSongRegisterModal"
 />
-<div class="text-3xl font-semibold mt-4 mb-4">파일 업로드</div>
+<div class="text-3xl font-semibold mt-4 mb-2">파일 업로드</div>
+<div class="text-xs mb-2">원하는 악보를 업로드해보세요.</div>
 <hr class="border-gray-300 mb-8" />
 <div class="flex flex-col gap-4">
     <label class="form-control flex items-center justify-center w-full">
