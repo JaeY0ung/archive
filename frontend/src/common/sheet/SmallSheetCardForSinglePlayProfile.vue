@@ -63,7 +63,7 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
                 ]"
             >
                 <span :class="['font-bold text-2xl', textColor]">
-                    {{ sheet.singleScore }}
+                    {{ sheet.singleScore > 80 ? 'GOOD' : 'BAD' }}
                 </span>
             </div>
         </div>

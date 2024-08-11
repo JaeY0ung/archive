@@ -8,10 +8,12 @@ import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
-import com.ssafy.los.backend.dto.play.response.MultiPlayResultListDto;
+import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +26,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
     private final MultiPlayResultRepository multiPlayResultRepository;
     private final UserRepository userRepository;
     private final SheetRepository sheetRepository;
-    private final AuthService authService;
+    private final FileUploadUtil fileUploadUtil;
 
     // 방장이 게임을 시작했을 때, multi_result 생성
     @Override
@@ -78,37 +80,46 @@ public class MultiPlayServiceImpl implements MultiPlayService {
         return multiResultId;
     }
 
-    // 로그인한 유저에 대하여 멀티 결과 기록들을 모두 반환한다.
+    // 특정 유저에 대하여 멀티 결과 기록들을 모두 반환한다.
     @Override
-    public List<MultiPlayResultListDto> getMultiPlayResultList(User user) {
+    public List<MultiPlayResultProfileDto> getMultiPlayResultList(Long userId) {
+        User findUser = userRepository.findUserByIdAndDeletedAtNull(userId)
+                .orElseThrow(() -> new RuntimeException("user not found"));
         List<MultiPlayResult> resultList = multiPlayResultRepository.findAllByUserOrderByCreatedAt(
-                user);
+                findUser);
 
-        List<MultiPlayResultListDto> resultListDtoList = new ArrayList<>();
+        List<MultiPlayResultProfileDto> multiPlayResultProfileDtoList = new ArrayList<>();
 
         for (MultiPlayResult multiPlayResult : resultList) {
             User winner = multiPlayResult.getWinner();
             User loser = multiPlayResult.getLoser();
-            boolean isWinner = winner.equals(user);
-            MultiPlayResultListDto result = MultiPlayResultListDto.builder()
+            boolean isWinner = winner.equals(findUser);
+            MultiPlayResultProfileDto result = MultiPlayResultProfileDto.builder()
                     .myNickname(isWinner ? winner.getNickname() : loser.getNickname())
-                    .myProfileImg(isWinner ? winner.getUserImg() : loser.getUserImg())
+                    .myProfileImgName(isWinner ? winner.getUserImg() : loser.getUserImg())
                     .myScore(isWinner ? multiPlayResult.getWinnerScore()
                             : multiPlayResult.getLoserScore())
                     .otherNickname(isWinner ? loser.getNickname() : winner.getNickname())
-                    .otherProfileImg(isWinner ? loser.getUserImg() : winner.getUserImg())
+                    .otherProfileImgName(isWinner ? loser.getUserImg() : winner.getUserImg())
                     .otherScore(isWinner ? multiPlayResult.getLoserScore()
                             : multiPlayResult.getWinnerScore())
                     .sheetTitle(multiPlayResult.getSheet().getTitle())
-                    .sheetUrl(multiPlayResult.getSheet().getUuid())
-                    .level(multiPlayResult.getSheet().getLevel()).build();
-            resultListDtoList.add(result);
+                    .songComposer(multiPlayResult.getSheet().getSong().getComposer())
+                    .songImgName(multiPlayResult.getSheet().getSong().getImgName())
+                    .uploaderNickname(multiPlayResult.getSheet().getUploader().getNickname())
+                    .level(multiPlayResult.getSheet().getLevel())
+                    .playTime(multiPlayResult.getPlayTime())
+                    .draw(multiPlayResult.isDraw())
+                    .build();
+
+            result.loadUserImg(fileUploadUtil);
+            result.loadSongImg(fileUploadUtil);
+            multiPlayResultProfileDtoList.add(result);
         }
 
-        return resultListDtoList;
+        return multiPlayResultProfileDtoList;
     }
 
-    // TODO: ADMIN 만 멀티 결과에 대해 삭제할 수 있다.
     @Override
     public Long removeMultiPlayResult(Long multiPlayResultId) {
         multiPlayResultRepository.deleteById(multiPlayResultId);
