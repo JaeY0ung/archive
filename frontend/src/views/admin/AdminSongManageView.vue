@@ -28,7 +28,7 @@ const updateEventOccur = () => {
 <template>
     <div class="m-auto">
         <div class="flex justify-center gap-3">
-            <div class=" bg-green-700 rounded-xl p-1">
+            <div class=" bg-green-700 rounded-xl p-1 scroll-x">
                 <div class="text-center">곡</div>
                 <div>
                     <template v-for="song in songs" :key="song.id">

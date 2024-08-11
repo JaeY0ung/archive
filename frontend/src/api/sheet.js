@@ -58,8 +58,12 @@ async function registerdummySheetsByAdmin(params, success) {
     await local.post(`/sheets/insert/all`, params).then(success).catch((err) => console.error(err));
 }
 
-async function searchSheetByStatusForAdmin(status, success) {
-    await local.get(`/sheets/status/${status}`).then(success).catch((err) => console.error(err));
+async function searchSheetByStatusForAdmin(params, success) {
+    await local.get(`/sheets/admin`, { params }).then(success).catch((err) => console.error(err));
+}
+
+async function changeSheetStatusBySheetId(sheetId, status, success) {
+    await local.put(`/sheets/${ sheetId }/status/${ status }`).then(success).catch((err) => console.error(err));
 }
 
 export {
@@ -81,4 +85,5 @@ export {
     
     registerdummySheetsByAdmin,
     searchSheetByStatusForAdmin,
+    changeSheetStatusBySheetId,
 };

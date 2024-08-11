@@ -46,15 +46,6 @@ public class SheetController {
     @GetMapping
     public ResponseEntity<?> getSheetListByFilter(
             @ModelAttribute SheetSearchFilter sheetSearchFilter) {
-        log.info(
-                "[Controller Text] keyword: {}, levels: {}, sort : {}, prices : {}, genres : {}, statuses : {}, page : {}",
-                sheetSearchFilter.getKeyword(),
-                sheetSearchFilter.getLevels(),
-                sheetSearchFilter.getSort(),
-                sheetSearchFilter.getPrices(),
-                sheetSearchFilter.getGenres(),
-                sheetSearchFilter.getStatuses(),
-                sheetSearchFilter.getPage());
         try {
             return new ResponseEntity<>(sheetService.searchSheetByFilter(sheetSearchFilter),
                     HttpStatus.OK);
@@ -99,7 +90,7 @@ public class SheetController {
     @PostMapping(value = "/insert/all", consumes = {"multipart/form-data"})
     public ResponseEntity<?> uploadSheet(
             @RequestPart(value = "files", required = false) List<MultipartFile>
-                    files) {
+                    files, @RequestPart("level") Integer level) {
 
         if (files == null || files.isEmpty()) {
             log.debug("파일이 포함되어 있지 않습니다.");
@@ -112,10 +103,16 @@ public class SheetController {
                     continue;
                 }
 
+                String fileName = file.getOriginalFilename();
+                if (fileName == null || fileName.isEmpty()) {
+                    continue;
+                }
+                String baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+
                 Song song = songService.registerSongAndFile(
                         SongRegisterForm.builder()
-                                .composer(file.getOriginalFilename())
-                                .title(file.getOriginalFilename())
+                                .composer(baseName)
+                                .title(baseName)
                                 .genreId(5L)
                                 .file(null)
                                 .build()
@@ -123,8 +120,8 @@ public class SheetController {
 
                 SheetUploadForm sheetUploadForm = SheetUploadForm.builder()
                         .file(file)
-                        .title(file.getOriginalFilename())
-                        .level(1)
+                        .title(baseName)
+                        .level(level)
                         .songId(song.getId())
                         .build();
 
@@ -173,7 +170,7 @@ public class SheetController {
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<?> getSheetListByStatusForAdmin(@ModelAttribute() SheetSearchFilter sheetSearchFilter) {
+    public ResponseEntity<?> getSheetListByStatusForAdmin(@ModelAttribute SheetSearchFilter sheetSearchFilter) {
         if (!checkRightStatuses(sheetSearchFilter.getStatuses())) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
