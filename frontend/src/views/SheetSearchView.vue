@@ -3,15 +3,17 @@ import { tierInfo } from "@/util/tier-info";
 import { sortInfo } from "@/util/sort";
 import { searchSheetsByFilter } from "@/api/sheet";
 import { onMounted, onUpdated, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { getAllGenres } from "@/api/genre";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import SmallSheetCardVer2 from "@/common/sheet/SmallSheetCardVer2.vue";
 
 const { isLogin } = storeToRefs(useUserStore());
 
 const route = useRoute();
+const router = useRouter();
 
 const genres = ref([]);
 const sheets = ref([]);
@@ -68,6 +70,10 @@ watch(
     },
     { deep: true }
 );
+
+const goToSheetDetail = (sheetId) => {
+	router.push({ name: 'sheetDetail', params: { sheetId } });
+};
 </script>
 
 <template>
@@ -240,24 +246,30 @@ watch(
                         <!-- 리스트 버전 -->
                         <div
                             v-if="view === 'list'"
-                            class="flex flex-col w-full absolute scroll-y mt-3"
+                            class="flex flex-col w-full absolute overflow-hidden-scroll overflow-y-auto mt-3"
                         >
-                            <SmallSheetCard
+                            <SmallSheetCardVer2 
                                 v-for="sheet in sheets"
                                 :key="sheet.id"
                                 :sheet="sheet"
+                                :restrictTitle="false" 
+                                @click="goToSheetDetail(sheet.id)"
+                                
                             />
                         </div>
 
                         <!-- 카드 버전 -->
                         <div
                             v-if="view === 'card'"
-                            class="grid grid-cols-3 gap-4"
+                            class="flex flex-wrap justify-center overflow-y-auto gap-4"
                         >
                             <SmallSheetCard
                                 v-for="sheet in sheets"
                                 :key="sheet.id"
                                 :sheet="sheet"
+                                :restrictTitle="true"
+                                @click="goToSheetDetail(sheet.id)"
+                                class="max-w-[400px] w-full sm:w-auto"
                             />
                         </div>
                     </template>
@@ -331,14 +343,29 @@ watch(
     flex-direction: row;
 }
 
-.hide-scrollbar {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+
+
+/* 스크롤바 숨기기 */
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
 }
 
-.hide-scrollbar::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-    display: none;
+.ms-overflow-style: none; /* IE와 Edge */
+scrollbar-width: none; /* Firefox */
+
+/* 추가적으로 스크롤 영역의 스크롤바를 숨기기 위한 클래스 */
+.overflow-hidden-scroll {
+    overflow-y: scroll; /* 기능적 스크롤을 유지하기 위해 scroll 설정 */
+    -ms-overflow-style: none;  /* IE와 Edge에서 스크롤바 숨김 */
+    scrollbar-width: none;  /* Firefox에서 스크롤바 숨김 */
 }
+
+.overflow-hidden-scroll::-webkit-scrollbar {
+    width: 0px;  /* Chrome, Safari, Opera에서 스크롤바 숨김 */
+    height: 0px;
+    background: transparent; /* 스크롤바 배경을 투명하게 */
+}
+
+
 </style>
