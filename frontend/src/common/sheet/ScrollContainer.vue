@@ -45,10 +45,7 @@ onUnmounted(() => {
         resizeObserver.unobserve(outerDiv.value);
         resizeObserver.disconnect();
     }
-    if (musicStore.osmd) {
-        musicStore.osmd.clear(); // OSMD 객체 내의 리소스를 해제합니다.
-        musicStore.osmd = null; // OSMD 객체를 null로 설정하여 해제합니다.
-    }
+    musicStore.cleanup();  // cleanup 메서드 호출하여 리소스 정리
 });
 </script>
 
