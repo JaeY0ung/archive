@@ -4,6 +4,9 @@ import ScrollContainer from "@/common/sheet/ScrollContainer.vue";
 import { useMusicStore } from '@/stores/sheet';
 import { storeToRefs } from "pinia";
 import { onMounted } from "vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
 
 onMounted(() => {
 })
@@ -23,7 +26,11 @@ const emit = defineEmits(['startRecordingEmit']);
 
 const handleEmit = () => {
     // 클릭 이벤트 발생 시 이벤트를 부모 컴포넌트로 전송
-    emit('startRecordingEmit', { message: 'Play Button was clicked!' });
+    if(route.name != "sheetDetail"){
+        emit('startRecordingEmit', { message: 'Play Button was clicked!' });
+    }else{
+        startRecording();
+    }
 };
 
 const musicStore = useMusicStore();
