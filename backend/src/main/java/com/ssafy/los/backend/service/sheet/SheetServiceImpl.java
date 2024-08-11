@@ -15,17 +15,17 @@ import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -80,67 +80,51 @@ public class SheetServiceImpl implements SheetService {
     @Override
     public List<SheetDetailDto> searchSheetByFilter(SheetSearchFilter sheetSearchFilter)
             throws IllegalArgumentException {
-        User loginUser = authService.getLoginUser();
-        if (loginUser == null) {
-            return sheetRepository.findSheetsByFilter(sheetSearchFilter)
-                    .stream()
-                    .peek(dto -> dto.loadSongImg(fileUploadUtil))
-                    .toList();
-        } else {
-            return sheetRepository.findSheetsByFilter(sheetSearchFilter, loginUser)
-                    .stream()
-                    .peek(dto -> dto.loadSongImg(fileUploadUtil))
-                    .toList();
-        }
-//        throw new IllegalArgumentException("잘못된 접근입니다");
+        return sheetRepository.findSheetsByFilterAndLoginUser(sheetSearchFilter, authService.getLoginUser())
+                .stream()
+                .peek(dto -> dto.loadSongImg(fileUploadUtil))
+                .toList();
     }
 
     @Override
     public String getMusicXmlFileById(Long sheetId) {
-        SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId);
+        SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId, authService.getLoginUser());
         return fileUploadUtil.getMusicXmlByUuid(sheet.getUuid());
     }
 
     @Override
     public String getMidFileById(Long sheetId) {
-        SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId);
+        SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId, authService.getLoginUser());
         return fileUploadUtil.getMidByUuid(sheet.getUuid());
     }
 
     @Override
     @Transactional
-    public void changeStatusToWaiting(Long sheetId) {
+    public void changeStatusByStatus(Long sheetId, Integer status) {
         Sheet sheet = sheetRepository.findById(sheetId).orElseThrow();
-        sheet.updateStatus(0);
-        sheetRepository.save(sheet);
-    }
-
-    @Override
-    @Transactional
-    public void changeStatusToApproved(Long sheetId) {
-        Sheet sheet = sheetRepository.findById(sheetId).orElseThrow();
-        sheet.updateStatus(1);
-        sheetRepository.save(sheet);
-    }
-
-    @Override
-    @Transactional
-    public void changeStatusToRejected(Long sheetId) {
-        Sheet sheet = sheetRepository.findById(sheetId).orElseThrow();
-        sheet.updateStatus(2);
-        sheetRepository.save(sheet);
+        if (status.equals(0)) {
+            changeStatusToWaiting(sheet);
+        } else if (status.equals(1)) {
+            changeStatusToApproved(sheet);
+        } else if (status.equals(2)) {
+            changeStatusToRejected(sheet);
+        }
     }
 
     // 최근에 플레이한 싱글 플레와 멀티 플레이를 가져온다.
     @Override
     public Sheet searchSheetPlayLatest() {
         User loginUser = authService.getLoginUser();
-        if (loginUser != null) {
-            SinglePlayResult singleLatest = singlePlayResultRepository.findByUserOrderCreatedAt(
-                    loginUser);
-            return singleLatest.getSheet();
+        if (loginUser == null) {
+            return null;
         }
-        return null;
+        SinglePlayResult singleLatestResult = singlePlayResultRepository.findByUserOrderByCreatedAtDesc(
+                loginUser).orElse(null);
+
+        if (singleLatestResult == null) {
+            return null;
+        }
+        return singleLatestResult.getSheet();
     }
 
     @Override
@@ -152,6 +136,10 @@ public class SheetServiceImpl implements SheetService {
     public List<SheetDetailForUserDto> getRecommendedSheets() {
         try {
             Sheet sheet = searchSheetPlayLatest();
+            if (sheet == null) {
+                return Collections.emptyList();
+            }
+            log.info("가장 최근에 플레이한 악보의 제목: {}", sheet.getTitle());
 
             // Python 서버에 파일 이름을 보내고 JSON 응답을 받음
             String response = musicService.searchRecommendMidFile(
@@ -165,14 +153,14 @@ public class SheetServiceImpl implements SheetService {
             JsonNode rootNode = objectMapper.readTree(response);
             JsonNode similarSongsNode = rootNode.get("similar_songs");
 
-            List<String> fileNames = new ArrayList<>();
+            List<String> uuids = new ArrayList<>();
             for (JsonNode songNode : similarSongsNode) {
-                String fileName = songNode.get("file_name").asText();
-                fileNames.add(fileName);
+                String uuid = songNode.get("uuid").asText();
+                uuids.add(uuid);
             }
 
             // 추출한 file_name을 기반으로 Sheet 정보를 조회하고, SheetDto로 변환
-            return searchSheetDetailByFileName(fileNames);
+            return searchSheetDetailByFileName(uuids);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error fetching recommended sheets", e);
@@ -180,16 +168,16 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
-    public List<SheetDetailDto> searchAllSheetsByStatusForAdmin(Integer status) throws IllegalArgumentException {
+    public List<SheetDetailDto> searchAllSheetsByStatusForAdmin(SheetSearchFilter sheetSearchFilter)
+            throws IllegalArgumentException {
         User loginUser = authService.getLoginUser();
         if (loginUser == null || !loginUser.getRole().equals("ROLE_ADMIN")) {
             throw new IllegalArgumentException();
         }
-        return sheetRepository.findSheetsByStatusForAdmin(status)
+        return sheetRepository.findSheetsByStatusForAdmin(sheetSearchFilter)
                 .stream()
                 .peek(dto -> dto.loadSongImg(fileUploadUtil))
                 .toList();
-
     }
 
     @Override
@@ -215,7 +203,6 @@ public class SheetServiceImpl implements SheetService {
         return true;
     }
 
-
     private Sheet registerSheet(SheetUploadForm sheetUploadForm, String uuid)
             throws IllegalArgumentException {
         try {
@@ -240,4 +227,19 @@ public class SheetServiceImpl implements SheetService {
                 .collect(Collectors.toList());
     }
 
+
+    private void changeStatusToWaiting(Sheet sheet) {
+        sheet.updateStatus(0);
+        sheetRepository.save(sheet);
+    }
+
+    private void changeStatusToApproved(Sheet sheet) {
+        sheet.updateStatus(1);
+        sheetRepository.save(sheet);
+    }
+
+    private void changeStatusToRejected(Sheet sheet) {
+        sheet.updateStatus(2);
+        sheetRepository.save(sheet);
+    }
 }

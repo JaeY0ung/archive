@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
 import { useRouter } from "vue-router"
-import {searchSheetsByFilter, getRecommendSheetByUserRecentPlay} from '@/api/sheet';
+import { searchSheetsByFilter, getRecommendSheetByUserRecentPlay } from '@/api/sheet';
 
 const router = useRouter();
 
@@ -12,7 +12,7 @@ const recommendSheets = ref([]); // 추천 악보 리스트
 const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
 
 const getPopularsheets = async () => {
-	searchSheetsByFilter(
+	await searchSheetsByFilter(
 		{ sort: "POPULAR" },
 		({ data }) => {
 			if (!data) return;
@@ -22,7 +22,7 @@ const getPopularsheets = async () => {
 }
 
 const getnewsheets = async () => {
-	searchSheetsByFilter(
+	await searchSheetsByFilter(
 		{ sort: "LATEST" },
 		({ data }) => {
 			if (!data) return;
@@ -32,15 +32,15 @@ const getnewsheets = async () => {
 }
 
 const getRecommendSheets = async () => {
-    await getRecommendSheetByUserRecentPlay(
-        (res) => {
-            if (res && res.data) {
-              recommendSheets.value = res.data; // 객체 내 data에 접근해서 할당
-              return
-            }
-            console.error('No valid data structure returned from searchSheetRecommand');
-        }
-    )
+	await getRecommendSheetByUserRecentPlay(
+		(res) => {
+			if (res && res.data) {
+				recommendSheets.value = res.data; // 객체 내 data에 접근해서 할당
+				return
+			}
+			console.error('No valid data structure returned from searchSheetRecommand');
+		}
+	)
 }
 
 // const getRecentChallengedsheets = async () => {
@@ -69,7 +69,8 @@ const goToSheetDetail = (sheetId) => {
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<div class="flex w-full absolute scroll-x">
 						<template v-if="popularSheets">
-							<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet" @click="goToSheetDetail(sheet.id)"/>
+							<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"
+								@click="goToSheetDetail(sheet.id)" />
 						</template>
 					</div>
 				</div>
@@ -80,7 +81,8 @@ const goToSheetDetail = (sheetId) => {
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<div class="flex w-full absolute scroll-x">
 						<template v-if="newSheets">
-							<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet" @click="goToSheetDetail(sheet.id)"/>
+							<SmallSheetCard v-for="sheet in newSheets" :key="sheet.id" :sheet="sheet"
+								@click="goToSheetDetail(sheet.id)" />
 						</template>
 					</div>
 				</div>
@@ -89,11 +91,12 @@ const goToSheetDetail = (sheetId) => {
 
 		<div class="flex justify-between">
 			<div class="flex flex-col gap-5 w-[70%] h-[150px] p-[10px] bg-white/50 rounded-xl">
-				<div  class="bold">추천</div>
+				<div class="bold">추천</div>
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<div class="flex w-full absolute scroll-x">
 						<template v-if="recommendSheets">
-							<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet" @click="goToSheetDetail(sheet.id)"/>
+							<SmallSheetCard v-for="sheet in recommendSheets" :key="sheet.id" :sheet="sheet"
+								@click="goToSheetDetail(sheet.id)" />
 						</template>
 					</div>
 				</div>
@@ -101,12 +104,13 @@ const goToSheetDetail = (sheetId) => {
 
 			<div class="p-[10px] bg-white/50 rounded-xl w-[25%]">
 				<div>
-					<div><p class="bold">도전 중인 악보</p></div>
+					<div>
+						<p class="bold">도전 중인 악보</p>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

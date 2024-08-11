@@ -149,9 +149,9 @@ const goToBattle = () => {
         alert("악보를 고르세요")
         return;
     }
+    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'start', sender: user.nickname, content: 'true', sheetId: selectedSheetId.value }));;
     router.push({name:'multiPlay', params:{ roomId: route.params.roomId ,sheetId:selectedSheetId.value}});
     canLeaveSite.value = true;
-    stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: 'start', sender: user.nickname, content: 'true', sheetId: selectedSheetId.value }));;
 }
 
 function readyButton() {

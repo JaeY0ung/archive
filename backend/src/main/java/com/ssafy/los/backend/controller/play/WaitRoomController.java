@@ -49,6 +49,7 @@ public class WaitRoomController {
     @MessageMapping("/wait/start/{roomId}")
     @SendTo("/wait/socket/start/{roomId}")
     public PlayerStartDto sendPlayerReady(PlayerStartDto playerStartDto) throws Exception {
+        log.info("대기방에서 시작버튼을 눌렀을 때 : {}", playerStartDto.toString());
         return playerStartDto;
     }
 
