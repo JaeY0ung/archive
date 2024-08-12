@@ -6,7 +6,10 @@ import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import { searchSheetDetail, searchSheetsByFilter, searchStarRateListBySheetId, registerStarRateBySheetId } from "@/api/sheet";
+import { useUserStore } from '@/stores/user';
 
+const userStore = useUserStore();
+const userInfo = userStore.userInfo;
 const route = useRoute();
 const local = localAxios();
 const isPlay = ref("stop");
@@ -14,7 +17,8 @@ const router = useRouter();
 const sheet = ref({});
 const sameLevelSheets = ref([]);
 const starRateList = ref([]);
-const starRateStatistic = ref([0, 0, 0, 0, 0]); // 별점5 인 리뷰들의 수
+const starRateStatistic = ref([0, 0, 0, 0, 0]); 
+const starRateAvg = ref(null);
 
 const totalStarRateCount = computed(() => {
 	let sum = 0;
@@ -30,15 +34,16 @@ const starRateMaxCount = computed(() => {
 	return max;
 })
 
-const starRateAvg = computed(() => {
+// 별점 평균과 별점 통계 계산
+const calculateStarRateStats = () => {
 	starRateStatistic.value = [0, 0, 0, 0, 0];
 	let sum = 0;
-	starRateList.value.map((starRateInfo) => {
+	starRateList.value.forEach((starRateInfo) => {
 		sum += starRateInfo.starRate;
 		starRateStatistic.value[starRateInfo.starRate - 1]++;
 	});
-	return sum ? round(sum / starRateList.value.length, 2) : "첫번째 별점을 등록해주세요";
-})
+	starRateAvg.value = sum ? round(sum / starRateList.value.length, 2) : null;
+};
 
 const starRateRegisterForm = ref({
 	content: "",
@@ -71,6 +76,7 @@ const searchStarRateList = async () => {
 		({ data }) => {
 			if (!data) return;
 			starRateList.value = data;
+			calculateStarRateStats();
 		}
 	)
 };
@@ -121,14 +127,17 @@ const goToSheetDetail = (sheetId) => {
 </script>
 
 <template>
-	<div class="flex w-full h-full justify-between flex-margin  ">
-		<!-- 왼쪽 -->
-		<div class="flex flex-col gap-10 w-[50%]  mb-[10px] rounded-b-xl ">
-			<BigSheetCard :sheet="sheet" />
-			<div>
-				<div style="font-size:20px; font-weight:600; ">비슷한 수준의 악보 추천</div>
-				<div class="line"></div>
-				<div class="scroll-x flex bg-white/50 rounded-b-xl h-[100px]  shadow-xl">
+	<div class="flex w-full h-full justify-between p-5 ">
+		<!-- 1. 악보 디테일 정보 -->
+		<div class="flex flex-col gap-3 w-[50%] h-full">
+			<!-- 1-1. 악보 카드 -->
+			<BigSheetCard :sheet="sheet" class="rounded-xl shadow-lg" />
+			
+			<!-- 1-2. 비슷한 수준의 악보 추천 -->
+			<div class="bg-white h-[30%] bg-opacity-60 rounded-xl shadow-md">
+				<div class="text-2xl font-semibold text-gray-700 ml-2 mb-2">비슷한 수준의 악보 추천</div>
+				<hr class=" border-gray-300 mb-2">
+				<div class="scroll-x flexrounded-b-xl h-[100px]">
 					<template v-if="sameLevelSheets && sameLevelSheets.length != 0">
 						<template v-for="sheet in sameLevelSheets" :key="sheet.id">
 							<SmallSheetCard :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer h-fit" />
@@ -142,64 +151,127 @@ const goToSheetDetail = (sheetId) => {
 				</div>
 			</div>
 
-			<div class="flex flex-col flex-grow w-full rounded-b-xl shadow-xl ">
-				<div style="font-size:20px; font-weight:600; ">리뷰</div>
-				<div class="line"></div>
-				<!-- 위 -->
-				<div class="flex w-full bg-yellow-200">
-					<!-- 왼쪽 -->
-					<div class="w-[20%] flex flex-col justify-center items-center">
-						<div>{{ starRateAvg }}</div>
-						<div class="rating rating-lg">
-							<input type="radio" name="rating-10" class="mask mask-star-2 "/>
+			<!-- 1-3. 리뷰 섹션 -->
+			<div class="flex flex-col h-[50%] w-full p-2 bg-white bg-opacity-50 rounded-xl shadow-lg">
+				<div class="text-2xl font-semibold text-gray-700 mb-2">리뷰 [{{ starRateList.length }}]</div>
+				<hr class=" border-gray-300 mb-2">
+
+				<!-- 1.3.1 별점 요약 -->
+				<div class="flex justify-around w-full bg-white bg-opacity-40 rounded-xl shadow-md">
+					<!-- 1) 별점 평균 -->
+					<div class="w-[40%] flex flex-col items-center justify-center text-center bg-gray-100 shadow-md bg-opacity-50 p-2 rounded-lg">
+						<div v-if="starRateAvg">
+						    <div class="flex justify-center">
+								<div class="text-5xl font-bold text-gray-600">{{ starRateAvg }}</div>
+								<div class="text-gray-600 text-xl mt-6">/ 5.0</div>
+							</div>
+							<div class="flex justify-center items-center mt-2">
+								<template v-for="n in 5">
+									<span 
+										class="inline-block w-6 h-6 mask mask-star-2" 
+										:class="n <= Math.round(starRateAvg) ? 'bg-purple-500' : 'bg-gray-300'">
+									</span>
+								</template>
+							</div>
 						</div>
-						<div>{{ totalStarRateCount }} 개의 평가</div>
+						<div v-else class="text-xl font-semibold text-gray-500">첫번째 별점을<br>등록해주세요</div>
+						<div class="text-sm text-gray-600 mt-2">{{ totalStarRateCount }}개의 평가</div>
 					</div>
-					<!-- 중간 -->
-					<div class="w-[30%] flex flex-col-reverse">
+					<!-- 2) 별점 그래프 -->
+					<div class="w-[60%] flex flex-row justify-around items-end p-4">
 						<template v-for="(starRateCount, index) in starRateStatistic" :key="index">
-							<div class="flex text-center">
-								<div class="rating">
-									<input type="radio" name="rating-10" class="mask mask-star-2  bg-green-500"/>
+						<!-- <template v-for="(starRateCount, index) in [1,1,2,3,3]" :key="index"> -->
+							<div class="flex flex-col items-center">
+								<!-- 회색 막대 배경 -->
+								<div 
+									class="bg-gray-200 rounded-xl shadow-md"
+									:style="{ 
+										'height': '100px', 
+										'width': '20px',
+										'position': 'relative',
+										'overflow': 'hidden'
+									}"
+								>
+								<!-- 연보라색 막대 -->
+								<div 
+									class="bg-purple-200 rounded-xl absolute bottom-0 shadow-md shadow-up shadow-right"
+									:style="{ 
+										'height': `${(starRateCount / starRateMaxCount) * 100}%`, 
+										'width': '100%'
+									}"
+								></div>
 								</div>
-								<div class="flex items-center">{{ index + 1 }}</div>
-								<div class="flex items-center">
-									<!-- 가장 높은 starRate의 그래프 길이는 일정하도록 설정 -->
-									<div class="bg-blue-600" :style="{'width':  `${starRateCount / starRateMaxCount * 170}px`, 'height': '10px' }"></div>
-								</div>
+								<!-- 막대 하단의 숫자 -->
+								<div class="mt-2 text-sm text-gray-600">{{ index + 1 }}점</div>			
 							</div>
 						</template>
 					</div>
-					<!-- 오른쪽 -->
-					<div class="w-[50%] h-full m-auto">
-						<form @prevent.default="registerStarRate">
-							<div class="rating rating-lg flex justify-center">
-								<input type="radio" name="rating-10" class="rating-hidden" />
-								<template v-for="i in 5">
-									<input type="radio" name="rating-10" class="mask mask-star-2 bg-green-500" @change="updateStarRate(i)" :checked="{'checked': i == 5}"/>
-								</template>
-							</div>
-							<div class="w-full flex">
-								<textarea type="text" class="input input-bordered w-[90%]" placeholder="평가" v-model="starRateRegisterForm.content" />
-								<div @click="registerStarRate" class="btn btn-primary">등록</div>
-							</div>
-						</form>
-					</div>
 				</div>
-				<!-- 아래 -->
-				<div class="flex flex-grow w-full relative overflow-hidden rounded-b-xl bg-slate-400">
-					<div class="w-full h-full absolute gap-3 scroll-y bg-black">
-						<div class="flex w-full bg-white" v-for="(starRateInfo, index) in starRateList" :key="index">
-							<div class="flex-1">{{ starRateInfo.nickname }}</div>
-							<div class="flex-1">{{ starRateInfo.content }}</div>
-							<div class="flex-1">{{ starRateInfo.starRate }}</div>
+
+				<!-- 1.3.2 평가 등록 -->
+				<div class="w-full m-auto">
+					<form @prevent.default="registerStarRate" class="flex flex-row gap-1 justify-between">
+						<!-- (1) 별점 클릭 -->
+						<div class="w-[50%] rating rating-lg flex justify-center bg-white bg-opacity-50 mt-2 mb-2 shadow-md rounded-xl">
+							<input type="radio" name="rating-10" class="rating-hidden" />
+							<div>
+								<template v-for="i in 5" >
+								<input 
+									type="radio" 
+									name="rating-10" 
+									class="mask mask-star-2 bg-yellow-400 rounded-xl shadow-md" 
+									@change="updateStarRate(i)" 
+									:checked="{'checked': i == 5}"
+									style="width: 40px; height: 40px; margin-right: 5px;" 	
+								/>
+								</template>
+								<div class="text-xs text-gray-500 text-center">별점을 클릭해주세요.</div>
+							</div>
 						</div>
+						<!-- (2) 텍스트 리뷰 등록 -->
+						<div class="w-full flex bg-white bg-opacity-50 mt-2 mb-2 rounded-xl justify-center shadow-md">
+							<textarea type="text" class="input input-bordered w-[90%] m-2 pl-1" placeholder="한 줄 리뷰를 입력해주세요." v-model="starRateRegisterForm.content" />
+							<div @click="registerStarRate" class="btn bg-white m-2 shadow-md text-lg">등록</div>
+						</div>
+					</form>
+				</div> 
+				
+				<!-- 1.3.3 평가 리스트  -->
+				<!-- <div class="max-h-[200px] overflow-y-auto">
+					<div v-for="(starRateInfo, index) in starRateList" :key="index" class="flex items-center p-4 bg-gray-100 mb-2 rounded-lg shadow-md">
+						<div class="w-1/4 text-gray-800 font-semibold">{{ starRateInfo.nickname }}</div>
+						<div class="w-1/4 text-yellow-500 text-xl"><i class="fas fa-star"></i> {{ starRateInfo.starRate }}</div>
+						<div class="w-1/2 text-gray-600">{{ starRateInfo.content }}</div>
+					</div>
+				</div> -->
+				<div class="max-h-[200px] overflow-y-auto">
+					<div v-for="(starRateInfo, index) in starRateList" :key="index" class="flex items-center p-4 bg-gray-100 mb-2 rounded-lg shadow-md">
+						<div class="w-12 h-12 mr-4">
+							<img 
+								:src="starRateInfo.userImg ? starRateInfo.userImg : require('@/assets/img/common/default_profile.png')" 
+								alt="프로필 사진" 
+								class="rounded-full object-cover w-full h-full">
+						</div>
+						
+						<div class="w-1/4 text-gray-800 font-semibold">{{ starRateInfo.nickname }}</div>
+						
+						<!-- 별점 표시 -->
+						<div class="w-1/4 text-yellow-500 text-xl flex">
+							<template v-for="n in 5">
+								<span 
+									class="inline-block w-5 h-5 mask mask-star-2 shadow-md" 
+									:class="n <= starRateInfo.starRate ? 'bg-purple-400' : 'bg-gray-300'">
+								</span>
+							</template>
+						</div>
+						
+						<div class="w-1/2 text-gray-600">{{ starRateInfo.content }}</div>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- 오른쪽 -->
+		<!-- 2. musicXML -->
 		<div class="flex flex-col gap-5 w-[49%]  bg-white rounded-xl mb-[10px] shadow-xl">
 			<Sheet :sheetId="Number(route.params.sheetId)"/>
 		</div>
@@ -212,5 +284,13 @@ const goToSheetDetail = (sheetId) => {
 	display: block;
 	border-top: 2px solid rgba(0, 0, 0, 0.5);
 	width: 100%;
+}
+
+.shadow-up {
+	box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-right {
+	box-shadow: 4px 0 6px -1px rgba(0, 0, 0, 0.1), 2px 0 4px -1px rgba(0, 0, 0, 0.06);
 }
 </style>

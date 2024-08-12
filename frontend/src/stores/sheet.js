@@ -23,6 +23,8 @@
         const jaccard = ref([]);   
         const route = useRoute();
         const isLast = ref(false);
+        const singleResultId = ref(0);
+        const playMode = ref("");
 
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);
@@ -169,7 +171,7 @@
             console.log("Sending formData", formData);
             
             try {
-                const res = await local.post('/plays/single/sendFile', formData, {
+                const res = await local.post(`/plays/${playMode.value}/${singleResultId.value}/live-score`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -256,6 +258,8 @@
             f1,
             jaccard,
             isLast,
+            singleResultId,
+            playMode,
             initializeOsmd,
             loadAndSetupOsmd,
             setVolume,

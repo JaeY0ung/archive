@@ -26,17 +26,12 @@ const isQuitting = ref(false);
 const isPopstate = ref(false);
 const isReloading = ref(false);
 
+// sheet.js에서 올바른 경로로 보낼 수 있도록 mode를 지정해준다.
+musicStore.playMode = "single";
+
 // 플레이 점수를 가져온다.
 const myF1Score = ref(0);
 const myJaccardScore = ref(0);
-
-// const myF1Score = computed(() => {
-//     if (musicStore.f1.length === 0) return 0;
-//     const averageScore =
-//         musicStore.f1.reduce((acc, score) => acc + score, 0) /
-//         musicStore.f1.length;
-//     return Math.floor(averageScore * 100);
-// });
 
 if (musicStore.f1.length !== 0) {
     myF1Score.value = Math.floor(
@@ -45,13 +40,6 @@ if (musicStore.f1.length !== 0) {
     );
 }
 
-// const myJaccardScore = computed(() => {
-//     if (musicStore.jaccard.length === 0) return 0;
-//     const averageScore =
-//     musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
-//     musicStore.jaccard.length;
-//     return Math.floor(averageScore * 100);
-// });
 if (musicStore.jaccard.length !== 0) {
     myJaccardScore.value = Math.floor(
         (musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
@@ -87,8 +75,6 @@ watch(
         } else {
             myJaccardScore.value = 0;
         }
-        // 변화된 점수를 상대방에게 전송하는 소켓 메서드
-        console.log("확인")
     },
     { deep: true } // 배열 내부의 변화도 감지
 );
@@ -109,6 +95,9 @@ const onStartRecordingEmit = async () => {
 		});
     singleResultId = response.data
     console.log("싱글 플레이 데이터 저장 성공");
+    // sheet.js에서 중간 점수를 보낼 때, singleResultId를 같이 보낼 수 있도록 sheet.js 저장
+    musicStore.singleResultId = singleResultId;
+    // sheet store에 singleResultId 저장
   }catch(error){
     console.log("싱글 플레이 데이터 저장 중 오류 발생");
   }
@@ -132,12 +121,15 @@ watch(() => musicStore.isLast,
 // 임의로 delete mapping을 호출할 것이지만, 상의 후 최종 결정할 것.
 const handleBeforeUnload = async () => {
 
+// 새로고침도 방을 나가게 할 것이라면 || isReloading.value도 추가
 if(isQuitting.value || isPopstate.value){
 
 }else{
   if(musicStore.isRecording == false){
     const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
   }else{
+    // 녹음 중 탭을 닫거나 주소창을 이동시키는 방법으로 방을 나갔을 경우
+    // local.patch 또는 local.delete로 데이터 수정.
     const answer = window.confirm("방을 나가시겠습니까?\n완료되지 않은 연습기록은 저장되지 않습니다.");
   }
 }
@@ -165,20 +157,43 @@ onBeforeRouteLeave(async (to, from, next) => {
   // 새로고침 체크
     if(to.name == from.name){
         // isReloading.value = true;
-        next();
+        // 새로고침을 불가능하게 만들었다.
+        next(false);
     }
 
+    // 뒤로가기를 누를경우, 경고창을 띄운 이후, 진행하면 multiRoomList로 보낸다.
     if(isPopstate.value == true && to.name == "singleWait"){
-      if(window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.")){
-        router.push({name: "multiRoomList"});
+      if(musicStore.isRecording == true){
+        if(window.confirm("방을 나가시겠습니까?\n진행중인 플레이의 기록은 0점 처리됩니다.\n방 목록 페이지로 이동합니다.")){
+          router.push({name: "multiRoomList"});
+        }
+      }else{
+        if(window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.")){
+          router.push({name: "multiRoomList"});
+        }
       }
     }
 
-    if(isPopstate.value == true && to.name == "multiRoomList"){
-      next();
+    // 뒤로가기를 눌렀을 때, multiRoomList로 보낸이후에 해당 조건문에 걸려서 방목록 페이지로 이동한다.
+    // 또는 나가기 버튼을 누른 경우
+    if((isPopstate.value == true && to.name == "multiRoomList") || isQuitting.value == true){
+      // 뒤로가기를 눌렀을 때, 녹음 중이 아니라면 방목록 페이지로 이동시킨다.
+      if(musicStore.isRecording == false){
+        console.log("녹음 중이 아닐 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
+        next();
+      }else{
+        console.log("녹음 중일 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
+        // 뒤로가기를 눌렀을 때, 녹음 중이라면 0점 처리되고, 방목록 페이지로 이동시킨다.
+        local.patch(`/plays/single/${singleResultId}`, {
+          userId: loginUser.id,
+          score: 0
+        }).catch(error => {
+          console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
+        });
+      }
     }
 
-
+    // 방을 나가기 또는 여타 버튼을 눌렀을 때 동작한다.
     const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
     if (answer) {
       next();
