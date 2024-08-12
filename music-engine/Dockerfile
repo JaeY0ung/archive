@@ -3,27 +3,36 @@ FROM python:3.8
 
 # 필요한 시스템 패키지 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    xvfb \
-    xauth\
     wget \
     lsb-release \
     software-properties-common \
     apt-transport-https \
     ca-certificates \
+    libsndfile-dev \
+    fluidsynth \
     ffmpeg \
     musescore \
+    xvfb \
     build-essential && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# pip 최신 버전으로 업그레이드 및 필수 Python 패키지 설치
-RUN pip install --upgrade pip && \
-    pip install Cython numpy==1.21.6 setuptools==59.5.0
+# pip 최신 버전으로 업그레이드
+RUN pip install --upgrade pip
+
+# Cython, numpy 설치
+RUN pip install numpy==1.21.6 Cython==0.29.24
+
+# omnizart 설치
+RUN pip install omnizart
+
+# omnizart 체크포인트 다운로드
+RUN omnizart download-checkpoints
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 루트 디렉토리의 종속성 파일 복사 및 설치
+# 종속성 파일 복사 및 설치
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
