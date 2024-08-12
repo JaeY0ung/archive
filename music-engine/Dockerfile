@@ -1,16 +1,16 @@
 # Python 3.9 기본 이미지 사용
 FROM python:3.9
 
-# 시스템 패키지 업데이트 및 필수 패키지 설치
+# LLVM 리포지토리 추가
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ffmpeg \
+    wget \
+    lsb-release \
     software-properties-common \
     apt-transport-https \
-    ca-certificates \
-    gnupg \
-    musescore \
-    xvfb \
-    llvm-11 llvm-11-dev build-essential && \
+    ca-certificates && \
+    wget https://apt.llvm.org/llvm.sh && \
+    chmod +x llvm.sh && \
+    ./llvm.sh 11 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
