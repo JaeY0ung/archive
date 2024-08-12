@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import subprocess
 
-from service.level_prediction_service import LevelPredictionService
+# from service.level_prediction_service import LevelPredictionService
 from service.midi_service import midi_service
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -213,7 +213,7 @@ async def mid2xml(file_request: FileRequest):
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(CURRENT_DIR,"model")
 TRAIN_DATA_DIR = os.path.join(PROJECT_ROOT_PATH, "file", "train-midi")
-level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
+# level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
 
 class MidiRequest(BaseModel):
     filename: str
@@ -245,27 +245,27 @@ async def process_midi(request: MidiRequest):
 class FileRequest(BaseModel):
     filename: str
 
-@app.post("/predict-difficulty")
-async def predict_difficulty(file_request: FileRequest):
-    try:
-        midi_file_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid", file_request.filename)
-        if not os.path.exists(midi_file_path):
-            raise FileNotFoundError(f"{midi_file_path} 파일이 존재하지 않습니다.")
+# @app.post("/predict-difficulty")
+# async def predict_difficulty(file_request: FileRequest):
+#     try:
+#         midi_file_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid", file_request.filename)
+#         if not os.path.exists(midi_file_path):
+#             raise FileNotFoundError(f"{midi_file_path} 파일이 존재하지 않습니다.")
 
-        difficulty, confidence = level_prediction_service.predict_difficulty(midi_file_path)
+#         difficulty, confidence = level_prediction_service.predict_difficulty(midi_file_path)
 
-        return JSONResponse(content={
-            "filename": file_request.filename,
-            "predicted_difficulty": int(difficulty),
-            "prediction_confidence": float(confidence)
-        }, status_code=200)
+#         return JSONResponse(content={
+#             "filename": file_request.filename,
+#             "predicted_difficulty": int(difficulty),
+#             "prediction_confidence": float(confidence)
+#         }, status_code=200)
 
-    except FileNotFoundError as e:
-        logger.error(f"MIDI 파일을 찾을 수 없음: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"난이도 예측 중 오류 발생: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"내부 서버 오류: {str(e)}")
+#     except FileNotFoundError as e:
+#         logger.error(f"MIDI 파일을 찾을 수 없음: {str(e)}", exc_info=True)
+#         raise HTTPException(status_code=404, detail=str(e))
+#     except Exception as e:
+#         logger.error(f"난이도 예측 중 오류 발생: {str(e)}", exc_info=True)
+#         raise HTTPException(status_code=500, detail=f"내부 서버 오류: {str(e)}")
 
 
 # FastAPI 실행 명령어
