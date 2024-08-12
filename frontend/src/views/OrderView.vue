@@ -148,7 +148,12 @@ onMounted(() => {
 		{{ item.price }}\</p>
       </div>
 	  
-	  <button @click="checkout" class="btn bg-sky-300 bg-opacity-80 w-full mb-2 shadow-md">결제하기</button>
+	  <button @click="checkout"
+              :disabled="selectedItems.size === 0"
+              :class="{'bg-gray-300': selectedItems.size === 0, 'bg-sky-300': selectedItems.size > 0}"
+              class="btn w-full mb-2 shadow-md">
+        결제하기
+      </button>
 	  <button @click="clearAllItems" class="btn bg-pink-400 bg-opacity-60 w-full shadow-md">장바구니 비우기</button>
 	</div>
   </div>
