@@ -10,22 +10,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     musescore \
     xvfb \
-    llvm llvm-dev build-essential && \
+    llvm-14 llvm-14-dev build-essential && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-
 # LLVM_CONFIG 환경 변수 설정
-ENV LLVM_CONFIG=/usr/bin/llvm-config
+ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
 
+# llvmlite 설치 시도
+RUN pip install llvmlite==0.37.0
+
 # Cython, numpy, setuptools 설치
 RUN pip install Cython numpy==1.21.6 setuptools==59.5.0
-
-# llvmlite 설치
-RUN pip install llvmlite==0.37.0
 
 # 작업 디렉토리 설정
 WORKDIR /app
