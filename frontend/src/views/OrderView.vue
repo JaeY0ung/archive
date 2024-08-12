@@ -3,9 +3,12 @@ import { ref, computed, onMounted } from 'vue';
 import { getOrder, removeFromOrder, clearOrder } from '@/util/order';
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 import {addSheetToOrderAPI} from "@/api/order";
+import PaymentResultModal from "@/common/modal/PaymentResultModal.vue";
 
 const orderItems = ref([]);
 const selectedItems = ref(new Set());
+const isModalVisible = ref(false);
+const paymentResult = ref({});
 
 onMounted(() => {
   orderItems.value = getOrder();
@@ -41,14 +44,20 @@ const checkout = async () => {
 	console.log(itemsToCheckout); // id 값만 출력됨을 확인
     const totalPrice = totalSelectedPrice.value;
 	await addSheetToOrderAPI(itemsToCheckout, 'KAKAO_PAY', totalPrice,
-
 		(redirectUrl) => {
-		  clearOrder();
-		  console.log(redirectUrl);
-      window.location.href = redirectUrl; // 결제 페이지로 리디렉션
-		  alert('Order placed successfully!');
-		  // router.push({name: 'home'}); // 주석 처리된 라우터 네비게이션
+	  		clearOrder();
+		  	window.location.href = redirectUrl;
+		  	// paymentResult.value = response.data; // 결제 응답 저장
+		  	// console.log(paymentResult.value);
+		  	// isModalVisible.value = true; // 모달 표시
 		},
+		// (redirectUrl) => {
+		//   clearOrder();
+		//   console.log(redirectUrl);
+      // window.location.href = redirectUrl; // 결제 페이지로 리디렉션
+		//   alert('Order placed successfully!');
+		//   // router.push({name: 'home'}); // 주석 처리된 라우터 네비게이션
+		// },
 		(error) => {
 		  console.error('Failed to place order:', error);
 		});
@@ -65,6 +74,34 @@ const totalSelectedPrice = computed(() => {
 
 const selectedItemsList = computed(() => {
   return orderItems.value.filter(item => selectedItems.value.has(item.id));
+});
+
+// 결제 완료 후 처리를 위한 새로운 함수
+const handlePaymentCompletion = async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const pgToken = urlParams.get('pg_token');
+
+  if (pgToken) {
+	try {
+	  const response = await fetch(`/pay/completed?pg_token=${pgToken}`);
+	  const result = await response.json();
+
+	  paymentResult.value = result;
+	  isModalVisible.value = true;
+	} catch (error) {
+	  console.error('Error fetching payment result:', error);
+	  paymentResult.value = {
+		status: 'error',
+		message: '결제 결과를 불러오는 데 실패했습니다.'
+	  };
+	  isModalVisible.value = true;
+	}
+  }
+};
+
+onMounted(() => {
+  orderItems.value = getOrder();
+  handlePaymentCompletion();
 });
 </script>
 
@@ -115,6 +152,21 @@ const selectedItemsList = computed(() => {
 	  <button @click="clearAllItems" class="btn bg-pink-400 bg-opacity-60 w-full shadow-md">장바구니 비우기</button>
 	</div>
   </div>
+
+<!--  <div class="flex justify-around w-full h-full">-->
+<!--	&lt;!&ndash; Your existing template code here &ndash;&gt;-->
+
+<!--	<PaymentResultModal-->
+<!--		:isVisible="isModalVisible"-->
+<!--		:paymentResult="paymentResult"-->
+<!--		@close="isModalVisible.value = false" />-->
+<!--  </div>-->
+
+  <PaymentResultModal
+	  :isVisible="isModalVisible"
+	  :paymentResult="paymentResult"
+	  @close="isModalVisible = false"
+  />
 </template>
 
 <style scoped>

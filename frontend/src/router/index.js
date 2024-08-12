@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/user";
+import PaymentResultHandler from "@/common/modal/PaymentResultHandler.vue";
 
 
 const routes = [
@@ -127,6 +128,26 @@ const routes = [
         path: "/payment",
         name: "payment",
         component: () => import("@/views/PaymentView.vue"),
+    },
+    {
+        path: "/payment/result",
+        name: "PaymentResult",
+        component: PaymentResultHandler,
+    },
+    {
+        path: '/pay/completed',
+        name: 'PaymentSuccess',
+        component: PaymentResultHandler
+    },
+    {
+        path: '/payment/cancel',
+        name: 'PaymentCancel',
+        component: PaymentResultHandler
+    },
+    {
+        path: '/payment/fail',
+        name: 'PaymentFail',
+        component: PaymentResultHandler
     },
     // 음악 녹음 페이지
     {

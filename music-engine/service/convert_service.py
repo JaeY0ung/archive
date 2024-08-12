@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..env')
 load_dotenv(dotenv_path)
 
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")

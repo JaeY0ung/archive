@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.service.sheet;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.los.backend.domain.entity.Sheet;
@@ -96,7 +97,8 @@ public class SheetServiceImpl implements SheetService {
     @Override
     public List<SheetDetailDto> searchSheetByFilter(SheetSearchFilter sheetSearchFilter)
             throws IllegalArgumentException {
-        return sheetRepository.findSheetsByFilterAndLoginUser(sheetSearchFilter, authService.getLoginUser())
+        return sheetRepository.findSheetsByFilterAndLoginUser(sheetSearchFilter,
+                        authService.getLoginUser())
                 .stream()
                 .peek(dto -> dto.loadSongImg(fileUploadUtil))
                 .toList();
@@ -104,13 +106,15 @@ public class SheetServiceImpl implements SheetService {
 
     @Override
     public String getMusicXmlFileById(Long sheetId) {
-        SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId, authService.getLoginUser());
+        SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId,
+                authService.getLoginUser());
         return fileUploadUtil.getMusicXmlByUuid(sheet.getUuid());
     }
 
     @Override
     public String getMidFileById(Long sheetId) {
-        SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId, authService.getLoginUser());
+        SheetDetailDto sheet = sheetRepository.findSheetDetailViewDtoById(sheetId,
+                authService.getLoginUser());
         return fileUploadUtil.getMidByUuid(sheet.getUuid());
     }
 
@@ -127,15 +131,17 @@ public class SheetServiceImpl implements SheetService {
         }
     }
 
-    // 최근에 플레이한 싱글 플레와 멀티 플레이를 가져온다.
+    // 최근에 플레이한 싱글 플레이를 가져온다.
     @Override
     public Sheet searchSheetPlayLatest() {
         User loginUser = authService.getLoginUser();
         if (loginUser == null) {
             return null;
         }
-        SinglePlayResult singleLatestResult = singlePlayResultRepository.findByUserOrderByCreatedAtDesc(
-                loginUser).orElse(null);
+//        SinglePlayResult singleLatestResult = singlePlayResultRepository.findByUserOrderByCreatedAtDesc(
+//                loginUser).orElse(null);
+        SinglePlayResult singleLatestResult = singlePlayResultRepository.findOrderCreatedAtByUser(
+                loginUser);
 
         if (singleLatestResult == null) {
             return null;
@@ -150,37 +156,38 @@ public class SheetServiceImpl implements SheetService {
 
     @Override
     public List<SheetDetailForUserDto> getRecommendedSheets() {
-        try {
-            Sheet sheet = searchSheetPlayLatest();
-            if (sheet == null) {
-                return Collections.emptyList();
-            }
-            log.info("가장 최근에 플레이한 악보의 제목: {}", sheet.getTitle());
+        Sheet sheet = searchSheetPlayLatest();
+        if (sheet == null) {
+            log.info("sheet가 비어 있습니다.");
+            return Collections.emptyList();
+        }
+        log.info("가장 최근에 플레이한 악보의 제목: {}", sheet.getTitle());
 
-            // Python 서버에 파일 이름을 보내고 JSON 응답을 받음
-            String response = musicService.searchRecommendMidFile(
-                    musicEngineBaseUrl + "/process-midi", sheet.getUuid() + ".mid");
+        // Python 서버에 파일 이름을 보내고 JSON 응답을 받음
+        String response = musicService.searchRecommendMidFile(
+                musicEngineBaseUrl + "/process-midi", sheet.getUuid() + ".mid");
 //            String response = musicService.searchRecommendMidFile(
 //                    musicEngineBaseUrl + "/process-midi",
 //                    "아로하.mid");
-
-            // JSON 응답을 파싱하여 file_name 값들을 추출
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(response);
-            JsonNode similarSongsNode = rootNode.get("similar_songs");
-
-            List<String> uuids = new ArrayList<>();
-            for (JsonNode songNode : similarSongsNode) {
-                String uuid = songNode.get("uuid").asText();
-                uuids.add(uuid);
-            }
-
-            // 추출한 file_name을 기반으로 Sheet 정보를 조회하고, SheetDto로 변환
-            return searchSheetDetailByFileName(uuids);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error fetching recommended sheets", e);
+        log.info(response);
+        // JSON 응답을 파싱하여 file_name 값들을 추출
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = null;
+        try {
+            rootNode = objectMapper.readTree(response);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
+        JsonNode similarSongsNode = rootNode.get("similar_songs");
+
+        List<String> uuids = new ArrayList<>();
+        for (JsonNode songNode : similarSongsNode) {
+            String uuid = songNode.get("uuid").asText();
+            uuids.add(uuid);
+        }
+
+        // 추출한 file_name을 기반으로 Sheet 정보를 조회하고, SheetDto로 변환
+        return searchSheetDetailByFileName(uuids);
     }
 
     @Override

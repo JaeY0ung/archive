@@ -13,6 +13,7 @@ from service.calculate_service import process_midi_file
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
+from service.level_prediction_service import LevelPredictionService
 from service.midi_service import midi_service
 
 # 로깅 설정
@@ -36,7 +37,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+dotenv_path = os.path.join(os.path.dirname(__file__), '..env')
 load_dotenv(dotenv_path)
 
 # 임시 폴더 설정
@@ -163,18 +164,22 @@ async def mid2xml(file_request: FileRequest):
         logger.error(f"파일 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="파일 변환 중 오류 발생")
 
+
 class MidiRequest(BaseModel):
     filename: str
+
 
 @app.post("/process-midi")
 async def process_midi(request: MidiRequest):
     try:
-        sheet_name = request.filename  # 필요한 sheet 이름 정보로 경로 결정
-        train_data_path = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", sheet_name)
+        # TRAIN_DATA_PATH를 설정하고 MidiService 초기화
+        # train_data_path = "/Users/moongi/Desktop/SSAFY/Archive/file/upload-sheet/mid"
+        train_data_path = r"C:\SSAFY\Archive\file\upload-sheet\mid"
+        midi_service.initialize(train_data_path)
+        logger.info("MIDI 서비스 초기화 완료")
 
-        midi_service.initialize(train_data_path)  # 여기서 경로를 설정하고 초기화
-
-        similar_songs, input_features = midi_service.find_similar_songs(request.filename)
+        similar_songs, input_features = midi_service.find_similar_songs(
+            request.filename)
 
         return JSONResponse(content={
             "similar_songs": similar_songs,
@@ -185,9 +190,42 @@ async def process_midi(request: MidiRequest):
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500,
+                            detail=f"Internal server error: {str(e)}")
+
+class MidiRequest(BaseModel):
+    filename: str
 
 
+########################
+class FileRequest(BaseModel):
+    filename: str
+
+MODEL_DIR = os.path.join(PROJECT_ROOT_PATH,"music-engine","model")
+TRAIN_DATA_DIR = os.path.join(PROJECT_ROOT_PATH, "file", "train-midi")
+level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
+
+@app.post("/predict-difficulty")
+async def predict_difficulty(file_request: FileRequest):
+    try:
+        midi_file_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid", file_request.filename)
+        if not os.path.exists(midi_file_path):
+            raise FileNotFoundError(f"{midi_file_path} 파일이 존재하지 않습니다.")
+
+        difficulty, confidence = level_prediction_service.predict_difficulty(midi_file_path)
+
+        return JSONResponse(content={
+            "filename": file_request.filename,
+            "predicted_difficulty": int(difficulty),
+            "prediction_confidence": float(confidence)
+        }, status_code=200)
+
+    except FileNotFoundError as e:
+        logger.error(f"MIDI 파일을 찾을 수 없음: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"난이도 예측 중 오류 발생: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"내부 서버 오류: {str(e)}")
 
 
 # FastAPI 실행 명령어

@@ -9,6 +9,7 @@ async function addSheetToOrderAPI(sheetIds, payType, totalPrice, successCallback
             payType: payType,
             totalPrice: totalPrice,
         });
+        console.log(response.data)
         successCallback(response.data);
     } catch (error) {
         errorCallback(error);

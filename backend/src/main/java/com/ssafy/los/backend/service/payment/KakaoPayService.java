@@ -32,6 +32,10 @@ public class KakaoPayService {
     @Value("${backend.server.url}")
     private String serverUrl;
 
+    @Value("${cors.allowedOrigins}")
+    private String frontUrl;
+
+
     private final RestTemplate restTemplate;
 
     private final AuthService authService;

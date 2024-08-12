@@ -5,11 +5,12 @@ import com.ssafy.los.backend.domain.entity.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface SinglePlayResultRepository extends JpaRepository<SinglePlayResult, Long> {
 
-//    @Query("SELECT s FROM SinglePlayResult s WHERE s.user = :user ORDER BY s.createdAt LIMIT 1")
-//    SinglePlayResult findOrderCreatedAtByUser(User user);
+    @Query("SELECT s FROM SinglePlayResult s WHERE s.user = :user ORDER BY s.createdAt LIMIT 1")
+    SinglePlayResult findOrderCreatedAtByUser(User user);
 
     Optional<SinglePlayResult> findByUserOrderByCreatedAtDesc(User user);
 
