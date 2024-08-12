@@ -10,7 +10,10 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     musescore \
     xvfb \
-    llvm  # LLVM 설치 추가
+    llvm
+
+# LLVM_CONFIG 환경 변수 설정
+ENV LLVM_CONFIG=/usr/bin/llvm-config
 
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
@@ -33,3 +36,4 @@ EXPOSE 8000
 
 # 애플리케이션 실행 명령
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+
