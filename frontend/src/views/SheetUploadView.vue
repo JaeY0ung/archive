@@ -52,12 +52,6 @@ const searchSongsByKeyword = async () => {
     await searchSongsByFilter({ keyword: keyword.value }, ({ data }) => {
         if (!data) return;
         songs.value = data;
-        // songs.value.map(
-        //     (s) =>
-        //     (s.imageUrl = s.img
-        //         ? `data:image/jpeg;base64,${s.img}`
-        //         : require("@/assets/img/default/song_img.png"))
-        // );
     });
 };
 

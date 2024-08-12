@@ -28,7 +28,7 @@ const uploadFile = async () => {
         formData.append("files", file);
     });
 
-    formData.append("level", fileInfo.value.level);
+    formData.append("level", new Blob([fileInfo.value.level], { type: "application/json" }));
     
     registerdummySheetsByAdmin(formData, (res) => { // 성공 시, 악보 디테일 페이지로 이동
         alert("업로드 성공!");
