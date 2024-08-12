@@ -1,13 +1,10 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
 import Profile from "@/common/icons/Profile.vue";
+import { userPageService } from "@/api/user-page.js";
 
-const router = useRouter();
-const local = localAxios();
 const userStore = useUserStore();
 const { userInfo } = storeToRefs(userStore);
 
@@ -40,12 +37,12 @@ const triggerFileInput = () => {
 
 const checkNicknameDuplicate = async () => {
     try {
-        const response = await local.get("/users/check-nickname", {
-            params: { nickname: loginUserInfo.value.nickname },
-        });
+        const isAvailable = await userPageService.checkNicknameDuplicate(
+            loginUserInfo.value.nickname
+        );
 
         isNicknameChecked.value = true;
-        isNicknameAvailable.value = !response.data;
+        isNicknameAvailable.value = !isAvailable;
 
         if (isNicknameAvailable.value) {
             alert("사용 가능한 닉네임입니다.");
@@ -59,15 +56,6 @@ const checkNicknameDuplicate = async () => {
     }
 };
 
-const resetForm = () => {
-    loginUserInfo.value = { ...originalUserInfo.value };
-    imagePreview.value = currentProfileImage.value;
-    isNicknameChecked.value = true;
-    isNicknameAvailable.value = true;
-    if (fileInputRef.value) {
-        fileInputRef.value.value = "";
-    }
-};
 
 const updateUserInfo = async () => {
     if (
@@ -79,32 +67,17 @@ const updateUserInfo = async () => {
     }
 
     try {
-        const formData = new FormData();
-
         const userUpdateDto = {
             nickname: loginUserInfo.value.nickname,
         };
-        const userUpdateDtoBlob = new Blob([JSON.stringify(userUpdateDto)], {
-            type: "application/json",
-        });
-        formData.append("userUpdateDto", userUpdateDtoBlob);
 
-        if (loginUserInfo.value.profileImage instanceof File) {
-            formData.append("profileImage", loginUserInfo.value.profileImage);
-        }
-
-        const response = await local.put("/users", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
-        });
+        await userPageService.updateUserInfo(userUpdateDto, loginUserInfo.value.profileImage);
 
         alert("사용자 정보가 성공적으로 업데이트되었습니다.");
         originalUserInfo.value = { ...loginUserInfo.value };
 
         await userStore.getUserInfo();
 
-        resetForm();
     } catch (error) {
         console.error("사용자 정보 업데이트 중 오류 발생:", error);
         alert("사용자 정보 업데이트에 실패했습니다. 다시 시도해 주세요.");
@@ -135,14 +108,6 @@ const canUpdate = computed(() => {
     return isModified.value;
 });
 
-const goToUserProfile = () => {
-    if (userInfo.value && userInfo.value.nickname) {
-        router.push({ name: "userProfile", params: { nickName: userInfo.value.nickname } });
-    } else {
-        alert("사용자 정보를 불러올 수 없습니다.");
-    }
-};
-
 const currentProfileImage = computed(() => {
     if (userInfo.value && userInfo.value.userImg) {
         return `data:image/jpeg;base64,${userInfo.value.userImg}`;
@@ -160,140 +125,84 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="container">
-        <div class="mb-4 profile-image-container" @click="triggerFileInput">
-            <img
-                v-if="imagePreview || currentProfileImage"
-                :src="imagePreview || currentProfileImage"
-                alt="Profile Preview"
-                class="profile-preview mx-auto"
-            />
-            <Profile v-else class="profile-icon profile-image" />
-            <div class="profile-image-overlay">
-                <span>클릭하여 변경</span>
-            </div>
-            <input
-                ref="fileInputRef"
-                type="file"
-                @change="handleImageUpload"
-                accept="image/*"
-                class="hidden"
-            />
-        </div>
+    <div class="container mx-auto p-4 max-w-xl">
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <h2 class="card-title text-2xl font-bold text-center mb-6">{{ userInfo.nickname }} 프로필</h2>
 
-        <div class="form-control w-full mb-4">
-            <label class="label">
-                <span class="label-text">이메일</span>
-            </label>
-            <input
-                v-model="loginUserInfo.email"
-                type="text"
-                class="input input-bordered w-full"
-                disabled
-            />
-        </div>
-
-        <div class="form-control w-full mb-4">
-            <label class="label">
-                <span class="label-text">닉네임</span>
-            </label>
-            <div class="flex">
+                <div class="avatar mb-6" @click="triggerFileInput">
+                    <div
+                        class="w-40 h-40 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 mx-auto relative overflow-hidden cursor-pointer"
+                    >
+                        <img
+                            v-if="imagePreview || currentProfileImage"
+                            :src="imagePreview || currentProfileImage"
+                            alt="Profile Preview"
+                            class="w-full h-full object-cover"
+                        />
+                        <Profile v-else class="w-full h-full p-4 bg-base-200" />
+                        <div
+                            class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300"
+                        >
+                            <span class="text-white text-sm">이미지 변경</span>
+                        </div>
+                    </div>
+                </div>
                 <input
-                    v-model="loginUserInfo.nickname"
-                    type="text"
-                    class="input input-bordered flex-grow mr-2"
-                    @input="resetNicknameCheck"
+                    ref="fileInputRef"
+                    type="file"
+                    @change="handleImageUpload"
+                    accept="image/*"
+                    class="hidden"
                 />
-                <button
-                    @click="checkNicknameDuplicate"
-                    class="btn btn-outline"
-                    :disabled="!isModified || loginUserInfo.nickname === originalUserInfo.nickname"
-                >
-                    중복확인
-                </button>
-            </div>
-        </div>
 
-        <div class="flex flex-col items-center mt-4">
-            <div class="mb-2">
-                <button @click="updateUserInfo" class="btn btn-primary mr-2" :disabled="!canUpdate">
-                    수정하기
-                </button>
-                <!-- <button @click="goToUserProfile" class="btn btn-info">내 프로필 가기</button> -->
+                <div class="form-control w-full mb-4">
+                    <label class="label">
+                        <span class="label-text">이메일</span>
+                    </label>
+                    <input
+                        v-model="loginUserInfo.email"
+                        type="text"
+                        class="input input-bordered w-full"
+                        disabled
+                    />
+                </div>
+
+                <div class="form-control w-full mb-6">
+                    <label class="label">
+                        <span class="label-text">닉네임</span>
+                    </label>
+                    <div class="flex gap-2">
+                        <input
+                            v-model="loginUserInfo.nickname"
+                            type="text"
+                            class="input input-bordered flex-grow"
+                            @input="resetNicknameCheck"
+                        />
+                        <button
+                            @click="checkNicknameDuplicate"
+                            class="btn btn-primary"
+                            :disabled="
+                                !isModified || loginUserInfo.nickname === originalUserInfo.nickname
+                            "
+                        >
+                            중복확인
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <button @click="updateUserInfo" class="btn btn-primary" :disabled="!canUpdate">
+                        수정하기
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped>
-.container {
-    width: 500px;
-    margin: auto;
-    text-align: center;
-}
-
-.profile-image-container {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
-    border-radius: 50%;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.profile-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-image-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.profile-image-container:hover .profile-image-overlay {
+.avatar:hover .overlay {
     opacity: 1;
-}
-
-.profile-image-overlay span {
-    font-size: 16px;
-}
-
-.btn-info {
-    background-color: #3498db;
-    color: white;
-    border: none;
-}
-
-.btn-info:hover {
-    background-color: #2980b9;
-}
-
-.profile-icon {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f0f0f0;
-    border-radius: 50%;
-}
-
-.profile-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 }
 </style>
