@@ -94,7 +94,7 @@ class ConvertService:
 
         # MuseScore를 사용하여 MIDI를 MusicXML로 변환
         try:
-            subprocess.run(["xvfb-run", MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
+            subprocess.run([MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
             logger.info(f"Successfully converted {midi_file_path} to {xml_file_path} using MuseScore.")
         except subprocess.CalledProcessError as e:
             logger.info(f"An error occurred while converting {midi_file_path} to MusicXML: {e}")
@@ -128,14 +128,6 @@ class ConvertService:
 
         # 전체 마디 수를 measures_per_section으로 나눈 몫을 올림 처리한 후 1을 뺀 값을 계산
         rounded_measures = (total_measures + measures_per_section - 1) // measures_per_section
-        rounded_measures = total_measures / measures_per_section
-
-        # 8로 나눈 나머지 계산
-        remainder = total_measures % measures_per_section
-
-        # 나머지가 있을 경우 올림된 마디 수 계산
-        if remainder > 0:
-            rounded_measures += 1
 
         # 1을 뺀 값 반환
         return rounded_measures - 1
