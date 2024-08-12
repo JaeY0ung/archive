@@ -2,7 +2,7 @@
 FROM python:3.9
 
 # 시스템 패키지 업데이트 및 필수 패키지 설치
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     software-properties-common \
     apt-transport-https \
@@ -10,7 +10,10 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     musescore \
     xvfb \
-    llvm llvm-dev build-essential
+    llvm llvm-dev build-essential && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # LLVM_CONFIG 환경 변수 설정
 ENV LLVM_CONFIG=/usr/bin/llvm-config
