@@ -20,8 +20,8 @@ ENV LLVM_CONFIG=/usr/bin/llvm-config-14
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
 
-# llvmlite 설치 시도
-RUN pip install llvmlite==0.37.0
+# 호환 가능한 llvmlite 버전 설치
+RUN pip install llvmlite==0.40.0
 
 # Cython, numpy, setuptools 설치
 RUN pip install Cython numpy==1.21.6 setuptools==59.5.0
