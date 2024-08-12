@@ -69,6 +69,10 @@ class ConvertService:
 
         # omnizart 모듈을 사용하여 WAV 파일을 MIDI로 변환
         music_app.transcribe(wav_file, output=midi_file)
+        with open(midi_file, 'rb') as f:
+            midi_data = f.read()
+
+        return midi_data
 
 
 
