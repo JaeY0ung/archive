@@ -4,7 +4,9 @@ import subprocess
 from music21 import converter, meter, stream, metadata
 import os
 import logging
-from omnizart.music import app as music_app
+PC = os.getenv("PC")
+if PC!="LOCAL":
+    from omnizart.music import app as music_app
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -16,7 +18,6 @@ load_dotenv(dotenv_path)
 
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
 MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
-XVFB_RUN = os.getenv("XVFB_RUN")
 
 if MUSESCORE_ENV_PATH:
     MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
@@ -67,12 +68,26 @@ class ConvertService:
         base_filename = os.path.splitext(os.path.basename(wav_file))[0]
         midi_file = os.path.join(output_dir, f"{base_filename}.mid")
 
+        if PC!="LOCAL":
         # omnizart 모듈을 사용하여 WAV 파일을 MIDI로 변환
-        music_app.transcribe(wav_file, output=midi_file)
-        with open(midi_file, 'rb') as f:
-            midi_data = f.read()
+            music_app.transcribe(wav_file, output=midi_file)
+            with open(midi_file, 'rb') as f:
+                midi_data = f.read()
 
-        return midi_data
+            return midi_data
+        else:
+            cmd = [
+                "docker", "exec", "omnizart_container",
+                "omnizart", "music", "transcribe",
+                os.path.join("/app/shared/temp", os.path.basename(wav_file)),  # 절대 경로 사용
+                "-o", "/app/shared/temp"
+            ]
+            subprocess.run(cmd, check=True)
+            
+            with open(midi_file, 'rb') as f:
+                midi_data = f.read()
+            
+            return midi_data
 
 
 
@@ -93,21 +108,15 @@ class ConvertService:
 
         # MuseScore를 사용하여 MIDI를 MusicXML로 변환
         try:
-            if XVFB_RUN != "":
-                subprocess.run([XVFB_RUN, MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
-            else:
+            if PC == "LOCAL":
                 subprocess.run([MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
+            else:
+                subprocess.run(['xvfb-run', MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
             logger.info(f"Successfully converted {midi_file_path} to {xml_file_path} using MuseScore.")
         except subprocess.CalledProcessError as e:
             logger.info(f"An error occurred while converting {midi_file_path} to MusicXML: {e}")
         except Exception as e:
             logger.info(f"Unexpected error: {e}")
-        
-        # 변환된 MusicXML 파일 읽기
-        # with open(xml_file_path, 'rb') as f:
-        #     musicxml_data = f.read()
-        #
-        # return musicxml_data
     
     def get_rounded_measures(self, midi_file_path, measures_per_section=8):
         """

@@ -23,6 +23,8 @@
         const jaccard = ref([]);   
         const route = useRoute();
         const isLast = ref(false);
+        const singleResultId = ref(0);
+        const playMode = ref("");
 
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);
@@ -143,7 +145,13 @@
                     console.log(`Blob size: ${blob.size} bytes`);
                     audioBlobs.value.push({ blob });
                     chunks.value = [];
-                    sendToServer(blob); // 서버로 비동기 전송
+                    if (triggerSplit.value % 8 !== 0) {
+                        const lastBlob = audioBlobs.value[audioBlobs.value.length - 1] // 이전 청크 가져오기
+                        const combinedBlob = new Blob([lastBlob.blob, blob], { type: 'audio/webm' }); // 결합
+                        sendToServer(combinedBlob);
+                    } else {
+                        sendToServer(blob); // 8 마디로 나누어떨어지는 경우 전송
+                    }
                 }
         
                 if (isRecording.value) {
@@ -163,7 +171,7 @@
             console.log("Sending formData", formData);
             
             try {
-                const res = await local.post('/plays/single/sendFile', formData, {
+                const res = await local.post(`/plays/${playMode.value}/${singleResultId.value}/live-score`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -250,6 +258,8 @@
             f1,
             jaccard,
             isLast,
+            singleResultId,
+            playMode,
             initializeOsmd,
             loadAndSetupOsmd,
             setVolume,
