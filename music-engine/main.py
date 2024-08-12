@@ -14,8 +14,8 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import subprocess
 
-# from service.level_prediction_service import LevelPredictionService
-from service.midi_service import midi_service
+from service.level_prediction_service import LevelPredictionService
+# from service.midi_service import midi_service
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -213,34 +213,34 @@ async def mid2xml(file_request: FileRequest):
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(CURRENT_DIR,"model")
 TRAIN_DATA_DIR = os.path.join(PROJECT_ROOT_PATH, "file", "train-midi")
-# level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
+level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
 
 class MidiRequest(BaseModel):
     filename: str
 
 
-@app.post("/process-midi")
-async def process_midi(request: MidiRequest):
-    try:
-        # TRAIN_DATA_PATH를 설정하고 MidiService 초기화
-        train_data_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid")
-        midi_service.initialize(train_data_path)
-        logger.info("MIDI 서비스 초기화 완료")
+# @app.post("/process-midi")
+# async def process_midi(request: MidiRequest):
+#     try:
+#         # TRAIN_DATA_PATH를 설정하고 MidiService 초기화
+#         train_data_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid")
+#         midi_service.initialize(train_data_path)
+#         logger.info("MIDI 서비스 초기화 완료")
 
-        similar_songs, input_features = midi_service.find_similar_songs(
-            request.filename)
+#         similar_songs, input_features = midi_service.find_similar_songs(
+#             request.filename)
 
-        return JSONResponse(content={
-            "similar_songs": similar_songs,
-            "input_features": input_features
-        })
-    except FileNotFoundError as e:
-        logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500,
-                            detail=f"Internal server error: {str(e)}")
+#         return JSONResponse(content={
+#             "similar_songs": similar_songs,
+#             "input_features": input_features
+#         })
+#     except FileNotFoundError as e:
+#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
+#         raise HTTPException(status_code=404, detail=str(e))
+#     except Exception as e:
+#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
+#         raise HTTPException(status_code=500,
+#                             detail=f"Internal server error: {str(e)}")
 
 class FileRequest(BaseModel):
     filename: str
