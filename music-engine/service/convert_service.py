@@ -4,6 +4,7 @@ import subprocess
 from music21 import converter, meter, stream, metadata
 import os
 import logging
+from omnizart.music import app as music_app
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -65,18 +66,10 @@ class ConvertService:
         base_filename = os.path.splitext(os.path.basename(wav_file))[0]
         midi_file = os.path.join(output_dir, f"{base_filename}.mid")
 
-        cmd = [
-            "docker", "exec", "omnizart_container",
-            "omnizart", "music", "transcribe",
-            os.path.join("/app/shared/temp", os.path.basename(wav_file)),  # 절대 경로 사용
-            "-o", "/app/shared/temp"
-        ]
-        subprocess.run(cmd, check=True)
-        
-        with open(midi_file, 'rb') as f:
-            midi_data = f.read()
-        
-        return midi_data
+        # omnizart 모듈을 사용하여 WAV 파일을 MIDI로 변환
+        music_app.transcribe(wav_file, output=midi_file)
+
+
 
     def xml_to_midi(self, musicxml_path, output_dir="temp"):
         base_filename = os.path.splitext(os.path.basename(musicxml_path))[0]
