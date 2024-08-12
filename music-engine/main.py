@@ -213,7 +213,9 @@ async def mid2xml(file_request: FileRequest):
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.join(CURRENT_DIR,"model")
 TRAIN_DATA_DIR = os.path.join(PROJECT_ROOT_PATH, "file", "train-midi")
-level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
+
+
+# level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
 
 class MidiRequest(BaseModel):
     filename: str
