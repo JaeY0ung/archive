@@ -10,7 +10,6 @@ from xgboost import XGBClassifier
 from sklearn.metrics import classification_report
 import joblib
 import pretty_midi
-import warnings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
