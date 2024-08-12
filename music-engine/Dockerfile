@@ -1,5 +1,5 @@
-# Python 3.9 기본 이미지 사용
-FROM python:3.9
+# Python 3.8 기본 이미지 사용
+FROM python:3.8
 
 # 필요한 시스템 패키지 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
