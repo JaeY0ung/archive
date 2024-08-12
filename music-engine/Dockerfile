@@ -29,8 +29,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # omnizart 디렉토리로 이동 후 종속성 파일 복사 및 설치
-WORKDIR /app/omnizart  # omnizart 디렉토리로 이동
+WORKDIR /app/omnizart
 COPY omnizart/requirements.txt .
+
+# Omnizart의 requirements.txt 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 소스 코드 복사 (루트 디렉토리로 다시 이동)
