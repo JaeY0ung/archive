@@ -10,6 +10,7 @@ import Stomp from "stompjs";
 import { computed } from "vue";
 import { ref } from "vue";
 import { onMounted } from "vue";
+import { localAxios } from "@/util/http-common";
 
 const { VUE_APP_REQUEST_URL } = process.env; // 소켓 엔드포인트 연결을 위한 주소 설정
 const musicStore = useMusicStore();
@@ -21,6 +22,9 @@ const userStore = new useUserStore();
 const isQuitting = ref(false);
 const isPopstate = ref(false);
 const isReloading = ref(false);
+let multiResultId = 0;
+const local = localAxios();
+const isLastSender = false;
 
 // sheet.js에서 올바른 경로로 보낼 수 있도록 mode를 지정해준다.
 // back에서 single 처럼 경로를 지정해주는 MultiPlayController의 메서드가 필요함.
@@ -62,16 +66,30 @@ function connect() {
             }
           });
 
-          stompClient.subscribe(`/play/start/socket/${route.params.roomId}`, function(socket){
+          stompClient.subscribe(`/play/start/socket/${route.params.roomId}`, (socket) => {
             const message = JSON.parse(socket.body);
             console.log("시작 구독 성공")
-            console.log(loginUser.nickname);
-            console.log(message.sender);
             if(loginUser.nickname != message.sender){
-                console.log("되냐?")
               startRecording();
+              try{
+                console.log("try");
+                const response = local.post("/plays/multi" , {
+                sheetId: route.params.sheetId
+                },{
+                        withCredentials: true
+                    });
+                multiResultId = response.data
+                console.log("멀티 플레이 데이터 저장 성공");
+                isResultSender = true;
+                // sheet.js에서 중간 점수를 보낼 때, multiResultId를 같이 보낼 수 있도록 sheet.js 저장
+                musicStore.multiResultId = multiResultId;
+                // sheet store에 multiResultId 저장
+                }catch(error){
+                    console.log("멀티 플레이 데이터 저장 중 오류 발생");
+                }
+
             }
-          })
+          });
 
         }
     );
@@ -149,6 +167,19 @@ watch(
 watch(myJaccardScore, (newScore, oldScore) => {
     // 소켓 send 메서드 실행;
 });
+
+// 악보를 끝까지 완주했을 때, 호출되는 메서드
+// Todo: 모달창으로 성공, 실패를 알려줄 것.
+watch(() => musicStore.isLast,
+  (Last) => {
+    local.patch(`/plays/single/${singleResultId}`, {
+      userId: loginUser.id,
+      score: myJaccardScore.value
+    }).catch(error => {
+      console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
+    });
+  }
+);
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
 const onStartRecordingEmit = () => {

@@ -3,6 +3,8 @@ package com.ssafy.los.backend.service.play;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 public interface MultiPlayService {
@@ -15,4 +17,5 @@ public interface MultiPlayService {
 
     Long removeMultiPlayResult(Long MultiPlayResultId);
 
+    String getLiveScore(MultipartFile file, Long sheetId, Long multiResultId);
 }

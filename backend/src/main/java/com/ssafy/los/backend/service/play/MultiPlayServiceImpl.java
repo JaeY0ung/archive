@@ -9,24 +9,39 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
-import com.ssafy.los.backend.service.auth.AuthService;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MultiPlayServiceImpl implements MultiPlayService {
 
+    @Value("${fastapi.server.url}")
+    private String fastApiServerUrl;
+
     private final MultiPlayResultRepository multiPlayResultRepository;
     private final UserRepository userRepository;
     private final SheetRepository sheetRepository;
     private final FileUploadUtil fileUploadUtil;
+    private final SheetService sheetService;
 
     // 방장이 게임을 시작했을 때, multi_result 생성
     @Override
@@ -43,7 +58,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
     // 게임이 종료되었을 떄, 결과 테이블 가져오기
     @Override
     public Long completeMultiPlayResult(Long multiResultId,
-            MultiPlayResultAfterDto multiResultAfterDto) {
+                                        MultiPlayResultAfterDto multiResultAfterDto) {
 
         MultiPlayResult multiPlayResult = multiPlayResultRepository.findById(multiResultId)
                 .orElseThrow(() -> new RuntimeException("multi play result not found"));
@@ -124,6 +139,37 @@ public class MultiPlayServiceImpl implements MultiPlayService {
     public Long removeMultiPlayResult(Long multiPlayResultId) {
         multiPlayResultRepository.deleteById(multiPlayResultId);
         return multiPlayResultId;
+    }
+
+    @Override
+    public String getLiveScore(MultipartFile file, Long sheetId, Long singleResultId)
+            throws IllegalArgumentException {
+        try {
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpPost request = new HttpPost(fastApiServerUrl + "/playing/single");
+
+            HttpEntity multipart = MultipartEntityBuilder.create()
+                    .addBinaryBody("file", file.getInputStream(),
+                            ContentType.MULTIPART_FORM_DATA,
+                            file.getOriginalFilename())
+                    .addTextBody("uuid", sheetService.searchById(sheetId).getUuid(),
+                            ContentType.TEXT_PLAIN)
+                    .addTextBody("singleResultId", singleResultId.toString(),
+                            ContentType.TEXT_PLAIN)
+                    .build();
+
+            request.setEntity(multipart);
+
+            HttpResponse response = client.execute(request);
+            int statusCode = response.getStatusLine().getStatusCode();
+
+            if (statusCode != 200) {
+                throw new IllegalArgumentException("[파일 계산 실패]");
+            }
+            return EntityUtils.toString(response.getEntity());
+        } catch (IOException e) {
+            throw new IllegalArgumentException("[파일 계산 실패] " + e.getMessage());
+        }
     }
 
 
