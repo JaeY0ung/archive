@@ -55,7 +55,8 @@ class FileRequest(BaseModel):
 convert_service = ConvertService()
 
 @app.post("/playing/single")
-async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), single_result_id: int = Form(...)):
+async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singleResultId: str = Form(...)):
+    logger.info("single_result_id" + singleResultId)
     try:
         # 파일 저장 경로 설정
         file_location = os.path.join(UPLOAD_DIR, file.filename)
@@ -147,7 +148,7 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
 
 
         # 원본 MIDI 파일 경로 설정
-        original_file_location = os.path.join(PROJECT_ROOT_PATH, "upload-sheet", "mid", uuid + ".mid")
+        original_file_location = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid", uuid + ".mid")
 
         if not os.path.exists(original_file_location):
             raise FileNotFoundError(f"original 폴더에 {original_file_location} 파일이 존재하지 않습니다.")
@@ -157,7 +158,7 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
         last_measure = convert_service.get_rounded_measures(original_file_location,8);
         similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
         is_last = 0
-        if last_measure == file_number:
+        if last_measure == int(file_number):
             is_last = 1
 
         return {
@@ -167,6 +168,7 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
             "content_type": file.content_type,
             "similarity_results": similarity_results,
             "isLast": is_last,
+            "file_number": file_number,
             "last_measure": last_measure,
         }
 

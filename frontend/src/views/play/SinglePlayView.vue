@@ -174,11 +174,16 @@ onBeforeRouteLeave(async (to, from, next) => {
       }
     }
 
-    // 뒤로가기를 눌러서 multiRoomList로 보낸이후에 해당 조건문에 걸려서 방목록 페이지로 이동한다.
-    if(isPopstate.value == true && to.name == "multiRoomList"){
+    // 뒤로가기를 눌렀을 때, multiRoomList로 보낸이후에 해당 조건문에 걸려서 방목록 페이지로 이동한다.
+    // 또는 나가기 버튼을 누른 경우
+    if((isPopstate.value == true && to.name == "multiRoomList") || isQuitting.value == true){
+      // 뒤로가기를 눌렀을 때, 녹음 중이 아니라면 방목록 페이지로 이동시킨다.
       if(musicStore.isRecording == false){
+        console.log("녹음 중이 아닐 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
         next();
       }else{
+        console.log("녹음 중일 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
+        // 뒤로가기를 눌렀을 때, 녹음 중이라면 0점 처리되고, 방목록 페이지로 이동시킨다.
         local.patch(`/plays/single/${singleResultId}`, {
           userId: loginUser.id,
           score: 0

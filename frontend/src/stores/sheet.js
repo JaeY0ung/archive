@@ -24,7 +24,7 @@
         const route = useRoute();
         const isLast = ref(false);
         const singleResultId = ref(0);
-        const playMode = ref(null);
+        const playMode = ref("");
 
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);
@@ -253,6 +253,7 @@
             jaccard,
             isLast,
             singleResultId,
+            playMode,
             initializeOsmd,
             loadAndSetupOsmd,
             setVolume,

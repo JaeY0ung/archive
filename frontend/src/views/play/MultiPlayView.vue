@@ -172,7 +172,9 @@ onBeforeRouteLeave((to, from, next) => {
     if(to.name == from.name){
         next(false);
     }
-}
+
+    // if()
+})
 
 </script>
 <template>
