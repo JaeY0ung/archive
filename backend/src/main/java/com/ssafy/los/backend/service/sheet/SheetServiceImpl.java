@@ -58,7 +58,7 @@ public class SheetServiceImpl implements SheetService {
     public Long registerSheetWithPredictLevel(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
         Sheet sheet = registerSheetAndMidFileAndSplit(sheetUploadForm);
-        difficultyService.predictLevel(sheet);
+        //difficultyService.predictLevel(sheet);
         return sheet.getId();
     }
 

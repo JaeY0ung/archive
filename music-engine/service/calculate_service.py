@@ -255,9 +255,11 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     precision = len(original_red_notes)/(len(original_red_notes)+len(result_blue_notes))
     recall = len(original_red_notes)/(len(original_red_notes)+len(original_blue_notes))
 
-    final_f1_sim = 2 * precision / recall
+    final_f1_sim = 2 * precision * recall / (precision + recall) if (precision + recall) != 0 else 0
+
     # 교집합과 합집합 크기 및 자카드 유사도 출력
     print(f"Intersection: {intersection}, Union: {union}, Final Jaccard Similarity: {final_jaccard_sim}")
+    print(f"Final F1 Similarity : {final_f1_sim}")
 
     final_similarity = (final_f1_sim * 0.5) + (final_jaccard_sim * 0.5)
 
