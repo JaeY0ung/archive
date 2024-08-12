@@ -164,6 +164,10 @@ async def mid2xml(file_request: FileRequest):
         logger.error(f"파일 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="파일 변환 중 오류 발생")
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(CURRENT_DIR,"model")
+TRAIN_DATA_DIR = os.path.join(PROJECT_ROOT_PATH, "file", "train-midi")
+level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
 
 class MidiRequest(BaseModel):
     filename: str
@@ -173,8 +177,7 @@ class MidiRequest(BaseModel):
 async def process_midi(request: MidiRequest):
     try:
         # TRAIN_DATA_PATH를 설정하고 MidiService 초기화
-        # train_data_path = "/Users/moongi/Desktop/SSAFY/Archive/file/upload-sheet/mid"
-        train_data_path = r"C:\SSAFY\Archive\file\upload-sheet\mid"
+        train_data_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid")
         midi_service.initialize(train_data_path)
         logger.info("MIDI 서비스 초기화 완료")
 
@@ -193,17 +196,8 @@ async def process_midi(request: MidiRequest):
         raise HTTPException(status_code=500,
                             detail=f"Internal server error: {str(e)}")
 
-class MidiRequest(BaseModel):
-    filename: str
-
-
-########################
 class FileRequest(BaseModel):
     filename: str
-
-MODEL_DIR = os.path.join(PROJECT_ROOT_PATH,"music-engine","model")
-TRAIN_DATA_DIR = os.path.join(PROJECT_ROOT_PATH, "file", "train-midi")
-level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
 
 @app.post("/predict-difficulty")
 async def predict_difficulty(file_request: FileRequest):
