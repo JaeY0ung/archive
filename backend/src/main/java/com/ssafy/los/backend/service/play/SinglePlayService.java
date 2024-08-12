@@ -4,10 +4,10 @@ import com.ssafy.los.backend.domain.entity.SinglePlayResult;
 import com.ssafy.los.backend.dto.play.request.SingleResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.SingleResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.SingePlayResultProfileDto;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface SinglePlayService {
 
@@ -21,4 +21,6 @@ public interface SinglePlayService {
 
     Long removeSinglePlayResult(Long singlePlayResultId);
 
+    String getLiveScore(MultipartFile file, Long sheetId, Long singleResultId)
+            throws IllegalArgumentException;
 }
