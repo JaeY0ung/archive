@@ -1,7 +1,7 @@
 # Python 3.9 기본 이미지 사용
 FROM python:3.9
 
-# LLVM 리포지토리 추가
+# LLVM 리포지토리 추가 및 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     lsb-release \
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates && \
     wget https://apt.llvm.org/llvm.sh && \
     chmod +x llvm.sh && \
-    ./llvm.sh 11 && \
+    ./llvm.sh 11 --distribution bullseye && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
