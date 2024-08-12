@@ -269,7 +269,6 @@ class FileRequest(BaseModel):
 
 
 # FastAPI 실행 명령어
-# uvicorn main:app --reload --host localhost --port 8000
 if __name__ == "__main__":
     # uvicorn main:app --reload --host localhost --port 8000
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)

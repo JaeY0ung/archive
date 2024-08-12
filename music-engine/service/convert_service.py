@@ -4,10 +4,10 @@ import subprocess
 from music21 import converter, meter, stream, metadata
 import os
 import logging
+
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
 load_dotenv(dotenv_path)
@@ -65,9 +65,9 @@ class ConvertService:
         base_filename = os.path.splitext(os.path.basename(wav_file))[0]
         midi_file = os.path.join(output_dir, f"{base_filename}.mid")
 
-        if PC!="LOCAL":
+        if PC != "LOCAL":
             from omnizart.music import app as music_app
-        # omnizart 모듈을 사용하여 WAV 파일을 MIDI로 변환
+            # omnizart 모듈을 사용하여 WAV 파일을 MIDI로 변환
             music_app.transcribe(wav_file, output=midi_file)
             with open(midi_file, 'rb') as f:
                 midi_data = f.read()
@@ -106,11 +106,12 @@ class ConvertService:
 
         # MuseScore를 사용하여 MIDI를 MusicXML로 변환
         try:
+            logger.info("PC:" + PC)
             if PC == "LOCAL":
                 subprocess.run([MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
             else:
                 subprocess.run(['xvfb-run', MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
-            logger.info(f"Successfully converted {midi_file_path} to {xml_file_path} using MuseScore.")
+            # logger.info(f"Successfully converted {midi_file_path} to {xml_file_path} using MuseScore.")
         except subprocess.CalledProcessError as e:
             logger.info(f"An error occurred while converting {midi_file_path} to MusicXML: {e}")
         except Exception as e:
