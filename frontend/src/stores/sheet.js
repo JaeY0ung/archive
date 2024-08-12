@@ -1,7 +1,6 @@
     // src/stores/musicStore.js
     import { defineStore } from 'pinia';
     import { ref } from 'vue';
-    import axios from 'axios';
     import { OpenSheetMusicDisplay, PlaybackManager, BasicAudioPlayer, LinearTimingSource } from '@/assets/js/opensheetmusicdisplay.min.js';
     import { getMusicXmlById } from '@/api/sheet';
     import { localAxios } from "@/util/http-common";
@@ -23,6 +22,7 @@
         const f1 = ref([]);
         const jaccard = ref([]);   
         const route = useRoute();
+        const isLast = ref(false);
 
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);
@@ -157,7 +157,7 @@
         
         const sendToServer = async (blob) => {
             const formData = new FormData();
-            formData.append('file', blob, `chunk_${audioBlobs.value.length}.webm`);
+            formData.append('file', blob, `chunk_${audioBlobs.value.length - 1}.webm`);
             const sheetIdBlob = new Blob([route.params.sheetId], { type: 'application/json' });
             formData.append('sheetId', sheetIdBlob);
             console.log("Sending formData", formData);
@@ -171,6 +171,7 @@
                 console.log('파일 업로드 성공: ', res.data);
                 f1.value.push(res.data.similarity_results.f1_score);
                 jaccard.value.push(res.data.similarity_results.jaccard_similarity);
+                isLast.value = res.data.isLast == 1;
             } catch (err) {
                 console.error('파일 업로드 실패: ', err);
             }
@@ -237,6 +238,7 @@
             volume,
             f1,
             jaccard,
+            isLast,
             initializeOsmd,
             loadAndSetupOsmd,
             setVolume,

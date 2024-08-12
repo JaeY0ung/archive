@@ -5,6 +5,12 @@ import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import { useRoute } from "vue-router";
 import { useMusicStore } from "@/stores/sheet";
+import { ref } from "vue";
+import { watch } from "vue";
+import { localAxios } from "@/util/http-common";
+import { onMounted } from "vue";
+import { onBeforeUnmount } from "vue";
+import { onBeforeRouteLeave } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
@@ -14,17 +20,174 @@ const { startRecording, stopRecording, startMusic, pauseMusic, stopMusic } = mus
 const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const loginUser = userStore.userInfo;
+const local = localAxios();
+let singleResultId = 0;
+const isQuitting = ref(false);
+const isPopstate = ref(false);
+const isReloading = ref(false);
 
+// 플레이 점수를 가져온다.
+const myF1Score = ref(0);
+const myJaccardScore = ref(0);
 
+// const myF1Score = computed(() => {
+//     if (musicStore.f1.length === 0) return 0;
+//     const averageScore =
+//         musicStore.f1.reduce((acc, score) => acc + score, 0) /
+//         musicStore.f1.length;
+//     return Math.floor(averageScore * 100);
+// });
+
+if (musicStore.f1.length !== 0) {
+    myF1Score.value = Math.floor(
+        (musicStore.f1.reduce((acc, score) => acc + score, 0) /
+            musicStore.f1.length) * 100
+    );
+}
+
+// const myJaccardScore = computed(() => {
+//     if (musicStore.jaccard.length === 0) return 0;
+//     const averageScore =
+//     musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
+//     musicStore.jaccard.length;
+//     return Math.floor(averageScore * 100);
+// });
+if (musicStore.jaccard.length !== 0) {
+    myJaccardScore.value = Math.floor(
+        (musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
+            musicStore.jaccard.length) * 100
+    );
+}
+
+// watch를 사용하여 f1 배열의 변화를 감지하고 myF1Score를 업데이트
+watch(
+    () => musicStore.f1,
+    (newF1Scores) => {
+        if (newF1Scores.length !== 0) {
+            myF1Score.value = Math.floor(
+                (newF1Scores.reduce((acc, score) => acc + score, 0) /
+                    newF1Scores.length) * 100
+            );
+        } else {
+            myF1Score.value = 0;
+        }
+    },
+    { deep: true } // 배열 내부의 변화도 감지
+);
+
+// watch를 사용하여 jaccard 배열의 변화를 감지하고 myJaccardScore를 업데이트
+watch(
+    () => musicStore.jaccard,
+    (newJaccardScores) => {
+        if (newJaccardScores.length !== 0) {
+            myJaccardScore.value = Math.floor(
+                (newJaccardScores.reduce((acc, score) => acc + score, 0) /
+                    newJaccardScores.length) * 100
+            );
+        } else {
+            myJaccardScore.value = 0;
+        }
+        // 변화된 점수를 상대방에게 전송하는 소켓 메서드
+        console.log("확인")
+    },
+    { deep: true } // 배열 내부의 변화도 감지
+);
 
 const onClickQuit = () => {
+    isQuitting.value = true;
     router.push("/room/multi/list");
 }
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
-const onStartRecordingEmit = () => {
+const onStartRecordingEmit = async () => {
   startRecording();
+  try{
+    const response = await local.post("/plays/single" , {
+      sheetId: route.params.sheetId
+    },{
+			withCredentials: true
+		});
+    singleResultId = response.data
+    console.log("싱글 플레이 데이터 저장 성공");
+  }catch(error){
+    console.log("싱글 플레이 데이터 저장 중 오류 발생");
+  }
 }
+
+// 악보를 끝까지 완주했을 때, 호출되는 메서드
+// Todo: 모달창으로 성공, 실패를 알려줄 것.
+watch(() => musicStore.isLast,
+  (Last) => {
+    local.patch(`/plays/single/${singleResultId}`, {
+      userId: loginUser.id,
+      score: myJaccardScore.value
+    }).catch(error => {
+      console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
+    });
+  }
+);
+
+// 혼자 연습하기 방에서 연주 도중 방을 나갔을 때, 호출되는 메서드
+// 경고창을 띄워서 해당 연습 기록은 저장되지 않습니다 문구를 보여줄 것.
+// 임의로 delete mapping을 호출할 것이지만, 상의 후 최종 결정할 것.
+const handleBeforeUnload = async () => {
+
+if(isQuitting.value || isPopstate.value){
+
+}else{
+  if(musicStore.isRecording == false){
+    const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
+  }else{
+    const answer = window.confirm("방을 나가시겠습니까?\n완료되지 않은 연습기록은 저장되지 않습니다.");
+  }
+}
+};
+
+
+onMounted(() => {   
+    // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정
+    window.addEventListener('popstate', () => {
+        isPopstate.value = true;
+    });
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('beforeunload', handleBeforeUnload);
+  window.addEventListener('popstate', () => {
+    isPopstate.value = true;
+  });
+});
+
+onBeforeRouteLeave(async (to, from, next) => {
+
+  // 새로고침 체크
+    if(to.name == from.name){
+        // isReloading.value = true;
+        next();
+    }
+
+    if(isPopstate.value == true && to.name == "singleWait"){
+      if(window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.")){
+        router.push({name: "multiRoomList"});
+      }
+    }
+
+    if(isPopstate.value == true && to.name == "multiRoomList"){
+      next();
+    }
+
+
+    const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
+    if (answer) {
+      next();
+    } else {
+      next(false);
+    }
+  });
+
+
 </script>
 
 <template>
@@ -33,7 +196,12 @@ const onStartRecordingEmit = () => {
         <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
       </div>
       <div class="down">
-        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" />
+        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
+        <div class="h-[198px] w-[198px] bg-black flex flex-col justify-evenly items-center">
+          <div class="flex flex-grow flex-1 h-[50%] items-center justify-center cursor-pointer rounded-xl bg-yellow-300" @click="onClickQuit">
+              나가기
+          </div>
+        </div>
       </div>
     </div>
 </template>

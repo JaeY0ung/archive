@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/play")
+@RequestMapping("/plays/multi")
 public class MultiPlayController {
 
     private final MultiPlayService multiPlayService;
