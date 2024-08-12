@@ -11,8 +11,11 @@ RUN apt-get update && apt-get install -y \
     musescore \
     xvfb
 
-# Cython 설치
-RUN pip install Cython
+# pip 최신 버전으로 업그레이드
+RUN pip install --upgrade pip
+
+# Cython과 numpy를 먼저 설치
+RUN pip install Cython numpy
 
 # 작업 디렉토리 설정
 WORKDIR /app
