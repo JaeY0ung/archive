@@ -53,7 +53,6 @@ console.log(routeName);
             <div class="flex flex-shrink-0 w-[150px] h-[150px] justify-center items-center rounded-full overflow-hidden bg-white">
                 <img :src="user.userImg" alt="Profile Image" class="object-cover h-full w-full" />
             </div>
-            <span class="pt-3" v-if="routeName=='singlePlay'">랭킹 13위</span>
         </div>
         <div class="flex flex-col flex-grow  h-full pl-[10px] " style="font-size:30px; color:white">
             <div class="flex flex-1  items-center ">
@@ -66,7 +65,7 @@ console.log(routeName);
                 유저 티어
             </div>
         </div>
-        <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'">
+        <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-center justify-evenly h-full pl-[10px] " style="font-size:30px; color:white">
             <div>현재 스코어(f1) : {{ f1Score }}</div>
             <div>현재 스코어(jaccard) : {{ jaccardScore }}</div>
         </div>

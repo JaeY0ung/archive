@@ -2,7 +2,8 @@ package com.ssafy.los.backend.controller.play;
 
 import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.domain.entity.SinglePlayResult;
-import com.ssafy.los.backend.dto.play.request.SinglePlayRequestDto;
+import com.ssafy.los.backend.dto.play.request.SingleResultAfterDto;
+import com.ssafy.los.backend.dto.play.request.SingleResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.SingePlayResultProfileDto;
 import com.ssafy.los.backend.service.play.SinglePlayService;
 import com.ssafy.los.backend.service.sheet.SheetService;
@@ -25,13 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -88,10 +83,21 @@ public class SinglePlayController {
         }
     }
 
-    // 싱글 최종 결과 생성
+    // 게임 시작 시, 싱글 결과 생성
     @PostMapping
-    private ResponseEntity<?> saveSinglePlayResult(SinglePlayRequestDto singlePlayRequestDto) {
-        Long singePlayResultId = singlePlayService.saveSinglePlayResult(singlePlayRequestDto);
+    public ResponseEntity<?> saveSinglePlayResult(@RequestBody SingleResultBeforeDto singleResultBeforeDto) {
+        log.info("싱글 플레이가 시작되었습니다. : {}", singleResultBeforeDto.toString());
+        Long multiPlayResultId = singlePlayService.saveSinglePlayResult(singleResultBeforeDto);
+
+        return new ResponseEntity<>(multiPlayResultId, HttpStatus.CREATED);
+    }
+
+    // 게임 종료 시, 싱글 결과 업데이트
+    @PatchMapping("/{single-result-id}")
+    private ResponseEntity<?> completeSinglePlayResult(@PathVariable("single-result-id") Long singleResultId, @RequestBody SingleResultAfterDto singleResultAfterDto) {
+        log.info("싱글 플레이 데이터 저장 : {}", singleResultAfterDto.toString());
+
+        Long singePlayResultId = singlePlayService.completeSinglePlayResult(singleResultId, singleResultAfterDto);
 
         return new ResponseEntity<>(singePlayResultId, HttpStatus.CREATED);
     }
@@ -106,7 +112,7 @@ public class SinglePlayController {
         return new ResponseEntity<>(singlePlayResultList, HttpStatus.OK);
     }
 
-    // 특정 유저에 대해서 멀티 결과 기록들을 조회한다. (프로필 페이지)
+    // 특정 유저에 대해서 싱글 결과 기록들을 조회한다. (프로필 페이지)
     @GetMapping("/{user-id}")
     private ResponseEntity<?> getSinglePlayResultAllByUser(@PathVariable("user-id") Long userId) {
         List<SingePlayResultProfileDto> singlePlayResultList = singlePlayService.getSinglePlayResultListByUser(userId);

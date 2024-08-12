@@ -1,29 +1,28 @@
 package com.ssafy.los.backend.service.play;
 
-import com.ssafy.los.backend.domain.entity.MultiPlayResult;
+import com.ssafy.los.backend.domain.entity.Follow;
 import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.domain.entity.SinglePlayResult;
 import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.play.SinglePlayResultRepository;
 import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.domain.repository.user.UserRepository;
-import com.ssafy.los.backend.dto.play.request.SinglePlayRequestDto;
-import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
+import com.ssafy.los.backend.dto.play.request.SingleResultAfterDto;
+import com.ssafy.los.backend.dto.play.request.SingleResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.SingePlayResultProfileDto;
 import com.ssafy.los.backend.exception.user.UserNotFoundException;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.ssafy.los.backend.domain.entity.QUser.user;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SinglePlayServiceImpl implements SinglePlayService {
@@ -34,24 +33,49 @@ public class SinglePlayServiceImpl implements SinglePlayService {
     private final AuthService authService;
     private final FileUploadUtil fileUploadUtil;
 
-    // 싱글 결과 생성
+    // 게임이 시작되었을 때, 싱글 결과 생성
     @Override
-    public Long saveSinglePlayResult(SinglePlayRequestDto singlePlayRequestDto) {
-        User loginUser = authService.getLoginUser();
-        Sheet sheetInfo = sheetRepository.findById(singlePlayRequestDto.getSheetId())
-                .orElseThrow(() -> new RuntimeException("Sheet not found"));
+    public Long saveSinglePlayResult(SingleResultBeforeDto singleResultBeforeDto){
+        Sheet playSheet = sheetRepository.findById(singleResultBeforeDto.getSheetId())
+                .orElseThrow(() -> new RuntimeException("sheet not found"));
 
-        // singlePlayResult에 대한 결과 저장
         SinglePlayResult singlePlayResult = SinglePlayResult.builder()
-                .user(loginUser)
-                .sheet(sheetInfo)
-                .score(singlePlayRequestDto.getScore())
-                .build();
+                .sheet(playSheet).build();
+
+        return singlePlayResultRepository.save(singlePlayResult).getId();
+    }
+
+    // 게임이 종료되었을 때, 결과 테이블 가져오기
+    @Override
+    public Long completeSinglePlayResult(Long singleResultId, SingleResultAfterDto singleResultAfterDto) {
+        User loginUser = authService.getLoginUser();
+
+        SinglePlayResult singlePlayResult = singlePlayResultRepository.findById(singleResultId)
+                .orElseThrow(() -> new RuntimeException("Single Play Result Not Found"));
+        log.info("업데이트 과정 singlePlayResult : {}", singlePlayResult.toString());
+        log.info("업데이트 과정 status : {}", singlePlayResult.isStatus());
+        if(!singlePlayResult.isStatus()){
+            log.info("조건문 체크");
+            User user = userRepository.findUserByIdAndDeletedAtNull(
+                    singleResultAfterDto.getUserId())
+                            .orElseThrow(() -> new RuntimeException("user not found"));
+
+            Float score = singleResultAfterDto.getScore();
+
+            singlePlayResult.update(user, score);
 
         // 플레이 종료시간 저장
         singlePlayResult.updatePlayTime();
+        singlePlayResult.updateStatus(true);
 
-        return singlePlayResultRepository.save(singlePlayResult).getId(); // single result 결과 저장
+        // 명시적으로 저장하여 변경 사항 반영
+        singlePlayResultRepository.save(singlePlayResult);
+
+        } else{
+            log.info("이미 저장 완료된 배틀 기록입니다.");
+        }
+
+        return singleResultId;
     }
 
     // 싱글 결과 목록 조회(유저, 악보 기준)
