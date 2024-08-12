@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/sheets")
 public class DifficultyController {
 
-    private final DifficultyService difficultyRatingService;
+    private final DifficultyService difficultyService;
     private final AuthService authService;
 
 
@@ -37,7 +37,7 @@ public class DifficultyController {
             @RequestBody DifficultyCreateDto difficultyCreateDto) {
         try {
             Long userId = authService.getLoginUser().getId();
-            Long saveId = difficultyRatingService.saveDifficulty(sheetId, userId, difficultyCreateDto);
+            Long saveId = difficultyService.saveDifficulty(sheetId, userId, difficultyCreateDto);
             return new ResponseEntity<>(saveId, HttpStatus.OK);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -50,7 +50,7 @@ public class DifficultyController {
     @PutMapping("/difficulties/{difficulty-id}")
     public ResponseEntity<?> updateDifficulty(@PathVariable("difficulty-id") Long difficultyId,
             @RequestBody DifficultyUpdateDto difficultyUpdateDto) {
-        Long updateId = difficultyRatingService.updateDifficulty(difficultyId,
+        Long updateId = difficultyService.updateDifficulty(difficultyId,
                 difficultyUpdateDto);
 
         return new ResponseEntity<>(updateId, HttpStatus.OK);
@@ -59,12 +59,12 @@ public class DifficultyController {
     // 난이도 평가 삭제
     @DeleteMapping("/difficulties/{difficulty-id}")
     public ResponseEntity<?> deleteDifficulty(@PathVariable("difficulty-id") Long difficultyId) {
-        difficultyRatingService.deleteDifficulty(difficultyId);
+        difficultyService.deleteDifficulty(difficultyId);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 악보 난이도 평가 목록 조회
+    // 악보 난이도 평가 목록 조회 (페이징 적용)
     @GetMapping("/{sheet-id}/difficulties")
     public ResponseEntity<?> findDifficulty(@PathVariable("sheet-id") Long sheetId,
             @RequestParam(defaultValue = "0") int page,
@@ -72,15 +72,17 @@ public class DifficultyController {
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir) {
         log.info("page: {}, size: {}, sortBy: {}, sortDir: {}", page, size, sortBy, sortDir);
-        Page<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyBySheetId(sheetId, page, size, sortBy, sortDir);
+        Page<DifficultyResponseDto> difficultyResponseDto = difficultyService.searchDifficultyBySheetId(sheetId, page, size, sortBy, sortDir);
 
         return new ResponseEntity<>(difficultyResponseDto, HttpStatus.OK);
     }
 
+    // 악보 난이도 평가 전체 목록 조회
     @GetMapping("/{sheet-id}/difficulties/all")
     public ResponseEntity<?> findAllDifficulty(@PathVariable("sheet-id") Long sheetId) {
-        List<DifficultyResponseDto> difficultyResponseDto = difficultyRatingService.searchDifficultyAllBySheetId(sheetId);
+        List<DifficultyResponseDto> difficultyResponseDto = difficultyService.searchDifficultyAllBySheetId(sheetId);
 
         return new ResponseEntity<>(difficultyResponseDto, HttpStatus.OK);
     }
+
 }

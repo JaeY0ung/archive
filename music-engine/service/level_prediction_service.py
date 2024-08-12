@@ -3,28 +3,37 @@ import logging
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier, VotingClassifier
 from sklearn.svm import SVC
 from xgboost import XGBClassifier
+from sklearn.metrics import classification_report
 import joblib
 import pretty_midi
+import warnings
 
-# 로깅 설정
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class LevelPredictionService:
-    def __init__(self, model_dir):
-        model_path = os.path.join(model_dir, 'ensemble_clf_model.joblib')
-        scaler_path = os.path.join(model_dir, 'scaler.joblib')
-        self.model = joblib.load(model_path)
-        self.scaler = joblib.load(scaler_path)
+    def __init__(self, model_dir, midi_data_dir):
+        self.model_dir = model_dir
+        self.midi_data_dir = midi_data_dir
+        self.model_path = os.path.join(model_dir, 'ensemble_clf_model.joblib')
+        self.scaler_path = os.path.join(model_dir, 'scaler.joblib')
+        
+        if os.path.exists(self.model_path) and os.path.exists(self.scaler_path):
+            logger.info("Loading pre-trained model and scaler...")
+            self.model = joblib.load(self.model_path)
+            self.scaler = joblib.load(self.scaler_path)
+        else:
+            logger.info("No pre-trained model found. Training new model...")
+            self.train_model()
 
     def extract_features(self, midi_file):
         try:
             midi_data = pretty_midi.PrettyMIDI(midi_file)
             
-            # Feature extraction logic
             chroma = midi_data.get_chroma()
             chromaticism = 1 - (np.max(np.sum(chroma, axis=1)) / np.sum(chroma))
             
@@ -63,6 +72,89 @@ class LevelPredictionService:
             logger.error(f"Error extracting features from {midi_file}: {str(e)}")
             return None
 
+    def process_midi_files(self, folder_path):
+        features = []
+        for file in os.listdir(folder_path):
+            if file.endswith('.mid') or file.endswith('.midi'):
+                file_path = os.path.join(folder_path, file)
+                file_features = self.extract_features(file_path)
+                if file_features:
+                    features.append(file_features)
+        return features
+
+    def train_model(self):
+        logger.info("Starting model training process...")
+        
+        features = []
+        labels = []
+        
+        for level in range(1, 6):  # 1부터 5까지의 레벨
+            level_folder = os.path.join(self.midi_data_dir, str(level))
+            if not os.path.exists(level_folder):
+                logger.warning(f"Folder for level {level} not found.")
+                continue
+            
+            level_features = self.process_midi_files(level_folder)
+            features.extend(level_features)
+            labels.extend([level] * len(level_features))
+        
+        if not features:
+            logger.error("No features extracted from MIDI files. Please check the data.")
+            return
+
+        logger.info("Creating dataset...")
+        df = pd.DataFrame(features)
+        df['level'] = labels
+
+        logger.info("Removing outliers...")
+        df_clean = self.remove_outliers(df.drop('level', axis=1))
+        df_clean['level'] = df.loc[df_clean.index, 'level']
+
+        X = df_clean.drop('level', axis=1)
+        y = df_clean['level']
+
+        logger.info("Splitting data into training and test sets...")
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        logger.info("Scaling features...")
+        self.scaler = StandardScaler()
+        X_train_scaled = self.scaler.fit_transform(X_train)
+        X_test_scaled = self.scaler.transform(X_test)
+
+        logger.info("Training ensemble model...")
+        rf = RandomForestClassifier(n_estimators=100, random_state=42)
+        gb = GradientBoostingClassifier(n_estimators=100, random_state=42)
+        svm = SVC(kernel='rbf', probability=True, random_state=42)
+        xgb = XGBClassifier(n_estimators=100, random_state=42)
+
+        self.model = VotingClassifier(
+            estimators=[('rf', rf), ('gb', gb), ('svm', svm), ('xgb', xgb)],
+            voting='soft'
+        )
+
+        self.model.fit(X_train_scaled, y_train)
+        
+        logger.info("Evaluating model...")
+        ensemble_pred = self.model.predict(X_test_scaled)
+        logger.info("Ensemble Classifier Results:\n" + classification_report(y_test, ensemble_pred))
+
+        logger.info("Performing cross-validation...")
+        cv_scores = cross_val_score(self.model, X_train_scaled, y_train, cv=5)
+        logger.info(f"Cross-validation scores: {cv_scores}")
+        logger.info(f"Mean CV score: {cv_scores.mean():.4f} (+/- {cv_scores.std() * 2:.4f})")
+
+        logger.info("Saving model and scaler...")
+        joblib.dump(self.model, self.model_path)
+        joblib.dump(self.scaler, self.scaler_path)
+        logger.info("Model and scaler saved successfully.")
+
+    @staticmethod
+    def remove_outliers(df):
+        Q1 = df.quantile(0.25)
+        Q3 = df.quantile(0.75)
+        IQR = Q3 - Q1
+        return df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
+
     def predict_difficulty(self, midi_file):
         features = self.extract_features(midi_file)
         if features is None:
@@ -78,30 +170,3 @@ class LevelPredictionService:
         confidence = probabilities[0][prediction[0] - 1] * 100
         
         return difficulty, confidence
-
-
-
-
-
-
-
-# 사용 예시
-if __name__ == "__main__":
-    # 이 부분은 테스트 목적으로만 사용됩니다.
-    PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
-    MODEL_DIR = os.path.join(PROJECT_ROOT_PATH, "models")
-    
-    service = LevelPredictionService(
-        model_path=os.path.join(MODEL_DIR, 'ensemble_clf_model.joblib'),
-        scaler_path=os.path.join(MODEL_DIR, 'scaler.joblib')
-    )
-    
-    # # 테스트 MIDI 파일 경로
-    # test_midi_file = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid", "test.mid")
-    
-    if os.path.exists(test_midi_file):
-        difficulty, confidence = service.predict_difficulty(test_midi_file)
-        print(f"Predicted difficulty: {difficulty}")
-        print(f"Confidence: {confidence:.2f}%")
-    else:
-        print(f"Test file not found: {test_midi_file}")
