@@ -259,6 +259,7 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
 
     # 교집합과 합집합 크기 및 자카드 유사도 출력
     print(f"Intersection: {intersection}, Union: {union}, Final Jaccard Similarity: {final_jaccard_sim}")
+    print(f"Final F1 Similarity : {final_f1_sim}")
 
     final_similarity = (final_f1_sim * 0.5) + (final_jaccard_sim * 0.5)
 
