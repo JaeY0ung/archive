@@ -4,6 +4,7 @@ FROM python:3.8
 # 필요한 시스템 패키지 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
+    xauth\
     wget \
     lsb-release \
     software-properties-common \
