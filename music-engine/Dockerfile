@@ -10,10 +10,10 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     musescore \
     xvfb \
-    llvm-12 llvm-12-dev build-essential
+    llvm llvm-dev build-essential
 
 # LLVM_CONFIG 환경 변수 설정
-ENV LLVM_CONFIG=/usr/bin/llvm-config-12
+ENV LLVM_CONFIG=/usr/bin/llvm-config
 
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
