@@ -11,7 +11,10 @@ import org.springframework.core.io.Resource;
 
 public interface SheetService {
 
-    Long registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
+    Long registerSheet(SheetUploadForm sheetUploadForm)
+            throws IllegalArgumentException;
+
+    Long registerSheetWithPredictLevel(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException;
 
     Sheet searchById(Long sheetId) throws IllegalArgumentException;

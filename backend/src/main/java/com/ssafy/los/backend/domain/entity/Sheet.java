@@ -83,4 +83,8 @@ public class Sheet {
         this.title = title;
         this.level = level;
     }
+
+    public void updateLevel(Integer level) {
+        this.level = level;
+    }
 }
