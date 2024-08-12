@@ -1,6 +1,17 @@
 # Python 3.9 기본 이미지 사용
 FROM python:3.9
 
+# 시스템 패키지 업데이트 및 필수 패키지 설치
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    software-properties-common \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    musescore \
+    xvfb \
+    llvm  # LLVM 설치 추가
+
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
 
