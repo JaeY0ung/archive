@@ -24,6 +24,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -144,39 +147,48 @@ public class DifficultyServiceImpl implements DifficultyService {
     }
 
     // 악보 난이도 AI 예측 호출
-    public int predictDifficulty(Sheet sheet) {
-
-        String url = fastApiUrl + "/predict_difficulty?sheet=" + sheet.getUuid();
+    @Override
+    public int predictLevel(Sheet sheet) {
+        String url = fastApiUrl + "/predict-difficulty";
+        log.info("Sending request to predict difficulty for sheet: {}", sheet.getId());
 
         try {
-            // GET 요청 보내기
-            ResponseEntity<DifficultyPredictResponseDto> response = restTemplate.getForEntity(url,
-                    DifficultyPredictResponseDto.class);
+            // 요청 본문 생성
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            String requestBody = String.format("{\"filename\": \"%s\"}", sheet.getUuid() + ".mid");
+            HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
+
+            // POST 요청 보내기
+            ResponseEntity<DifficultyPredictResponseDto> response = restTemplate.postForEntity(
+                    url, request, DifficultyPredictResponseDto.class);
 
             // 응답 처리
             if (response.getStatusCode().is2xxSuccessful()) {
                 DifficultyPredictResponseDto predictionResponse = response.getBody();
                 if (predictionResponse != null) {
-                    int result = predictionResponse.getDifficulty();
+                    int predictedDifficulty = predictionResponse.getPredicted_difficulty();
+                    float predictionConfidence = predictionResponse.getPrediction_confidence();
 
-                    // TODO : AI 난이도 평가 추가하는 것 고민 필요
-                    // 악보 난이도 평가 추가
-//                    saveDifficulty(sheet.getId(), 0L, new DifficultyCreateDto(result, ""));
+                    log.info("Difficulty prediction successful for sheet {}: difficulty = {}, confidence = {}%",
+                            sheet.getId(), predictedDifficulty, predictionConfidence);
 
-                    // 악보 난이도 필드 반영
-//                    sheet.updateLevel(result);
+                    // 악보 난이도 평가 생성 및 악보 레벨 업데이트
+//                     saveDifficulty(sheet.getId(), 0L, new DifficultyCreateDto(predictedDifficulty, "")); // TODO : 프론트 로직
+                     sheet.updateLevel(predictedDifficulty);
 
-                    return result;
+                    return predictedDifficulty;
                 }
             }
 
-            // 에러 처리
+            log.error("Failed to predict difficulty for sheet {}: {}", sheet.getId(), response.getStatusCode());
             throw new RuntimeException("Failed to predict difficulty: " + response.getStatusCode());
         } catch (Exception e) {
-            // 예외 처리
+            log.error("Error predicting difficulty for sheet {}: {}", sheet.getId(), e.getMessage(), e);
             throw new RuntimeException("Error predicting difficulty: " + e.getMessage(), e);
         }
     }
+
 
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)

@@ -80,7 +80,7 @@ public class SheetController {
                 .build();
         try { // 악보 데이터 및 파일 저장
             return new ResponseEntity<>(
-                    sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm),
+                    sheetService.registerSheetWithPredictLevel(sheetUploadForm),
                     HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("[파일 업로드 실패] " + e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -125,7 +125,7 @@ public class SheetController {
                         .songId(song.getId())
                         .build();
 
-                sheetService.registerSheetAndMidFileAndSplit(sheetUploadForm);
+                sheetService.registerSheet(sheetUploadForm);
             } catch (Exception e) {
                 log.info(e.getMessage());
             }
@@ -235,7 +235,6 @@ public class SheetController {
     @GetMapping("/like/{user-id}")
     public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
         List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
-        log.info(sheetList.toString());
         return new ResponseEntity<>(sheetList, HttpStatus.OK);
     }
 

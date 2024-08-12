@@ -42,17 +42,32 @@ public class SheetServiceImpl implements SheetService {
     private final AuthService authService;
     private final MusicService musicService;
     private final SinglePlayResultRepository singlePlayResultRepository;
+    private final DifficultyService difficultyService;
 
     @Override
     @Transactional
-    public Long registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
+    public Long registerSheet(SheetUploadForm sheetUploadForm)
+            throws IllegalArgumentException {
+        Sheet sheet = registerSheetAndMidFileAndSplit(sheetUploadForm);
+        return sheet.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long registerSheetWithPredictLevel(SheetUploadForm sheetUploadForm)
+            throws IllegalArgumentException {
+        Sheet sheet = registerSheetAndMidFileAndSplit(sheetUploadForm);
+        difficultyService.predictLevel(sheet);
+        return sheet.getId();
+    }
+
+    private Sheet registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
         String uuid = UUID.randomUUID().toString();
         fileUploadUtil.uploadSheet(sheetUploadForm.getFile(), uuid);
         Sheet sheet = registerSheet(sheetUploadForm, uuid);
-        log.info(sheet.getUuid() + ": 저장되었습니다.");
         musicService.saveMidFileWithSplit(sheet.getUuid() + ".mid");
-        return sheet.getId();
+        return sheet;
     }
 
     @Override

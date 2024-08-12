@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.service.sheet;
 
+import com.ssafy.los.backend.domain.entity.Sheet;
 import com.ssafy.los.backend.dto.sheet.request.DifficultyCreateDto;
 import com.ssafy.los.backend.dto.sheet.request.DifficultyUpdateDto;
 import com.ssafy.los.backend.dto.sheet.response.DifficultyResponseDto;
@@ -17,6 +18,8 @@ public interface DifficultyService {
     Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size, String sortBy, String sortDir);
 
     List<DifficultyResponseDto> searchDifficultyAllBySheetId(Long sheetId);
+
+    int predictLevel(Sheet sheet);
 
     int calculateDifficulty(Long sheetId);
 
