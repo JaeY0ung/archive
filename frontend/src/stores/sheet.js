@@ -145,10 +145,10 @@
                     console.log(`Blob size: ${blob.size} bytes`);
                     audioBlobs.value.push({ blob });
                     chunks.value = [];
-                    if (triggerSplit.value % 8 !== 0) {
-                        const lastBlob = audioBlobs.value[audioBlobs.value.length - 1] // 이전 청크 가져오기
+                    if (isPlay.value == false) {
+                        const lastBlob = audioBlobs.value[audioBlobs.value.length - 2] // 이전 청크 가져오기
                         const combinedBlob = new Blob([lastBlob.blob, blob], { type: 'audio/webm' }); // 결합
-                        console.log("8마디로 안나누어떨어집니다. 앞쪽과 결합후 전송..")
+                        console.log("마지막 마디입니다. 앞쪽과 결합후 전송..")
                         sendToServer(combinedBlob);
                     } else {
                         console.log("8마디로 나누어떨어집니다.")
@@ -208,10 +208,10 @@
         const stopRecording = () => {
             stopMusic();
             isRecording.value = false;
+            isPlay.value=false;
             if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
                 mediaRecorder.value.stop();
             }
-            isPlay.value=false;
             
         };
 
