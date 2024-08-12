@@ -9,14 +9,13 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     gnupg \
     musescore \
-    xvfb \
-    llvm
-
-# LLVM_CONFIG 환경 변수 설정
-ENV LLVM_CONFIG=/usr/bin/llvm-config
+    xvfb
 
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
+
+# pre-built wheel을 사용하여 llvmlite 설치 시도
+RUN pip install llvmlite==0.37.0 --only-binary :all:
 
 # Cython, numpy, setuptools 설치
 RUN pip install Cython numpy==1.21.6 setuptools==59.5.0
@@ -36,4 +35,3 @@ EXPOSE 8000
 
 # 애플리케이션 실행 명령
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-
