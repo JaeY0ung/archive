@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
@@ -40,10 +41,23 @@ public class SinglePlayResult extends BaseEntity {
     @Column(columnDefinition = "FLOAT")
     private Float score;
 
+    @ColumnDefault("false")
+    @Column(columnDefinition = "TINYINT(1)")
+    private boolean status; // 진행 상태: false (진행), true (완료)
+
     private long playTime;
+
+    public void update(User user, Float score){
+        this.user = user;
+        this.score = score;
+    }
+
+    public void updateStatus(boolean status) {this.status = status;}
 
     public void updatePlayTime() {
         playTime = Duration.between(this.getCreatedAt(), this.getModifiedAt()).getSeconds();
     }
+
+
 
 }
