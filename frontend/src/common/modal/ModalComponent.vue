@@ -30,8 +30,8 @@ const onSecondaryAction = () => {
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+  <div v-if="show" class="modal-overlay fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="modal-content bg-white p-6 rounded-lg shadow-lg text-center">
       <p>{{ message }}</p>
       <div class="mt-4 flex justify-around gap-4">
         <button class="btn btn-primary" @click="onPrimaryAction">{{ primaryButtonText }}</button>
@@ -42,5 +42,11 @@ const onSecondaryAction = () => {
 </template>
 
 <style scoped>
-/* 필요한 스타일이 있으면 추가합니다 */
+.modal-overlay {
+  z-index: 10;
+}
+
+.modal-content {
+  z-index: 11;
+}
 </style>
