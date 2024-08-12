@@ -134,10 +134,10 @@ const goToSheetDetail = (sheetId) => {
 			<BigSheetCard :sheet="sheet" class="rounded-xl shadow-lg" />
 			
 			<!-- 1-2. 비슷한 수준의 악보 추천 -->
-			<div class="bg-white bg-opacity-60 rounded-xl">
+			<div class="bg-white h-[30%] bg-opacity-60 rounded-xl shadow-md">
 				<div class="text-2xl font-semibold text-gray-700 ml-2 mb-2">비슷한 수준의 악보 추천</div>
 				<hr class=" border-gray-300 mb-2">
-				<div class="scroll-x flexrounded-b-xl h-[100px]  shadow-xl">
+				<div class="scroll-x flexrounded-b-xl h-[100px]">
 					<template v-if="sameLevelSheets && sameLevelSheets.length != 0">
 						<template v-for="sheet in sameLevelSheets" :key="sheet.id">
 							<SmallSheetCard :sheet="sheet" @click="goToSheetDetail(sheet.id)" class="cursor-pointer h-fit" />
@@ -152,7 +152,7 @@ const goToSheetDetail = (sheetId) => {
 			</div>
 
 			<!-- 1-3. 리뷰 섹션 -->
-			<div class="flex flex-col h-full w-full p-2 bg-white bg-opacity-50 rounded-xl shadow-lg">
+			<div class="flex flex-col h-[50%] w-full p-2 bg-white bg-opacity-50 rounded-xl shadow-lg">
 				<div class="text-2xl font-semibold text-gray-700 mb-2">리뷰 [{{ starRateList.length }}]</div>
 				<hr class=" border-gray-300 mb-2">
 
@@ -227,7 +227,6 @@ const goToSheetDetail = (sheetId) => {
 								</template>
 								<div class="text-xs text-gray-500 text-center">별점을 클릭해주세요.</div>
 							</div>
-							
 						</div>
 						<!-- (2) 텍스트 리뷰 등록 -->
 						<div class="w-full flex bg-white bg-opacity-50 mt-2 mb-2 rounded-xl justify-center shadow-md">

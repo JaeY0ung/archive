@@ -8,7 +8,7 @@ import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { getAllGenres } from "@/api/genre";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
-import SmallSheetCardVer2 from "@/common/sheet/SmallSheetCardVer2.vue";
+import SmallSheetCardVer2 from "@/common/sheet/SmallSheetCardForListView.vue";
 
 const { isLogin } = storeToRefs(useUserStore());
 
@@ -249,7 +249,7 @@ const goToSheetDetail = (sheetId) => {
                             v-if="view === 'list'"
                             class="flex flex-col w-full absolute overflow-hidden-scroll overflow-y-auto mt-3"
                         >
-                            <SmallSheetCardVer2 
+                            <SmallSheetCardForListView 
                                 v-for="sheet in sheets"
                                 :key="sheet.id"
                                 :sheet="sheet"

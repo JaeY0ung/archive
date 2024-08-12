@@ -157,12 +157,12 @@ const goToDifficultyRatingPage = () => {
             </div>
             <div class="flex items-center justify-between">
                 <!-- 조회수 및 하트 -->
-                <div class="flex items-start gap-3">
-                    <div class="flex items-center gap-1">
+                <div class="flex items-start gap-3 text-lg">
+                    <div class="flex items-center gap-2">
                         <img :src="require('@/assets/img/view.svg')" class="w-8 h-8" alt="눈" />
                         <p>{{ sheet.viewCount }}</p>
                     </div>
-                    <div class="flex items-center gap-1 mt-0.5 cursor-pointer">
+                    <div class="flex items-center gap-2 mt-0.5 cursor-pointer">
                         <img
                             v-if="sheetInfo.likeStatus === true"
                             :src="require('@/assets/img/heart-fill.svg')"
