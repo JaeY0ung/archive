@@ -10,12 +10,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates && \
     wget https://apt.llvm.org/llvm.sh && \
     chmod +x llvm.sh && \
-    ./llvm.sh 11 --distribution bullseye && \
+    ./llvm.sh 10 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # LLVM_CONFIG 환경 변수 설정
-ENV LLVM_CONFIG=/usr/bin/llvm-config-11
+ENV LLVM_CONFIG=/usr/bin/llvm-config-10
 
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
