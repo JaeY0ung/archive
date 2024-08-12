@@ -1,5 +1,5 @@
 <script setup>
-import { useRoute, useRouter } from "vue-router";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
@@ -18,6 +18,13 @@ var stompClient = null;
 const route = useRoute();
 const router = useRouter();
 const userStore = new useUserStore();
+const isQuitting = ref(false);
+const isPopstate = ref(false);
+const isReloading = ref(false);
+
+// sheet.js에서 올바른 경로로 보낼 수 있도록 mode를 지정해준다.
+// back에서 single 처럼 경로를 지정해주는 MultiPlayController의 메서드가 필요함.
+musicStore.playMode = "multi";
 
 // user의 정보를 accessToken을 이용해 가져온다.
 const accessToken = sessionStorage.getItem("accessToken");
@@ -152,12 +159,20 @@ const onStartRecordingEmit = () => {
 }
 
 const onClickQuit = () => {
+    isQuitting.value = true;
     router.push("/room/multi/list");
 };
 
 onMounted(() => {
     connect();
 })
+
+onBeforeRouteLeave((to, from, next) => {
+    // 멀티 플레이룸에서 새로고침을 누를 경우, 새로고침이 시행되지 않도록 한다.
+    if(to.name == from.name){
+        next(false);
+    }
+}
 
 </script>
 <template>
