@@ -4,10 +4,6 @@ import subprocess
 from music21 import converter, meter, stream, metadata
 import os
 import logging
-PC = os.getenv("PC")
-if PC!="LOCAL":
-    from omnizart.music import app as music_app
-
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -16,6 +12,7 @@ logger = logging.getLogger(__name__)
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..env')
 load_dotenv(dotenv_path)
 
+PC = os.getenv("PC")
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
 MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
 
@@ -69,6 +66,7 @@ class ConvertService:
         midi_file = os.path.join(output_dir, f"{base_filename}.mid")
 
         if PC!="LOCAL":
+            from omnizart.music import app as music_app
         # omnizart 모듈을 사용하여 WAV 파일을 MIDI로 변환
             music_app.transcribe(wav_file, output=midi_file)
             with open(midi_file, 'rb') as f:
