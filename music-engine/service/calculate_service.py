@@ -252,15 +252,19 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
 
     final_jaccard_sim = intersection / union if union != 0 else 0
 
+    precision = len(original_red_notes)/(len(original_red_notes)+len(result_blue_notes))
+    recall = len(original_red_notes)/(len(original_red_notes)+len(original_blue_notes))
+
+    final_f1_sim = 2 * precision / recall
     # 교집합과 합집합 크기 및 자카드 유사도 출력
     print(f"Intersection: {intersection}, Union: {union}, Final Jaccard Similarity: {final_jaccard_sim}")
 
-    final_similarity = (final_cosine_sim * 0.3) + (final_jaccard_sim * 0.2) + (best_f1 * 0.5)
+    final_similarity = (final_f1_sim * 0.5) + (final_jaccard_sim * 0.5)
 
     return {
         'cosine_similarity': final_cosine_sim,
         'jaccard_similarity': final_jaccard_sim,
-        'f1_score': best_f1,
+        'f1_score': final_f1_sim,
         'final_similarity': final_similarity,
         'matched_notes': best_matched_notes,  # Original의 빨간점
         'original_segment_notes': notes1_segment,  # Original의 모든 노트 (빨간점, 파란점, 검은점 포함)

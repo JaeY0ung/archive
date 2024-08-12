@@ -111,7 +111,7 @@ const closeSongRegisterModal = () => {
 </script>
 
 <template>
-    <div class="flex flex-col form w-full max-w-[60vw] mx-auto p-2 bg-white bg-opacity-80 rounded-lg text-center">
+    <div class="flex flex-col form w-full max-w-[60vw] mx-auto mt-10 p-2 bg-white bg-opacity-80 rounded-lg text-center">
         <SongRegisterModal v-if="modalVisibility" @closeModalEvent="closeSongRegisterModal" />
         <div class="text-3xl font-semibold mt-4 mb-2">파일 업로드</div>
         <div class="text-xs mb-2">원하는 악보를 업로드해보세요.</div>
