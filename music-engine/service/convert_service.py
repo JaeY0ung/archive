@@ -4,7 +4,6 @@ import subprocess
 from music21 import converter, meter, stream, metadata
 import os
 import logging
-from omnizart import download_checkpoint
 from omnizart.music import app as music_app
 
 # 로깅 설정
@@ -25,21 +24,12 @@ if MUSESCORE_ENV_PATH:
     if MUSESCORE_ENV_PATH.startswith('r"') or MUSESCORE_ENV_PATH.startswith("r'"):
         MUSESCORE_ENV_PATH = MUSESCORE_ENV_PATH[2:-1]
 
-def ensure_music_model_exists():
-    model_dir = "/usr/local/lib/python3.8/site-packages/omnizart/checkpoints/music/music_piano"
-    if not os.path.exists(model_dir):
-        print("Music model not found. Downloading...")
-        download_checkpoint("music")
-    else:
-        print("Music model already exists.")
 
 class ConvertService:
     def __init__(self, mp3_bitrate=192, channels=2, sample_rate=44100):
         self.mp3_bitrate = mp3_bitrate
         self.channels = channels
         self.sample_rate = sample_rate
-        ensure_music_model_exists()
-    
 
     def check_ext(self, file_path):
         _, ext = os.path.splitext(file_path)
