@@ -15,7 +15,7 @@ load_dotenv(dotenv_path)
 
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
 MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
-XVFB_RUN = os.getenv("XVFB_RUN")
+PC = os.getenv("PC")
 
 if MUSESCORE_ENV_PATH:
     MUSESCORE_ENV_PATH = os.getenv("MUSESCORE_ENV_PATH")
@@ -95,21 +95,15 @@ class ConvertService:
 
         # MuseScore를 사용하여 MIDI를 MusicXML로 변환
         try:
-            if XVFB_RUN != "":
-                subprocess.run([XVFB_RUN, MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
-            else:
+            if PC == "LOCAL":
                 subprocess.run([MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
+            else:
+                subprocess.run(['xvfb-run', MUSESCORE_ENV_PATH, midi_file_path, "-o", xml_file_path], check=True)
             logger.info(f"Successfully converted {midi_file_path} to {xml_file_path} using MuseScore.")
         except subprocess.CalledProcessError as e:
             logger.info(f"An error occurred while converting {midi_file_path} to MusicXML: {e}")
         except Exception as e:
             logger.info(f"Unexpected error: {e}")
-        
-        # 변환된 MusicXML 파일 읽기
-        # with open(xml_file_path, 'rb') as f:
-        #     musicxml_data = f.read()
-        #
-        # return musicxml_data
     
     def get_rounded_measures(self, midi_file_path, measures_per_section=8):
         """
