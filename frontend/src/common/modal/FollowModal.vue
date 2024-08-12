@@ -1,9 +1,8 @@
 <script setup>
-import { defineProps, defineEmits, computed } from "vue";
+import { defineEmits, computed } from "vue";
 import { useRouter } from 'vue-router';
 import Profile from "@/common/icons/Profile.vue";
 
-const router = useRouter();
 const props = defineProps({
     title: String,
     followList: Array,
@@ -35,7 +34,6 @@ const goToUserProfile = (nickname) => {
     <div class="custom-modal-overlay" @click="closeModal">
         <div class="custom-modal" @click.stop>
             <div class="custom-modal-content">
-                <h2 class="custom-modal-title">{{ title }}</h2>
                 <ul class="custom-modal-list">
                     <li v-for="user in followListWithImageUrls" :key="user.id" class="custom-modal-list-item">
                         <div class="user-image-container">
@@ -112,6 +110,14 @@ const goToUserProfile = (nickname) => {
     padding: 0;
     max-height: 300px;
     overflow-y: auto;
+    scrollbar-width: none;  
+    -ms-overflow-style: none;  
+}
+
+.custom-modal-list::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
 }
 
 .custom-modal-list-item {
@@ -182,20 +188,6 @@ const goToUserProfile = (nickname) => {
 }
 
 .custom-modal-list::-webkit-scrollbar {
-    width: 8px;
-}
-
-.custom-modal-list::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.custom-modal-list::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.custom-modal-list::-webkit-scrollbar-thumb:hover {
-    background: #555;
+    display: none;
 }
 </style>
