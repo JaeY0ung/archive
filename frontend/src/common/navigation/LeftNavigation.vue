@@ -15,7 +15,7 @@ import RecordSvg from "@/common/icons/record.svg"
 
 const router = useRouter();
 const userStore = useUserStore();
-const { isLogin } = storeToRefs(userStore);
+const { isLogin, userInfo } = storeToRefs(userStore);
 const leftNavigationStore = useLeftNavigationStore();
 const { navVisibility } = storeToRefs(leftNavigationStore);
 
@@ -30,6 +30,12 @@ const pages = ref([
     { name: "recording", title: "음악 녹음", src: RecordSvg },
 ]);
 
+const adminPages = ref([
+    { name: "manageSheet", title: "악보 관리", src: UploadSvg },
+    { name: "manageSong", title: "곡 관리", src: UploadSvg },
+    { name: "adminUploadSheet", title: "악보 일괄 업로드", src: UploadSvg },
+]);
+
 const visiblePages = computed(() => {
     return pages.value.filter(page => 
         !authRequiredRoutes.includes(page.name) || isLogin.value
@@ -40,15 +46,29 @@ const visiblePages = computed(() => {
 
 <template>
     <nav class="left-nav-container flex flex-shrink-0" >
-        <br /><br /><br /><br /><br /><br /><br />
-        <div v-for="page in visiblePages" :key="page.name" class="flex contents-center items-center w-full h-[50px] mt-5 ">
-            <RouterLink :to="{ name: page.name }" @click="leftNavigationStore.closeNav" class="flex items-center w-full h-full">
-                <div class="flex w-[24px] h-[24px] ml-[20px]">
-                    <img :src="page.src" alt={page.title} />
+        <div class="h-[100px]"></div>
+        <template v-for="page in visiblePages" :key="page.name">
+            <div class="flex contents-center items-center w-full h-[50px] mt-5 ">
+                <RouterLink :to="{ name: page.name }" @click="leftNavigationStore.closeNav" class="flex items-center w-full h-full">
+                    <div class="flex w-[24px] h-[24px] ml-[20px]">
+                        <img :src="page.src" alt={page.title} />
+                    </div>
+                    <div class="flex flex-shrink ml-auto mr-auto overflow-hidden text-nowrap">{{ page.title }}</div>
+                </RouterLink>
+            </div>
+        </template>
+        <template v-if="userInfo && userInfo.role == 'ROLE_ADMIN'">
+            <template v-for="page in adminPages" :key="page.name">
+                <div class="flex contents-center items-center w-full h-[50px] mt-5 ">
+                    <RouterLink :to="{ name: page.name }" @click="leftNavigationStore.closeNav" class="flex items-center w-full h-full">
+                        <div class="flex w-[24px] h-[24px] ml-[20px]">
+                            <img :src="page.src" alt={page.title} />
+                        </div>
+                        <div class="flex flex-shrink ml-auto mr-auto overflow-hidden text-nowrap">{{ page.title }}</div>
+                    </RouterLink>
                 </div>
-                <div class="flex flex-shrink ml-auto mr-auto overflow-hidden text-nowrap">{{ page.title }}</div>
-            </RouterLink>
-        </div>
+            </template>
+        </template>
     </nav>
 </template>
 

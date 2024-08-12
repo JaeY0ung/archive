@@ -31,6 +31,8 @@ const toggleSelection = (itemId, isSelected) => {
   }
 };
 
+
+
 const checkout = async () => {
   try {
 	const itemsToCheckout = orderItems.value
@@ -60,37 +62,63 @@ const totalSelectedPrice = computed(() => {
 	  .filter(item => selectedItems.value.has(item.id))
 	  .reduce((total, item) => total + item.price, 0);
 });
+
+const selectedItemsList = computed(() => {
+  return orderItems.value.filter(item => selectedItems.value.has(item.id));
+});
 </script>
 
 <template>
-  <div class="cart-container">
-	<div class="cart-list">
-	  <h1 class="text-2xl font-bold mb-4">장바구니</h1>
-	  <ul>
-		<li v-for="item in orderItems" :key="item.id" class="mb-4 flex items-center justify-between">
-		  <SmallSheetCard :sheet="item" class="flex-grow">
-			<input type="checkbox" :checked="selectedItems.has(item.id)" @change="toggleSelection(item.id, $event.target.checked)" class="checkbox" />
-		  </SmallSheetCard>
-		  <div class="flex items-center ml-4">
-			<button @click="removeItem(item.id)" class="btn btn-danger">Remove</button>
-		  </div>
-		</li>
-	  </ul>
+  <div class="flex justify-around w-full h-full">
+    <div class="flex flex-col w-[60vw] bg-white bg-opacity-50 pl-4 pr-4">
+		<h1 class="text-2xl text-gray-600 font-bold mb-3 mt-3 text-center">장바구니</h1>
+		<hr class="bg-gray-800">
+		<div class="cart-list flex-2 max-h-[80vh] overflow-y-auto hide-scrollbar">
+			<ul>
+				<li v-for="item in orderItems" :key="item.id" class="mb-4 flex items-center justify-between">
+					<SmallSheetCard :sheet="item" class="flex-grow relative">
+						<input type="checkbox" 
+							:checked="selectedItems.has(item.id)" 
+							@change="toggleSelection(item.id, $event.target.checked)" 
+							class="checkbox absolute right-0 top-1/2 transform -translate-y-1/2 mr-4" />
+					</SmallSheetCard>
+				<div class="flex items-center ml-4">
+					<button @click="removeItem(item.id)" class="btn btn-danger">
+						<img src="@/assets/img/common/trash.png" alt="Remove" style="width:25px; height: 25px;">
+					</button>
+				</div>
+				</li>
+			</ul>
+		</div>
 	</div>
-	<div class="cart-summary">
-	  <h2 class="text-xl font-bold mb-4">주문 요약</h2>
-	  <p class="text-lg mb-4">선택한 항목 총액: {{ totalSelectedPrice }}원</p>
-	  <button @click="checkout" class="btn btn-primary w-full mb-2">결제하기</button>
-	  <button @click="clearAllItems" class="btn btn-warning w-full">장바구니 비우기</button>
+	
+	<div class="w-[30vw] p-[1rem] bg-white bg-opacity-60 rounded-md">
+	  	<h2 class="text-xl text-center text-gray-700 font-bold mb-4">주문 요약</h2>
+	  	<hr class="bg-gray-800 mb-2">
+	 	<div class="flex flex-row bg-white justify-around bg-opacity-50 mb-2 shadow-md">
+			
+			<p class="text-center mt-2 text-xs font-semibold text-gray-800">선택 악보 총 주문 금액 </p>
+			<div class="flex">
+				<img src="@/assets/img/cash.png" class="mt-2 ml-2 mr-2 " style="width:15px; height: 15px;">
+				<p class="text-center mb-1 text-lg font-semibold text-gray-800"> {{ totalSelectedPrice }} </p>
+			</div>
+		
+	  	</div>
+	  <div v-for="item in selectedItemsList" :key="item.id" class="flex justify-between p-4 mb-2 bg-white bg-opacity-70 shadow-md rounded-lg">
+        <h3 class="font-semibold">{{ item.title }}</h3>
+        <p class="flex text-gray-600 text-sm">
+			<img src="@/assets/img/cash.png" class="mt-0.5 mr-2" style="width:15px; height: 15px;">
+		{{ item.price }}\</p>
+      </div>
+	  
+	  <button @click="checkout" class="btn bg-sky-300 bg-opacity-80 w-full mb-2 shadow-md">결제하기</button>
+	  <button @click="clearAllItems" class="btn bg-pink-400 bg-opacity-60 w-full shadow-md">장바구니 비우기</button>
 	</div>
   </div>
 </template>
 
 <style scoped>
-.cart-container {
-  display: flex;
-  gap: 2rem;
-}
+
 
 .cart-list {
   flex: 2;
@@ -104,7 +132,7 @@ const totalSelectedPrice = computed(() => {
 }
 
 .btn {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.7rem;
   border-radius: 4px;
   font-weight: bold;
 }
@@ -116,11 +144,20 @@ const totalSelectedPrice = computed(() => {
 
 .btn-danger {
   background-color: #f44336;
-  color: white;
+  
 }
 
 .btn-warning {
   background-color: #ff9800;
   color: white;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 </style>

@@ -43,7 +43,7 @@ public class SheetServiceImpl implements SheetService {
     private final SinglePlayResultRepository singlePlayResultRepository;
 
     @Override
-//    @Transactional
+    @Transactional
     public Long registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
         String uuid = UUID.randomUUID().toString();

@@ -23,8 +23,13 @@ async function updateSong(songId, params, success) {
     ).then(success).catch((err) => console.error(err));
 }
 
+async function deleteSong(songId, success) {
+    await local.delete(`/songs/${songId}`).then(success).catch((err) => console.error(err));
+}
+
 export {
     searchSongsByFilter,
     registerSong,
     updateSong,
+    deleteSong,
 };

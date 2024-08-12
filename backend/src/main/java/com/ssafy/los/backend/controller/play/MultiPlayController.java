@@ -3,6 +3,8 @@ package com.ssafy.los.backend.controller.play;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
+import com.ssafy.los.backend.dto.user.response.ScoreDto;
+import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.play.MultiPlayService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
