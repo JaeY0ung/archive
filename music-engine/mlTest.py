@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     try:
-        for file_number in range(0, 4):
+        for file_number in range(0, 6):
             midi_file_name = f"result_{file_number}.mid"
             midi_file_location = os.path.join(UPLOAD_DIR, midi_file_name)
             logger.info(f"MIDI 파일 위치: {midi_file_location}")
