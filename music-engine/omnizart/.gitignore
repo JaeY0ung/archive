@@ -27,7 +27,6 @@ all_weights/
 # Transcription results
 *.mid
 *.csv
-*.txt
 
 # Built files
 dist/
