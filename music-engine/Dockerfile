@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --upgrade pip
 
 # Cython, numpy 설치
-RUN pip install numpy==1.21.6 Cython==0.29.24
+RUN pip install numpy==1.21.6 Cython==0.29.24 scikit-learn==1.5.1
 
 # omnizart 설치
 RUN pip install omnizart
