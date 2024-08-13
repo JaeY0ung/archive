@@ -63,7 +63,7 @@ class FileRequest(BaseModel):
 async def process_midi(request: MidiRequest):
     try:
         # TRAIN_DATA_PATH를 설정하고 MidiService 초기화
-        train_data_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid", file_request.filename)
+        train_data_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid")
         midi_service.initialize(train_data_path)
         logger.info("MIDI 서비스 초기화 완료")
 
