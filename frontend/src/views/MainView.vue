@@ -176,7 +176,7 @@ const goToSheetDetail = (sheetId) => {
 					<div class="flex justify-center">
 						<template v-if="recommendSheets">
 							<Carousel :wrap-around="true" :mouse-drag="true" :snap-align="'center'" :transition="300" :autoplay="3000" :pause-autoplay-on-hover="true">
-								<template v-for="(sheet, index) in newSheets" :key="sheet.id">
+								<template v-for="(sheet, index) in recommendSheets" :key="sheet.id">
 									<Slide :index :card="sheet">
 										<SmallSheetCardForPhoto :sheet="sheet"  @click="goToSheetDetail(sheet.id)" />
 									</Slide>
