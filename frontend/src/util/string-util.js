@@ -1,4 +1,5 @@
 const getTitleByLen = (name, len) => {
+    if (!name) return "";
     if (name.length > len) return name.slice(0, len) + "...";
     return name;
 }

@@ -15,4 +15,5 @@ public interface MultiPlayService {
 
     Long removeMultiPlayResult(Long MultiPlayResultId);
 
+    void refreshMultiScoreOfUser(Long id);
 }

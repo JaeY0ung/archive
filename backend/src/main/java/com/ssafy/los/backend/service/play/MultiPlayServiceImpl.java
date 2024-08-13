@@ -9,11 +9,9 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
-import com.ssafy.los.backend.service.auth.AuthService;
+import com.ssafy.los.backend.util.FileUploadUtil;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -76,7 +74,8 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             // TODO: 이미 완료된 배틀 경기임
             log.info("이미 저장 완료된 배틀 기록입니다.");
         }
-
+        refreshMultiScoreOfUser(multiResultAfterDto.getMyUserId());
+        refreshMultiScoreOfUser(multiResultAfterDto.getOtherUserId());
         return multiResultId;
     }
 
@@ -124,6 +123,17 @@ public class MultiPlayServiceImpl implements MultiPlayService {
     public Long removeMultiPlayResult(Long multiPlayResultId) {
         multiPlayResultRepository.deleteById(multiPlayResultId);
         return multiPlayResultId;
+    }
+
+    @Override
+    public void refreshMultiScoreOfUser(Long userId) {
+        Long winCount = multiPlayResultRepository.calculateCountOfWinMultiPlayResultByUserId(
+                userId);
+        Long loseCount = multiPlayResultRepository.calculateCountOfWinMultiPlayResultByUserId(
+                userId);
+        User user = userRepository.findById(userId).orElseThrow();
+        long multiScore = 1000L + (winCount - loseCount) * 50;
+        user.setRefreshMultiScore(Math.toIntExact(multiScore));
     }
 
 

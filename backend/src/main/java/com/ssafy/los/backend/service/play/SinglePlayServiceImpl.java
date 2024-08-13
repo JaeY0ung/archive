@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -61,6 +62,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
 
     // 게임이 종료되었을 때, 결과 테이블 가져오기
     @Override
+    @Transactional
     public Long completeSinglePlayResult(Long singleResultId,
             SingleResultAfterDto singleResultAfterDto) {
         User loginUser = authService.getLoginUser();
@@ -85,11 +87,11 @@ public class SinglePlayServiceImpl implements SinglePlayService {
 
             // 명시적으로 저장하여 변경 사항 반영
             singlePlayResultRepository.save(singlePlayResult);
+            refreshSingleScoreOfUser(loginUser.getId());
 
         } else {
             log.info("이미 저장 완료된 배틀 기록입니다.");
         }
-
         return singleResultId;
     }
 
@@ -163,5 +165,14 @@ public class SinglePlayServiceImpl implements SinglePlayService {
         } catch (IOException e) {
             throw new IllegalArgumentException("[파일 계산 실패] " + e.getMessage());
         }
+    }
+
+    @Transactional
+    @Override
+    public void refreshSingleScoreOfUser(Long userId) throws IllegalArgumentException {
+        Double avgLevel = singlePlayResultRepository.calculateAvgOfPassedSinglePlayResultByUserId(
+                userId);
+        User user = userRepository.findById(userId).orElseThrow();
+        user.setRefreshSingleScore((int) (avgLevel * 1000));
     }
 }

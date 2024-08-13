@@ -53,7 +53,8 @@ const updateEventOccur = () => {
 <template>
     <div class="m-auto">
         <div class="flex justify-center gap-3">
-            <div class=" bg-green-700 rounded-xl p-1 scroll-x">
+
+            <div class=" bg-green-700 rounded-xl p-1 scroll-y">
                 <div class="text-center">대기중인 악보</div>
                 <div>
                     <template v-for="sheet in sheets[0]" :key="sheet.id">
@@ -73,7 +74,7 @@ const updateEventOccur = () => {
                 </div>
             </div>
 
-            <div class=" bg-blue-700 rounded-xl p-1 scroll-x">
+            <div class=" bg-blue-700 rounded-xl p-1 scroll-y">
                 <div class="text-center">승인된 악보</div>
                 <div>
                     <template v-for="sheet in sheets[1]" :key="sheet.id">
@@ -94,7 +95,7 @@ const updateEventOccur = () => {
                 </div>
             </div>
 
-            <div class=" bg-red-700 rounded-xl p-1 scroll-x">
+            <div class=" bg-red-700 rounded-xl p-1 scroll-y">
                 <div class="text-center">거절된 악보</div>
                 <div>
                     <template v-for="sheet in sheets[2]" :key="sheet.id">

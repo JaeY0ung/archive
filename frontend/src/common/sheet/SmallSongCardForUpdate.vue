@@ -55,12 +55,12 @@ props.song.imageUrl = props.song.img ? `data:image/jpeg;base64,${props.song.img}
 </script>
 
 <template>
-    <div class="m-[5px] p-[5px] flex flex-row justify-between gap-3 bg-white rounded-lg relative"
+    <div class="m-[5px] p-[5px] flex flex-row justify-between gap-3 bg-white rounded-2xl relative"
         style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);">
         <div class="flex gap-3">
             <!-- (왼쪽) 악보 사진 -->
-            <div class="min-h-[80px] max-h-[80px] min-w-[80px] max-w-[80px] flex">
-                <img @click="triggerFileInput" class="rounded-lg" :src="song?.imageUrl" alt="원본 곡 이미지">
+            <div class="max-h-[80px] max-w-[80%] flex">
+                <img @click="triggerFileInput" class="rounded-2xl" :src="song?.imageUrl" alt="원본 곡 이미지" width="80">
                 <input @change="handleFileChange" ref="fileInputRef" type="file" accept="image/*" class="hidden" />
             </div>
             <!-- (오른쪽) 악보 정보 -->

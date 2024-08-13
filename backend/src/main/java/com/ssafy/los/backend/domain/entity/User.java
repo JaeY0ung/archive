@@ -134,4 +134,11 @@ public class User extends BaseEntity {
         this.multiScore -= amount;
     }
 
+    public void setRefreshSingleScore(int singleScore) {
+        this.singleScore = singleScore;
+    }
+
+    public void setRefreshMultiScore(int multiScore) {
+        this.multiScore = multiScore;
+    }
 }

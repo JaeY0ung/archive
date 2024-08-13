@@ -35,8 +35,17 @@ const showAgainRegisterAlert = (router, sheetId) => {
 
 const showUnselectedWarningAlert = (router, warning) => {
     Swal.fire({
-        icon: 'info',
+        icon: 'warning',
         title: warning,
+        confirmButtonText: '예', 
+        confirmButtonColor: '#429f50',
+    })
+}
+
+const showUploadSuccessAlert = () => {
+    Swal.fire({
+        icon: 'success',
+        title: "업로드에 성공했습니다!",
         confirmButtonText: '예', 
         confirmButtonColor: '#429f50',
     })
@@ -46,4 +55,5 @@ export {
     showLoginRequestAlert,
     showAgainRegisterAlert,
     showUnselectedWarningAlert,
+    showUploadSuccessAlert,
 }
