@@ -41,7 +41,7 @@ load_dotenv(dotenv_path)
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
-
+PC = os.getenv("PC")
 
 class FileRequest(BaseModel):
     filename: str
@@ -61,27 +61,25 @@ class FileRequest(BaseModel):
 
 @app.post("/process-midi")
 async def process_midi(request: MidiRequest):
-    try:
-        # TRAIN_DATA_PATH를 설정하고 MidiService 초기화
-        train_data_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid")
-        midi_service.initialize(train_data_path)
-        logger.info("MIDI 서비스 초기화 완료")
+        try:
+            # TRAIN_DATA_PATH를 설정하고 MidiService 초기화
+            train_data_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid")
+            midi_service.initialize(train_data_path)
+            logger.info("MIDI 서비스 초기화 완료")
 
-        similar_songs, input_features = midi_service.find_similar_songs(
-            request.filename)
+            similar_songs, input_features = midi_service.find_similar_songs(
+                request.filename)
 
-        return JSONResponse(content={
-            "similar_songs": similar_songs,
-            "input_features": input_features
-        })
-    except FileNotFoundError as e:
-        logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500,
-                            detail=f"Internal server error: {str(e)}")
-
+            return JSONResponse(content={
+                "similar_songs": similar_songs,
+                "input_features": input_features
+            })
+        except FileNotFoundError as e:
+            logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=404, detail=str(e))
+        except Exception as e:
+            logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 # @app.post("/predict-difficulty")
 # async def predict_difficulty(file_request: FileRequest):
