@@ -13,6 +13,7 @@ from service.calculate_service import process_midi_file
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import subprocess
+import requests
 
 # from service.level_prediction_service import LevelPredictionService
 # from service.midi_service import midi_service
@@ -132,18 +133,36 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
             # 파일 변환
             wav_data = convert_service.webm_to_wav(file_location, UPLOAD_DIR)
 
-            # WAV 데이터를 임시 파일로 저장
-            wav_file_location = os.path.join(UPLOAD_DIR, wav_file_name)
-            with open(wav_file_location, "wb") as wav_file:
-                wav_file.write(wav_data)
+            gpu_server_url = "http://222.107.238.124:9234/convert_wav_to_midi/"
+            files = {'file': (wav_file_name, wav_data, 'audio/wav')}
+            try:
+                response = requests.post(gpu_server_url, files=files)
+                response.raise_for_status()  # HTTP 오류 발생 시 예외를 던짐
 
-            # WAV 파일을 MIDI로 변환
-            midi_data = convert_service.wav_to_midi(wav_file_location, UPLOAD_DIR)
+                # GPU 서버로부터 변환된 MIDI 파일 데이터를 수신
+                midi_data = response.content
 
-            # MIDI 데이터를 임시 파일로 저장
-            midi_file_location = os.path.join(UPLOAD_DIR, midi_file_name)
-            with open(midi_file_location, "wb") as midi_file:
-                midi_file.write(midi_data)
+                # MIDI 데이터를 임시 파일로 저장
+                midi_file_location = os.path.join(UPLOAD_DIR, midi_file_name)
+                with open(midi_file_location, "wb") as midi_file:
+                    midi_file.write(midi_data)
+
+            except requests.exceptions.RequestException as e:
+                logger.error(f"GPU 서버와의 통신 중 오류 발생: {str(e)}")
+                raise HTTPException(status_code=500, detail="GPU 서버와의 통신 중 오류 발생")
+
+            # # WAV 데이터를 임시 파일로 저장
+            # wav_file_location = os.path.join(UPLOAD_DIR, wav_file_name)
+            # with open(wav_file_location, "wb") as wav_file:
+            #     wav_file.write(wav_data)
+
+            # # WAV 파일을 MIDI로 변환
+            # midi_data = convert_service.wav_to_midi(wav_file_location, UPLOAD_DIR)
+
+            # # MIDI 데이터를 임시 파일로 저장
+            # midi_file_location = os.path.join(UPLOAD_DIR, midi_file_name)
+            # with open(midi_file_location, "wb") as midi_file:
+            #     midi_file.write(midi_data)
 
             # 원본 webm 파일 삭제
             os.remove(file_location)
