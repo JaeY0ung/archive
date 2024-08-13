@@ -72,6 +72,20 @@ services:
     environment:
       UPLOAD_DIR: "/app/shared/temp"
 
+  fastapi-predict:
+    build:
+      context: ./predict  # 새로운 FastAPI 애플리케이션의 경로
+    ports:
+      - "8001:8001"  # 다른 포트 사용 (예: 8001)
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker 소켓 공유
+      - shared_data:/app/shared  # 공용 볼륨 설정
+    environment:
+      UPLOAD_DIR: "/app/shared/temp"
+
 volumes:
   mysql-data:
   redis-data:

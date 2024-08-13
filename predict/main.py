@@ -4,9 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.status import HTTP_200_OK
 import os
-import shutil
 import logging
-import re
 from service.calculate_service import process_midi_file
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -25,7 +23,7 @@ origins = [
     "https://arc-hive.shop"
 ]
 
-app = FastAPI(root_path="/fastapi")
+app = FastAPI(root_path="/predict")
 
 app.add_middleware(
     CORSMiddleware,
