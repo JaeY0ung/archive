@@ -38,7 +38,7 @@ import org.springframework.web.client.RestTemplate;
 @Transactional
 public class DifficultyServiceImpl implements DifficultyService {
 
-    @Value("${cors.allowedOrigins.music-engine}")
+    @Value("${cors.allowedOrigins.predict}")
     private String fastApiUrl;
 
     private final DifficultyRepository difficultyRatingRepository;
@@ -111,7 +111,8 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     // 악보 난이도 평가 목록 조회 (페이지 추가)
     @Override
-    public Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size, String sortBy,
+    public Page<DifficultyResponseDto> searchDifficultyBySheetId(Long sheetId, int page, int size,
+            String sortBy,
             String sortDir) {
 
         Sheet sheet = sheetRepository.findById(sheetId)
@@ -123,7 +124,8 @@ public class DifficultyServiceImpl implements DifficultyService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         // 악보에 해당하는 난이도 평가들 반환
-        Page<Difficulty> difficultyPage = difficultyRatingRepository.findAllBySheet(sheet, pageable);
+        Page<Difficulty> difficultyPage = difficultyRatingRepository.findAllBySheet(sheet,
+                pageable);
 
         return difficultyPage.map(difficulty ->
                 DifficultyResponseDto.toEntity(difficulty, fileUploadUtil));
@@ -170,21 +172,24 @@ public class DifficultyServiceImpl implements DifficultyService {
                     int predictedDifficulty = predictionResponse.getPredicted_difficulty();
                     float predictionConfidence = predictionResponse.getPrediction_confidence();
 
-                    log.info("Difficulty prediction successful for sheet {}: difficulty = {}, confidence = {}%",
+                    log.info(
+                            "Difficulty prediction successful for sheet {}: difficulty = {}, confidence = {}%",
                             sheet.getId(), predictedDifficulty, predictionConfidence);
 
                     // 악보 난이도 평가 생성 및 악보 레벨 업데이트
 //                     saveDifficulty(sheet.getId(), 0L, new DifficultyCreateDto(predictedDifficulty, "")); // TODO : 프론트 로직
-                     sheet.updateLevel(predictedDifficulty);
+                    sheet.updateLevel(predictedDifficulty);
 
                     return predictedDifficulty;
                 }
             }
 
-            log.error("Failed to predict difficulty for sheet {}: {}", sheet.getId(), response.getStatusCode());
+            log.error("Failed to predict difficulty for sheet {}: {}", sheet.getId(),
+                    response.getStatusCode());
             throw new RuntimeException("Failed to predict difficulty: " + response.getStatusCode());
         } catch (Exception e) {
-            log.error("Error predicting difficulty for sheet {}: {}", sheet.getId(), e.getMessage(), e);
+            log.error("Error predicting difficulty for sheet {}: {}", sheet.getId(), e.getMessage(),
+                    e);
             throw new RuntimeException("Error predicting difficulty: " + e.getMessage(), e);
         }
     }
@@ -202,7 +207,8 @@ public class DifficultyServiceImpl implements DifficultyService {
             // 요청 본문 생성
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            String requestBody = String.format("{\"filename\": \"%s\"}", findSheet.getUuid() + ".mid");
+            String requestBody = String.format("{\"filename\": \"%s\"}",
+                    findSheet.getUuid() + ".mid");
             HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
 
             // POST 요청 보내기
@@ -216,7 +222,8 @@ public class DifficultyServiceImpl implements DifficultyService {
                     int predictedDifficulty = predictionResponse.getPredicted_difficulty();
                     float predictionConfidence = predictionResponse.getPrediction_confidence();
 
-                    log.info("Difficulty prediction successful for sheet {}: difficulty = {}, confidence = {}%",
+                    log.info(
+                            "Difficulty prediction successful for sheet {}: difficulty = {}, confidence = {}%",
                             findSheet.getId(), predictedDifficulty, predictionConfidence);
 
                     // 악보 난이도 평가 생성 및 악보 레벨 업데이트
@@ -227,14 +234,15 @@ public class DifficultyServiceImpl implements DifficultyService {
                 }
             }
 
-            log.error("Failed to predict difficulty for sheet {}: {}", findSheet.getId(), response.getStatusCode());
+            log.error("Failed to predict difficulty for sheet {}: {}", findSheet.getId(),
+                    response.getStatusCode());
             throw new RuntimeException("Failed to predict difficulty: " + response.getStatusCode());
         } catch (Exception e) {
-            log.error("Error predicting difficulty for sheet {}: {}", findSheet.getId(), e.getMessage(), e);
+            log.error("Error predicting difficulty for sheet {}: {}", findSheet.getId(),
+                    e.getMessage(), e);
             throw new RuntimeException("Error predicting difficulty: " + e.getMessage(), e);
         }
     }
-
 
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
@@ -273,7 +281,8 @@ public class DifficultyServiceImpl implements DifficultyService {
 
         for (int i = 0; i < trimmedDifficulties.size(); i++) {
             Difficulty difficulty = trimmedDifficulties.get(i);
-            double weight = calculateWeight(difficulty.getCreatedAt(), i, mostRecentTime, trimmedDifficulties.size());
+            double weight = calculateWeight(difficulty.getCreatedAt(), i, mostRecentTime,
+                    trimmedDifficulties.size());
             weightedSum += difficulty.getLevel() * weight;
             weightSum += weight;
         }
@@ -286,7 +295,8 @@ public class DifficultyServiceImpl implements DifficultyService {
         return result;
     }
 
-    private double calculateWeight(LocalDateTime opinionTime, int opinionIndex, LocalDateTime mostRecentTime,
+    private double calculateWeight(LocalDateTime opinionTime, int opinionIndex,
+            LocalDateTime mostRecentTime,
             int totalOpinions) {
         long daysDifference = ChronoUnit.DAYS.between(opinionTime, mostRecentTime);
         int indexDifference = totalOpinions - opinionIndex - 1;
