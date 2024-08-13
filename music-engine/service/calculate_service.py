@@ -252,8 +252,8 @@ def calculate_similarity(original_file, piano_file, start_time, end_time):
 
     final_jaccard_sim = intersection / union if union != 0 else 0
 
-    precision = len(original_red_notes)/(len(original_red_notes)+len(result_blue_notes))
-    recall = len(original_red_notes)/(len(original_red_notes)+len(original_blue_notes))
+    precision = len(original_red_notes)/(len(original_red_notes)+len(result_blue_notes)) if (len(original_red_notes)+len(result_blue_notes)) != 0 else 0
+    recall = len(original_red_notes)/(len(original_red_notes)+len(original_blue_notes)) if (len(original_red_notes)+len(original_blue_notes)) != 0 else 0 
 
     final_f1_sim = 2 * precision * recall / (precision + recall) if (precision + recall) != 0 else 0
 
