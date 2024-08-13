@@ -61,7 +61,7 @@ services:
     build:
       context: ./music-engine
     ports:
-      - "8000:8000"
+      - "9234:9234"
     depends_on:
       - mysql
       - redis

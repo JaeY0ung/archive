@@ -1,19 +1,18 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router'
-import { likeSheet, dislikeSheet } from '@/api/likesheet';
-import Tier from "@/common/icons/Tier.vue"
-import ModalComponent from '@/common/modal/ModalComponent';
-import { addToOrder } from "@/util/order";
-
-import { useUserStore } from "@/stores/user";
+import {computed, onMounted, ref, watch} from 'vue';
 import { storeToRefs } from "pinia";
+import { showLoginRequestAlert } from "@/util/alert"
+import { useRouter } from 'vue-router'
+import { addToOrder } from "@/util/order";
+import { useUserStore } from "@/stores/user";
+import { likeSheet, dislikeSheet } from '@/api/likesheet';
+import ModalComponent from '@/common/modal/ModalComponent';
+import Tier from "@/common/icons/Tier.vue"
 
 
 const router = useRouter();
 const userStore = useUserStore();
 const { userInfo, isLogin } = storeToRefs(userStore);
-
 const props = defineProps({
     sheet: {
         type: Object,
@@ -36,6 +35,9 @@ const sheetInfo = ref(props.sheet);
 // 모달 표시 여부를 관리하는 상태 추가
 const showModal = ref(false);
 
+// 장바구니 버튼 활성화 여부를 결정하는 computed 속성
+const isCartButtonDisabled = computed(() => sheetInfo.value.price === 0);
+
 watch(() => props.sheet, (newSheet) => {
     sheetInfo.value = newSheet
     props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
@@ -48,20 +50,27 @@ const goToUserProfile = () => {
 
 // 싱글 배틀 페이지로 이동하기.
 const goToPlayRoom = () => {
+    if (!isLogin.value) {
+        showLoginRequestAlert(router);
+        return;
+    }
     router.push({ name: "singlePlay", params: { sheetId : props.sheet.id} });
 };
 
 // 좋아요
-const onClickLikeSheet = async () => { 
+const onClickLikeSheet = async () => {
+    console.log(isLogin.value);
     if (!isLogin.value) {
-        alert("로그인 이후 가능합니다.");
+        showLoginRequestAlert(router);
         return;
     }
     likeSheet(
         props.sheet.id,
-        (res)=>{
-            sheetInfo.value.likeStatus = true;
-            sheetInfo.value.likeCount++;
+        (res) => {
+            if (res.status) {
+                sheetInfo.value.likeStatus = true;
+                sheetInfo.value.likeCount++;
+            }
         }
     )
 }
@@ -69,7 +78,7 @@ const onClickLikeSheet = async () => {
 // 좋아요 해제
 const onClickDislikeSheet = async () => {
     if (!isLogin.value) {
-        alert("로그인 이후 가능합니다.");
+        showLoginRequestAlert(router);
         return;
     }
     dislikeSheet(props.sheet.id, (res) => {
@@ -80,19 +89,14 @@ const onClickDislikeSheet = async () => {
 
 // TODO : 장바구니에 넣는 로직 추가하기
 const addSheetToOrder = async () => {
+  	console.log("클릭")
+  	if (isCartButtonDisabled.value) return; // 가격이 0이면 실행을 중단
     try {
         addToOrder(sheetInfo.value); // LocalStorage에 장바구니 추가
         showModal.value = true;
     } catch (error) {
         console.error("장바구니에 담기는 게 실패하였습니다.", error);
     }
-    // 모달을 표시하도록 상태 변경
-    // try {
-    //   await addSheetToOrderAPI(sheetInfo.value.id, '카카오페이'); // API 호출로 장바구니에 추가
-    //   showModal.value = true;
-    // } catch (error) {
-    //   console.error("장바구니에 담기는 게 실패하였습니다.", error);
-    // }
 };
 
 const goToCart = () => {
@@ -107,7 +111,11 @@ const continueShopping = () => {
 };
 
 const goToDifficultyRatingPage = () => {
-    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheetInfo.value.id } })
+    if (!isLogin.value) {
+        showLoginRequestAlert(router);
+        return;
+    }
+    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheet.id } })
 }
 </script>
 
@@ -197,22 +205,35 @@ const goToDifficultyRatingPage = () => {
         <!-- 세로 선 -->
         <div class="line"></div>
         <!-- 3. 장바구니 -->
-        <div
-            class="items-center w-[10%] bg-white bg-opacity-70 rounded-lg shadow-md flex flex-col justify-center gap-1 cursor-pointer"
-            @click="addSheetToOrder"
-        >
-            <img :src="require('@/assets/img/cart.svg')" alt="장바구니 이미지" class="w-10 h-10" />
+<!--        <div-->
+<!--            class="items-center w-[10%] bg-white bg-opacity-70 rounded-lg shadow-md flex flex-col justify-center gap-1 cursor-pointer"-->
+<!--            @click="addSheetToOrder"-->
+<!--        >-->
+<!--            <img :src="require('@/assets/img/cart.svg')" alt="장바구니 이미지" class="w-10 h-10" />-->
 
-            <div class="flex gap-1 ">
-                <img src="@/assets/img/cash.png" class="mt-2" style="width:15px; height: 15px;">
-                <div class="text-lg text-gray-900">
-                {{ sheet.price }}
-                </div>
-            </div>
-           
-			
-        </div>
-    </div>
+<!--            <div class="flex gap-1 ">-->
+<!--                <img src="@/assets/img/cash.png" class="mt-2" style="width:15px; height: 15px;">-->
+<!--                <div class="text-lg text-gray-900">-->
+<!--                {{ sheet.price }}-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+	  <div
+		  class="items-center w-[10%] bg-white bg-opacity-70 rounded-lg shadow-md flex flex-col justify-center gap-1"
+		  :class="{ 'cursor-pointer': !isCartButtonDisabled, 'opacity-50 cursor-not-allowed': isCartButtonDisabled }"
+		  @click="addSheetToOrder"
+	  >
+		<img :src="require('@/assets/img/cart.svg')" alt="장바구니 이미지" class="w-10 h-10" />
+
+		<div class="flex gap-1">
+		  <img src="@/assets/img/cash.png" class="mt-2" style="width:15px; height: 15px;">
+		  <div class="text-lg text-gray-900">
+			{{ sheet.price === 0 ? '무료' : sheet.price }}
+		  </div>
+		</div>
+	  </div>
+	</div>
 
     <!-- 모달 컴포넌트 사용 -->
     <ModalComponent

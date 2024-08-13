@@ -1,18 +1,17 @@
 <script setup>
-import { useRoute, useRouter } from "vue-router";
-import { computed, ref, watch } from "vue";
-import { localAxios } from "@/util/http-common";
+import Sheet from "@/common/sheet/Sheet.vue";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
-import Sheet from "@/common/sheet/Sheet.vue";
-import { searchSheetDetail, searchSheetsByFilter, searchStarRateListBySheetId, registerStarRateBySheetId } from "@/api/sheet";
+import { storeToRefs } from "pinia";
+import { computed, ref, watch } from "vue";
 import { useUserStore } from '@/stores/user';
+import { useRoute, useRouter } from "vue-router";
+import { showLoginRequestAlert } from "@/util/alert"
+import { searchSheetDetail, searchSheetsByFilter, searchStarRateListBySheetId, registerStarRateBySheetId } from "@/api/sheet";
 
 const userStore = useUserStore();
-const userInfo = userStore.userInfo;
+const { userInfo, isLogin } = storeToRefs(userStore);
 const route = useRoute();
-const local = localAxios();
-const isPlay = ref("stop");
 const router = useRouter();
 const sheet = ref({});
 const sameLevelSheets = ref([]);
@@ -83,6 +82,10 @@ const searchStarRateList = async () => {
 
 // 별점 등록하기
 const registerStarRate = async () => {
+	if (!isLogin.value) {
+        showLoginRequestAlert(router);
+        return;
+    }
 	if (!starRateRegisterForm.value.content) {
 		alert("평가 글을 작성해주세요")
 		return;
@@ -161,7 +164,7 @@ const goToSheetDetail = (sheetId) => {
 					<!-- 1) 별점 평균 -->
 					<div class="w-[40%] flex flex-col items-center justify-center text-center bg-gray-100 shadow-md bg-opacity-50 p-2 rounded-lg">
 						<div v-if="starRateAvg">
-						    <div class="flex justify-center">
+							<div class="flex justify-center">
 								<div class="text-5xl font-bold text-gray-600">{{ starRateAvg }}</div>
 								<div class="text-gray-600 text-xl mt-6">/ 5.0</div>
 							</div>

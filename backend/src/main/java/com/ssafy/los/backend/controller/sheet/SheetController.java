@@ -65,6 +65,17 @@ public class SheetController {
         }
     }
 
+    @GetMapping("/recent-play")
+    public ResponseEntity<?> getRecentSinglePlayedSheet() {
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(sheetService.searchRecentSinglePlayedSheet());
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
     public ResponseEntity<?> uploadSheet(
@@ -170,11 +181,13 @@ public class SheetController {
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<?> getSheetListByStatusForAdmin(@ModelAttribute SheetSearchFilter sheetSearchFilter) {
+    public ResponseEntity<?> getSheetListByStatusForAdmin(
+            @ModelAttribute SheetSearchFilter sheetSearchFilter) {
         if (!checkRightStatuses(sheetSearchFilter.getStatuses())) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(sheetService.searchAllSheetsByStatusForAdmin(sheetSearchFilter), HttpStatus.OK);
+        return new ResponseEntity<>(sheetService.searchAllSheetsByStatusForAdmin(sheetSearchFilter),
+                HttpStatus.OK);
     }
 
     private boolean checkRightStatuses(Integer[] statuses) {
@@ -231,6 +244,11 @@ public class SheetController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+//    @GetMapping("/recent")
+//    public ResponseEntity<?> getRecentSheet() {
+////        Sheet sheet = sheetService.searchSheetDetailByFileName();
+//    }
 
     @GetMapping("/like/{user-id}")
     public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {

@@ -8,15 +8,19 @@ import java.util.List;
 
 public interface CustomSheetRepository {
 
-    List<SheetDetailDto> findSheetsByFilterAndLoginUser(SheetSearchFilter sheetSearchFilter, User loginUser);
+    List<SheetDetailDto> findSheetsByFilterAndLoginUser(SheetSearchFilter sheetSearchFilter,
+            User loginUser);
 
     List<SheetDetailDto> findSheetsByStatusForAdmin(SheetSearchFilter sheetSearchFilter);
 
     SheetDetailDto findSheetDetailViewDtoById(Long sheetId, User loginUser);
 
+    SheetDetailDto searchOneRecentSinglePlayedSheet(User loginUser);
+
     long updateViewCount(Long sheetId);
 
-    List<SheetDetailForUserDto> searchByFileName(List<String> fileNames);
+    List<SheetDetailForUserDto> searchByFileNames(List<String> fileNames);
+
 
     List<SheetDetailForUserDto> searchByUserLike(Long userId);
 

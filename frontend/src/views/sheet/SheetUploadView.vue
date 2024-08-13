@@ -6,6 +6,7 @@ import { searchSongsByFilter } from "@/api/song";
 import SongRegisterModal from "@/common/modal/SongRegisterModal.vue";
 import { tierInfo } from "@/util/tier-info";
 import SmallSongCard from "@/common/sheet/SmallSongCard.vue";
+import { showAgainRegisterAlert, showUnselectedWarningAlert } from "@/util/alert"
 
 const router = useRouter();
 
@@ -42,7 +43,7 @@ const fileInfo = ref({
 const handleFileChange = (event) => {
     if (!["audio/mid", "audio/midi"].includes(event.target.files[0].type)) {
         fileInput.value.value = "";
-        alert(".mid 확장자의 파일을 업로드해 주세요");
+        showUnselectedWarningAlert(router, ".mid 확장자 파일을 업로드해 주세요");
         return;
     }
     fileInfo.value.file = event.target.files[0];
@@ -59,17 +60,17 @@ searchSongsByKeyword();
 
 const uploadFile = async () => {
     if (!fileInfo.value.file) {
-        alert("파일을 선택해 주세요");
+        showUnselectedWarningAlert(router, "파일을 선택해 주세요");
         return;
     }
 
     if (!fileInfo.value.title) {
-        alert("악보의 제목을 입력해 주세요");
+        showUnselectedWarningAlert(router, "악보의 제목을 입력해 주세요");
         return;
     }
 
     if (!selectedSong.value || !selectedSong.value.id) {
-        alert("악보의 곡을 선택해 주세요");
+        showUnselectedWarningAlert(router, "악보의 곡을 선택해 주세요");
         return;
     }
 
@@ -89,14 +90,13 @@ const uploadFile = async () => {
         new Blob([selectedSong.value.id], { type: "application/json" })
     );
 
-    registerSheet(formData, ({ data }) => {
-
-        // 악보 난이도 예측 API 따로 추가
-        predictSheetLevel(data);
-        
-        // 성공 시, 악보 디테일 페이지로 이동
-        router.push({ name: "sheetDetail", params: { sheetId: data } });
-    });
+    registerSheet(formData,
+        ({ sheetId }) => {
+            // 악보 난이도 예측 API 따로 추가
+            predictSheetLevel(sheetId);
+            showAgainRegisterAlert(router, sheetId);
+        }
+    );
 };
 
 const showSongRegisterModal = () => {

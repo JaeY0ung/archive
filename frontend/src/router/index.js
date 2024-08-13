@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import PaymentResultHandler from "@/common/modal/PaymentResultHandler.vue";
+import { showLoginRequestAlert } from "@/util/alert";
 
 
 const routes = [
@@ -12,17 +13,17 @@ const routes = [
     {
         path: '/sheet/search',
         name: 'sheetSearch',
-        component: () => import('@/views/SheetSearchView.vue')
+        component: () => import('@/views/sheet/SheetSearchView.vue')
     },
     {
         path: '/sheet/:sheetId/detail',
         name: 'sheetDetail',
-        component: () => import('@/views/SheetDetailView.vue')
+        component: () => import('@/views/sheet/SheetDetailView.vue')
     },
     {
         path: '/user/:nickName/profile',
         name: 'userProfile',
-        component: () => import('@/views/UserProfileView.vue')
+        component: () => import('@/views/user/UserProfileView.vue')
     },
 
     {
@@ -79,17 +80,17 @@ const routes = [
     {
         path: "/mypage",
         name: "mypage",
-        component: () => import("@/views/MyPageView.vue"),
+        component: () => import("@/views/user/MyPageView.vue"),
     },
     {
         path: "/login",
         name: "login",
-        component: () => import("@/views/LoginView.vue"),
+        component: () => import("@/views/user/LoginView.vue"),
     },
     {
         path: "/register",
         name: "register",
-        component: () => import("@/views/RegisterView.vue"),
+        component: () => import("@/views/user/UserRegisterView.vue"),
     },
     {
         path: "/auth/register",
@@ -105,29 +106,29 @@ const routes = [
     {
         path: "/sheet/upload",
         name: "sheetUpload",
-        component: () => import("@/views/SheetUploadView.vue"),
+        component: () => import("@/views/sheet/SheetUploadView.vue"),
     },
     {
         path: "/sheet/fullscreen",
         name: "sheet/fullscreen",
-        component: () => import("@/views/SheetFullScreenView.vue"),
+        component: () => import("@/views/sheet/SheetFullScreenView.vue"),
     },
     // -----------------------------------------------
     {
         path: "/payment",
         name: "payment",
-        component: () => import("@/views/PaymentView.vue"),
+        component: () => import("@/views/order-and-pay/PaymentView.vue"),
     },
     // -----------------------------------------------
     {
         path: "/order",
         name: "order",
-        component: () => import("@/views/OrderView.vue"),
+        component: () => import("@/views/order-and-pay/OrderView.vue"),
     },
     {
         path: "/payment",
         name: "payment",
-        component: () => import("@/views/PaymentView.vue"),
+        component: () => import("@/views/order-and-pay/PaymentView.vue"),
     },
     {
         path: "/payment/result",
@@ -153,13 +154,13 @@ const routes = [
     {
         path: "/play/recording",
         name: "recording",
-        component: () => import("@/views/RecordingVue"),
+        component: () => import("@/views/sheet/RecordingVue"),
     },
     // 난이도 기여 페이지
     {
         path: "/difficulty/:sheetId",
         name: "sheetDifficultyRating",
-        component: () => import("@/views/SheetDifficultyRatingView.vue"),
+        component: () => import("@/views/sheet/SheetDifficultyRatingView.vue"),
     },
     // -----------------------------------------------
 ];
@@ -193,7 +194,7 @@ router.beforeEach((to, from, next) => {
     }
     // 로그인이 필요한 라우트에 대한 체크
     else if (authRequiredRoutes.includes(to.name) && !userStore.isLogin) {
-        alert("로그인이 필요합니다.");
+        showLoginRequestAlert(router, "로그인이 필요합니다.");
         next({ name: "login" });
     } else {
         next();

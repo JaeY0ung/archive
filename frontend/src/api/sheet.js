@@ -11,8 +11,8 @@ async function searchSheetDetail(sheetId, success) {
     await local.get(`/sheets/${ sheetId }`).then(success).catch((err) => console.error(err));
 }
 
-async function searchRecentChallengedsheets(success) {
-    await local.get(`/sheets/recent-challenge`).then(success).catch((err) => console.error(err));
+async function searchRecentPlayedsheet(success) {
+    await local.get(`/sheets/recent-play`).then(success).catch((err) => console.error(err));
 }
 
 async function registerSheet(params, success) {
@@ -90,11 +90,11 @@ export {
     searchSheetDetail,
     searchSheetsByFilter,
     registerSheet,
-    searchRecentChallengedsheets,
+    searchRecentPlayedsheet,
     updateSheet,
     getRecommendSheetByUserRecentPlay,
     deleteSheet,
-
+    predictSheetLevel,
     likeSheet,
     dislikeSheet,
 
