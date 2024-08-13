@@ -61,11 +61,11 @@
             playbackManager.value.addListener({
                 cursorPositionChanged: (currentTimestamp, data) => {
                     const currentMeasureIndex = data.CurrentMeasureIndex;
-                    if (currentMeasureIndex >= 0 && currentMeasureIndex - lastEmittedMeasureIndex >= 8) {
-                        lastEmittedMeasureIndex = currentMeasureIndex;
-                        triggerSplit.value++;
-                        splitRecording();
-                    }
+                    // if (currentMeasureIndex >= 0 && currentMeasureIndex - lastEmittedMeasureIndex >= 8) {
+                    //     lastEmittedMeasureIndex = currentMeasureIndex;
+                    //     triggerSplit.value++;
+                    //     splitRecording();
+                    // }
                 },
                 resetOccurred: (data) => {
                     lastEmittedMeasureIndex = 0;
@@ -140,7 +140,11 @@
                     chunks.value.push(event.data);
                 }
             };
-        
+            setInterval(() => {
+                if (isRecording.value) {
+                    splitRecording();
+                }
+            }, 5000); // Calls splitRecording every 5 seconds
             mediaRecorder.value.onstop = () => {
                 if (chunks.value.length > 0) {
                     const blob = new Blob(chunks.value, { type: 'audio/webm' });
@@ -153,8 +157,10 @@
                         console.log("마지막 마디입니다. 앞쪽과 결합후 전송..")
                         sendToServer(combinedBlob);
                     } else {
-                        console.log("8마디로 나누어떨어집니다.")
-                        sendToServer(blob); // 8 마디로 나누어떨어지는 경우 전송
+                        console.log("5초컷 NORMAL")
+                        const doubledBlob = new Blob([blob, blob], { type: 'audio/webm' }); // 자기 자신을 두 번 결합
+                        console.log(doubledBlob.size);
+                        sendToServer(doubledBlob); // 두 번 결합한 Blob을 서버로 전송
                     }
                 }
         
@@ -212,6 +218,7 @@
             isRecording.value = false;
             isPlay.value=false;
             if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
+                splitRecording();
                 mediaRecorder.value.stop();
             }
             

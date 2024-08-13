@@ -2,21 +2,7 @@
 FROM python:3.8
 
 # 필요한 시스템 패키지 설치
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    lsb-release \
-    software-properties-common \
-    apt-transport-https \
-    ca-certificates \
-    libsndfile-dev \
-    fluidsynth \
-    ffmpeg \
-    musescore \
-    xvfb \
-    xauth\
-    build-essential && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends 
 
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip

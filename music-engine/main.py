@@ -14,6 +14,7 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 import subprocess
 import requests
+import pretty_midi
 
 # from service.level_prediction_service import LevelPredictionService
 # from service.midi_service import midi_service
@@ -25,7 +26,7 @@ UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 PC = os.getenv("PC")
 # 로깅 설정
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler("app.log"),
@@ -171,14 +172,15 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
 
         # 원본 MIDI 파일 경로 설정
         original_file_location = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid", uuid + ".mid")
+        split_midi_file(midi_file_location)
 
         if not os.path.exists(original_file_location):
             raise FileNotFoundError(f"original 폴더에 {original_file_location} 파일이 존재하지 않습니다.")
 
-        start_measure = max(0, int(file_number) * 8 - 1)
-        end_measure = (int(file_number) + 1) * 8 + 1
-        last_measure = convert_service.get_rounded_measures(original_file_location,8);
-        similarity_results = calculate_similarity(original_file_location, midi_file_location, start_measure, end_measure)
+        start_time = max(0, int(file_number) * 5 - 1)
+        end_time = (int(file_number) + 1) * 5 + 1
+        last_measure = convert_service.get_rounded_measures(original_file_location,5);
+        similarity_results = calculate_similarity(original_file_location, midi_file_location, start_time, end_time)
         is_last = 0
         if last_measure == int(file_number):
             is_last = 1
@@ -212,8 +214,7 @@ async def mid2xml(file_request: FileRequest):
             raise FileNotFoundError(f"{input_mid_path} 파일이 존재하지 않습니다.")
 
         # 출력 파일 경로 설정
-        output_xml_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "musicxml",
-                                       f"{os.path.splitext(filename)[0]}.musicxml")
+        output_xml_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "musicxml", f"{os.path.splitext(filename)[0]}.musicxml")
         # logger.info("output_xml_path: " + output_xml_path)
         # MIDI 파일을 MusicXML로 변환
         convert_service.midi_to_xml(input_mid_path, output_xml_path)
@@ -229,67 +230,23 @@ async def mid2xml(file_request: FileRequest):
         logger.error(f"파일 변환 중 오류 발생: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="파일 변환 중 오류 발생")
 
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(CURRENT_DIR,"model")
-TRAIN_DATA_DIR = os.path.join(PROJECT_ROOT_PATH, "file", "train-midi")
-
-
-# level_prediction_service = LevelPredictionService(MODEL_DIR, TRAIN_DATA_DIR)
-
-class MidiRequest(BaseModel):
-    filename: str
-
-
-# @app.post("/process-midi")
-# async def process_midi(request: MidiRequest):
-#     try:
-#         # TRAIN_DATA_PATH를 설정하고 MidiService 초기화
-#         train_data_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid")
-#         midi_service.initialize(train_data_path)
-#         logger.info("MIDI 서비스 초기화 완료")
-
-#         similar_songs, input_features = midi_service.find_similar_songs(
-#             request.filename)
-
-#         return JSONResponse(content={
-#             "similar_songs": similar_songs,
-#             "input_features": input_features
-#         })
-#     except FileNotFoundError as e:
-#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=404, detail=str(e))
-#     except Exception as e:
-#         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=500,
-#                             detail=f"Internal server error: {str(e)}")
-
-class FileRequest(BaseModel):
-    filename: str
-
-# @app.post("/predict-difficulty")
-# async def predict_difficulty(file_request: FileRequest):
-#     try:
-#         midi_file_path = os.path.join(PROJECT_ROOT_PATH, "file", "upload-sheet", "mid", file_request.filename)
-#         if not os.path.exists(midi_file_path):
-#             raise FileNotFoundError(f"{midi_file_path} 파일이 존재하지 않습니다.")
-
-#         difficulty, confidence = level_prediction_service.predict_difficulty(midi_file_path)
-
-#         return JSONResponse(content={
-#             "filename": file_request.filename,
-#             "predicted_difficulty": int(difficulty),
-#             "prediction_confidence": float(confidence)
-#         }, status_code=200)
-
-#     except FileNotFoundError as e:
-#         logger.error(f"MIDI 파일을 찾을 수 없음: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=404, detail=str(e))
-#     except Exception as e:
-#         logger.error(f"난이도 예측 중 오류 발생: {str(e)}", exc_info=True)
-#         raise HTTPException(status_code=500, detail=f"내부 서버 오류: {str(e)}")
-
-
 # FastAPI 실행 명령어
 if __name__ == "__main__":
     # uvicorn main:app --reload --host localhost --port 8000
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+
+
+def split_midi_file(midi_file_location, split_ratio=0.5):
+    midi_data = pretty_midi.PrettyMIDI(midi_file_location)
+    total_time = midi_data.get_end_time()
+    split_time = total_time * split_ratio
+
+    first_half_midi = pretty_midi.PrettyMIDI()
+    for instrument in midi_data.instruments:
+        first_half_instrument = pretty_midi.Instrument(program=instrument.program)
+        for note in instrument.notes:
+            if note.start < split_time:
+                first_half_instrument.notes.append(note)
+        first_half_midi.instruments.append(first_half_instrument)
+
+    first_half_midi.write(midi_file_location)
