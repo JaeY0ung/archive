@@ -91,7 +91,7 @@ public class SheetController {
                 .build();
         try { // 악보 데이터 및 파일 저장
             return new ResponseEntity<>(
-//                    sheetService.registerSheetWithPredictLevel(sheetUploadForm),
+                    sheetService.registerSheetWithPredictLevel(sheetUploadForm),
                     HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>("[파일 업로드 실패] " + e.getMessage(), HttpStatus.BAD_REQUEST);
