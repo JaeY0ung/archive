@@ -27,24 +27,11 @@ const props = defineProps({
     },
 });
 
-const recentChallengedSheet = ref({}); // 최근에 도전했던 악보
-
-const getRecentChallengedsheets = async () => {
-	searchRecentChallengedsheets(
-		({ data }) => {
-			if (!data) return;
-			recentChallengedSheet.value = data;
-		}
-	)
-}
-//getRecentChallengedsheets();
-
-const sheetInfo = ref(props.sheet);
-
-watch(() => props.sheet, (newSheet) => {
-    sheetInfo.value = newSheet
+watch(() => props.sheet, () => {
     props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
 })
+
+props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
 
 const goToSheetDetail = (sheetId) => {
 	router.push({ name: 'sheetDetail', params: { sheetId } });
@@ -53,13 +40,11 @@ const goToSheetDetail = (sheetId) => {
 </script>
 
 <template>
-    <div class="flex items-center bg-white shadow-lg rounded-3xl p-4 w-[500px] h-[160px] relative"  
-    style="background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(200, 200, 200, 0.8));" 
-    @click="goToSheetDetail(sheet.id)" >
+    <div class="flex items-center bg-white shadow-lg rounded-3xl p-4 w-[500px] h-[160px] relative" style="background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(200, 200, 200, 0.8));"  @click="goToSheetDetail(sheet.id)" >
         <!-- 왼쪽 이미지 공간 -->
         <div class="flex justify-center items-center w-[100px] h-[100px] rounded-3xl bg-white shadow-inner overflow-hidden">
             <img
-                :src="recentChallengedSheet.imageUrl || require('@/assets/img/default/song_img.png')"
+                :src="sheet.imageUrl"
                 alt="Sheet Image"
                 class="w-[90%] h-[90%]  object-contain"
             />
@@ -70,15 +55,15 @@ const goToSheetDetail = (sheetId) => {
                 Now Playing
             </div>
             <div class="ml-3 mb-12 flex-grow text-gray-600 font-bold text-lg">
-                <!-- {{recentChallengedSheet.title}} -->
-                노래 제목
+                {{ sheet.title }}
             </div>
         </div>
         
         <!-- 오른쪽 아이콘들 -->
         <div class="flex flex-col justify-center items-center space-y-4">
             <button class="w-8 h-8 rounded-full bg-white bg-opacity-50 shadow-md flex justify-center items-center">
-                <span class="text-purple-500">💜</span>
+                <img v-if="sheet.likeStatus == true"  :src="require('@/assets/img/heart-fill.svg')" alt="꽉 찬 하트" class="w-7 h-7" @click="onClickDislikeSheet" />
+                <img v-else-if="sheet.likeStatus == false" :src="require('@/assets/img/heart-empty.svg')"  alt="빈 하트" class="w-7 h-7" @click="onClickLikeSheet" />
             </button>
             <button class="w-8 h-8 rounded-full bg-white bg-opacity-50 shadow-md flex justify-center items-center">
                 <span class="text-gray-400">≡</span>

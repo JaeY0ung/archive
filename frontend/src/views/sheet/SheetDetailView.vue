@@ -164,7 +164,7 @@ const goToSheetDetail = (sheetId) => {
 					<!-- 1) 별점 평균 -->
 					<div class="w-[40%] flex flex-col items-center justify-center text-center bg-gray-100 shadow-md bg-opacity-50 p-2 rounded-lg">
 						<div v-if="starRateAvg">
-						    <div class="flex justify-center">
+							<div class="flex justify-center">
 								<div class="text-5xl font-bold text-gray-600">{{ starRateAvg }}</div>
 								<div class="text-gray-600 text-xl mt-6">/ 5.0</div>
 							</div>

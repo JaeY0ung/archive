@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
 import SmallSheetCardForPhoto from '@/common/sheet/SmallSheetCardForPhoto.vue';
 import { useRouter } from "vue-router"
-import { searchSheetsByFilter, getRecommendSheetByUserRecentPlay } from '@/api/sheet';
+import { searchSheetsByFilter, getRecommendSheetByUserRecentPlay, searchRecentPlayedsheet } from '@/api/sheet';
 import RecentPlaySheetCard from '@/common/sheet/RecentPlaySheetCard.vue';
 
 const router = useRouter();
@@ -52,10 +52,15 @@ const getRecommendSheets = async () => {
 		}
 	)
 }
+const recentPlayedSheet = ref();
+searchRecentPlayedsheet(({ data }) => {
+	console.log(data)
+	recentPlayedSheet.value = data
+});
 
 getPopularsheets();
 getnewsheets();
-getRecommendSheets();
+// getRecommendSheets();
 
 const goToSheetDetail = (sheetId) => {
 	router.push({ name: 'sheetDetail', params: { sheetId } });
@@ -76,7 +81,7 @@ const goToSheetDetail = (sheetId) => {
 
 			</div>
 			<div class="p-[10px] bg-white bg-opacity-0 rounded-xl w-[25%] h-full flex justify-center items-center relative">
-				<RecentPlaySheetCard/>
+				<RecentPlaySheetCard :sheet="recentPlayedSheet"/>
 			</div>
 		</div>
 		<!-- 아래 -->
@@ -86,8 +91,9 @@ const goToSheetDetail = (sheetId) => {
 				<div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
 					<div class="flex flex-col w-full absolute scroll-y">
 						<template v-if="popularSheets">
-							<SmallSheetCard v-for="sheet in popularSheets" :key="sheet.id" :sheet="sheet"
-								@click="goToSheetDetail(sheet.id)" />
+							<template v-for="sheet in popularSheets" :key="sheet.id">
+								<SmallSheetCard :sheet="sheet" @click="goToSheetDetail(sheet.id)" />
+							</template>
 						</template>
 					</div>
 				</div>

@@ -219,8 +219,6 @@ const goToDifficultyRatingPage = () => {
                 {{ sheet.price }}
                 </div>
             </div>
-           
-			
         </div>
     </div>
 

@@ -48,5 +48,5 @@ public interface SheetService {
 
     List<SheetDetailForUserDto> searchSheetByUserLike(Long userId);
 
-    Object searchRecentSinglePlayedSheet();
+    SheetDetailDto searchRecentSinglePlayedSheet();
 }

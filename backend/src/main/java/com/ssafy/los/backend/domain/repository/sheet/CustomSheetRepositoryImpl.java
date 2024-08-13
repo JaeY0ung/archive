@@ -67,9 +67,9 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                     sheetSearchFilter.getSuccessStatuses(), loginUser)
                     .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
-                    .limit(sheetSearchFilter.getSize()) // limit 추가
+                    .limit(sheetSearchFilter.getSize())
                     .offset((long) sheetSearchFilter.getPage()
-                            * sheetSearchFilter.getSize()) // offset 추가
+                            * sheetSearchFilter.getSize())
                     .fetch();
             return new ArrayList<>(sheetDetailForUserDtoList);
         }

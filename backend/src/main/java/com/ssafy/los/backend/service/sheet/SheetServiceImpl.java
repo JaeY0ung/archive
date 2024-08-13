@@ -259,9 +259,14 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
-    public Object searchRecentSinglePlayedSheet() {
+    public SheetDetailDto searchRecentSinglePlayedSheet() {
         User loginUser = authService.getLoginUser();
-        return sheetRepository.searchOneRecentSinglePlayedSheet(loginUser);
+        if (loginUser == null) {
+            return null;
+        }
+        SheetDetailDto sheet = sheetRepository.searchOneRecentSinglePlayedSheet(loginUser);
+        sheet.loadSongImg(fileUploadUtil);
+        return sheet;
     }
 
 
