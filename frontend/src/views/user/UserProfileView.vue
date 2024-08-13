@@ -1,16 +1,15 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
-import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import { userPageService } from "@/api/user-page.js";
 import SmallSheetCardSinglePlay from "@/common/sheet/SmallSheetCardForSinglePlayProfile.vue";
 import SmallSheetCardMultiPlay from "@/common/sheet/SmallSheetCardForMultiPlayProfile.vue";
+import SmallSheetCardLike from "@/common/sheet/SmallSheetCardForLikeProfile.vue";
 import FollowModal from "@/common/modal/FollowModal.vue";
 import Profile from "@/common/icons/Profile.vue";
 
-const local = localAxios();
 const userStore = useUserStore();
 const route = useRoute();
 const router = useRouter();
@@ -31,7 +30,9 @@ const followList = ref([]);
 const followModalTitle = ref("");
 
 // 악보 관련
-const likedSheets = ref([])
+const singlePlaySheets = ref([]);
+const multiPlaySheets = ref([]);
+const likedSheets = ref([]);
 
 const isOwnProfile = computed(() => {
     return userInfo.value?.nickname === route.params.nickName;
@@ -44,15 +45,15 @@ const goToEditPage = () => {
 // 유저 프로필 정보
 const fetchUserProfile = async () => {
     try {
-        const response = await local.get(`/users/${route.params.nickName}`);
-        if (response.data) {
-            userProfile.value = response.data;
-            userImg.value = `data:image/jpeg;base64,${response.data.userImg}`;
+        const data = await userPageService.fetchUserProfile(route.params.nickName);
+        if (data) {
+            userProfile.value = data;
+            userImg.value = `data:image/jpeg;base64,${data.userImg}`;
             userNotFound.value = false;
             // 프로필 정보를 가져온 후 악보
-            await fetchLikedSheets(response.data.userId); // TODO : 닉네임으로 전체 통일하는 방법도 있음
-            await fetchMultiPlaySheets(response.data.userId);
-            await fetchSinglePlaySheets(response.data.userId);
+            await fetchSinglePlaySheets(data.userId);
+            await fetchMultiPlaySheets(data.userId);
+            await fetchLikedSheets(data.userId);
         } else {
             userNotFound.value = true;
         }
@@ -63,99 +64,28 @@ const fetchUserProfile = async () => {
 };
 
 // 싱글 플레이 악보 정보
-const singlePlaySheets = ref([]);
-
 const fetchSinglePlaySheets = async (userId) => {
-    try {
-        const response = await local.get(`/plays/single/${userId}`);
-        console.log('싱글 플레이 악보 >>> ', response.data);
-        singlePlaySheets.value = response.data.map((sheet) => ({
-            id: sheet.id,
-            title: sheet.sheetTitle,
-            songComposer: sheet.songComposer,
-            uploaderNickname: sheet.uploaderNickname,
-            songImg: sheet.songImg,
-            singleScore: sheet.score,
-            nickname: sheet.nickname,
-            userImg: sheet.userImg,
-            level: sheet.level,
-            playTime: sheet.playTime
-        }));
-    } catch (error) {
-        console.error("싱글 플레이 악보를 가져오는데 실패했습니다:", error);
-        singlePlaySheets.value = [];
-    }
+    singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
 };
 
 // 멀티 플레이 악보 정보
-const multiPlaySheets = ref([]);
-
 const fetchMultiPlaySheets = async (userId) => {
-    try {
-        const response = await local.get(`/plays/multi/${userId}`);
-        console.log('멀티 플레이 악보 >>> ', response.data);
-        multiPlaySheets.value = response.data.map((sheet) => ({
-            id: sheet.id,
-            title: sheet.sheetTitle,
-            songComposer: sheet.songComposer,
-            songImg: sheet.songImg,
-            uploaderNickname: sheet.uploaderNickname,
-            myScore: sheet.myScore,
-            otherScore: sheet.otherScore,
-            myNickname: sheet.myNickname,
-            otherNickname: sheet.otherNickname,
-            myProfileImg: sheet.myProfileImg,
-            otherProfileImg: sheet.otherProfileImg,
-            level: sheet.level,
-            playTime: sheet.playTime,
-            draw: sheet.draw
-        }));
-    } catch (error) {
-        console.error("멀티 플레이 악보를 가져오는데 실패했습니다:", error);
-        multiPlaySheets.value = [];
-    }
+    multiPlaySheets.value = await userPageService.fetchMultiPlaySheets(userId);
 };
-
 
 // 좋아요한 악보 정보
 const fetchLikedSheets = async (userId) => {
-    try {
-        const response = await local.get(`/sheets/like/${userId}`);
-        console.log('좋아요 악보 >>> ', response.data)
-        likedSheets.value = response.data.map((sheet) => ({
-            id: sheet.id,
-            title: sheet.title,
-            uploaderNickname: sheet.uploaderNickname,
-            songComposer: sheet.songComposer,
-            songImg: sheet.songImg,
-            level: sheet.level
-        }));
-    } catch (error) {
-        console.error("좋아요한 악보를 가져오는데 실패했습니다:", error);
-        likedSheets.value = [];
-    }
+    likedSheets.value = await userPageService.fetchLikedSheets(userId);
 };
 
 // 팔로우 정보
 const fetchFollowInfo = async () => {
-    try {
-        const [followersResponse, followingsResponse] = await Promise.all([
-            local.get(`/follows/followers/${route.params.nickName}`),
-            local.get(`/follows/followings/${route.params.nickName}`),
-        ]);
-
-        followersCount.value = followersResponse.data.length;
-        followingsCount.value = followingsResponse.data.length;
-
-        isFollowing.value = followersResponse.data.some(
-            (follower) => follower.nickname === userInfo.value.nickname
-        );
-    } catch (error) {
-        console.error("팔로우 정보를 가져오는 데 실패했습니다:", error);
-        followersCount.value = 0;
-        followingsCount.value = 0;
-        isFollowing.value = false;
-    }
+    const followInfo = await userPageService.fetchFollowInfo(route.params.nickName);
+    followersCount.value = followInfo.followersCount;
+    followingsCount.value = followInfo.followingsCount;
+    isFollowing.value = followInfo.followers.some(
+        (follower) => follower.nickname === userInfo.value.nickname
+    );
 };
 
 const toggleFollow = async () => {
@@ -165,29 +95,18 @@ const toggleFollow = async () => {
     }
 
     try {
-        if (isFollowing.value) {
-            await local.delete(
-                `/follows/followings/${userProfile.value.userId}`
-            );
-        } else {
-            await local.post(`/follows/followings/${userProfile.value.userId}`);
-        }
+        await userPageService.toggleFollow(userProfile.value.userId, isFollowing.value);
         isFollowing.value = !isFollowing.value;
         await fetchFollowInfo();
     } catch (error) {
         console.error("팔로우/언팔로우에 실패했습니다:", error);
-        isFollowing.value = !isFollowing.value;
     }
 };
 
 const openFollowModal = async (type) => {
     try {
-        const response = await local.get(
-            `/follows/${type}/${route.params.nickName}`
-        );
-        followList.value = response.data;
-        followModalTitle.value =
-            type === "followers" ? "Followers" : "Following";
+        followList.value = await userPageService.fetchFollowList(type, route.params.nickName);
+        followModalTitle.value = type === "followers" ? "Followers" : "Following";
         type === "followers"
             ? (showFollowersModal.value = true)
             : (showFollowingsModal.value = true);
@@ -203,9 +122,7 @@ const closeModal = () => {
 
 const isValidUserImg = computed(() => {
     return (
-        userImg.value &&
-        userImg.value.trim().length > 0 &&
-        !userImg.value.endsWith("base64,null")
+        userImg.value && userImg.value.trim().length > 0 && !userImg.value.endsWith("base64,null")
     );
 });
 
@@ -226,14 +143,9 @@ onMounted(async () => {
         class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-60px)] overflow-hidden py-4"
     >
         <div class="w-[95%] h-full flex flex-col">
-            <div
-                v-if="userNotFound"
-                class="flex-grow flex items-center justify-center"
-            >
+            <div v-if="userNotFound" class="flex-grow flex items-center justify-center">
                 <div class="text-center">
-                    <h2 class="text-2xl font-bold text-red-600 mb-4">
-                        사용자를 찾을 수 없습니다
-                    </h2>
+                    <h2 class="text-2xl font-bold text-red-600 mb-4">사용자를 찾을 수 없습니다</h2>
                     <p class="text-gray-700 mb-6">
                         요청하신 프로필을 찾을 수 없습니다. 다시 확인해 주세요.
                     </p>
@@ -269,44 +181,33 @@ onMounted(async () => {
                             />
                         </div>
                         <div class="flex-grow ml-[30px]">
-                            <h2
-                                class="text-3xl font-semibold text-gray-800 mb-4"
-                            >
+                            <h2 class="text-3xl font-semibold text-gray-800 mb-4">
                                 {{ userProfile?.nickname }}
                             </h2>
                             <div class="flex gap-8">
                                 <div class="text-center">
-                                    <span
-                                        class="block text-2xl font-bold text-gray-700"
-                                        >{{ userProfile?.singleScore }}</span
-                                    >
-                                    <span class="text-sm text-gray-500"
-                                        >Score</span
-                                    >
+                                    <span class="block text-2xl font-bold text-gray-700">{{
+                                        userProfile?.singleScore
+                                    }}</span>
+                                    <span class="text-sm text-gray-500">Score</span>
                                 </div>
                                 <div
                                     class="text-center cursor-pointer hover:text-blue-500 transition duration-300"
                                     @click="openFollowModal('followers')"
                                 >
-                                    <span
-                                        class="block text-2xl font-bold text-gray-700"
-                                        >{{ followersCount }}</span
-                                    >
-                                    <span class="text-sm text-gray-500"
-                                        >Followers</span
-                                    >
+                                    <span class="block text-2xl font-bold text-gray-700">{{
+                                        followersCount
+                                    }}</span>
+                                    <span class="text-sm text-gray-500">Followers</span>
                                 </div>
                                 <div
                                     class="text-center cursor-pointer hover:text-blue-500 transition duration-300"
                                     @click="openFollowModal('followings')"
                                 >
-                                    <span
-                                        class="block text-2xl font-bold text-gray-700"
-                                        >{{ followingsCount }}</span
-                                    >
-                                    <span class="text-sm text-gray-500"
-                                        >Following</span
-                                    >
+                                    <span class="block text-2xl font-bold text-gray-700">{{
+                                        followingsCount
+                                    }}</span>
+                                    <span class="text-sm text-gray-500">Following</span>
                                 </div>
                             </div>
                         </div>
@@ -345,13 +246,14 @@ onMounted(async () => {
                 <div
                     class="flex-grow overflow-y-auto bg-white rounded-b-xl shadow-[0_4px_15px_0_rgba(0,0,0,0.1)] custom-scrollbar"
                 >
-                    <div class="p-6">
+                    <div class="p-5">
                         <h3
-                            class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-300"
+                            class="text-xl font-semibold text-gray-800 mb-1 pb-1 border-b-2 border-gray-300"
                         >
-                            최근 싱글 플레이
+                            싱글 플레이
                         </h3>
                         <div
+                            v-if="singlePlaySheets.length > 0"
                             class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
                         >
                             <div class="flex absolute">
@@ -363,15 +265,19 @@ onMounted(async () => {
                                 />
                             </div>
                         </div>
+                        <div v-else class="text-center text-gray-500 py-4">
+                            해당하는 악보가 없습니다.
+                        </div>
                     </div>
 
-                    <div class="p-6">
+                    <div class="p-5">
                         <h3
-                            class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-300"
+                            class="text-xl font-semibold text-gray-800 mb-1 pb-1 border-b-2 border-gray-300"
                         >
-                            최근 대결 플레이
+                            대결 플레이
                         </h3>
                         <div
+                            v-if="multiPlaySheets.length > 0"
                             class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
                         >
                             <div class="flex absolute">
@@ -383,25 +289,32 @@ onMounted(async () => {
                                 />
                             </div>
                         </div>
+                        <div v-else class="text-center text-gray-500 py-4">
+                            해당하는 악보가 없습니다.
+                        </div>
                     </div>
 
-                    <div class="p-6">
+                    <div class="p-5">
                         <h3
-                            class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-300"
+                            class="text-xl font-semibold text-gray-800 mb-1 pb-1 border-b-2 border-gray-300"
                         >
-                            좋아요한 악보
+                            좋아요
                         </h3>
                         <div
+                            v-if="likedSheets.length > 0"
                             class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
                         >
                             <div class="flex absolute">
-                                <SmallSheetCard
+                                <SmallSheetCardLike
                                     v-for="sheet in likedSheets"
                                     :key="sheet.id"
                                     :sheet="sheet"
                                     class="mr-4"
                                 />
                             </div>
+                        </div>
+                        <div v-else class="text-center text-gray-500 py-4">
+                            해당하는 악보가 없습니다.
                         </div>
                     </div>
                 </div>

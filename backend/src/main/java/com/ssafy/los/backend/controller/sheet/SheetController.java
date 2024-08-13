@@ -65,6 +65,17 @@ public class SheetController {
         }
     }
 
+    @GetMapping("/recent-play")
+    public ResponseEntity<?> getRecentSinglePlayedSheet() {
+        try {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(sheetService.searchRecentSinglePlayedSheet());
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE,
             "multipart/form-data"})
     public ResponseEntity<?> uploadSheet(
@@ -170,11 +181,13 @@ public class SheetController {
     }
 
     @GetMapping("/admin")
-    public ResponseEntity<?> getSheetListByStatusForAdmin(@ModelAttribute SheetSearchFilter sheetSearchFilter) {
+    public ResponseEntity<?> getSheetListByStatusForAdmin(
+            @ModelAttribute SheetSearchFilter sheetSearchFilter) {
         if (!checkRightStatuses(sheetSearchFilter.getStatuses())) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(sheetService.searchAllSheetsByStatusForAdmin(sheetSearchFilter), HttpStatus.OK);
+        return new ResponseEntity<>(sheetService.searchAllSheetsByStatusForAdmin(sheetSearchFilter),
+                HttpStatus.OK);
     }
 
     private boolean checkRightStatuses(Integer[] statuses) {
@@ -236,6 +249,14 @@ public class SheetController {
     public ResponseEntity<?> getUserProfileLikedSheet(@PathVariable("user-id") Long userId) {
         List<SheetDetailForUserDto> sheetList = sheetService.searchSheetByUserLike(userId);
         return new ResponseEntity<>(sheetList, HttpStatus.OK);
+    }
+
+    @PostMapping("/predict-level/{sheet-id}")
+    public ResponseEntity<?> updateSheetLevel(@PathVariable("sheet-id") Long sheetId) {
+        log.info("난이도 예측 요청이 들어왔습니다.");
+        sheetService.updateSheetLevel(sheetId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

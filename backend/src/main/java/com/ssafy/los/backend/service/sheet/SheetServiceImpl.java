@@ -16,18 +16,17 @@ import com.ssafy.los.backend.dto.sheet.response.SheetDetailDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.util.FileUploadUtil;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -60,6 +59,15 @@ public class SheetServiceImpl implements SheetService {
         Sheet sheet = registerSheetAndMidFileAndSplit(sheetUploadForm);
         //difficultyService.predictLevel(sheet);
         return sheet.getId();
+    }
+
+    @Override
+    public void updateSheetLevel(Long sheetId) {
+        try {
+            difficultyService.predictLevelBySheetId(sheetId);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("난이도 예측 요청이 실패하였습니다.", e);
+        }
     }
 
     private Sheet registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
@@ -248,6 +256,12 @@ public class SheetServiceImpl implements SheetService {
         return sheetRepository.searchByUserLike(userId).stream()
                 .peek(sheet -> sheet.loadSongImg(fileUploadUtil))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Object searchRecentSinglePlayedSheet() {
+        User loginUser = authService.getLoginUser();
+        return sheetRepository.searchOneRecentSinglePlayedSheet(loginUser);
     }
 
 

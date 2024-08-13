@@ -1,15 +1,28 @@
 <script setup>
-import { computed } from "vue";
+import { watch } from "vue";
 import { getTitleByLen } from "@/util/string-util";
+import { useRouter, useRoute } from "vue-router";
 import Tier from "@/common/icons/Tier.vue";
+
+const router = useRouter();
+const route = useRoute();
 
 const props = defineProps({
     sheet: Object,
+    restrictTitle: {
+        type: Boolean,
+        default: true,
+    },
 });
 
-const isSuccess = computed(() => props.sheet.singleScore >= 80);
-const textColor = computed(() => (isSuccess.value ? "text-green-500" : "text-red-500"));
-
+watch(
+    () => props.sheet,
+    () => {
+        props.sheet.imageUrl = props.sheet.songImg
+            ? `data:image/jpeg;base64,${props.sheet.songImg}`
+            : require("@/assets/img/default/song_img.png");
+    }
+);
 props.sheet.imageUrl = props.sheet.songImg
     ? `data:image/jpeg;base64,${props.sheet.songImg}`
     : require("@/assets/img/default/song_img.png");
@@ -41,7 +54,7 @@ const formatTitle = (title) => {
         class="w-[330px] h-[90px] m-[5px] p-[5px] flex flex-row justify-between gap-3 bg-white rounded-lg overflow-hidden"
         style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3)"
     >
-        <div class="flex justify-start gap-3">
+        <div class="h-full flex justify-start gap-3">
             <!-- (왼쪽) 악보 사진 -->
             <div class="h-[80px] w-[80px] flex-shrink-0 flex justify-center">
                 <img class="rounded-lg object-cover" :src="sheet.imageUrl" alt="원본 곡 이미지" />
@@ -64,17 +77,22 @@ const formatTitle = (title) => {
             </div>
         </div>
 
-        <!-- (오른쪽) 점수 및 추가 기능 -->
-        <div class="p-[5px] flex flex-col items-end justify-center gap-2 flex-shrink-0">
+        <!-- (오른쪽) 추가 기능 -->
+        <div class="flex flex-col items-center justify-center">
             <slot />
             <div
                 v-if="sheet.singleScore !== undefined"
                 :class="[
-                    'p-2 rounded-full flex items-center justify-center',
-                    isSuccess ? 'bg-green-100' : 'bg-red-100',
+                    'p-1 rounded-full flex items-center justify-center',
+                    sheet.singleScore > 80 ? 'bg-green-100' : 'bg-red-100',
                 ]"
             >
-                <span :class="['font-bold text-lg', textColor]">
+                <span
+                    :class="[
+                        'font-bold text-sm',
+                        sheet.singleScore > 80 ? 'text-green-600' : 'text-red-600',
+                    ]"
+                >
                     {{ sheet.singleScore > 80 ? "GOOD" : "BAD" }}
                 </span>
             </div>
@@ -87,5 +105,13 @@ const formatTitle = (title) => {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.medium {
+    font-weight: 500;
 }
 </style>

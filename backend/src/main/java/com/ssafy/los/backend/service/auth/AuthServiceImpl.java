@@ -70,6 +70,7 @@ public class AuthServiceImpl implements AuthService {
 
         String email = jwtUtil.getUsername(refreshToken);
         String role = jwtUtil.getRole(refreshToken);
+        log.info("email: {}, role: {}에 해당하는 accessToken을 재발급합니다. ", email, role);
         return jwtUtil.createAccessJwt(email, role);
     }
 

@@ -1,19 +1,18 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import { useRouter } from 'vue-router'
-import { likeSheet, dislikeSheet } from '@/api/likesheet';
-import Tier from "@/common/icons/Tier.vue"
-import ModalComponent from '@/common/modal/ModalComponent';
-import { addToOrder } from "@/util/order";
-
-import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
+import { showLoginRequestAlert } from "@/util/alert"
+import { useRouter } from 'vue-router'
+import { addToOrder } from "@/util/order";
+import { useUserStore } from "@/stores/user";
+import { likeSheet, dislikeSheet } from '@/api/likesheet';
+import ModalComponent from '@/common/modal/ModalComponent';
+import Tier from "@/common/icons/Tier.vue"
 
 
 const router = useRouter();
 const userStore = useUserStore();
 const { userInfo, isLogin } = storeToRefs(userStore);
-
 const props = defineProps({
     sheet: {
         type: Object,
@@ -48,20 +47,27 @@ const goToUserProfile = () => {
 
 // 싱글 배틀 페이지로 이동하기.
 const goToPlayRoom = () => {
+    if (!isLogin.value) {
+        showLoginRequestAlert(router);
+        return;
+    }
     router.push({ name: "singlePlay", params: { sheetId : props.sheet.id} });
 };
 
 // 좋아요
-const onClickLikeSheet = async () => { 
+const onClickLikeSheet = async () => {
+    console.log(isLogin.value);
     if (!isLogin.value) {
-        alert("로그인 이후 가능합니다.");
+        showLoginRequestAlert(router);
         return;
     }
     likeSheet(
         props.sheet.id,
-        (res)=>{
-            sheetInfo.value.likeStatus = true;
-            sheetInfo.value.likeCount++;
+        (res) => {
+            if (res.status) {
+                sheetInfo.value.likeStatus = true;
+                sheetInfo.value.likeCount++;
+            }
         }
     )
 }
@@ -69,7 +75,7 @@ const onClickLikeSheet = async () => {
 // 좋아요 해제
 const onClickDislikeSheet = async () => {
     if (!isLogin.value) {
-        alert("로그인 이후 가능합니다.");
+        showLoginRequestAlert(router);
         return;
     }
     dislikeSheet(props.sheet.id, (res) => {
@@ -107,6 +113,10 @@ const continueShopping = () => {
 };
 
 const goToDifficultyRatingPage = () => {
+    if (!isLogin.value) {
+        showLoginRequestAlert(router);
+        return;
+    }
     router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheet.id } })
 }
 </script>

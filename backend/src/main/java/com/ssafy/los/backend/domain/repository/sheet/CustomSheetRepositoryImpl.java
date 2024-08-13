@@ -43,13 +43,14 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         if (sheetSearchFilter.getPage() == null) {
             sheetSearchFilter.setPage(0);
         }
-        
+
         if (loginUser == null) { // 비 로그인 유저
             List<SheetDetailForUserDto> sheetDetailForUserDtoList = createSelectFromQuery(null)
                     .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                     .limit(sheetSearchFilter.getSize()) // limit 추가
-                    .offset((long) sheetSearchFilter.getPage() * sheetSearchFilter.getSize()) // offset 추가
+                    .offset((long) sheetSearchFilter.getPage()
+                            * sheetSearchFilter.getSize()) // offset 추가
                     .fetch();
             return new ArrayList<>(sheetDetailForUserDtoList);
         } else if (loginUser.getRole().equals("ROLE_ADMIN")) { // 관리자 계정
@@ -57,7 +58,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                     .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1, 2}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                     .limit(sheetSearchFilter.getSize()) // limit 추가
-                    .offset((long) sheetSearchFilter.getPage() * sheetSearchFilter.getSize()) // offset 추가
+                    .offset((long) sheetSearchFilter.getPage()
+                            * sheetSearchFilter.getSize()) // offset 추가
                     .fetch();
             return new ArrayList<>(sheetDetailForAdminDtoList);
         } else { // 로그인 유저
@@ -66,7 +68,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                     .where(createWhereClause(sheetSearchFilter), inStatuses(new Integer[]{0, 1}))
                     .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                     .limit(sheetSearchFilter.getSize()) // limit 추가
-                    .offset((long) sheetSearchFilter.getPage() * sheetSearchFilter.getSize()) // offset 추가
+                    .offset((long) sheetSearchFilter.getPage()
+                            * sheetSearchFilter.getSize()) // offset 추가
                     .fetch();
             return new ArrayList<>(sheetDetailForUserDtoList);
         }
@@ -76,7 +79,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     @Override
     public List<SheetDetailDto> findSheetsByStatusForAdmin(SheetSearchFilter sheetSearchFilter) {
         List<SheetDetailForAdminDto> sheetDetailForAdminDtoList = createSelectFromQueryForAdmin()
-                .where(createWhereClause(sheetSearchFilter), inStatuses(sheetSearchFilter.getStatuses()))
+                .where(createWhereClause(sheetSearchFilter),
+                        inStatuses(sheetSearchFilter.getStatuses()))
                 .orderBy(createOrderSpecifier(sheetSearchFilter.getSort()))
                 .fetch();
         return new ArrayList<>(sheetDetailForAdminDtoList);
@@ -87,6 +91,19 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         return createSelectFromQuery(loginUser)
                 .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
                 .fetchOne();
+    }
+
+    @Override
+    public SheetDetailDto searchOneRecentSinglePlayedSheet(User loginUser) {
+        return createSelectFromQuery(loginUser)
+                .where(
+                        s.deletedAt.isNull(),
+                        s.createdAt.isNotNull()
+                )
+                .rightJoin(spr)
+                .on(spr.user.eq(loginUser).and(spr.sheet.eq(s)))
+                .orderBy(spr.createdAt.desc())
+                .fetchFirst();
     }
 
     @Transactional

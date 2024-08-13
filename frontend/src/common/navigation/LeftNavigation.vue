@@ -27,7 +27,7 @@ const pages = ref([
     { name: "order", title: "장바구니", src: OrderSvg },
     { name: "sheetUpload", title: "악보 업로드", src: UploadSvg },
     { name: "multiRoomList", title: "배틀하기", src: NotePixelSvg },
-    { name: "recording", title: "음악 녹음", src: RecordSvg },
+    // { name: "recording", title: "음악 녹음", src: RecordSvg },
 ]);
 
 const adminPages = ref([
@@ -46,25 +46,28 @@ const visiblePages = computed(() => {
 
 <template>
     <nav class="left-nav-container flex flex-shrink-0" >
-        <div class="h-[100px]"></div>
+        <div class="h-20"></div>
         <template v-for="page in visiblePages" :key="page.name">
-            <div class="flex contents-center items-center w-full h-[50px] mt-5 ">
+            <div class="flex contents-center items-center w-full h-[50px] mt-5 overflow-hidden">
                 <RouterLink :to="{ name: page.name }" @click="leftNavigationStore.closeNav" class="flex items-center w-full h-full">
-                    <div class="flex w-[24px] h-[24px] ml-[20px]">
-                        <img :src="page.src" alt={page.title} />
-                    </div>
-                    <div class="flex flex-shrink ml-auto mr-auto overflow-hidden text-nowrap">{{ page.title }}</div>
+                    <div class="flex w-[24px] h-[24px] ml-[20px]"> <img :src="page.src" :alt="page.title" /> </div>
+                    <div class="flex justify-center flex-shrink ml-auto mr-auto text-nowrap">{{ page.title }}</div>
                 </RouterLink>
             </div>
         </template>
+
+        <div class="h-10"></div>
+        
         <template v-if="userInfo && userInfo.role == 'ROLE_ADMIN'">
+            <div class="flex flex-shrink contents-center items-center w-full h-[25px] mt-5 overflow-hidden">
+                <div class="flex flex-shrink m-3 text-nowrap text-sm">관리자 페이지</div>
+            </div>
+            <hr>
             <template v-for="page in adminPages" :key="page.name">
-                <div class="flex contents-center items-center w-full h-[50px] mt-5 ">
+                <div class="flex flex-shrink contents-center items-center w-full h-[50px] mt-5 overflow-hidden">
                     <RouterLink :to="{ name: page.name }" @click="leftNavigationStore.closeNav" class="flex items-center w-full h-full">
-                        <div class="flex w-[24px] h-[24px] ml-[20px]">
-                            <img :src="page.src" alt={page.title} />
-                        </div>
-                        <div class="flex flex-shrink ml-auto mr-auto overflow-hidden text-nowrap">{{ page.title }}</div>
+                        <div class="flex w-[24px] h-[24px] ml-[20px]"> <img :src="page.src" :alt="page.title" /> </div>
+                        <div class="flex flex-shrink ml-auto mr-auto text-nowrap">{{ page.title }}</div>
                     </RouterLink>
                 </div>
             </template>

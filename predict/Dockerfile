@@ -43,6 +43,5 @@ COPY . .
 # 포트 노출
 EXPOSE 8000
 
-# 애플리케이션 실행 명령 병렬처리(workers)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
-
+# 애플리케이션 실행 명령
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
