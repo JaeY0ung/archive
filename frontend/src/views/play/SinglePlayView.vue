@@ -210,10 +210,16 @@ onBeforeRouteLeave(async (to, from, next) => {
       <div class="up">
         <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
       </div>
-      <div class="down">
+      <div class="down gap-1">
         <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
-        <div class="h-[198px] w-[198px] bg-black flex flex-col justify-evenly items-center">
-          <div class="flex flex-grow flex-1 h-[50%] items-center justify-center cursor-pointer rounded-xl bg-yellow-300" @click="onClickQuit">
+        <div class="h-[198px] w-[198px] flex flex-col justify-evenly items-center">
+          <div class="flex flex-grow flex-1 h-[40%] w-full items-center justify-center cursor-pointer rounded-xl text-3xl font-bold" 
+          @click="onClickQuit"
+          :style="{
+                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
+                            backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat' }">
               나가기
           </div>
         </div>
@@ -235,7 +241,6 @@ onBeforeRouteLeave(async (to, from, next) => {
 .up {
   background-color: #fff;
   height: 72%;
-  margin-bottom: 20px;
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
