@@ -9,11 +9,12 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
+import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.util.FileUploadUtil;
+import jakarta.transaction.Transactional;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import com.ssafy.los.backend.service.sheet.SheetService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -27,8 +28,6 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Slf4j
 @Service
@@ -60,7 +59,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
     // 게임이 종료되었을 떄, 결과 테이블 가져오기
     @Override
     public Long completeMultiPlayResult(Long multiResultId,
-                                        MultiPlayResultAfterDto multiResultAfterDto) {
+            MultiPlayResultAfterDto multiResultAfterDto) {
 
         MultiPlayResult multiPlayResult = multiPlayResultRepository.findById(multiResultId)
                 .orElseThrow(() -> new RuntimeException("multi play result not found"));
@@ -90,13 +89,14 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             multiPlayResult.updatePlayTime();
             multiPlayResult.updateStatus(true);
 
+            refreshMultiScoreOfUser(myUser.getId());
+            refreshMultiScoreOfUser(otherUser.getId());
+
             log.info("최종으로 저장된 멀티 result = {}", multiPlayResult.toString());
         } else {
             // TODO: 이미 완료된 배틀 경기임
             log.info("이미 저장 완료된 배틀 기록입니다.");
         }
-        refreshMultiScoreOfUser(multiResultAfterDto.getMyUserId());
-        refreshMultiScoreOfUser(multiResultAfterDto.getOtherUserId());
         return multiResultId;
     }
 

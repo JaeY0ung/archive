@@ -8,8 +8,6 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.user.CustomUserDetails;
 import com.ssafy.los.backend.dto.user.request.UserCreateDto;
 import com.ssafy.los.backend.dto.user.response.UserDetailDto;
-import com.ssafy.los.backend.service.play.MultiPlayService;
-import com.ssafy.los.backend.service.play.SinglePlayService;
 import com.ssafy.los.backend.service.user.UserStatusService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import com.ssafy.los.backend.util.JWTUtil;
@@ -32,8 +30,6 @@ public class AuthServiceImpl implements AuthService {
     private final OAuth2UserService oAuth2UserService;
     private final UserStatusService userStatusService;
     private final FileUploadUtil fileUploadUtil;
-    private final SinglePlayService singlePlayService;
-    private final MultiPlayService multiPlayService;
 
     @Override
     public UserDetailDto getUserInfo(HttpServletRequest request) {
@@ -41,10 +37,6 @@ public class AuthServiceImpl implements AuthService {
         if (loginUser == null) {
             return null;
         }
-
-        // TODO : 스코어 갱신 로직, 플레이 기록 저장할 때, 갱신하도록 변경하기
-        singlePlayService.refreshSingleScoreOfUser(loginUser.getId());
-        multiPlayService.refreshMultiScoreOfUser(loginUser.getId());
 
         UserDetailDto userDetailDto = UserDetailDto.builder()
                 .id(loginUser.getId())
