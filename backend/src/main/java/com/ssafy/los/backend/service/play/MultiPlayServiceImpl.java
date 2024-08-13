@@ -9,11 +9,9 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
-import com.ssafy.los.backend.service.auth.AuthService;
+import com.ssafy.los.backend.util.FileUploadUtil;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -106,8 +104,10 @@ public class MultiPlayServiceImpl implements MultiPlayService {
                     .sheetTitle(multiPlayResult.getSheet().getTitle())
                     .songComposer(multiPlayResult.getSheet().getSong().getComposer())
                     .songImgName(multiPlayResult.getSheet().getSong().getImgName())
-                    .uploaderNickname(multiPlayResult.getSheet().getUploader().getNickname())
                     .level(multiPlayResult.getSheet().getLevel())
+                    .uploaderNickname(multiPlayResult.getSheet().getUploader() != null
+                            ? multiPlayResult.getSheet().getUploader().getNickname()
+                            : "")
                     .playTime(multiPlayResult.getPlayTime())
                     .draw(multiPlayResult.isDraw())
                     .build();

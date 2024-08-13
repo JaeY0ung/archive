@@ -114,7 +114,9 @@ public class SinglePlayServiceImpl implements SinglePlayService {
                             .sheetTitle(result.getSheet().getTitle())
                             .songComposer(result.getSheet().getSong().getComposer())
                             .songImgName(result.getSheet().getSong().getImgName())
-                            .uploaderNickname(result.getSheet().getUploader().getNickname())
+                            .uploaderNickname(result.getSheet().getUploader() != null
+                                    ? result.getSheet().getUploader().getNickname()
+                                    : "")
                             .level(result.getSheet().getLevel())
                             .score(result.getScore())
                             .playTime(result.getPlayTime())
