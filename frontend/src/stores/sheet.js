@@ -144,11 +144,11 @@
                 if (isRecording.value) {
                     splitRecording();
                 }
-            }, 6000); // Calls splitRecording every 5 seconds
+            }, 4000); // Calls splitRecording every 5 seconds
             mediaRecorder.value.onstop = () => {
                 if (chunks.value.length > 0) {
-                    const blob = new Blob(chunks.value,chunks.value, { type: 'audio/webm' });
-                    console.log(`Blob size: ${blob.size*2} bytes`);
+                    const blob = new Blob(chunks.value, { type: 'audio/webm' });
+                    console.log(`Blob size: ${blob.size} bytes`);
                     audioBlobs.value.push({ blob });
                     chunks.value = [];
                     if (isPlay.value == false) {
@@ -158,7 +158,8 @@
                         sendToServer(combinedBlob);
                     } else {
                         console.log("5초컷 NORMAL")
-                        sendToServer(blob); // 8 마디로 나누어떨어지는 경우 전송
+                        const doubledBlob = new Blob([blob, blob], { type: 'audio/webm' }); // 자기 자신을 두 번 결합
+                        sendToServer(doubledBlob); // 두 번 결합한 Blob을 서버로 전송
                     }
                 }
         

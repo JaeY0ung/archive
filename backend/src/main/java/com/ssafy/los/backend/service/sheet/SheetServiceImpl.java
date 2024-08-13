@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SheetServiceImpl implements SheetService {
 
-    @Value("${cors.allowedOrigins.music-engine}")
+    @Value("${cors.allowedOrigins.predict}")
     private String musicEngineBaseUrl;
 
     private final FileUploadUtil fileUploadUtil;

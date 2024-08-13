@@ -26,7 +26,7 @@ UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 PC = os.getenv("PC")
 # 로깅 설정
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler("app.log"),
