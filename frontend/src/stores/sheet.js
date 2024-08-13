@@ -49,7 +49,7 @@
             playbackManager.value.PreCountMeasures = 1;
             osmd.value.FollowCursor = true;
 
-            audioPlayer.value.GainMultiplier = 3;
+            audioPlayer.value.GainMultiplier = 6;
 
             timingSource.value.reset();
             timingSource.value.pause();

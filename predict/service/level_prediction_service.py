@@ -22,13 +22,37 @@ class LevelPredictionService:
         self.model_path = os.path.join(model_dir, 'ensemble_clf_model.joblib')
         self.scaler_path = os.path.join(model_dir, 'scaler.joblib')
 
+        # 로깅: 경로 확인
+        logger.info(f"Model directory: {self.model_dir}")
+        logger.info(f"MIDI data directory: {self.midi_data_dir}")
+        logger.info(f"Model path: {self.model_path}")
+        logger.info(f"Scaler path: {self.scaler_path}")
+
+        # 파일 존재 여부 확인 및 로깅
+        if os.path.exists(self.model_path):
+            logger.info(f"Model file found at: {self.model_path}")
+        else:
+            logger.warning(f"Model file not found at: {self.model_path}")
+
+        if os.path.exists(self.scaler_path):
+            logger.info(f"Scaler file found at: {self.scaler_path}")
+        else:
+            logger.warning(f"Scaler file not found at: {self.scaler_path}")
+
         if os.path.exists(self.model_path) and os.path.exists(self.scaler_path):
-            logger.info("Loading pre-trained model and scaler...")
-            self.model = joblib.load(self.model_path)
-            self.scaler = joblib.load(self.scaler_path)
+            try:
+                logger.info("Loading pre-trained model and scaler...")
+                self.model = joblib.load(self.model_path)
+                logger.info("Model loaded successfully.")
+                self.scaler = joblib.load(self.scaler_path)
+                logger.info("Scaler loaded successfully.")
+            except Exception as e:
+                logger.error(f"Error loading model or scaler: {str(e)}")
+                raise
         else:
             logger.info("No pre-trained model found. Training new model...")
             self.train_model()
+
 
     def extract_features(self, midi_file):
         try:
