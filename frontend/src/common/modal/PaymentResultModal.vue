@@ -20,9 +20,9 @@ watch(
 		Swal.fire({
 		  title: '결제 결과',
 		  html: props.paymentResult.status === 'success' ?
-			  `
-          <p>
+			  `          <p>
             주문 번호: ${props.paymentResult.orderId}<br>
+            주문 상품: ${props.paymentResult.itemName}<br>
             결제 금액: ${props.paymentResult.amount}원
           </p>
         ` : `<p>${props.paymentResult.message}</p>`,

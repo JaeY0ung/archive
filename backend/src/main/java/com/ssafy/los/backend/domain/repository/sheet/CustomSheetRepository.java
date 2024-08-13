@@ -19,7 +19,8 @@ public interface CustomSheetRepository {
 
     long updateViewCount(Long sheetId);
 
-    List<SheetDetailForUserDto> searchByFileName(List<String> fileNames);
+    List<SheetDetailForUserDto> searchByFileNames(List<String> fileNames);
+
 
     List<SheetDetailForUserDto> searchByUserLike(Long userId);
 
