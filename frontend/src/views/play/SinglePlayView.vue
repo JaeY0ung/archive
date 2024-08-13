@@ -157,7 +157,7 @@ onBeforeRouteLeave(async (to, from, next) => {
   // 새로고침 체크
     if(to.name == from.name){
         // isReloading.value = true;
-        // 새로고침을 불가능하게 만들었다.
+        // 새로고침을 불가능하게 만들었다. 불가능하게 안된다. 방법 찾기
         next(false);
     }
 

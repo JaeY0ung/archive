@@ -12,4 +12,5 @@ public class PlayerStartDto {
     private String sender;
     private String content;
     private Integer sheetId;
+    private Integer resultId;
 }
