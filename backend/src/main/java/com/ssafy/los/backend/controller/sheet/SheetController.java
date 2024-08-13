@@ -240,7 +240,7 @@ public class SheetController {
             List<SheetDetailForUserDto> recommendedSheets = sheetService.getRecommendedSheets();
             return new ResponseEntity<>(recommendedSheets, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

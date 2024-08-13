@@ -115,7 +115,7 @@ const goToDifficultyRatingPage = () => {
         showLoginRequestAlert(router);
         return;
     }
-    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheet.id } })
+    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheetInfo.value.id } })
 }
 </script>
 
