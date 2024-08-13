@@ -8,16 +8,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -30,7 +29,9 @@ public class JWTFilter extends OncePerRequestFilter {
             "/users/check-email",
             "/auth/login", "/auth/logout", "/auth/token", "/auth/refresh",
             "login/oauth2/code/naver", "/api/login/oauth2/code/naver", "/login/oauth2/code/naver",
-            "/app/**", "/archive-websocket/**", "/sheets", "/sheets/**", "/genres"
+            "/app/**", "/archive-websocket/**",
+            "/sheets", "/sheets/**",
+            "/genres"
     );
 
     @Override
@@ -44,12 +45,12 @@ public class JWTFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        log.info("----- JWT 필터에 검증요청이 왔습니다. -----");
+//        log.info("----- JWT 필터에 검증요청이 왔습니다. -----");
         log.info("요청 URL: {}", request.getRequestURL());
-        log.info("Servlet 경로: {}", request.getServletPath());
+//        log.info("Servlet 경로: {}", request.getServletPath());
 
         String authorization = request.getHeader("Authorization");
-        log.info("헤더에서 찾은 Authorization 정보입니다. = {}", authorization);
+//        log.info("헤더에서 찾은 Authorization 정보입니다. = {}", authorization);
 
         try {
             if (authorization != null && authorization.startsWith("Bearer ")) {

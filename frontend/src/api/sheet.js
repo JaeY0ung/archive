@@ -24,7 +24,7 @@ async function updateSheet(sheetId, params, success) {
 }
 
 function predictSheetLevel(sheetId) {
-    return local.post(`/predict-level/${sheetId}`)
+    return local.post(`sheets/predict-level/${sheetId}`)
         .then(response => {
             if (response.status === 200) {
                 console.log(`난이도 예측 성공: sheet-id ${sheetId}`);

@@ -33,10 +33,10 @@ const cards = ref([
 
 <style>
 .carousel__viewport  {
-    height: 100% !important; /* carousel_viewport의 높이를 100%로 설정 */
+    height: 100%; /* carousel_viewport의 높이를 100%로 설정 */
 }
 
 .carousel__track {
-height: 100% !important; /* carousel_track의 높이를 100%로 설정 */
+height: 100%; /* carousel_track의 높이를 100%로 설정 */
 }
 </style>
