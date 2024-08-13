@@ -46,6 +46,7 @@ public class MusicServiceImpl implements MusicService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, String> body = new HashMap<>();
         body.put("filename", midFileName);
+        log.info("URL :::{}", url);
         HttpEntity<Object> request = new HttpEntity<>(body, headers);
 
         return restTemplate.postForObject(url, request, String.class);
