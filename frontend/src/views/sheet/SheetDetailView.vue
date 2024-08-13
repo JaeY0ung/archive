@@ -337,7 +337,7 @@ const AsyncSheet = defineAsyncComponent(() => import("@/common/sheet/Sheet.vue")
 
         <!-- 2. musicXML -->
         <div class="flex flex-col gap-5 w-[49%] bg-white rounded-xl shadow-xl overflow-hidden">
-            <Sheet :sheetId="Number(route.params.sheetId)" />
+            <AsyncSheet :sheetId="Number(route.params.sheetId)" />
         </div>
     </div>
 </template>
