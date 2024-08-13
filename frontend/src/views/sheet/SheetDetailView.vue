@@ -3,7 +3,7 @@ import Sheet from "@/common/sheet/Sheet.vue";
 import BigSheetCard from "@/common/sheet/BigSheetCard.vue";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 import { storeToRefs } from "pinia";
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, defineAsyncComponent } from "vue";
 import { useUserStore } from '@/stores/user';
 import { useRoute, useRouter } from "vue-router";
 import { showLoginRequestAlert } from "@/util/alert"
@@ -127,6 +127,12 @@ const goToSheetDetail = (sheetId) => {
 		replace: true
 	})
 }
+
+
+// Sheet 컴포넌트 비동기 로드
+const AsyncSheet = defineAsyncComponent(() =>
+	import("@/common/sheet/Sheet.vue")
+);
 </script>
 
 <template>
@@ -276,7 +282,7 @@ const goToSheetDetail = (sheetId) => {
 
 		<!-- 2. musicXML -->
 		<div class="flex flex-col gap-5 w-[49%]  bg-white rounded-xl mb-[10px] shadow-xl">
-			<Sheet :sheetId="Number(route.params.sheetId)"/>
+			<AsyncSheet :sheetId="Number(route.params.sheetId)"/>
 		</div>
 	</div>
 </template>
