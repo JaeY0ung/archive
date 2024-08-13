@@ -5,11 +5,11 @@ import com.ssafy.los.backend.domain.entity.SheetStarRate;
 import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.sheet.SheetRepository;
 import com.ssafy.los.backend.domain.repository.sheet.SheetStarRateRepository;
-import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.sheet.request.SheetStarRateCreateDto;
 import com.ssafy.los.backend.dto.sheet.request.SheetStarRateUpdateDto;
 import com.ssafy.los.backend.dto.sheet.response.SheetStarRateDto;
 import com.ssafy.los.backend.service.auth.AuthService;
+import com.ssafy.los.backend.util.FileUploadUtil;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,9 +22,9 @@ import org.springframework.stereotype.Service;
 public class SheetStarRateServiceImpl implements SheetStarRateService {
 
     private final SheetStarRateRepository sheetStarRateRepository;
-    private final UserRepository userRepository;
     private final SheetRepository sheetRepository;
     private final AuthService authService;
+    private final FileUploadUtil fileUploadUtil;
 
     // 별점 생성
     @Override
@@ -69,9 +69,12 @@ public class SheetStarRateServiceImpl implements SheetStarRateService {
         Sheet sheet = sheetRepository.findById(sheetId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 악보가 없습니다. id = " + sheetId));
         List<SheetStarRate> sheetStarRatesList = sheetStarRateRepository.findAllBySheet(sheet);
+
         List<SheetStarRateDto> result = sheetStarRatesList.stream()
                 .map(SheetStarRateDto::toEntity)
+                .peek(dto -> dto.loadUserImg(fileUploadUtil))
                 .collect(Collectors.toList());
+
         return result;
     }
 
