@@ -1,5 +1,5 @@
 <script setup>
-import { defineEmits, computed } from "vue";
+import { computed } from "vue";
 import { useRouter } from 'vue-router';
 import Profile from "@/common/icons/Profile.vue";
 

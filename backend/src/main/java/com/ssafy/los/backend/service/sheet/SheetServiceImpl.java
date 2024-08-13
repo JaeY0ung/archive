@@ -62,6 +62,15 @@ public class SheetServiceImpl implements SheetService {
         return sheet.getId();
     }
 
+    @Override
+    public void updateSheetLevel(Long sheetId) {
+        try {
+            difficultyService.predictLevelBySheetId(sheetId);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("난이도 예측 요청이 실패하였습니다.", e);
+        }
+    }
+
     private Sheet registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
         String uuid = UUID.randomUUID().toString();
