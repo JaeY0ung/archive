@@ -27,7 +27,7 @@ const showAgainRegisterAlert = (router, sheetId) => {
         confirmButtonColor: '#429f50',
         cancelButtonColor: '#d33',
     }).then(result => {
-        if (result.isConfirmed) {
+        if (!result.isConfirmed) {
             router.push({ name: "sheetDetail", params: { sheetId } });
         }
     })

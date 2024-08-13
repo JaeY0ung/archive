@@ -73,9 +73,13 @@ public class SheetServiceImpl implements SheetService {
     private Sheet registerSheetAndMidFileAndSplit(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException {
         String uuid = UUID.randomUUID().toString();
+        log.info(uuid);
         fileUploadUtil.uploadSheet(sheetUploadForm.getFile(), uuid);
+        log.info("파일저장완료");
         Sheet sheet = registerSheet(sheetUploadForm, uuid);
+        log.info("db 저장완료");
         musicService.saveMidFileWithSplit(sheet.getUuid() + ".mid");
+        log.info("변환 완료");
         return sheet;
     }
 

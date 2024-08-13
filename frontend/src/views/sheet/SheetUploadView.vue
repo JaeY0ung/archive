@@ -91,11 +91,11 @@ const uploadFile = async () => {
     );
 
     registerSheet(formData,
-        ({ sheetId }) => {
+        ({ data }) => {
             // 악보 난이도 예측 API 따로 추가
-            console.log('해당 악보가 등록되었습니다.', sheetId);
+            console.log('해당 악보가 등록되었습니다.', data);
             // predictSheetLevel(sheetId);
-            showAgainRegisterAlert(router, sheetId);
+            showAgainRegisterAlert(router, data);
         }
     );
 };

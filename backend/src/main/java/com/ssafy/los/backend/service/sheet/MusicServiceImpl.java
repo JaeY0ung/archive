@@ -18,7 +18,7 @@ public class MusicServiceImpl implements MusicService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${cors.allowedOrigins.predict}")
+    @Value("${cors.allowedOrigins.music-engine}")
     private String musicEngineBaseUrl;
 
     @Value("${cors.allowedOrigins.predict")
