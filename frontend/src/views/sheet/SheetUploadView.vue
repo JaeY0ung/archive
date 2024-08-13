@@ -93,7 +93,7 @@ const uploadFile = async () => {
     registerSheet(formData,
         ({ sheetId }) => {
             // 악보 난이도 예측 API 따로 추가
-            predictSheetLevel(sheetId);
+            // predictSheetLevel(sheetId);
             showAgainRegisterAlert(router, sheetId);
         }
     );

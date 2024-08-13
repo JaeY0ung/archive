@@ -140,11 +140,15 @@
                     chunks.value.push(event.data);
                 }
             };
-        
+            setInterval(() => {
+                if (isRecording.value) {
+                    splitRecording();
+                }
+            }, 6000); // Calls splitRecording every 5 seconds
             mediaRecorder.value.onstop = () => {
                 if (chunks.value.length > 0) {
-                    const blob = new Blob(chunks.value, { type: 'audio/webm' });
-                    console.log(`Blob size: ${blob.size} bytes`);
+                    const blob = new Blob(chunks.value,chunks.value, { type: 'audio/webm' });
+                    console.log(`Blob size: ${blob.size*2} bytes`);
                     audioBlobs.value.push({ blob });
                     chunks.value = [];
                     if (isPlay.value == false) {
@@ -153,7 +157,7 @@
                         console.log("마지막 마디입니다. 앞쪽과 결합후 전송..")
                         sendToServer(combinedBlob);
                     } else {
-                        console.log("8마디로 나누어떨어집니다.")
+                        console.log("5초컷 NORMAL")
                         sendToServer(blob); // 8 마디로 나누어떨어지는 경우 전송
                     }
                 }
@@ -212,6 +216,7 @@
             isRecording.value = false;
             isPlay.value=false;
             if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
+                splitRecording();
                 mediaRecorder.value.stop();
             }
             

@@ -184,7 +184,7 @@ def get_measure_duration(midi_file):
     beat_duration = 60 / tempo
     return beats_per_measure * beat_duration
 
-def calculate_similarity(original_file, piano_file, start_measure, end_measure):
+def calculate_similarity(original_file, piano_file, start_time, end_time):
     measure_duration = get_measure_duration(original_file)
     notes1 = load_midi_notes(original_file)
     notes2 = load_midi_notes(piano_file)
@@ -192,8 +192,6 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     notes2 = adjust_timing(notes2)
 
     # 시간 범위를 설정하여 해당 마디의 노트만 선택, 앞뒤로 1마디 추가
-    start_time = max(0, (start_measure - 1) * measure_duration)
-    end_time = (end_measure + 1) * measure_duration
     notes1_segment = [note for note in notes1 if start_time <= note[0] < end_time]
 
     # 앞부분을 버리고 새로운 노트로 설정
