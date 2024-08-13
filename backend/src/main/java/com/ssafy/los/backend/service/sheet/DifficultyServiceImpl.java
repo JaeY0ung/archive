@@ -191,7 +191,7 @@ public class DifficultyServiceImpl implements DifficultyService {
 
     @Override
     public int predictLevelBySheetId(Long sheetId) {
-        String url = "/predict-difficulty";
+        String url = fastApiUrl + "/predict-difficulty";
         log.info("Sending request to predict difficulty for sheet: {}", sheetId);
 
         Sheet findSheet = sheetRepository.findById(sheetId)
