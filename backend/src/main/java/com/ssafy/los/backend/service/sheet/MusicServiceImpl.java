@@ -1,5 +1,7 @@
 package com.ssafy.los.backend.service.sheet;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,9 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +20,9 @@ public class MusicServiceImpl implements MusicService {
 
     @Value("${cors.allowedOrigins.music-engine}")
     private String musicEngineBaseUrl;
+
+    @Value("${cors.allowedOrigins.predict")
+    private String predictBaseUrl;
 
     public void saveMidFileWithSplit(String midFileName) throws IllegalArgumentException {
         String url = musicEngineBaseUrl + "/sheets/mid-to-xml";
@@ -38,7 +40,8 @@ public class MusicServiceImpl implements MusicService {
     }
 
     @Override
-    public String searchRecommendMidFile(String url, String midFileName) throws IllegalArgumentException {
+    public String searchRecommendMidFile(String url, String midFileName)
+            throws IllegalArgumentException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         Map<String, String> body = new HashMap<>();

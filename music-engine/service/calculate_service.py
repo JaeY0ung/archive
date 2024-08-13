@@ -1,6 +1,7 @@
 import numpy as np
 import pretty_midi
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
 
 from service.feature_extraction import extract_features_from_data
@@ -278,10 +279,18 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     }
 
 # K-평균 클러스터링
-def perform_clustering(feature_matrix, n_clusters=3):
-    from sklearn.cluster import KMeans
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(feature_matrix)
-    return kmeans.labels_, kmeans.cluster_centers_
+# def perform_clustering(feature_matrix, n_clusters=3):
+#     from sklearn.cluster import KMeans
+#     kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(feature_matrix)
+#     return kmeans.labels_, kmeans.cluster_centers_
+
+def perform_clustering(features, n_clusters=3):
+    if len(features) < n_clusters:
+        return [0] * len(features), [features[0]]  # 단일 클러스터로 처리
+    kmeans = KMeans(n_clusters=min(n_clusters, len(features)), random_state=42, n_init=10)
+    labels = kmeans.fit_predict(features)
+    return labels, kmeans.cluster_centers_
+
 
 # MIDI 파일 처리 함수
 def process_midi_file(file_data):
