@@ -92,6 +92,7 @@ export {
     registerSheet,
     searchRecentPlayedsheet,
     updateSheet,
+    predictSheetLevel,
     getRecommendSheetByUserRecentPlay,
     deleteSheet,
 
