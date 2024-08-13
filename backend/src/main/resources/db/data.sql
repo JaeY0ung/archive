@@ -1,11 +1,12 @@
 # DROP SCHEMA IF EXISTS archive;
-# CREATE SCHEMA IF NOT EXISTS archive DEFAULT CHARACTER SET UTF8mb4;
+
+CREATE SCHEMA IF NOT EXISTS archive DEFAULT CHARACTER SET UTF8mb4;
 USE archive;
 #==================================-============================================================
 # user
-insert into archive.user (created_at, modified_at, birth_date, cash, deleted_at, email,
-                          gender, multi_score, nickname, provider, pwd_hash, role, single_score,
-                          user_img, uuid, firebase_token)
+insert into user (created_at, modified_at, birth_date, cash, deleted_at, email,
+                  gender, multi_score, nickname, provider, pwd_hash, role, single_score,
+                  user_img, uuid, firebase_token)
 values ('2024-07-29 01:21:33.468404', '2024-08-05 00:32:35.328245', '1998-05-28 15:00:00.000000',
         0, null, 'ssafy1@ssafy.com', true, 1500, '김춘배', null,
         '$2a$10$zM42VizLFc7P.VQ4acYDPe2Q5wLoJAvX8gbpqUhkv3uyeFiC.54My', 'ROLE_USER', null,
@@ -134,7 +135,7 @@ values (1, 'Max Vogrich', 'Max Vogrich.jpg', '체르니 100번 1', 1),
 
 #==================================-============================================================
 # 악보(sheet)
-# insert into sheet (sheet_id, created_at, deleted_at, file_name, level, modified_at,
+# insert into sheet (sheet_id, created_at, deleted_at, uuid, level, modified_at,
 #                    price, status, title, view_count, song_id, uploader_id)
 # values (1, '2024-07-30 15:18:28.000000', null, '체르니 100 1번.mid', 1, '2024-07-30 15:18:28.000000',
 #         500, 0, '체르니 100 1번', 263, 1, 1),

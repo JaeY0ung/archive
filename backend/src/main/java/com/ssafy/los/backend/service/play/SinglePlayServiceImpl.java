@@ -53,9 +53,11 @@ public class SinglePlayServiceImpl implements SinglePlayService {
     public Long saveSinglePlayResult(SingleResultBeforeDto singleResultBeforeDto) {
         Sheet playSheet = sheetRepository.findById(singleResultBeforeDto.getSheetId())
                 .orElseThrow(() -> new RuntimeException("sheet not found"));
-
+        User loginUser = authService.getLoginUser();
         SinglePlayResult singlePlayResult = SinglePlayResult.builder()
-                .sheet(playSheet).build();
+                .sheet(playSheet)
+                .user(loginUser)
+                .build();
 
         return singlePlayResultRepository.save(singlePlayResult).getId();
     }
@@ -65,7 +67,6 @@ public class SinglePlayServiceImpl implements SinglePlayService {
     @Transactional
     public Long completeSinglePlayResult(Long singleResultId,
             SingleResultAfterDto singleResultAfterDto) {
-        User loginUser = authService.getLoginUser();
 
         SinglePlayResult singlePlayResult = singlePlayResultRepository.findById(singleResultId)
                 .orElseThrow(() -> new RuntimeException("Single Play Result Not Found"));

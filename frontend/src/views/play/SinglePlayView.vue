@@ -11,6 +11,7 @@ import { localAxios } from "@/util/http-common";
 import { onMounted } from "vue";
 import { onBeforeUnmount } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
+import PlayModal from "@/common/modal/PlayModal.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -21,6 +22,11 @@ const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const loginUser = userStore.userInfo;
 const local = localAxios();
+
+const showModal = ref(false);  // 모달 상태
+const modalTitle = ref("");
+const modalMessage = ref("");
+
 let singleResultId = 0;
 const isQuitting = ref(false);
 const isPopstate = ref(false);
@@ -79,6 +85,26 @@ watch(
     { deep: true } // 배열 내부의 변화도 감지
 );
 
+watch(
+	() => musicStore.isLast,
+	async (Last) => {
+	  if (Last) {
+		try {
+		  await local.patch(`/plays/single/${singleResultId}`, {
+			userId: loginUser.id,
+			score: myJaccardScore.value,
+		  });
+		  modalTitle.value = "플레이 완료!";
+		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+		} catch (error) {
+		  modalTitle.value = "오류 발생";
+		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+		}
+		showModal.value = true;
+	  }
+	}
+);
+
 const onClickQuit = () => {
     isQuitting.value = true;
     router.push("/room/multi/list");
@@ -105,16 +131,44 @@ const onStartRecordingEmit = async () => {
 
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 // Todo: 모달창으로 성공, 실패를 알려줄 것.
-watch(() => musicStore.isLast,
-  (Last) => {
-    local.patch(`/plays/single/${singleResultId}`, {
-      userId: loginUser.id,
-      score: myJaccardScore.value
-    }).catch(error => {
-      console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
-    });
-  }
+// watch(() => musicStore.isLast,
+//   (Last) => {
+//     local.patch(`/plays/single/${singleResultId}`, {
+//       userId: loginUser.id,
+//       score: myJaccardScore.value
+//     }).catch(error => {
+//       console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
+//     });
+//   }
+// );
+
+// 악보를 끝까지 완주했을 때, 호출되는 메서드
+watch(
+	() => musicStore.isLast,
+	async (Last) => {
+	  if (Last) {
+		try {
+		  await local.patch(`/plays/single/${singleResultId}`, {
+			userId: loginUser.id,
+			score: myJaccardScore.value,
+		  });
+		  modalTitle.value = "플레이 완료!";
+		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+		} catch (error) {
+		  modalTitle.value = "오류 발생";
+		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+		}
+		showModal.value = true;
+	  }
+	}
 );
+
+// 모달을 닫는 함수
+const closeModal = () => {
+  showModal.value = false;
+};
+
+
 
 // 혼자 연습하기 방에서 연주 도중 방을 나갔을 때, 호출되는 메서드
 // 경고창을 띄워서 해당 연습 기록은 저장되지 않습니다 문구를 보여줄 것.
@@ -218,6 +272,9 @@ onBeforeRouteLeave(async (to, from, next) => {
           </div>
         </div>
       </div>
+
+	  <!-- 모달 컴포넌트 -->
+	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />
     </div>
 </template>
 
