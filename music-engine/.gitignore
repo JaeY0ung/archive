@@ -1,7 +1,7 @@
 ###### 내가 따로 추가 ######
 .venv
 /library
-.env
+../predict/.env
 #########################
 /ffmpeg-2024-07-10-git-1a86a7a48d-full_build
 ffmpeg-2024-07-10-git-1a86a7a48d-full_build.7z
@@ -193,11 +193,11 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+../predict/.env
 .venv
-.env/
+../predict/.env/
 venv/
-.env/
+../predict/.env/
 env.bak/
 venv.bak/
 

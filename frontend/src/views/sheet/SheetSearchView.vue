@@ -8,7 +8,7 @@ import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { getAllGenres } from "@/api/genre";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
-import SmallSheetCardVer2 from "@/common/sheet/SmallSheetCardForListView.vue";
+import SmallSheetCardForListView from "@/common/sheet/SmallSheetCardForListView.vue";
 
 const { isLogin } = storeToRefs(useUserStore());
 
@@ -45,29 +45,30 @@ const search = async () => {
             sort: searchFilter.value.sort,
             page: searchFilter.value.page,
 		},
-		({ data }) => { 
+        ({ data }) => { 
+            console.log("악보 결과:", data);
 			sheets.value = data;
 		}
 	)
 }
 getAllGenres(({ data }) => genres.value = data)
-
+search();
 
 // 다른 페이지에서 넘어왔을 때
 onMounted(async () => {
     searchFilter.value.keyword = route.query.keyword || "";
-    await search();
+    search();
 });
 
 // 검색 필터 감지
 watch(searchFilter, async() => {
-	await search();
+	search();
 }, { deep: true });
 
 watch(
     searchFilter,
     async () => {
-        await search();
+        search();
     },
     { deep: true }
 );

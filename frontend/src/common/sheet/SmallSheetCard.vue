@@ -35,7 +35,7 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 			<!-- (오른쪽) 악보 정보 -->
 			<div class="min-w-[160px] m-auto flex flex-col gap-1">
 				<div class="bold flex justify-between" style="font-size: 18px;">
-					<div class="flex items-center truncate w-[12rem]">
+					<div class="flex items-center truncate">
 						{{ restrictTitle? getTitleByLen(sheet.title, 12) : sheet.title  }}
 					</div>
 					<div class="flex items-center">

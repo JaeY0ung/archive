@@ -159,8 +159,13 @@ public class SheetServiceImpl implements SheetService {
 
     @Override
     public List<SheetDetailForUserDto> searchSheetDetailByFileName(List<String> fileNames) {
-        return sheetRepository.searchByFileName(fileNames);
+        return sheetRepository.searchByFileNames(fileNames);
     }
+
+//    @Override
+//    public SheetDetailForUserDto searchSheetDetailByFileName(String fileName) {
+//        return sheetRepository.searchByFileName(fileName);
+//    }
 
     @Override
     public List<SheetDetailForUserDto> getRecommendedSheets() {

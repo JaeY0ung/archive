@@ -9,7 +9,7 @@ from service.calculate_service import process_midi_file
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from service.level_prediction_service import LevelPredictionService
+# from service.level_prediction_service import LevelPredictionService
 from service.midi_service import midi_service
 
 # 로깅 설정
@@ -41,7 +41,7 @@ load_dotenv(dotenv_path)
 PROJECT_ROOT_PATH = os.getenv("PROJECT_ROOT_PATH")
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", PROJECT_ROOT_PATH)
 DUMMY_OUTPUTS_DIR = "dummyOutputs"
-
+PC = os.getenv("PC")
 
 class FileRequest(BaseModel):
     filename: str
@@ -79,9 +79,7 @@ async def process_midi(request: MidiRequest):
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         logger.error(f"Error processing MIDI file: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500,
-                            detail=f"Internal server error: {str(e)}")
-
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 # @app.post("/predict-difficulty")
 # async def predict_difficulty(file_request: FileRequest):
