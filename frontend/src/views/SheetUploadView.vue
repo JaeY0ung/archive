@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { registerSheet } from "@/api/sheet";
+import { registerSheet, predictSheetLevel } from "@/api/sheet";
 import { searchSongsByFilter } from "@/api/song";
 import SongRegisterModal from "@/common/modal/SongRegisterModal.vue";
 import { tierInfo } from "@/util/tier-info";
@@ -90,6 +90,10 @@ const uploadFile = async () => {
     );
 
     registerSheet(formData, ({ data }) => {
+
+        // 악보 난이도 예측 API 따로 추가
+        predictSheetLevel(data);
+        
         // 성공 시, 악보 디테일 페이지로 이동
         router.push({ name: "sheetDetail", params: { sheetId: data } });
     });

@@ -21,6 +21,8 @@ public interface DifficultyService {
 
     int predictLevel(Sheet sheet);
 
+    int predictLevelBySheetId(Long sheetId);
+
     int calculateDifficulty(Long sheetId);
 
 }

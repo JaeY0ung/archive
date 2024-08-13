@@ -107,7 +107,7 @@ const continueShopping = () => {
 };
 
 const goToDifficultyRatingPage = () => {
-    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheet.id } })
+    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheetInfo.value.id } })
 }
 </script>
 

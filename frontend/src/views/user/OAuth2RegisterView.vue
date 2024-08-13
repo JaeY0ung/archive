@@ -27,7 +27,6 @@ const passwordsMatch = ref(false);
 const passwordMessage = ref('');
 
 onMounted(() => {
-  // URL에서 이메일 파라미터를 가져옵니다.
   const emailFromUrl = route.query.email;
   if (emailFromUrl) {
     email.value = emailFromUrl;

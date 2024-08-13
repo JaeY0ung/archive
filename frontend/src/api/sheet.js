@@ -23,6 +23,22 @@ async function updateSheet(sheetId, params, success) {
     await local.put(`/sheets/${ sheetId }`, params).then(success).catch((err) => console.error(err));
 }
 
+function predictSheetLevel(sheetId) {
+    return local.post(`/predict-level/${sheetId}`)
+        .then(response => {
+            if (response.status === 200) {
+                console.log(`난이도 예측 성공: sheet-id ${sheetId}`);
+                return response.data;
+            } else {
+                throw new Error('난이도 예측 요청이 실패하였습니다.');
+            }
+        })
+        .catch(err => {
+            console.error('난이도 예측 중 오류 발생:', err);
+            throw err;
+        });
+}
+
 async function getRecommendSheetByUserRecentPlay(success) {
     await local.get(`/sheets/recommend`).then(success).catch((err) => console.error(err));
 }

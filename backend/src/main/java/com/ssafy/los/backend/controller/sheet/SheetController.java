@@ -238,4 +238,12 @@ public class SheetController {
         return new ResponseEntity<>(sheetList, HttpStatus.OK);
     }
 
+    @PostMapping("/predict-level/{sheet-id}")
+    public ResponseEntity<?> updateSheetLevel(@PathVariable("sheet-id") Long sheetId) {
+        log.info("난이도 예측 요청이 들어왔습니다.");
+        sheetService.updateSheetLevel(sheetId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

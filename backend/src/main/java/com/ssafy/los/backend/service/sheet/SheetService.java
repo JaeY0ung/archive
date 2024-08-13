@@ -17,6 +17,8 @@ public interface SheetService {
     Long registerSheetWithPredictLevel(SheetUploadForm sheetUploadForm)
             throws IllegalArgumentException;
 
+    void updateSheetLevel(Long sheetId);
+
     Sheet searchById(Long sheetId) throws IllegalArgumentException;
 
     SheetDetailDto searchSheetDetailById(Long sheetId) throws IllegalArgumentException;

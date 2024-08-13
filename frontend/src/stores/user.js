@@ -2,8 +2,7 @@ import { ref, watch } from "vue";
 import { defineStore } from "pinia";
 import { httpStatusCode } from "@/util/http-status";
 import { useRouter } from "vue-router";
-import jwtDecode from "jwt-decode"; // 잘못된 import 수정
-import { userConfirm, findById, tokenRegeneration, logout, findByEmail } from "@/api/user";
+import { userConfirm, findById, logout, findByEmail } from "@/api/user";
 import firebase from "firebase/app";
 import "firebase/messaging";
 import { localAxios } from "@/util/http-common";
@@ -13,16 +12,16 @@ export const useUserStore = defineStore(
     () => {
         const router = useRouter();
 
-    // 유저 정보 및 상태
-    const userInfo = ref(null);
-    const isLogin = ref(false);
-    const isLoginError = ref(false);
-    const isValidToken = ref(false);
-    const userReady = ref("false");
-    const opponentUser = ref({
-        nickname: "",
-        userImg: null,
-    });
+        // 유저 정보 및 상태
+        const userInfo = ref(null);
+        const isLogin = ref(false);
+        const isLoginError = ref(false);
+        const isValidToken = ref(false);
+        const userReady = ref("false");
+        const opponentUser = ref({
+            nickname: "",
+            userImg: null,
+        });
 
         // 세션 타임아웃 관련
         const lastActivityTime = ref(null);
@@ -47,11 +46,10 @@ export const useUserStore = defineStore(
         const messaging = firebase.messaging();
 
         // 서비스 워커 등록 코드 추가
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
-                .catch((err) => {
-                    console.error('Service Worker 등록 실패:', err);
-                });
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("/firebase-messaging-sw.js").catch((err) => {
+                console.error("Service Worker 등록 실패:", err);
+            });
         }
 
         // Foreground 메시지 핸들러
@@ -59,7 +57,9 @@ export const useUserStore = defineStore(
             // console.log("Message received. ", payload);
             const notificationTitle = payload.notification.title;
             const notificationBody = payload.notification.body;
-            const alertType = payload.data.alertTypeId ? parseInt(payload.data.alertTypeId, 10) : null;
+            const alertType = payload.data.alertTypeId
+                ? parseInt(payload.data.alertTypeId, 10)
+                : null;
             const roomId = payload.data.roomId ? parseInt(payload.data.roomId, 10) : null;
 
             // readStatus 기본값 설정
@@ -69,7 +69,13 @@ export const useUserStore = defineStore(
 
             if (window && window.showNotification) {
                 // window.showNotification(notificationTitle, notificationBody, alertType, roomId);
-                window.showNotification(notificationTitle, notificationBody, alertType, roomId, readStatus);
+                window.showNotification(
+                    notificationTitle,
+                    notificationBody,
+                    alertType,
+                    roomId,
+                    readStatus
+                );
             }
         });
 
@@ -81,10 +87,12 @@ export const useUserStore = defineStore(
                 const token = await messaging.getToken();
                 return token;
             } catch (error) {
-                console.error("Unable to get permission to notify.", error);
+                // console.error("브라우저에 대한 알림 권한이 없습니다.", error);
+                console.error("브라우저에 대한 알림 권한이 없습니다.");
                 return null;
             }
         }
+
 
         // 사용자 활동 시간 갱신
         const updateLastActivityTime = () => {
@@ -97,9 +105,8 @@ export const useUserStore = defineStore(
                 const currentTime = Date.now();
                 if (currentTime - lastActivityTime.value > SESSION_TIMEOUT) {
                     await userLogout();
-                    router.push({ name: 'login' });
+                    router.push({ name: "login" });
                 }
-
             }
         };
 
@@ -120,6 +127,7 @@ export const useUserStore = defineStore(
             }
         });
 
+        
         // 유저 로그인
         const userLogin = async (loginUser) => {
             await userConfirm(
@@ -137,7 +145,7 @@ export const useUserStore = defineStore(
                         console.warn("Authorization 헤더가 없거나 Bearer 토큰이 아닙니다.");
                     }
 
-                    let { data } = response;
+                    // let { data } = response;
                     // console.log("로그인 완료 후 data ", data);
 
                     isLogin.value = true;
@@ -152,7 +160,6 @@ export const useUserStore = defineStore(
                     updateLastActivityTime();
                 },
                 (err) => {
-                    // console.log("loginUser: ", loginUser);
                     console.error("로그인에 실패했습니다.", err);
                     isLogin.value = false;
                     isLoginError.value = true;
@@ -173,7 +180,7 @@ export const useUserStore = defineStore(
                 // console.log("user 정보: = ", userInfo.value);
 
                 // Firebase 토큰을 서버로 전송
-                const accessToken = sessionStorage.getItem("accessToken")
+                const accessToken = sessionStorage.getItem("accessToken");
                 await sendFirebaseTokenToServer(accessToken);
 
                 // 마지막 활동 시간 업데이트
@@ -204,7 +211,7 @@ export const useUserStore = defineStore(
                 {
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${accessToken}`
+                        Authorization: `Bearer ${accessToken}`,
                     },
                 }
             );
@@ -227,34 +234,17 @@ export const useUserStore = defineStore(
             );
         };
 
-        // 토큰 재발급
-        const tokenRegenerate = async () => {
-            await tokenRegeneration(
-                JSON.stringify(userInfo.value),
-                (response) => {
-                    if (response.status === httpStatusCode.CREATE) {
-                        let accessToken = response.data["access-token"];
-                        sessionStorage.setItem("accessToken", accessToken);
-                        isValidToken.value = true;
-                    }
-                },
-                async (error) => {
-                    // 에러 처리
-                }
-            );
-        };
-
         // 유저 로그아웃
         const userLogout = async () => {
             await logout(
                 (response) => {
                     if (response.status === httpStatusCode.OK) {
-                        userInfo.value = null;
+                        router.push({ name: "login" });
                         isLogin.value = false;
                         isValidToken.value = false;
+                        userInfo.value = '';
                         sessionStorage.removeItem("accessToken");
                         lastActivityTime.value = null;
-                        router.push({ name: 'login' });
                         // console.log("로그아웃 되었습니다.");
                     } else {
                         console.error("유저 정보가 없습니다.");
@@ -269,16 +259,17 @@ export const useUserStore = defineStore(
 
         return {
             userLogin,
+            OAuth2userLogin,
             userLogout,
             getUserInfo,
             userInfo,
+
             isLogin,
             isLoginError,
             isValidToken,
-            tokenRegenerate,
+            
             userReady,
             opponentUser,
-            OAuth2userLogin
         };
     },
     { persist: true }
