@@ -3,21 +3,15 @@ package com.ssafy.los.backend.controller.play;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
-import com.ssafy.los.backend.dto.user.response.ScoreDto;
-import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.play.MultiPlayService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -27,10 +21,29 @@ public class MultiPlayController {
 
     private final MultiPlayService multiPlayService;
 
+    // 멀티 중간 결과 생성 후 파이썬 전송
+    @PostMapping(value = "/{multi-result-id}/live-score")
+    public ResponseEntity<?> sendIntermediateScoreToPython(
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart("sheetId") Long sheetId,
+            @PathVariable(name = "multi-result-id") Long multiResultId) {
+        log.info("중간 점수 전송 매핑 성공");
+        log.info("sheetId: {}", sheetId);
+        log.info("multiResultId: {}", multiResultId);
+        try {
+            return ResponseEntity.ok(multiPlayService.getLiveScore(file, sheetId, multiResultId));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     // 게임 시작 시, 멀티 결과 생성
     @PostMapping
-    public ResponseEntity<?> saveMultiPlayResult(MultiPlayResultBeforeDto multiResultBeforeDto) {
+    public ResponseEntity<?> saveMultiPlayResult(@RequestBody MultiPlayResultBeforeDto multiResultBeforeDto) {
+        log.info("멀티 플레이 테이블을 생성합니다. : {}", multiResultBeforeDto.toString());
         Long multiPlayResultId = multiPlayService.saveMultiPlayResult(multiResultBeforeDto);
+
+        log.info("멀티 플레이 테이블 pk 값 : {}", multiPlayResultId);
 
         return new ResponseEntity<>(multiPlayResultId, HttpStatus.CREATED);
     }
@@ -39,9 +52,13 @@ public class MultiPlayController {
     @PatchMapping("/{multi-result-id}")
     public ResponseEntity<?> completeMultiPlayResult(
             @PathVariable("multi-result-id") Long multiResultId,
-            MultiPlayResultAfterDto multiResultAfterDto) {
+            @RequestBody MultiPlayResultAfterDto multiResultAfterDto) {
+
+        log.info("멀티 결과 업데이트 정보 : {}", multiResultAfterDto);
+
         Long multiPlayResult = multiPlayService.completeMultiPlayResult(multiResultId,
                 multiResultAfterDto);
+
 
         return new ResponseEntity<>(multiPlayResult, HttpStatus.OK);
     }

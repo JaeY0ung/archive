@@ -241,9 +241,13 @@ public class SheetServiceImpl implements SheetService {
 
     private Sheet registerSheet(SheetUploadForm sheetUploadForm, String uuid)
             throws IllegalArgumentException {
+        User loginUser = authService.getLoginUser();
+        if (loginUser == null) {
+            throw new IllegalArgumentException();
+        }
         try {
             Sheet sheet = Sheet.builder()
-                    .uploader(authService.getLoginUser())
+                    .uploader(loginUser)
                     .level(sheetUploadForm.getLevel())
                     .title(sheetUploadForm.getTitle())
                     .song(sheetUploadForm.getSongId() != null ? songRepository.findById(

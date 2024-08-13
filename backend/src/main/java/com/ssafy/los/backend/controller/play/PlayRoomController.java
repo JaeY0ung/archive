@@ -1,5 +1,6 @@
 package com.ssafy.los.backend.controller.play;
 
+import com.ssafy.los.backend.dto.play.PlayerEndDto;
 import com.ssafy.los.backend.dto.play.PlayerStartDto;
 import com.ssafy.los.backend.dto.user.response.ScoreDto;
 import com.ssafy.los.backend.service.auth.AuthService;
@@ -32,4 +33,17 @@ public class PlayRoomController {
         return playerStartDto;
     }
 
+    @MessageMapping("/play/end/{roomId}")
+    @SendTo("/play/end/socket/{roomId}")
+    public PlayerEndDto sendEndSign(PlayerEndDto playerEndDto) throws Exception {
+        log.info("종료 신호를 받았습니다. : {}", playerEndDto.toString());
+        return playerEndDto;
+    }
+
+    @MessageMapping("play/end/quit/{roomId}")
+    @SendTo("/play/end/quit/socket/{roomId}")
+    public PlayerEndDto sendQuitEndSign(PlayerEndDto playerEndDto) throws Exception {
+        log.info("중간 탈주로 인한 종료 신호를 받았습니다. : {}", playerEndDto.toString());
+        return playerEndDto;
+    }
 }

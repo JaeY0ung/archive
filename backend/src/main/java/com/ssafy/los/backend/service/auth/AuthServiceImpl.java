@@ -34,6 +34,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UserDetailDto getUserInfo(HttpServletRequest request) {
         User loginUser = getLoginUser();
+        if (loginUser == null) {
+            return null;
+        }
 
         UserDetailDto userDetailDto = UserDetailDto.builder()
                 .id(loginUser.getId())

@@ -34,7 +34,7 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 
 			<!-- (오른쪽) 악보 정보 -->
 			<div class="min-w-[160px] m-auto flex flex-col gap-1">
-				<div class="bold flex justify-between" style="font-size: 18px;">
+				<div class="bold flex justify-between mb-1" style="font-size: 18px;">
 					<div class="flex items-center truncate">
 						{{ restrictTitle? getTitleByLen(sheet.title, 12) : sheet.title  }}
 					</div>
@@ -42,9 +42,9 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 						<Tier class="w-[18px] h-[18px]" :level="sheet.level" />
 					</div>
 				</div>
-				<div class="medium mb-3" style="font-size: 12px;">{{ getTitleByLen(sheet.songComposer,20) }}</div>
+				<div class="medium mb-2" style="font-size: 12px;">{{ getTitleByLen(sheet.songComposer,20) }}</div>
 				<div class="medium flex items-center gap-1" style="font-size: 12px;">
-					업로더 {{ sheet.uploaderNickname }}
+					업로더명: {{ sheet.uploaderNickname }}
 					<span class="ml-5" v-if="route.name === 'order'"> {{ sheet.price }}원</span>
 				</div>
 			</div>

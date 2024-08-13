@@ -9,7 +9,7 @@ public class MultiPlayResultAfterDto {
 
     private Long myUserId;
     private Float myScore;
-    private Long otherUserId;
+    private String otherUserId;
     private Float otherScore;
 
 }

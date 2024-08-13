@@ -23,4 +23,6 @@ public interface SinglePlayService {
 
     String getLiveScore(MultipartFile file, Long sheetId, Long singleResultId)
             throws IllegalArgumentException;
+
+    void refreshSingleScoreOfUser(Long userId) throws IllegalArgumentException;
 }
