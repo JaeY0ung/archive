@@ -2,21 +2,7 @@
 FROM python:3.8
 
 # 필요한 시스템 패키지 설치
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget \
-    lsb-release \
-    software-properties-common \
-    apt-transport-https \
-    ca-certificates \
-    libsndfile-dev \
-    fluidsynth \
-    ffmpeg \
-    musescore \
-    xvfb \
-    xauth\
-    build-essential && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends 
 
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
@@ -25,10 +11,6 @@ RUN pip install --upgrade pip
 RUN pip install numpy==1.21.6 Cython==0.29.24
 
 # omnizart 설치
-RUN pip install omnizart
-
-# omnizart 체크포인트 다운로드
-RUN omnizart download-checkpoints
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -41,7 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 포트 노출
-EXPOSE 8000
+EXPOSE 8001
 
 # 애플리케이션 실행 명령
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]

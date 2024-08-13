@@ -41,7 +41,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 포트 노출
-EXPOSE 8000
+EXPOSE 9234
 
 # 애플리케이션 실행 명령 병렬처리(workers)
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9234", "--workers", "4"]
