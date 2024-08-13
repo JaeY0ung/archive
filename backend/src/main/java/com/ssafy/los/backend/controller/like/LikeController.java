@@ -18,13 +18,18 @@ public class LikeController {
 
     @PostMapping("/sheets/{sheet-id}")
     public ResponseEntity<?> likeSheetById(@PathVariable("sheet-id") Long sheetId) {
-        likeSheetService.likeSheetById(sheetId);
-        return ResponseEntity.ok().build();
+        if (likeSheetService.likeSheetById(sheetId)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+
     }
 
     @DeleteMapping("/sheets/{sheet-id}")
     public ResponseEntity<?> dislikeSheetById(@PathVariable("sheet-id") Long sheetId) {
-        likeSheetService.dislikeSheetById(sheetId);
-        return ResponseEntity.ok().build();
+        if (likeSheetService.dislikeSheetById(sheetId)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }
