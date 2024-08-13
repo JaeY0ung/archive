@@ -11,6 +11,7 @@ import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.util.FileUploadUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -32,6 +33,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MultiPlayServiceImpl implements MultiPlayService {
 
     @Value("${fastapi.server.url}")
@@ -68,7 +70,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
                             multiResultAfterDto.getMyUserId())
                     .orElseThrow(() -> new RuntimeException("user not found"));
 
-            User otherUser = userRepository.findUserByIdAndDeletedAtNull(
+            User otherUser = userRepository.findByNicknameAndDeletedAtNull(
                             multiResultAfterDto.getOtherUserId())
                     .orElseThrow(() -> new RuntimeException("other user not found"));
 
@@ -87,6 +89,8 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             // 게임이 종료되었으므로 상태 완료와 플레이 시간을 저장해준다.
             multiPlayResult.updatePlayTime();
             multiPlayResult.updateStatus(true);
+
+            log.info("최종으로 저장된 멀티 result = {}", multiPlayResult.toString());
         } else {
             // TODO: 이미 완료된 배틀 경기임
             log.info("이미 저장 완료된 배틀 기록입니다.");
@@ -171,6 +175,4 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             throw new IllegalArgumentException("[파일 계산 실패] " + e.getMessage());
         }
     }
-
-
 }

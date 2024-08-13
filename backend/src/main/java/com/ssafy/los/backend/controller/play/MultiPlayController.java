@@ -43,6 +43,8 @@ public class MultiPlayController {
         log.info("멀티 플레이 테이블을 생성합니다. : {}", multiResultBeforeDto.toString());
         Long multiPlayResultId = multiPlayService.saveMultiPlayResult(multiResultBeforeDto);
 
+        log.info("멀티 플레이 테이블 pk 값 : {}", multiPlayResultId);
+
         return new ResponseEntity<>(multiPlayResultId, HttpStatus.CREATED);
     }
 
@@ -50,9 +52,13 @@ public class MultiPlayController {
     @PatchMapping("/{multi-result-id}")
     public ResponseEntity<?> completeMultiPlayResult(
             @PathVariable("multi-result-id") Long multiResultId,
-            MultiPlayResultAfterDto multiResultAfterDto) {
+            @RequestBody MultiPlayResultAfterDto multiResultAfterDto) {
+
+        log.info("멀티 결과 업데이트 정보 : {}", multiResultAfterDto);
+
         Long multiPlayResult = multiPlayService.completeMultiPlayResult(multiResultId,
                 multiResultAfterDto);
+
 
         return new ResponseEntity<>(multiPlayResult, HttpStatus.OK);
     }

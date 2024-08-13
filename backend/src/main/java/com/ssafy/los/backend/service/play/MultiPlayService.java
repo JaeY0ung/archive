@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface MultiPlayService {
 
+
     Long saveMultiPlayResult(MultiPlayResultBeforeDto multiResultBeforeDto);
 
     Long completeMultiPlayResult(Long multiResultId, MultiPlayResultAfterDto multiResultAfterDto);
@@ -17,5 +18,5 @@ public interface MultiPlayService {
 
     Long removeMultiPlayResult(Long MultiPlayResultId);
 
-    String getLiveScore(MultipartFile file, Long sheetId, Long multiResultId);
+    String getLiveScore(MultipartFile file, Long sheetId, Long multiResultId) throws IllegalArgumentException;
 }

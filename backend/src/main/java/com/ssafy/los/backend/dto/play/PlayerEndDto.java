@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class PlayerEndDto {
 
     private String sender;
-    private Float score;
+    private Integer score;
+    private Integer multiResultId;
 
 }
