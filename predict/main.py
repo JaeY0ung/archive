@@ -33,7 +33,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-dotenv_path = os.path.join(os.path.dirname(__file__), '..env')
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 # 임시 폴더 설정
