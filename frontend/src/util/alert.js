@@ -28,7 +28,7 @@ const showAgainRegisterAlert = (router, sheetId) => {
         cancelButtonColor: '#d33',
     }).then(result => {
         if (result.isConfirmed) {
-            router.push({ name: "sheetDetail", params: { sheetId: sheetId } });
+            router.push({ name: "sheetDetail", params: { sheetId } });
         }
     })
 }
@@ -39,10 +39,6 @@ const showUnselectedWarningAlert = (router, warning) => {
         title: warning,
         confirmButtonText: '예', 
         confirmButtonColor: '#429f50',
-    }).then(result => {
-        if (result.isConfirmed) {
-            router.push({ name: "sheetDetail", params: { sheetId: sheetId } });
-        }
     })
 }
 

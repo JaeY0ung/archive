@@ -57,7 +57,4 @@ public class SinglePlayResult extends BaseEntity {
     public void updatePlayTime() {
         playTime = Duration.between(this.getCreatedAt(), this.getModifiedAt()).getSeconds();
     }
-
-
-
 }
