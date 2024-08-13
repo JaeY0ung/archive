@@ -1,7 +1,7 @@
 <script setup>
 defineProps({
     level: Number
-})
+}) 
 </script>
 
 <template>
