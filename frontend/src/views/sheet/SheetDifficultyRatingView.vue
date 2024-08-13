@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, watch, computed, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { localAxios } from "@/util/http-common";
 import { useUserStore } from "@/stores/user";
@@ -7,6 +7,8 @@ import { storeToRefs } from "pinia";
 import Profile from "@/common/icons/Profile.vue";
 import { onClickOutside } from "@vueuse/core";
 import BigSheetCard from "@/common/sheet/BigSheetCardForDifficulty.vue";
+import Tier from "@/common/icons/Tier.vue";
+import { tierInfo } from '@/util/tier-info';
 import {
     Chart,
     TimeScale,
@@ -22,6 +24,7 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { ko } from "date-fns/locale";
+import { parseISO, startOfDay, addDays } from 'date-fns';
 
 Chart.register(
     TimeScale,
@@ -247,11 +250,11 @@ const prepareChartData = () => {
     return comments.value
         .filter((comment) => comment.difficulty && comment.createdAt)
         .map((comment) => ({
-            x: new Date(comment.createdAt),
+            x: startOfDay(parseISO(comment.createdAt)).toISOString(), // 날짜의 시작(00:00:00)으로 변환
             y: comment.difficulty,
             difficulty: comment.difficulty,
         }))
-        .sort((a, b) => a.x - b.x);
+        .sort((a, b) => new Date(a.x) - new Date(b.x));
 };
 
 const difficultyColors = {
@@ -267,12 +270,18 @@ const createChart = () => {
         const ctx = chartRef.value.getContext("2d");
         const chartData = prepareChartData();
 
+        // 현재 날짜를 기준으로 20일 전 날짜 계산 (시간은 00:00:00으로 설정)
+        const twentyDaysAgo = startOfDay(addDays(new Date(), -20));
+
         chart = new Chart(ctx, {
             type: "scatter",
             data: {
                 datasets: difficultyOptions.map((difficulty, index) => ({
                     label: difficulty,
-                    data: chartData.filter((item) => item.difficulty === difficulty),
+                    data: chartData.filter((item) => {
+                        const itemDate = startOfDay(parseISO(item.x));
+                        return item.difficulty === difficulty && itemDate >= twentyDaysAgo;
+                    }),
                     backgroundColor: difficultyColors[difficulty],
                     borderColor: difficultyColors[difficulty],
                     pointRadius: 6,
@@ -282,10 +291,18 @@ const createChart = () => {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: false,
+                layout: {
+                    padding: {
+                        left: 20,
+                        right: 20,
+                        top: 20,
+                        bottom: 20,
+                    },
+                },
                 plugins: {
                     legend: {
-                        display: true,
-                        position: "top",
+                        display: false,
                     },
                     tooltip: {
                         callbacks: {
@@ -316,6 +333,11 @@ const createChart = () => {
                             display: false,
                             text: "날짜",
                         },
+                        min: twentyDaysAgo,
+                        max: addDays(startOfDay(new Date()), 1), // 다음 날의 시작으로 설정하여 오늘 데이터가 잘리지 않도록 함
+                        ticks: {
+                            padding: 10, // x축 레이블과 차트 사이의 패딩 증가
+                        },
                     },
                     y: {
                         type: "category",
@@ -325,6 +347,9 @@ const createChart = () => {
                             text: "난이도",
                         },
                         reverse: true,
+                        ticks: {
+                            padding: 10, // y축 레이블과 차트 사이의 패딩 증가
+                        },
                     },
                 },
             },
@@ -335,24 +360,43 @@ const createChart = () => {
 const updateChart = () => {
     if (chart) {
         const chartData = prepareChartData();
+        const twentyDaysAgo = startOfDay(new Date());
+        twentyDaysAgo.setDate(twentyDaysAgo.getDate() - 20);
+
         chart.data.datasets = difficultyOptions.map((difficulty, index) => ({
             label: difficulty,
-            data: chartData.filter((item) => item.difficulty === difficulty),
+            data: chartData.filter((item) => {
+                const itemDate = startOfDay(parseISO(item.x));
+                return item.difficulty === difficulty && itemDate >= twentyDaysAgo;
+            }),
             backgroundColor: difficultyColors[difficulty],
             borderColor: difficultyColors[difficulty],
             pointRadius: 6,
             pointHoverRadius: 8,
         }));
+        chart.options.scales.x.min = twentyDaysAgo;
+        chart.options.scales.x.max = startOfDay(new Date());
         chart.update();
     }
 };
 
 watch(comments, updateChart);
 
+const destroyChart = () => {
+    if (chart) {
+        chart.destroy();
+        chart = null;
+    }
+};
+
 onMounted(async () => {
     await searchSheetDetail();
     await fetchCommentsAndDifficulties();
     createChart();
+});
+
+onUnmounted(() => {
+    destroyChart();
 });
 </script>
 
@@ -421,7 +465,7 @@ onMounted(async () => {
                                 <div class="user-info">
                                     <strong>{{ comment.username }}</strong>
                                     <span :class="['difficulty-badge', comment.difficulty]">
-                                        {{ comment.difficulty }}
+                                        평가: {{ comment.difficulty }}
                                     </span>
                                 </div>
                                 <div
@@ -496,9 +540,8 @@ onMounted(async () => {
 
 <style scoped>
 .difficulty-contribution {
-    width: 100%;
-    max-width: 1000px;
-    height: calc(100% - 100px);
+    width: 99%;
+    height: 98%;
     margin: 0 auto;
     padding: 20px;
     background-color: #f9f9f9;
@@ -583,7 +626,7 @@ onMounted(async () => {
 .submit-button,
 .save-button,
 .cancel-button {
-    padding: 5px 10px;
+    padding: 8px 10px;
     color: white;
     border: none;
     border-radius: 4px;
@@ -739,10 +782,10 @@ onMounted(async () => {
 }
 
 .difficulty-badge {
-    padding: 2px 8px;
+    padding: 4px 8px;
     border-radius: 10px;
     font-size: 12px;
-    color: white;
+    color: #333;
 }
 
 .comment-text {

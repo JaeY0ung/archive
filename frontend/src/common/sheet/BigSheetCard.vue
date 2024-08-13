@@ -116,7 +116,7 @@ const goToDifficultyRatingPage = () => {
         showLoginRequestAlert(router);
         return;
     }
-    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheet.id } })
+    router.push({ name: 'sheetDifficultyRating', params: { sheetId: sheetInfo.value.id } })
 }
 </script>
 
@@ -192,8 +192,8 @@ const goToDifficultyRatingPage = () => {
                 <!-- 난이도 기여, PLAY 버튼 -->
                 <div class="flex">
                     <div>
-                        <button class="btn bg-purple-500 bg-opacity-60 text-white w-[180px] h-10 max-w-[12vw]" @click="goToDifficultyRatingPage">
-                            난이도 기여하러 가기
+                        <button class="btn bg-purple-500 bg-opacity-60 text-white h-10 max-w-[12vw]" @click="goToDifficultyRatingPage">
+                            난이도 기여
                         </button>
                     </div>
 

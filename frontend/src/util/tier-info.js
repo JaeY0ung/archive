@@ -15,4 +15,13 @@ const tierInfoExceptUnrank = [
 	{ level: 5, title: '다이아' },
 ]
 
-export { tierInfo, tierInfoExceptUnrank };
+const userTierInfo = [
+	{ singleScore: 0, title: '언랭크' },
+	{ singleScore: 100, title: '브론즈' },
+	{ lesingleScorevel: 200, title: '실버' },
+	{ singleScore: 300, title: '골드' },
+	{ singleScore: 400, title: '플래티넘' },
+	{ singleScore: 500, title: '다이아' },
+]
+
+export { tierInfo, tierInfoExceptUnrank, userTierInfo };

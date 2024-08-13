@@ -1,6 +1,7 @@
 import numpy as np
 import pretty_midi
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 from sklearn.metrics.pairwise import cosine_similarity
 
 from service.feature_extraction import extract_features_from_data
@@ -184,7 +185,7 @@ def get_measure_duration(midi_file):
     beat_duration = 60 / tempo
     return beats_per_measure * beat_duration
 
-def calculate_similarity(original_file, piano_file, start_measure, end_measure):
+def calculate_similarity(original_file, piano_file, start_time, end_time):
     measure_duration = get_measure_duration(original_file)
     notes1 = load_midi_notes(original_file)
     notes2 = load_midi_notes(piano_file)
@@ -192,8 +193,6 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     notes2 = adjust_timing(notes2)
 
     # 시간 범위를 설정하여 해당 마디의 노트만 선택, 앞뒤로 1마디 추가
-    start_time = max(0, (start_measure - 1) * measure_duration)
-    end_time = (end_measure + 1) * measure_duration
     notes1_segment = [note for note in notes1 if start_time <= note[0] < end_time]
 
     # 앞부분을 버리고 새로운 노트로 설정
@@ -226,10 +225,12 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     # 가장 처음 매핑된 노트와 가장 마지막에 매핑된 노트를 기준으로 노트 필터링
     if best_matched_notes:
         first_matched_time = min(note[0] for note in best_matched_notes)
-        last_matched_time = max(note[0] for note in best_matched_notes)
+        last_matched_time = max(note[0] for note in best_matched_notes) 
         valid_notes1_segment = [note for note in notes1_segment if first_matched_time <= note[0] <= last_matched_time]
         valid_best_offset_notes = [note for note in best_offset_notes if first_matched_time <= note[0] <= last_matched_time]
     else:
+        first_matched_time = 0
+        last_matched_time = end_time-start_time+2
         valid_notes1_segment = notes1_segment
         valid_best_offset_notes = best_offset_notes
 
@@ -252,8 +253,8 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
 
     final_jaccard_sim = intersection / union if union != 0 else 0
 
-    precision = len(original_red_notes)/(len(original_red_notes)+len(result_blue_notes))
-    recall = len(original_red_notes)/(len(original_red_notes)+len(original_blue_notes))
+    precision = len(original_red_notes)/(len(original_red_notes)+len(result_blue_notes)) if (len(original_red_notes)+len(result_blue_notes)) != 0 else 0
+    recall = len(original_red_notes)/(len(original_red_notes)+len(original_blue_notes)) if (len(original_red_notes)+len(original_blue_notes)) != 0 else 0 
 
     final_f1_sim = 2 * precision * recall / (precision + recall) if (precision + recall) != 0 else 0
 
@@ -278,10 +279,18 @@ def calculate_similarity(original_file, piano_file, start_measure, end_measure):
     }
 
 # K-평균 클러스터링
-def perform_clustering(feature_matrix, n_clusters=3):
-    from sklearn.cluster import KMeans
-    kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(feature_matrix)
-    return kmeans.labels_, kmeans.cluster_centers_
+# def perform_clustering(feature_matrix, n_clusters=3):
+#     from sklearn.cluster import KMeans
+#     kmeans = KMeans(n_clusters=n_clusters, random_state=0).fit(feature_matrix)
+#     return kmeans.labels_, kmeans.cluster_centers_
+
+def perform_clustering(features, n_clusters=3):
+    if len(features) < n_clusters:
+        return [0] * len(features), [features[0]]  # 단일 클러스터로 처리
+    kmeans = KMeans(n_clusters=min(n_clusters, len(features)), random_state=42, n_init=10)
+    labels = kmeans.fit_predict(features)
+    return labels, kmeans.cluster_centers_
+
 
 # MIDI 파일 처리 함수
 def process_midi_file(file_data):

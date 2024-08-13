@@ -169,21 +169,27 @@ const formatTitle = (title) => {
                         <div class="info-grid">
                             <div class="info-item">
                                 <span class="info-label">작곡가</span>
-                                <span class="info-value">{{ sheet.songComposer }}</span>
+                                <span class="info-value info-container">{{
+                                    sheet.songComposer
+                                }}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">업로더</span>
-                                <span class="info-value">{{ sheet.uploaderNickname }}</span>
+                                <span class="info-value info-container">{{
+                                    sheet.uploaderNickname
+                                }}</span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">난이도</span>
-                                <span class="info-value tier-container">
+                                <span class="info-value info-container">
                                     <Tier class="tier-icon" :level="sheet.level" />
                                 </span>
                             </div>
                             <div class="info-item">
                                 <span class="info-label">플레이 시간</span>
-                                <span class="info-value">{{ formatPlayTime(sheet.playTime) }}</span>
+                                <span class="info-value info-container">{{
+                                    formatPlayTime(sheet.playTime)
+                                }}</span>
                             </div>
                         </div>
                     </div>
@@ -191,7 +197,16 @@ const formatTitle = (title) => {
                     <div class="players-info">
                         <h3 class="section-title">플레이어 정보</h3>
                         <div class="players-grid">
-                            <div class="player-box" @click="goToUserProfile(sheet.myNickname)">
+                            <div
+                                :class="[
+                                    'player-box',
+                                    {
+                                        winner: sheet.myScore > sheet.otherScore,
+                                        loser: sheet.myScore < sheet.otherScore,
+                                    },
+                                ]"
+                                @click="goToUserProfile(sheet.myNickname)"
+                            >
                                 <div class="profile-image-container">
                                     <img
                                         v-if="isValidUserImg(sheet.myProfileImg)"
@@ -204,9 +219,28 @@ const formatTitle = (title) => {
                                 <div class="profile-info">
                                     <p class="nickname">{{ sheet.myNickname }}</p>
                                     <p class="score">점수 {{ sheet.myScore }}</p>
+                                    <p class="result-text" v-if="sheet.myScore > sheet.otherScore">
+                                        WIN
+                                    </p>
+                                    <p
+                                        class="result-text"
+                                        v-else-if="sheet.myScore < sheet.otherScore"
+                                    >
+                                        LOSE
+                                    </p>
+                                    <p class="result-text" v-else>DRAW</p>
                                 </div>
                             </div>
-                            <div class="player-box" @click="goToUserProfile(sheet.otherNickname)">
+                            <div
+                                :class="[
+                                    'player-box',
+                                    {
+                                        winner: sheet.otherScore > sheet.myScore,
+                                        loser: sheet.otherScore < sheet.myScore,
+                                    },
+                                ]"
+                                @click="goToUserProfile(sheet.otherNickname)"
+                            >
                                 <div class="profile-image-container">
                                     <img
                                         v-if="isValidUserImg(sheet.otherProfileImg)"
@@ -219,14 +253,24 @@ const formatTitle = (title) => {
                                 <div class="profile-info">
                                     <p class="nickname">{{ sheet.otherNickname }}</p>
                                     <p class="score">점수 {{ sheet.otherScore }}</p>
+                                    <p class="result-text" v-if="sheet.otherScore > sheet.myScore">
+                                        WIN
+                                    </p>
+                                    <p
+                                        class="result-text"
+                                        v-else-if="sheet.otherScore < sheet.myScore"
+                                    >
+                                        LOSE
+                                    </p>
+                                    <p class="result-text" v-else>DRAW</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="battle-result" :class="resultStyle">
+                    <!-- <div class="battle-result" :class="resultStyle">
                         <p class="result">{{ battleResult }}</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
@@ -234,6 +278,15 @@ const formatTitle = (title) => {
 </template>
 
 <style scoped>
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+    display: none;
+}
+
 .sheet-container {
     position: relative;
     cursor: pointer;
@@ -347,7 +400,6 @@ const formatTitle = (title) => {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    background-color: #f8f9fa;
     padding: 16px;
     border-radius: 8px;
 }
@@ -355,25 +407,35 @@ const formatTitle = (title) => {
 .info-item {
     display: flex;
     flex-direction: column;
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .info-label {
-    padding: 4px 8px;
+    padding: 8px;
     font-weight: 600;
-    color: #6c757d;
-    margin-bottom: 4px;
+    color: #ffffff;
+    background-color: #6c757d;
+    text-align: center;
 }
 
 .info-value {
     color: #343a40;
-    padding: 4px 8px;
-    background-color: #ffffff;
-    border-radius: 4px;
+    padding: 8px;
     min-height: 32px;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
+.info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
 .tier-icon {
     width: 24px;
     height: 24px;
@@ -469,11 +531,5 @@ const formatTitle = (title) => {
     font-size: 28px;
     font-weight: 700;
     margin: 0;
-}
-
-.tier-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 </style>
