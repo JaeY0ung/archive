@@ -49,6 +49,8 @@
             playbackManager.value.PreCountMeasures = 1;
             osmd.value.FollowCursor = true;
 
+            audioPlayer.value.GainMultiplier = 3;
+
             timingSource.value.reset();
             timingSource.value.pause();
             timingSource.value.Settings = osmd.value.Sheet.playbackSettings;
