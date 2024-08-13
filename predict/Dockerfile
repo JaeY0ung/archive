@@ -25,10 +25,6 @@ RUN pip install --upgrade pip
 RUN pip install numpy==1.21.6 Cython==0.29.24
 
 # omnizart 설치
-RUN pip install omnizart
-
-# omnizart 체크포인트 다운로드
-RUN omnizart download-checkpoints
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -44,4 +40,4 @@ COPY . .
 EXPOSE 8000
 
 # 애플리케이션 실행 명령
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
