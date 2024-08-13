@@ -1,6 +1,4 @@
 import os
-import fnmatch  # name matching
-import subprocess  # to handle subprocesses
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 import mido
