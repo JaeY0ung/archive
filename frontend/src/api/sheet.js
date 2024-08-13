@@ -95,7 +95,7 @@ export {
     predictSheetLevel,
     getRecommendSheetByUserRecentPlay,
     deleteSheet,
-
+    predictSheetLevel,
     likeSheet,
     dislikeSheet,
 

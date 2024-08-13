@@ -106,6 +106,8 @@ public class KakaoPayService {
         String url = "https://open-api.kakaopay.com/online/v1/payment/approve";
         ApproveResponse approveResponse = template.postForObject(url, requestEntity,
                 ApproveResponse.class);
+//        approveResponse.setAmount(String.valueOf(order.getTotalPrice()));
+//        log.info("총 결제 금액: " + String.valueOf(order.getTotalPrice()));
         log.info("결제승인 응답객체: " + approveResponse);
 
         return approveResponse;

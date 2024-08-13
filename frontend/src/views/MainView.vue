@@ -63,7 +63,7 @@ searchRecentPlayedsheet(({ data }) => {
 
 getPopularsheets();
 getnewsheets();
-// getRecommendSheets();
+getRecommendSheets();
 
 const goToSheetDetail = (sheetId) => {
 	router.push({ name: 'sheetDetail', params: { sheetId } });

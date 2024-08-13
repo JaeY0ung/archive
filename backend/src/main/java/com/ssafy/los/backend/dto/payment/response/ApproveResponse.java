@@ -3,14 +3,12 @@ package com.ssafy.los.backend.dto.payment.response;
 import lombok.Data;
 
 /**
- * packageName    : com.ssafy.los.backend.dto.payment.response
- * fileName       : ApproveResponse
- * author         : moongi
- * date           : 8/5/24
- * description    :
+ * packageName    : com.ssafy.los.backend.dto.payment.response fileName       : ApproveResponse
+ * author         : moongi date           : 8/5/24 description    :
  */
 @Data
 public class ApproveResponse {
+
     private String aid;                 // 요청 고유 번호
     private String tid;                 // 결제 고유 번호
     private String cid;                 // 가맹점 코드
@@ -20,7 +18,9 @@ public class ApproveResponse {
     private String item_name;           // 상품 이름
     private String item_code;           // 상품 코드
     private int quantity;               // 상품 수량
+    //    private String amount;
     private String created_at;          // 결제 준비 요청 시각
     private String approved_at;         // 결제 승인 시각
     private String payload;             // 결제 승인 요청에 대해 저장한 값, 요청 시 전달된 내용
+
 }
