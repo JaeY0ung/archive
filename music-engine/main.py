@@ -140,6 +140,7 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
                 response.raise_for_status()  # HTTP 오류 발생 시 예외를 던짐
 
                 # GPU 서버로부터 변환된 MIDI 파일 데이터를 수신
+                midi_file_name = f"result_{file_number}.mid"
                 midi_data = response.content
 
                 # MIDI 데이터를 임시 파일로 저장
@@ -184,7 +185,6 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
 
         return {
             "filename": file.filename,
-            "wav_file": wav_file_location,
             "midi_file": midi_file_location,
             "content_type": file.content_type,
             "similarity_results": similarity_results,
