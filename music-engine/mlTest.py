@@ -16,7 +16,7 @@ if not os.path.exists(ORIGINAL_DIR):
 
 # 로깅 설정
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.FileHandler("app.log"),
@@ -37,11 +37,11 @@ def main():
             logger.info(f"원본 MIDI 파일 위치: {original_midi_file}")
 
             if os.path.exists(midi_file_location) and os.path.exists(original_midi_file):
-                start_measure = max(0, file_number * 8 - 1)
-                end_measure = (file_number + 1) * 8 + 1
+                start_time = max(0, file_number * 5 - 1)
+                end_time = (file_number + 1) * 5 + 1
 
                 # 유사도 계산
-                similarity_results = calculate_similarity(original_midi_file, midi_file_location, start_measure, end_measure)
+                similarity_results = calculate_similarity(original_midi_file, midi_file_location, start_time, end_time)
                 
 
                 # 분할된 원본 및 비교할 MIDI 파일의 노트 로드

@@ -61,11 +61,11 @@
             playbackManager.value.addListener({
                 cursorPositionChanged: (currentTimestamp, data) => {
                     const currentMeasureIndex = data.CurrentMeasureIndex;
-                    if (currentMeasureIndex >= 0 && currentMeasureIndex - lastEmittedMeasureIndex >= 8) {
-                        lastEmittedMeasureIndex = currentMeasureIndex;
-                        triggerSplit.value++;
-                        splitRecording();
-                    }
+                    // if (currentMeasureIndex >= 0 && currentMeasureIndex - lastEmittedMeasureIndex >= 8) {
+                    //     lastEmittedMeasureIndex = currentMeasureIndex;
+                    //     triggerSplit.value++;
+                    //     splitRecording();
+                    // }
                 },
                 resetOccurred: (data) => {
                     lastEmittedMeasureIndex = 0;
@@ -144,7 +144,7 @@
                 if (isRecording.value) {
                     splitRecording();
                 }
-            }, 4000); // Calls splitRecording every 5 seconds
+            }, 5000); // Calls splitRecording every 5 seconds
             mediaRecorder.value.onstop = () => {
                 if (chunks.value.length > 0) {
                     const blob = new Blob(chunks.value, { type: 'audio/webm' });
@@ -159,6 +159,7 @@
                     } else {
                         console.log("5초컷 NORMAL")
                         const doubledBlob = new Blob([blob, blob], { type: 'audio/webm' }); // 자기 자신을 두 번 결합
+                        console.log(doubledBlob.size);
                         sendToServer(doubledBlob); // 두 번 결합한 Blob을 서버로 전송
                     }
                 }

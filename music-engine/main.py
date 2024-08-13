@@ -177,9 +177,9 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
         if not os.path.exists(original_file_location):
             raise FileNotFoundError(f"original 폴더에 {original_file_location} 파일이 존재하지 않습니다.")
 
-        start_time = max(0, int(file_number) * 6 - 1)
-        end_time = (int(file_number) + 1) * 6 + 1
-        last_measure = convert_service.get_rounded_measures(original_file_location,8);
+        start_time = max(0, int(file_number) * 5 - 1)
+        end_time = (int(file_number) + 1) * 5 + 1
+        last_measure = convert_service.get_rounded_measures(original_file_location,5);
         similarity_results = calculate_similarity(original_file_location, midi_file_location, start_time, end_time)
         is_last = 0
         if last_measure == int(file_number):

@@ -224,10 +224,12 @@ def calculate_similarity(original_file, piano_file, start_time, end_time):
     # 가장 처음 매핑된 노트와 가장 마지막에 매핑된 노트를 기준으로 노트 필터링
     if best_matched_notes:
         first_matched_time = min(note[0] for note in best_matched_notes)
-        last_matched_time = max(note[0] for note in best_matched_notes)
+        last_matched_time = max(note[0] for note in best_matched_notes) 
         valid_notes1_segment = [note for note in notes1_segment if first_matched_time <= note[0] <= last_matched_time]
         valid_best_offset_notes = [note for note in best_offset_notes if first_matched_time <= note[0] <= last_matched_time]
     else:
+        first_matched_time = 0
+        last_matched_time = end_time-start_time+2
         valid_notes1_segment = notes1_segment
         valid_best_offset_notes = best_offset_notes
 

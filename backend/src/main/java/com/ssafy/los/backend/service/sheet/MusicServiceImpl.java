@@ -19,7 +19,7 @@ public class MusicServiceImpl implements MusicService {
 
     private final RestTemplate restTemplate;
 
-    @Value("${cors.allowedOrigins.music-engine}")
+    @Value("${cors.allowedOrigins.predict}")
     private String musicEngineBaseUrl;
 
     public void saveMidFileWithSplit(String midFileName) throws IllegalArgumentException {
