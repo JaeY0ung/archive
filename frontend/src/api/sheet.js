@@ -107,4 +107,6 @@ export {
     registerdummySheetsByAdmin,
     searchSheetByStatusForAdmin,
     changeSheetStatusBySheetId,
+
+    predictSheetLevel,
 };
