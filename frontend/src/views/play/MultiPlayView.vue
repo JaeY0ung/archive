@@ -154,7 +154,7 @@ function connect() {
                             isRequested = true;
                         }).catch(error => {
                             console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, opponentJaccardScore.value);
-                        console.log("싱글 플레이 데이터 업데이트 중 오류 발생1")
+                        console.log("멀티 플레이 데이터 업데이트 중 오류 발생1")
                         });
                     }}
             }
@@ -190,7 +190,7 @@ function connect() {
                         isRequested = true;
                     }).catch(error => {
                         console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, 0);
-                console.log("싱글 플레이 데이터 업데이트 중 오류 발생2")
+                console.log("멀티 플레이 데이터 업데이트 중 오류 발생2")
                 });
             })
 
@@ -277,7 +277,7 @@ watch(() => musicStore.isLast,
         }).catch(error => {
             console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, opponentJaccardScore.value);
             console.log("multiRsultId : " + multiResultId);
-          console.log("싱글 플레이 데이터 업데이트 중 오류 발생3")
+          console.log("멀티 플레이 데이터 업데이트 중 오류 발생3")
         });
     }
 }});
@@ -288,7 +288,10 @@ const onClickQuit = () => {
 };
 
 const handleBeforeUnload = async () => {
-    if(isQuitting.value || isPopstate.value || isReloading.value){} 
+    if(isQuitting.value || isPopstate.value || isReloading.value){
+        musicStore.f1Score = [];
+        musicStore.jaccardScore = [];
+    } 
     else 
     {
         await playStore.exitRoom(route.params.roomId);
