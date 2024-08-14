@@ -48,6 +48,11 @@ const loginUser = userStore.userInfo;
 
 // pinia에 저장되어 있는 상대방의 정보를 가져온다.
 const opponentUser = userStore.opponentUser;
+opponentUser.userImg = opponentUser.userImg.split(',')[1];
+console.log("======================")
+console.log(loginUser.userImg);
+console.log(opponentUser.userImg);
+
 const opponentF1Score = ref(0);
 const opponentJaccardScore = ref(0);
 
@@ -215,17 +220,8 @@ watch(() => musicStore.isLast,
 }});
 
 const onClickQuit = () => {
-    // 확인과 취소를 묻는 경고창을 띄웁니다.
-    const answer = window.confirm("정말로 방을 나가시겠습니까?");
-    
-    // 사용자가 확인 버튼을 누른 경우에만 나가기를 진행합니다.
-    if (answer) {
-        isQuitting.value = true;
-        router.push("/room/multi/list");
-    } else {
-        // 취소를 눌렀을 경우, 아무런 동작도 하지 않습니다.
-        console.log("방 나가기가 취소되었습니다.");
-    }
+    isQuitting.value = true;
+    router.push("/room/multi/list");
 }
 
 
