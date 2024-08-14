@@ -40,7 +40,7 @@ const jaccardScore = computed(() => {
 });
 
 const resultScore = computed(() => {
-    return ((f1Score.value - 30) + (jaccardScore.value - 20)) / 120;
+    return Math.min(100,(Math.max(0,(f1Score.value - 30)) + Math.max(0,(jaccardScore.value - 20))) / 120)*100;
 });
 
 // 숫자에 해당하는 이미지를 반환하는 함수
