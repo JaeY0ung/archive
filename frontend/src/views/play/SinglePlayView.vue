@@ -5,7 +5,7 @@ import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import { useRoute } from "vue-router";
 import { useMusicStore } from "@/stores/sheet";
-import { ref } from "vue";
+import { onUnmounted, ref } from "vue";
 import { watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import { onMounted } from "vue";
@@ -39,21 +39,6 @@ musicStore.playMode = "single";
 // 플레이 점수를 가져온다.
 const myF1Score = ref(0);
 const myJaccardScore = ref(0);
-
-if (musicStore.f1.length !== 0) {
-    myF1Score.value = Math.floor(
-        (musicStore.f1.reduce((acc, score) => acc + score, 0) /
-            musicStore.f1.length) * 100
-    );
-}
-
-if (musicStore.jaccard.length !== 0) {
-    myJaccardScore.value = Math.floor(
-        (musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
-            musicStore.jaccard.length) * 100
-    );
-}
-
 const resultScore = ref(0);
 
 const updateResultScore = (newScore) => {
@@ -65,6 +50,7 @@ const updateResultScore = (newScore) => {
 watch(
     () => musicStore.f1,
     (newF1Scores) => {
+        console.log("F1:  ",musicStore.f1)
         if (newF1Scores.length !== 0) {
             myF1Score.value = Math.floor(
                 (newF1Scores.reduce((acc, score) => acc + score, 0) /
@@ -81,6 +67,7 @@ watch(
 watch(
     () => musicStore.jaccard,
     (newJaccardScores) => {
+      console.log("JC: ",musicStore.jaccard)
         if (newJaccardScores.length !== 0) {
             myJaccardScore.value = Math.floor(
                 (newJaccardScores.reduce((acc, score) => acc + score, 0) /
@@ -150,8 +137,17 @@ watch(
 );
 
 const onClickQuit = () => {
-    isQuitting.value = true;
-    router.push("/room/multi/list");
+    // 확인과 취소를 묻는 경고창을 띄웁니다.
+    const answer = window.confirm("정말로 방을 나가시겠습니까?");
+    
+    // 사용자가 확인 버튼을 누른 경우에만 나가기를 진행합니다.
+    if (answer) {
+        isQuitting.value = true;
+        router.push("/room/multi/list");
+    } else {
+        // 취소를 눌렀을 경우, 아무런 동작도 하지 않습니다.
+        console.log("방 나가기가 취소되었습니다.");
+    }
 }
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
@@ -164,7 +160,6 @@ const onStartRecordingEmit = async () => {
 			withCredentials: true
 		});
     singleResultId = response.data
-    console.log("싱글 플레이 데이터 저장 성공");
     // sheet.js에서 중간 점수를 보낼 때, singleResultId를 같이 보낼 수 있도록 sheet.js 저장
     musicStore.singleResultId = singleResultId;
     // sheet store에 singleResultId 저장
@@ -173,36 +168,24 @@ const onStartRecordingEmit = async () => {
   }
 }
 
-// 악보를 끝까지 완주했을 때, 호출되는 메서드
-// Todo: 모달창으로 성공, 실패를 알려줄 것.
-// watch(() => musicStore.isLast,
-//   (Last) => {
-//     local.patch(`/plays/single/${singleResultId}`, {
-//       userId: loginUser.id,
-//       score: myJaccardScore.value
-//     }).catch(error => {
-//       console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
-//     });
-//   }
-// );
 
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 watch(
 	() => musicStore.isLast,
-	async (Last) => {
-	  if (Last) {
-		try {
-		  await local.patch(`/plays/single/${singleResultId}`, {
-			userId: loginUser.id,
-			score: myJaccardScore.value,
-		  });
-		  modalTitle.value = "플레이 완료!";
-		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
-		} catch (error) {
-		  modalTitle.value = "오류 발생";
-		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
-		}
-		showModal.value = true;
+	async (newVal, oldVal) => {
+	  if (newVal) {
+      try {
+        await local.patch(`/plays/single/${singleResultId}`, {
+          userId: loginUser.id,
+          score: Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 ),
+        });
+        modalTitle.value = "플레이 완료!";
+        modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+      } catch (error) {
+        modalTitle.value = "오류 발생";
+        modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+      }
+      showModal.value = true;
 
 	  }
 	}
@@ -278,10 +261,8 @@ onBeforeRouteLeave(async (to, from, next) => {
     if((isPopstate.value == true && to.name == "multiRoomList") || isQuitting.value == true){
       // 뒤로가기를 눌렀을 때, 녹음 중이 아니라면 방목록 페이지로 이동시킨다.
       if(musicStore.isRecording == false){
-        console.log("녹음 중이 아닐 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
         next();
       }else{
-        console.log("녹음 중일 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
         // 뒤로가기를 눌렀을 때, 녹음 중이라면 0점 처리되고, 방목록 페이지로 이동시킨다.
         local.patch(`/plays/single/${singleResultId}`, {
           userId: loginUser.id,
@@ -301,89 +282,40 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
   });
 
+onUnmounted(()=>{
+  musicStore.isLast=false;
+  musicStore.isPlay= false;
+  musicStore.f1 = [];
+  musicStore.jaccard = [];
+})
 
 </script>
 
 <template>
-    <div class="container">
-      <div class="up">
-        <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
-      </div>
-      <div class="down gap-1">
-        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" @updateResultScore="updateResultScore" />
-        <div class="h-[198px] w-[198px] flex flex-col justify-evenly items-center">
-          <div class="flex flex-grow flex-1 h-[40%] w-full items-center justify-center cursor-pointer rounded-xl text-3xl font-bold" 
-          @click="onClickQuit"
-          :style="{
-                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
-                            backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat' }">
-              나가기
-          </div>
+  <div class="mx-auto w-[80vw] h-[90vh] bg-[#f3f7fd] rounded-2xl p-5 shadow-lg">
+    <div class="bg-white h-[70%] p-5 rounded-2xl shadow-md">
+      <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
+    </div>
+    <div class="flex justify-center items-center h-[25vh] gap-4">
+      <UserCardForPlay class="bg-white custom-shadow" :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" @updateResultScore="updateResultScore" />
+      <div class="h-[198px] w-[198px] flex justify-center items-center">
+        <div 
+          class="custom-shadow flex-grow h-full flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white text-[#4A90E2]  transition-all duration-300 hover:bg-red-600"
+          @click="onClickQuit">
+          나가기
         </div>
       </div>
-
-	  <!-- 모달 컴포넌트 -->
-<!--	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />-->
     </div>
+
+  <!-- 모달 컴포넌트 -->
+<!--	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />-->
+  </div>
 </template>
 
 <style scoped>
-.container {
-  margin: 10px auto;
-  width: 90vw;
-  height: 90vh;
-  background-color: #f0f0f0;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0.8;
-}
-.up {
-  background-color: #fff;
-  height: 72%;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.down {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 25vh;
-}
-
-.button-div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.player-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 20px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  width: 40%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.player-img {
-  width: 100px;
-  height: 100px;
-  background-color: white;
-  border-radius: 50%;
-  margin-bottom: 10px;
-}
-
-.player-info-text {
-  text-align: center;
-  margin-bottom: 10px;
+.custom-shadow {
+    @apply rounded-xl bg-white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
 }
 
 button {

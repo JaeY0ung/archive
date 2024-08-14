@@ -31,9 +31,11 @@ public class MultiPlayController {
         log.info("sheetId: {}", sheetId);
         log.info("multiResultId: {}", multiResultId);
         try {
-            return ResponseEntity.ok(multiPlayService.getLiveScore(file, sheetId, multiResultId));
+            String result = multiPlayService.getLiveScore(file, sheetId, multiResultId);
+            log.info("프론트에 실시간으로 보낼 result: {}", result);
+            return ResponseEntity.ok(result);
         } catch (IllegalArgumentException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -68,7 +70,7 @@ public class MultiPlayController {
     public ResponseEntity<?> getMultiPlayResultAllByUser(@PathVariable("user-id") Long userId) {
         List<MultiPlayResultProfileDto> multiPlayResultProfileDtoList = multiPlayService.getMultiPlayResultList(
                 userId);
-        log.info("MultiPlayResultProfileDtoList: {}", multiPlayResultProfileDtoList.toString());
+//        log.info("MultiPlayResultProfileDtoList: {}", multiPlayResultProfileDtoList.toString());
         return new ResponseEntity<>(multiPlayResultProfileDtoList, HttpStatus.OK);
     }
 

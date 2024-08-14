@@ -17,7 +17,6 @@ const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 if(props.user.userImg == null){
     props.user.userImg = defaultProfileImage;
 }else{
-    // img 파일 디코딩
     props.user.userImg = 'data:image/jpeg;base64,' + props.user.userImg;
 }
 
@@ -26,21 +25,9 @@ if(props.user.userImg == null){
 '위'  : SinglePlayView, MultiPlayView로 올려서 UserCardForPlay로 내려주는 방식을 사용하자.
 */
 
-// 반응형 계산을 위한 computed 속성
-const f1Score = computed(() => {
-    if (musicStore.f1.length === 0) return 0;
-    const averageScore = musicStore.f1.reduce((acc, score) => acc + score, 0) / musicStore.f1.length;
-    return Math.floor(averageScore * 100);
-});
-
-const jaccardScore = computed(() => {
-    if (musicStore.jaccard.length === 0) return 0;
-    const averageScore = musicStore.jaccard.reduce((acc, score) => acc + score, 0) / musicStore.jaccard.length;
-    return Math.floor(averageScore * 100);
-});
 
 const resultScore = computed(() => {
-    return ((f1Score.value - 30) + (jaccardScore.value - 20)) / 120;
+    return Math.min(100,(Math.max(0,(props.f1Score - 30)) + Math.max(0,(props.jaccardScore - 20))) * 100 / 120 );
 });
 
 // 숫자에 해당하는 이미지를 반환하는 함수
@@ -74,44 +61,35 @@ console.log(routeName);
 </script>
 
 <template>
-    <div class="flex flex-grow w-[40vw] h-[180px] justify-center gap-2 rounded-2xl overflow-hidden"
-    :style="{
-    backgroundImage: `url(${require('@/assets/img/sheet_play/box_blue.png')})`,
-    backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    }">
-        <div class="flex w-[198px] h-[198px] pl-8 pb-4 justify-center items-center ">
-            <div class="flex flex-shrink-0 w-[150px] h-[150px] justify-center items-center rounded-full overflow-hidden bg-white">
+    <div 
+        class="bg-[#f3f7fd] text-[#4A4A4A] relative flex flex-grow w-full h-[180px] justify-center gap-2 rounded-3xl font-bold overflow-hidden  hover:shadow-lg transition-all duration-300"
+    >
+        <div class="flex w-[198px] h-[198px] pl-8 pb-4 justify-center items-center">
+            <div class="flex flex-shrink-0 w-[150px] h-[150px] justify-center items-center rounded-full overflow-hidden">
                 <img :src="user.userImg" alt="Profile Image" class="object-cover h-full w-full" />
             </div>
         </div>
-        <div class="flex flex-col w-[90%] ">
-            <div class="flex flex-col flex-grow h-full pl-[10px] text-black" style="font-size:30px;">
+        <div class="flex flex-col w-[90%]">
+            <div class="flex flex-col flex-grow h-full pl-[10px] text-black text-2xl">
                 <div class="flex flex-1 items-center">
                     {{ user.nickname }}
-                    <!-- <LevelBadge :level="user.singleScore" class="ml-4" />  -->
-                    <Tier :level="4" class="ml-4" /> 
+                    <Tier v-if="user.nickname !== '상대를 기다리는 중...'" :level="3" class="ml-4" /> 
                 </div>
             </div>
-            <hr class="bg-gray-950 ml-5 w-[90%] flex">
-            <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-start justify-center h-full pl-[10px] ">
-                <div class="flex ml-4 justify-between h-full items-center">
+            <hr class="bg-gray-900 ml-5 w-[90%]">
+            <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-start justify-center h-full pl-[10px]">
+                <div class="flex ml-4 justify-between w-full h-full items-center">
                     <div class="text-black text-lg w-full">현재 스코어</div>
                     <div class="text-gray-900 flex items-center h-full w-[80%]">
-                        <template v-for="(digit, index) in resultScore.toFixed(2)" :key="index">
-                            <img :src="getNumberImage(digit)" :alt="digit" class="h-8 w-8" />
-                        </template>
+                        {{ resultScore.toFixed(2) }}
                     </div>
                 </div>
-                
-                
             </div>
-        
         </div>
         
     </div>
 </template>
+
 
 <style scoped>
 

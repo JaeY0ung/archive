@@ -22,12 +22,14 @@
         const f1 = ref([]);
         const jaccard = ref([]);   
         const route = useRoute();
-        const isLast = ref(0);
+        const isLast = ref(false);
         const singleResultId = ref(0);
         const multiResultId = ref(0);
         const playMode = ref("");
         const last_measure = ref(0);
         const check_measure = ref(-1);
+
+        let recordingInterval = null;
 
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);
@@ -107,6 +109,7 @@
 
         const startMusic = () => {
             isPlay.value = true;
+            isLast.value = false;
             playbackManager.value.play();
             timingSource.value.start();
         };
@@ -124,6 +127,8 @@
         };
 
         const startRecording = async () => {
+            f1.value = [];  // 녹음 시작 시점에 배열을 초기화
+            jaccard.value = [];  // 녹음 시작 시점에 배열을 초기화
             startMusic();
             audioBlobs.value = [];
             const stream = await navigator.mediaDevices.getUserMedia({
@@ -143,23 +148,18 @@
                     chunks.value.push(event.data);
                 }
             };
-            setInterval(() => {
+            recordingInterval = setInterval(() => {
                 if (isRecording.value) {
                     splitRecording();
                 }
-            }, 5000); // Calls splitRecording every 5 seconds
+            }, 5000); 
             mediaRecorder.value.onstop = () => {
                 if (chunks.value.length > 0) {
                     const blob = new Blob(chunks.value, { type: 'audio/webm' });
                     console.log(`Blob size: ${blob.size} bytes`);
                     audioBlobs.value.push({ blob });
                     chunks.value = [];
-                    if (isPlay.value == false) {
-                        const lastBlob = audioBlobs.value[audioBlobs.value.length - 2] // 이전 청크 가져오기
-                        const combinedBlob = new Blob([lastBlob.blob, blob], { type: 'audio/webm' }); // 결합
-                        console.log("마지막 마디입니다. 앞쪽과 결합후 전송..")
-                        sendToServer(combinedBlob);
-                    } else {
+                    if (isPlay.value == true) {
                         console.log("5초컷 NORMAL")
                         const doubledBlob = new Blob([blob, blob], { type: 'audio/webm' }); // 자기 자신을 두 번 결합
                         console.log(doubledBlob.size);
@@ -205,11 +205,6 @@
                 
                 f1.value.push(res.data.similarity_results.f1_score);
                 jaccard.value.push(res.data.similarity_results.jaccard_similarity);
-                last_measure.value = res.data.last_measure;
-                check_measure.value = check_measure.value + 1;
-                if(last_measure.value == check_measure.value){
-                    isLast.value = 1;
-                }
             } catch (err) {
                 console.error('채점 실패: ', err);
             }
@@ -227,8 +222,13 @@
             isRecording.value = false;
             isPlay.value=false;
             if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
-                splitRecording();
                 mediaRecorder.value.stop();
+                isLast.value = true;
+                //splitRecording();
+            }
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+                recordingInterval = null;
             }
             
         };

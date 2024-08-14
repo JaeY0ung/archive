@@ -8,7 +8,7 @@ import Profile from "@/common/icons/Profile.vue";
 import { onClickOutside } from "@vueuse/core";
 import BigSheetCard from "@/common/sheet/BigSheetCardForDifficulty.vue";
 import Tier from "@/common/icons/Tier.vue";
-import { tierInfo } from '@/util/tier-info';
+import { tierInfo } from "@/util/tier-info";
 import {
     Chart,
     TimeScale,
@@ -24,7 +24,7 @@ import {
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { ko } from "date-fns/locale";
-import { parseISO, startOfDay, addDays } from 'date-fns';
+import { parseISO, startOfDay, addDays } from "date-fns";
 
 Chart.register(
     TimeScale,
@@ -276,7 +276,7 @@ const createChart = () => {
         chart = new Chart(ctx, {
             type: "scatter",
             data: {
-                datasets: difficultyOptions.map((difficulty, index) => ({
+                datasets: difficultyOptions.map((difficulty) => ({
                     label: difficulty,
                     data: chartData.filter((item) => {
                         const itemDate = startOfDay(parseISO(item.x));
@@ -333,8 +333,8 @@ const createChart = () => {
                             display: false,
                             text: "날짜",
                         },
-                        min: twentyDaysAgo,
-                        max: addDays(startOfDay(new Date()), 1), // 다음 날의 시작으로 설정하여 오늘 데이터가 잘리지 않도록 함
+                        min: twentyDaysAgo, // Set only once
+                        max: addDays(startOfDay(new Date()), 1), // Set only once
                         ticks: {
                             padding: 10, // x축 레이블과 차트 사이의 패딩 증가
                         },
@@ -360,22 +360,22 @@ const createChart = () => {
 const updateChart = () => {
     if (chart) {
         const chartData = prepareChartData();
-        const twentyDaysAgo = startOfDay(new Date());
-        twentyDaysAgo.setDate(twentyDaysAgo.getDate() - 20);
 
-        chart.data.datasets = difficultyOptions.map((difficulty, index) => ({
+        chart.data.datasets = difficultyOptions.map((difficulty) => ({
             label: difficulty,
             data: chartData.filter((item) => {
                 const itemDate = startOfDay(parseISO(item.x));
-                return item.difficulty === difficulty && itemDate >= twentyDaysAgo;
+                return (
+                    item.difficulty === difficulty &&
+                    itemDate >= startOfDay(addDays(new Date(), -20))
+                );
             }),
             backgroundColor: difficultyColors[difficulty],
             borderColor: difficultyColors[difficulty],
             pointRadius: 6,
             pointHoverRadius: 8,
         }));
-        chart.options.scales.x.min = twentyDaysAgo;
-        chart.options.scales.x.max = startOfDay(new Date());
+
         chart.update();
     }
 };
@@ -402,136 +402,171 @@ onUnmounted(() => {
 
 <template>
     <div class="difficulty-contribution">
-        <div class="sheet-info">
-            <BigSheetCard :sheet="sheet" />
-        </div>
-
-        <div class="chart-container">
-            <canvas ref="chartRef"></canvas>
-        </div>
-
-        <div class="comments-ratings-section">
-            <div class="comment-form">
-                <input
-                    v-model="newComment"
-                    type="text"
-                    placeholder="난이도 평가를 해주세요"
-                    class="comment-input"
-                />
-                <div class="difficulty-and-submit">
-                    <div class="difficulty-selection">
-                        <button
-                            v-for="difficulty in difficultyOptions"
-                            :key="difficulty"
-                            @click="setDifficulty(difficulty)"
-                            :class="[
-                                'difficulty-button',
-                                difficulty,
-                                { active: difficulty === newDifficulty },
-                            ]"
-                        >
-                            {{ difficulty }}
-                        </button>
-                    </div>
-                    <button @click="submitCommentAndDifficulty" class="submit-button">등록</button>
+        <div class="content-wrapper">
+            <div class="left-column">
+                <div class="sheet-info">
+                    <BigSheetCard :sheet="sheet" />
+                </div>
+                <div class="chart-container">
+                    <canvas ref="chartRef"></canvas>
                 </div>
             </div>
-
-            <div v-if="comments.length === 0" class="no-comments-message">
-                첫 댓글을 달아주세요!
-            </div>
-            <div v-else>
-                <div class="sort-control">
-                    <button @click="toggleSortOrder" class="sort-button">
-                        {{ sortOrder === "desc" ? "최신순" : "오래된순" }}
-                    </button>
-                </div>
-
-                <div class="comments-list">
-                    <div
-                        v-for="(comment, index) in paginatedComments"
-                        :key="index"
-                        class="comment-item"
-                    >
-                        <img
-                            v-if="comment.userAvatar"
-                            :src="comment.userAvatar"
-                            alt="User avatar"
-                            class="user-avatar"
-                        />
-                        <Profile v-else class="profile-icon profile-image" />
-                        <div class="comment-content">
-                            <div class="comment-header">
-                                <div class="user-info">
-                                    <strong>{{ comment.username }}</strong>
-                                    <span :class="['difficulty-badge', comment.difficulty]">
-                                        평가: {{ comment.difficulty }}
-                                    </span>
-                                </div>
-                                <div
-                                    v-if="comment.username === userInfo.nickname"
-                                    class="comment-actions"
-                                    ref="menuRef"
+            <div class="right-column">
+                <div class="comments-ratings-section">
+                    <h2>난이도 평가</h2>
+                    <div class="comment-form">
+                        <textarea
+                            v-model="newComment"
+                            placeholder="난이도 평가를 해주세요"
+                            class="comment-input"
+                        ></textarea>
+                        <div class="difficulty-and-submit">
+                            <div class="difficulty-selection">
+                                <button
+                                    v-for="difficulty in difficultyOptions"
+                                    :key="difficulty"
+                                    @click="setDifficulty(difficulty)"
+                                    :class="[
+                                        'difficulty-button',
+                                        difficulty,
+                                        { active: difficulty === newDifficulty },
+                                    ]"
                                 >
-                                    <button
-                                        @click="toggleMenu(comment.difficultyId, $event)"
-                                        class="menu-button"
-                                    >
-                                        <svg width="24" height="24" viewBox="0 0 32 32">
-                                            <circle cx="16" cy="6" r="3" fill="#333" />
-                                            <circle cx="16" cy="16" r="3" fill="#333" />
-                                            <circle cx="16" cy="26" r="3" fill="#333" />
-                                        </svg>
-                                    </button>
-                                    <div
-                                        v-if="menuOpenState[comment.difficultyId]"
-                                        class="action-menu"
-                                    >
-                                        <button @click="startEditing(comment)" class="edit-button">
-                                            수정
-                                        </button>
-                                        <button
-                                            @click="deleteDifficulty(comment.difficultyId)"
-                                            class="delete-button"
-                                        >
-                                            삭제
-                                        </button>
+                                    {{ difficulty }}
+                                </button>
+                            </div>
+                            <button @click="submitCommentAndDifficulty" class="submit-button">
+                                등록
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="comments-container">
+                        <div v-if="comments.length === 0" class="no-comments-message">
+                            첫 댓글을 달아주세요!
+                        </div>
+                        <div v-else>
+                            <div class="comments-header">
+                                <h3>댓글 목록</h3>
+                                <button @click="toggleSortOrder" class="sort-button">
+                                    {{ sortOrder === "desc" ? "최신순" : "오래된순" }}
+                                </button>
+                            </div>
+
+                            <div class="comments-list">
+                                <div
+                                    v-for="(comment, index) in paginatedComments"
+                                    :key="index"
+                                    class="comment-item"
+                                >
+                                    <div class="comment-avatar">
+                                        <img
+                                            v-if="comment.userAvatar"
+                                            :src="comment.userAvatar"
+                                            alt="User avatar"
+                                            class="user-avatar"
+                                        />
+                                        <Profile v-else class="profile-icon" />
+                                    </div>
+                                    <div class="comment-content">
+                                        <div class="comment-header">
+                                            <div class="user-info">
+                                                <strong>{{ comment.username }}</strong>
+                                                <span
+                                                    :class="[
+                                                        'difficulty-badge',
+                                                        comment.difficulty,
+                                                    ]"
+                                                >
+                                                    {{ comment.difficulty }}
+                                                </span>
+                                            </div>
+                                            <!-- <div
+                                                v-if="comment.username === userInfo.nickname"
+                                                class="comment-actions"
+                                                ref="menuRef"
+                                            >
+                                                <button
+                                                    @click="
+                                                        toggleMenu(comment.difficultyId, $event)
+                                                    "
+                                                    class="menu-button"
+                                                >
+                                                    <svg width="24" height="24" viewBox="0 0 32 32">
+                                                        <circle cx="16" cy="8" r="2" fill="#333" />
+                                                        <circle cx="16" cy="16" r="2" fill="#333" />
+                                                        <circle cx="16" cy="24" r="2" fill="#333" />
+                                                    </svg>
+                                                </button>
+                                                <div
+                                                    v-if="menuOpenState[comment.difficultyId]"
+                                                    class="action-menu"
+                                                >
+                                                    <button
+                                                        @click="startEditing(comment)"
+                                                        class="edit-button"
+                                                    >
+                                                        수정
+                                                    </button>
+                                                    <button
+                                                        @click="
+                                                            deleteDifficulty(comment.difficultyId)
+                                                        "
+                                                        class="delete-button"
+                                                    >
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </div> -->
+                                        </div>
+                                        <p v-if="editingComment !== comment" class="comment-text">
+                                            {{ comment.text }}
+                                        </p>
+                                        <div v-else class="edit-form">
+                                            <textarea
+                                                v-model="editedContent"
+                                                class="edit-input"
+                                            ></textarea>
+                                            <div class="difficulty-selection">
+                                                <button
+                                                    v-for="difficulty in difficultyOptions"
+                                                    :key="difficulty"
+                                                    @click="editedDifficulty = difficulty"
+                                                    :class="[
+                                                        'difficulty-button',
+                                                        difficulty,
+                                                        { active: difficulty === editedDifficulty },
+                                                    ]"
+                                                >
+                                                    {{ difficulty }}
+                                                </button>
+                                            </div>
+                                            <div class="edit-actions">
+                                                <button @click="saveEdit" class="save-button">
+                                                    저장
+                                                </button>
+                                                <button
+                                                    @click="cancelEditing"
+                                                    class="cancel-button"
+                                                >
+                                                    취소
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <p v-if="editingComment !== comment" class="comment-text">
-                                {{ comment.text }}
-                            </p>
-                            <div v-else class="edit-form">
-                                <input v-model="editedContent" type="text" class="edit-input" />
-                                <div class="difficulty-selection">
-                                    <button
-                                        v-for="difficulty in difficultyOptions"
-                                        :key="difficulty"
-                                        @click="editedDifficulty = difficulty"
-                                        :class="[
-                                            'difficulty-button',
-                                            difficulty,
-                                            { active: difficulty === editedDifficulty },
-                                        ]"
-                                    >
-                                        {{ difficulty }}
-                                    </button>
-                                </div>
-                                <div class="edit-actions">
-                                    <button @click="saveEdit" class="save-button">저장</button>
-                                    <button @click="cancelEditing" class="cancel-button">
-                                        취소
-                                    </button>
-                                </div>
+                            <div class="pagination">
+                                <button @click="prevPage" :disabled="currentPage === 1">
+                                    이전
+                                </button>
+                                <span>{{ currentPage }} / {{ totalPages }}</span>
+                                <button @click="nextPage" :disabled="currentPage === totalPages">
+                                    다음
+                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="pagination">
-                    <button @click="prevPage" :disabled="currentPage === 1">이전</button>
-                    <span>{{ currentPage }} / {{ totalPages }}</span>
-                    <button @click="nextPage" :disabled="currentPage === totalPages">다음</button>
                 </div>
             </div>
         </div>
@@ -540,51 +575,96 @@ onUnmounted(() => {
 
 <style scoped>
 .difficulty-contribution {
-    width: 99%;
-    height: 98%;
-    margin: 0 auto;
+    width: 100%;
+    height: 100vh;
+    max-width: 1600px;
+    margin: 10px auto;
     padding: 20px;
-    background-color: #f9f9f9;
+    /* background-color: #f9f9f9;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
-    scrollbar-width: none;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); */
+    box-sizing: border-box;
+}
+
+.content-wrapper {
+    display: flex;
+    gap: 30px;
+    height: 95%;
+}
+
+.left-column,
+.right-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.comments-ratings-section {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .sheet-info {
     background-color: white;
     padding: 20px;
     border-radius: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    flex: 0 0 auto;
+    margin-bottom: 20px;
 }
 
-.comments-ratings-section {
+.chart-container {
+    flex: 1;
     background-color: white;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.comment-form,
-.edit-form {
+.comments-ratings-section {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    padding-bottom: 60px;
+}
+
+.comments-ratings-section h2 {
     margin-bottom: 20px;
-    background-color: #f0f0f0;
-    padding: 15px;
-    border-radius: 8px;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.comment-form {
+    margin-bottom: 20px;
+}
+
+.comments-container {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.comments-container::-webkit-scrollbar {
+    display: none;
 }
 
 .comment-input,
 .edit-input {
-    flex-grow: 1;
-    height: 40px;
-    padding: 0 15px;
+    width: 100%;
+    height: 80px;
+    padding: 10px;
     border: 1px solid #ddd;
-    border-radius: 20px;
+    border-radius: 8px;
     font-size: 14px;
+    resize: vertical;
     transition: border-color 0.3s;
 }
 
@@ -594,12 +674,11 @@ onUnmounted(() => {
     border-color: #4caf50;
 }
 
-.difficulty-and-submit,
-.edit-actions {
+.difficulty-and-submit {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    margin-top: 10px;
 }
 
 .difficulty-selection {
@@ -626,14 +705,14 @@ onUnmounted(() => {
 .submit-button,
 .save-button,
 .cancel-button {
-    padding: 8px 10px;
+    padding: 8px 15px;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.3s, transform 0.1s;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .submit-button,
@@ -660,6 +739,32 @@ onUnmounted(() => {
     transform: scale(0.98);
 }
 
+.comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.comments-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.sort-button {
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 14px;
+}
+
+.sort-button:hover {
+    background-color: #e0e0e0;
+}
+
 .comments-list {
     display: flex;
     flex-direction: column;
@@ -680,8 +785,12 @@ onUnmounted(() => {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.comment-avatar {
+    flex-shrink: 0;
+}
+
 .user-avatar,
-.user-avatar-placeholder {
+.profile-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -690,7 +799,7 @@ onUnmounted(() => {
     box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
 }
 
-.user-avatar-placeholder {
+.profile-icon {
     background-color: #ccc;
     display: flex;
     justify-content: center;
@@ -716,6 +825,19 @@ onUnmounted(() => {
     gap: 10px;
 }
 
+.difficulty-badge {
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+}
+
+.comment-text {
+    margin-top: 5px;
+    color: #333;
+}
+
 .comment-actions {
     position: relative;
 }
@@ -736,11 +858,6 @@ onUnmounted(() => {
 
 .menu-button:hover {
     background-color: #f0f0f0;
-}
-
-.menu-button svg {
-    width: 100%;
-    height: 100%;
 }
 
 .action-menu {
@@ -781,18 +898,6 @@ onUnmounted(() => {
     color: #f44336;
 }
 
-.difficulty-badge {
-    padding: 4px 8px;
-    border-radius: 10px;
-    font-size: 12px;
-    color: #333;
-}
-
-.comment-text {
-    margin-top: 5px;
-    color: #333;
-}
-
 .브론즈 {
     background-color: #cd7f32;
 }
@@ -807,24 +912,6 @@ onUnmounted(() => {
 }
 .다이아몬드 {
     background-color: #b9f2ff;
-}
-
-.sort-control {
-    margin-bottom: 15px;
-    text-align: right;
-}
-
-.sort-button {
-    padding: 5px 10px;
-    background-color: #f0f0f0;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.sort-button:hover {
-    background-color: #e0e0e0;
 }
 
 .pagination {
@@ -866,28 +953,15 @@ onUnmounted(() => {
     color: #666;
 }
 
-.chart-container {
-    margin: 10px auto;
-    width: 100%;
-    max-width: 800px;
-    height: 300px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+@media (max-width: 768px) {
+    .content-wrapper {
+        flex-direction: column;
+    }
 
-.profile-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #ccc;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.profile-image {
-    border: 2px solid #fff;
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+    .left-column,
+    .right-column {
+        width: 100%;
+        height: auto;
+    }
 }
 </style>
