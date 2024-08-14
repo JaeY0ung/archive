@@ -5,12 +5,14 @@ import { searchSheetsByFilter, getRecommendSheetByUserRecentPlay, searchRecentPl
 import MainViewComponent from '@/common/main/MainViewComponent.vue';
 import RankingList from '@/common/main/RankingList.vue';
 import RecentPlaySheetCard from '@/common/sheet/RecentPlaySheetCard.vue'
+import MainSwipeComponent from '@/common/main/MainSwipeComponent.vue';
 
 const router = useRouter();
 const recentPlayedSheet = ref();
 const popularSheets = ref([]); // 인기 악보 리스트
 const newSheets = ref([]); // 새로 나온(New) 악보 리스트
 const recommendSheets = ref([]); // 추천 악보 리스트
+const randomSheets = ref([]);
 
 const getPopularsheets = async () => {
 	await searchSheetsByFilter(
@@ -22,12 +24,22 @@ const getPopularsheets = async () => {
 	)
 }
 
-const getnewsheets = async () => {
+const getNewSheets = async () => {
 	await searchSheetsByFilter(
 		{ sort: "LATEST" },
 		({ data }) => {
 			if (!data) return;
 			newSheets.value = data;
+		}
+	)
+}
+
+const getRandomSheets = async () => {
+	await searchSheetsByFilter(
+		{ sort: "RANDOM" },
+		({ data }) => {
+			if (!data) return;
+			randomSheets.value = data;
 		}
 	)
 }
@@ -57,8 +69,9 @@ searchRecentPlayedsheet(({ data }) => {
 });
 
 getPopularsheets();
-getnewsheets();
+getNewSheets();
 getRecommendSheets();
+getRandomSheets();
 
 const goToSheetDetail = (sheetId) => {
 	router.push({ name: 'sheetDetail', params: { sheetId } });
@@ -73,17 +86,24 @@ const goToSheetSearchListView = (sort) => {
 
 <template>
 	<div class="w-full h-full flex flex-col justify-between">
-		<div class="w-full flex justify-start gap-5">
-			<MainViewComponent class="w-[24%]" :sheets="popularSheets" :title="'인기'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('POPULAR')" />
-			<MainViewComponent class="w-[24%]" :sheets="newSheets" :title="'최신'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('LATEST')"/>
-			<MainViewComponent class="w-[24%]" :sheets="recommendSheets" :title="'추천'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('RECOMMNED')"/>
-			<div class="w-[20%] flex flex-col gap-4">
-				<div class="h-[440px]">
-					<RankingList/>
-				</div>
-				<div class="h-[200px] min-w-[200px] w-[350px] p-2 flex justify-center items-center relative bg-white bg-opacity-50 rounded-2xl">
+		<div class="w-full flex flex-col justify-start gap-5">
+			<div class="h-[40%] flex flex-row">
+				<div class="flex-6 p-2 flex justify-center items-center">
 					<RecentPlaySheetCard :sheet="sheet" />
 				</div>
+				<MainSwipeComponent class="flex-1" :sheets="popularSheets" :title="'인기'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('POPULAR')"/>
+				<MainSwipeComponent class="flex-1" :sheets="newSheets" :title="'최신'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('LATEST')"/>
+				<MainSwipeComponent class="flex-1" :sheets="recommendSheets" :title="'추천'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('RECOMMNED')"/>
+				<div class="flex-1 h-full">
+					<RankingList/>
+				</div>
+			</div>
+
+			<div class="h-[60%] flex flex-row gap-2">
+				<MainViewComponent  :sheets="popularSheets" :title="'인기'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('POPULAR')" />
+				<MainViewComponent :sheets="newSheets" :title="'최신'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('LATEST')"/>
+				<MainViewComponent :sheets="recommendSheets" :title="'추천'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('RECOMMNED')"/>
+				<MainViewComponent :sheets="randomSheets" :title="'랜덤'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('RANDOM')"/>
 			</div>
 		</div>
 	</div>

@@ -44,8 +44,13 @@ public class KakaoPayService {
 
     // 카카오페이 결제창 연결
     public ReadyResponse payReady(Order order, Long totalPrice) {
-        String itemName = order.getOrderSheetList().get(0).getSheet().getTitle() + " 그외" + (
-                order.getOrderSheetList().size() - 1);
+        String itemName;
+        if (order.getOrderSheetList().size() == 1) {
+            itemName = order.getOrderSheetList().get(0).getSheet().getTitle();
+        } else {
+            itemName = order.getOrderSheetList().get(0).getSheet().getTitle() + " 그외" + (
+                    order.getOrderSheetList().size() - 1) + "개";
+        }
         Map<String, String> parameters = new HashMap<>();
         parameters.put("cid", "TC0ONETIME");                                    // 가맹점 코드(테스트용)
         parameters.put("partner_order_id", String.valueOf(order.getId()));      // 주문번호

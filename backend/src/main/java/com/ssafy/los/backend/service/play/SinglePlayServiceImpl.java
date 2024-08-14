@@ -88,14 +88,18 @@ public class SinglePlayServiceImpl implements SinglePlayService {
         singlePlayResult.updatePlayTime();
         singlePlayResult.updateStatus(true);
 
-        // 명시적으로 저장하여 변경 사항 반영
-        singlePlayResultRepository.save(singlePlayResult);
-        refreshSingleScoreOfUser(loginUser.getId());
+            // 명시적으로 저장하여 변경 사항 반영
+            singlePlayResultRepository.save(singlePlayResult);
+//            refreshSingleScoreOfUser(singlePlayResult.getUser().getId());
 
 //        } else {
 //            log.info("이미 저장 완료된 배틀 기록입니다.");
 //        }
         return singleResultId;
+    }
+
+    public void refreshSingleScoreOfUser(long userId) {
+
     }
 
     // 싱글 결과 목록 조회(유저, 악보 기준)
@@ -110,7 +114,12 @@ public class SinglePlayServiceImpl implements SinglePlayService {
     public List<SingePlayResultProfileDto> getSinglePlayResultListByUser(Long userId) {
         User findUser = userRepository.findUserByIdAndDeletedAtNull(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다: " + userId));
-
+        List<SinglePlayResult> lll = singlePlayResultRepository.findByUser(findUser);
+        for (int i = 0; i < lll.size(); i++) {
+            log.info(lll.get(i).getScore().toString());
+        }
+        log.info("============={}====", singlePlayResultRepository.findByUser(findUser).stream()
+                .map((result) -> result.getScore()));
         return singlePlayResultRepository.findByUser(findUser).stream()
                 .map(result -> {
                     SingePlayResultProfileDto dto = SingePlayResultProfileDto.builder()
