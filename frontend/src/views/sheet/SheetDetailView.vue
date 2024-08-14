@@ -147,12 +147,6 @@ watch(sheet, async () => {
     await searchRandomSameLevelSheets();
 });
 
-router.push({
-    name: "sheetDetail",
-    params: { sheetId: sheetId },
-    replace: true,
-});
-
 // Sheet 컴포넌트 비동기 로드
 const AsyncSheet = defineAsyncComponent(() => import("@/common/sheet/Sheet.vue"));
 </script>
