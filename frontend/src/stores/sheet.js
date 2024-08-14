@@ -156,12 +156,7 @@
                     console.log(`Blob size: ${blob.size} bytes`);
                     audioBlobs.value.push({ blob });
                     chunks.value = [];
-                    if (isPlay.value == false) {
-                        const lastBlob = audioBlobs.value[audioBlobs.value.length - 2] // 이전 청크 가져오기
-                        const combinedBlob = new Blob([lastBlob.blob, blob], { type: 'audio/webm' }); // 결합
-                        console.log("마지막 마디입니다. 앞쪽과 결합후 전송..")
-                        sendToServer(combinedBlob);
-                    } else {
+                    if (isPlay.value == true) {
                         console.log("5초컷 NORMAL")
                         const doubledBlob = new Blob([blob, blob], { type: 'audio/webm' }); // 자기 자신을 두 번 결합
                         console.log(doubledBlob.size);
