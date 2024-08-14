@@ -109,7 +109,7 @@ class ConvertService:
         except Exception as e:
             logger.info(f"Unexpected error: {e}")
     
-    def get_rounded_measures(self, midi_file_path, measures_per_section=8):
+    def get_rounded_measures(self, midi_file_path, measures_per_section=5):
         """
         MIDI 파일을 파싱하여 전체 마디 수를 계산하고,
         전체 마디를 measures_per_section로 나눈 몫을 올림 처리한 후 1을 뺀 값을 반환합니다.

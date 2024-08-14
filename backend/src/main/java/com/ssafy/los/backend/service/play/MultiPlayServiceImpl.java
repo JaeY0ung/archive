@@ -133,8 +133,10 @@ public class MultiPlayServiceImpl implements MultiPlayService {
                     .sheetTitle(multiPlayResult.getSheet().getTitle())
                     .songComposer(multiPlayResult.getSheet().getSong().getComposer())
                     .songImgName(multiPlayResult.getSheet().getSong().getImgName())
-                    .uploaderNickname(multiPlayResult.getSheet().getUploader().getNickname())
                     .level(multiPlayResult.getSheet().getLevel())
+                    .uploaderNickname(multiPlayResult.getSheet().getUploader() != null
+                            ? multiPlayResult.getSheet().getUploader().getNickname()
+                            : "")
                     .playTime(multiPlayResult.getPlayTime())
                     .draw(multiPlayResult.isDraw())
                     .build();

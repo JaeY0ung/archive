@@ -54,9 +54,11 @@ public class SinglePlayServiceImpl implements SinglePlayService {
     public Long saveSinglePlayResult(SingleResultBeforeDto singleResultBeforeDto) {
         Sheet playSheet = sheetRepository.findById(singleResultBeforeDto.getSheetId())
                 .orElseThrow(() -> new RuntimeException("sheet not found"));
-
+        User loginUser = authService.getLoginUser();
         SinglePlayResult singlePlayResult = SinglePlayResult.builder()
-                .sheet(playSheet).build();
+                .sheet(playSheet)
+                .user(loginUser)
+                .build();
 
         return singlePlayResultRepository.save(singlePlayResult).getId();
     }
@@ -117,7 +119,9 @@ public class SinglePlayServiceImpl implements SinglePlayService {
                             .sheetTitle(result.getSheet().getTitle())
                             .songComposer(result.getSheet().getSong().getComposer())
                             .songImgName(result.getSheet().getSong().getImgName())
-                            .uploaderNickname(result.getSheet().getUploader().getNickname())
+                            .uploaderNickname(result.getSheet().getUploader() != null
+                                    ? result.getSheet().getUploader().getNickname()
+                                    : "")
                             .level(result.getSheet().getLevel())
                             .score(result.getScore())
                             .playTime(result.getPlayTime())

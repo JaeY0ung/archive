@@ -56,7 +56,8 @@ search();
 
 // 다른 페이지에서 넘어왔을 때
 onMounted(async () => {
-    searchFilter.value.keyword = route.query.keyword || "";
+    if (route.query.keyword) searchFilter.value.keyword = route.query.keyword;
+    if (route.query.sort)    searchFilter.value.sort = route.query.sort;
     search();
 });
 

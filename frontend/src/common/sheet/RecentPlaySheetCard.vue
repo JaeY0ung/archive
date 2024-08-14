@@ -12,17 +12,18 @@ const { userInfo, isLogin } = storeToRefs(userStore);
 const props = defineProps({
     sheet: {
         type: Object,
-        required: true,
+        required: false,
         default: {
-            id: Number,
-            imageUrl: String,
-            title: String,
-            songComposer: String,
-            level: Number,
-            uploaderNickname: String,
-            likeCount: Number,
-            likeStatus: Boolean,
-            difficulty: Number, // 아직 안보냄
+            id: 0,
+            imageUrl: require('@/assets/img/default/song_img.png'),
+            title: "",
+            songComposer: "",
+            level: 0,
+            uploaderNickname: "",
+            likeCount: 0,
+            likeStatus: false,
+            difficulty: 0,
+            songImg: "",
         },
     },
 });
@@ -55,7 +56,7 @@ const goToSheetDetail = (sheetId) => {
                 Now Playing
             </div>
             <div class="ml-3 mb-12 flex-grow text-gray-600 font-bold text-lg">
-                {{ sheet.title }}
+                {{ sheet.title ? sheet.title : "최근 플레이한 곡이 없습니다" }}
             </div>
         </div>
         

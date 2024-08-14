@@ -11,6 +11,7 @@ import { localAxios } from "@/util/http-common";
 import { onMounted } from "vue";
 import { onBeforeUnmount } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
+import PlayModal from "@/common/modal/PlayModal.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -21,6 +22,11 @@ const accessToken = sessionStorage.getItem("accessToken");
 userStore.getUserInfo(accessToken);
 const loginUser = userStore.userInfo;
 const local = localAxios();
+
+const showModal = ref(false);  // 모달 상태
+const modalTitle = ref("");
+const modalMessage = ref("");
+
 let singleResultId = 0;
 const isQuitting = ref(false);
 const isPopstate = ref(false);
@@ -79,9 +85,38 @@ watch(
     { deep: true } // 배열 내부의 변화도 감지
 );
 
+watch(
+	() => musicStore.isLast,
+	async (Last) => {
+	  if (Last) {
+		try {
+		  await local.patch(`/plays/single/${singleResultId}`, {
+			userId: loginUser.id,
+			score: myJaccardScore.value,
+		  });
+		  modalTitle.value = "플레이 완료!";
+		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+		} catch (error) {
+		  modalTitle.value = "오류 발생";
+		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+		}
+		showModal.value = true;
+	  }
+	}
+);
+
 const onClickQuit = () => {
-    isQuitting.value = true;
-    router.push("/room/multi/list");
+    // 확인과 취소를 묻는 경고창을 띄웁니다.
+    const answer = window.confirm("정말로 방을 나가시겠습니까?");
+    
+    // 사용자가 확인 버튼을 누른 경우에만 나가기를 진행합니다.
+    if (answer) {
+        isQuitting.value = true;
+        router.push("/room/multi/list");
+    } else {
+        // 취소를 눌렀을 경우, 아무런 동작도 하지 않습니다.
+        console.log("방 나가기가 취소되었습니다.");
+    }
 }
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
@@ -104,16 +139,44 @@ const onStartRecordingEmit = async () => {
 
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 // Todo: 모달창으로 성공, 실패를 알려줄 것.
-watch(() => musicStore.isLast,
-  (Last) => {
-    local.patch(`/plays/single/${singleResultId}`, {
-      userId: loginUser.id,
-      score: myJaccardScore.value
-    }).catch(error => {
-      console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
-    });
-  }
+// watch(() => musicStore.isLast,
+//   (Last) => {
+//     local.patch(`/plays/single/${singleResultId}`, {
+//       userId: loginUser.id,
+//       score: myJaccardScore.value
+//     }).catch(error => {
+//       console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
+//     });
+//   }
+// );
+
+// 악보를 끝까지 완주했을 때, 호출되는 메서드
+watch(
+	() => musicStore.isLast,
+	async (Last) => {
+	  if (Last) {
+		try {
+		  await local.patch(`/plays/single/${singleResultId}`, {
+			userId: loginUser.id,
+			score: myJaccardScore.value,
+		  });
+		  modalTitle.value = "플레이 완료!";
+		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+		} catch (error) {
+		  modalTitle.value = "오류 발생";
+		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+		}
+		showModal.value = true;
+	  }
+	}
 );
+
+// 모달을 닫는 함수
+const closeModal = () => {
+  showModal.value = false;
+};
+
+
 
 // 혼자 연습하기 방에서 연주 도중 방을 나갔을 때, 호출되는 메서드
 // 경고창을 띄워서 해당 연습 기록은 저장되지 않습니다 문구를 보여줄 것.
@@ -207,14 +270,23 @@ onBeforeRouteLeave(async (to, from, next) => {
       <div class="up">
         <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
       </div>
-      <div class="down">
+      <div class="down gap-1">
         <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
-        <div class="h-[198px] w-[198px] bg-black flex flex-col justify-evenly items-center">
-          <div class="flex flex-grow flex-1 h-[50%] items-center justify-center cursor-pointer rounded-xl bg-yellow-300" @click="onClickQuit">
+        <div class="h-[198px] w-[198px] flex flex-col justify-evenly items-center">
+          <div class="flex flex-grow flex-1 h-[40%] w-full items-center justify-center cursor-pointer rounded-xl text-3xl font-bold" 
+          @click="onClickQuit"
+          :style="{
+                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
+                            backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat' }">
               나가기
           </div>
         </div>
       </div>
+
+	  <!-- 모달 컴포넌트 -->
+	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />
     </div>
 </template>
 
@@ -232,7 +304,6 @@ onBeforeRouteLeave(async (to, from, next) => {
 .up {
   background-color: #fff;
   height: 72%;
-  margin-bottom: 20px;
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
