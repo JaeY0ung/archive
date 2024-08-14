@@ -23,7 +23,7 @@ onMounted(() => {
 
 <template>
 	<div>
-		<label class="input input-bordered flex items-center gap-2 rounded-badge">
+		<label class="input input-bordered flex items-center gap-2 rounded-badge custom-border">
 			<input v-model="keyword" @keyup.enter="moveToSheetSearchPageWithKeyword" type="text" class="grow"
 				placeholder="악보 검색" />
 			<svg @click="moveToSheetSearchPageWithKeyword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
@@ -36,4 +36,13 @@ onMounted(() => {
 	</div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.custom-border {
+  border: 2px solid #3F80EA; /* 원하는 border 색상으로 변경 */
+}
+.input:focus {
+  border-color: #3F80EA; /* 입력 포커스 시 테두리 색상 유지 */
+  outline: none; /* 기본 아웃라인 제거 */
+}
+
+</style>

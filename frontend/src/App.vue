@@ -25,7 +25,7 @@ const route = useRoute();
             <LeftNavigation class="flex h-full flex-shrink-0 flex-col"  :class="{ 'w-[200px]': navVisibility, 'w-0': !navVisibility, }" style="transition: width 0.5s ease" />
             <div class="flex flex-grow flex-col min-h-0 overflow-hidden">
                 <!-- 위 -->
-                <div class="flex h-[60px] w-full flex-row items-center">
+                <div class="flex h-[60px] w-full flex-row items-center bg-white">
                     <div class="flex h-full flex-1 items-center cursor-pointer">
                         <Hamburger class="m-[5px] flex h-[50px] w-[50px] items-center justify-center"  @click="changeNavVisibility" @touchend="changeNavVisibility"/>
                         <RouterLink class="flex h-[25px] items-center justify-center" :to="{ name: 'main' }" >
@@ -41,6 +41,9 @@ const route = useRoute();
                         <MyProfile />
                     </div>
                 </div>
+              <!-- 간격을 위해 상단 바 아래에 margin 추가 -->
+              <div class="h-[10px] w-full"></div>
+
                 <!-- 실제 뷰 -->
                 <div class="h-[90%] overflow-hidden px-[15px] pl-[55px] scrollbar-hide"  @click="closeNav" >
                     <RouterView :key="route.fullPath" />
@@ -66,4 +69,5 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
+
 </style>
