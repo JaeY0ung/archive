@@ -246,6 +246,7 @@ const handleBeforeUnload = async () => {
         sendExit();
         sendEndDuringPlay();
     }
+    musicStore.isLast = 0;
     musicStore.f1Score = [];
     musicStore.jaccardScore = [];}
 ;
@@ -264,6 +265,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(()=>{
+    stompClient.disconnect();
     // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정 해제
     window.addEventListener('popstate', () => {
     isPopstate.value = true;
@@ -272,6 +274,7 @@ onBeforeUnmount(()=>{
 })
 
 onBeforeRouteLeave( async (to, from, next) => {
+    musicStore.isLast = 0;
     if(to.name == from.name){
         isReloading.value = true;
     }
