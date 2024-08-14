@@ -25,13 +25,9 @@ if(props.user.userImg == null){
 '위'  : SinglePlayView, MultiPlayView로 올려서 UserCardForPlay로 내려주는 방식을 사용하자.
 */
 
-// 반응형 계산을 위한 computed 속성
-const f1Score = props.f1Score;
-
-const jaccardScore = props.jaccardScore;
 
 const resultScore = computed(() => {
-    return Math.min(100,(Math.max(0,(f1Score.value - 30)) + Math.max(0,(jaccardScore.value - 20))) / 120)*100;
+    return Math.min(100,(Math.max(0,(props.f1Score - 30)) + Math.max(0,(props.jaccardScore - 20))) / 120)*100;
 });
 
 // 숫자에 해당하는 이미지를 반환하는 함수
