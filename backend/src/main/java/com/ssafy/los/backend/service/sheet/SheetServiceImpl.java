@@ -254,6 +254,7 @@ public class SheetServiceImpl implements SheetService {
                     .uploader(loginUser)
                     .level(sheetUploadForm.getLevel())
                     .title(sheetUploadForm.getTitle())
+                    .price(500)
                     .song(sheetUploadForm.getSongId() != null ? songRepository.findById(
                             sheetUploadForm.getSongId()).orElse(null) : null)
                     .uuid(uuid)
