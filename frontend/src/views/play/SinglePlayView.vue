@@ -12,6 +12,7 @@ import { onMounted } from "vue";
 import { onBeforeUnmount } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import PlayModal from "@/common/modal/PlayModal.vue";
+import Swal from 'sweetalert2';
 
 const route = useRoute();
 const router = useRouter();
@@ -53,6 +54,13 @@ if (musicStore.jaccard.length !== 0) {
     );
 }
 
+const resultScore = ref(0);
+
+const updateResultScore = (newScore) => {
+  resultScore.value = newScore;
+  console.log('Updated result score:', resultScore.value);
+};
+
 // watch를 사용하여 f1 배열의 변화를 감지하고 myF1Score를 업데이트
 watch(
     () => musicStore.f1,
@@ -87,22 +95,58 @@ watch(
     { deep: true } // 배열 내부의 변화도 감지
 );
 
+// watch(
+// 	() => musicStore.isLast,
+// 	async (Last) => {
+// 	  if (Last) {
+// 		try {
+// 		  await local.patch(`/plays/single/${singleResultId}`, {
+// 			userId: loginUser.id,
+// 			score: myJaccardScore.value,
+// 		  });
+// 		  modalTitle.value = "플레이 완료!";
+// 		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+// 		} catch (error) {
+// 		  modalTitle.value = "오류 발생";
+// 		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+// 		}
+// 		showModal.value = true;
+// 	  }
+// 	}
+// );
+
 watch(
 	() => musicStore.isLast,
 	async (Last) => {
 	  if (Last) {
 		try {
-		  await local.patch(`/plays/single/${singleResultId}`, {
+		  const response = await local.patch(`/plays/single/${singleResultId}`, {
 			userId: loginUser.id,
 			score: myJaccardScore.value,
 		  });
-		  modalTitle.value = "플레이 완료!";
-		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+
+		  Swal.fire({
+			title: '싱글 플레이 결과',
+			html: `
+            <p>
+              플레이어: ${loginUser.nickname}<br>
+              최종 점수: ${resultScore.value}점<br>
+            </p>
+          `,
+			icon: resultScore.value >= 80 ? 'success' : 'error',
+			confirmButtonText: '닫기'
+		  }).then(() => {
+			// 필요한 경우 추가 작업 수행
+		  });
+
 		} catch (error) {
-		  modalTitle.value = "오류 발생";
-		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+		  Swal.fire({
+			title: '오류 발생',
+			text: '플레이 데이터를 저장하는 중 오류가 발생했습니다.',
+			icon: 'error',
+			confirmButtonText: '확인'
+		  });
 		}
-		showModal.value = true;
 	  }
 	}
 );
@@ -169,6 +213,7 @@ watch(
 		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
 		}
 		showModal.value = true;
+
 	  }
 	}
 );
@@ -279,7 +324,7 @@ onUnmounted(()=>{
         <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
       </div>
       <div class="down gap-1">
-        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
+        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" @updateResultScore="updateResultScore" />
         <div class="h-[198px] w-[198px] flex flex-col justify-evenly items-center">
           <div class="flex flex-grow flex-1 h-[40%] w-full items-center justify-center cursor-pointer rounded-xl text-3xl font-bold" 
           @click="onClickQuit"
@@ -294,7 +339,7 @@ onUnmounted(()=>{
       </div>
 
 	  <!-- 모달 컴포넌트 -->
-	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />
+<!--	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />-->
     </div>
 </template>
 

@@ -25,7 +25,7 @@ const priceInfo = ref([
 
 const searchFilter = ref({
 	keyword: "", // 검색어 없음
-	levels: [0, 1, 2, 3, 4, 5], // 모든 레벨
+	levels: [1, 2, 3, 4, 5], // 모든 레벨
 	genres: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // 모든 장르
 	prices: [0, 1], // 무료, 유료 (전부)
 	successStatuses: [], // 필터 없음
@@ -47,7 +47,7 @@ const search = async () => {
             page: searchFilter.value.page,
 		},
         ({ data }) => { 
-            if (searchFilter.value.page == 1) {
+            if (searchFilter.value.page == 0) {
                 sheets.value = data;
             } else {
                 sheets.value = [...sheets.value, ...data];
