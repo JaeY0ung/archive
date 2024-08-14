@@ -16,12 +16,19 @@ const onClickSheetCard = (sheet) => {
     emit('send-sheet-id', sheet.id);
 };
 
+// onMounted(() => {
+//     if (props.sheets && props.sheets.length > 0) {
+//         selectedSheet.value = props.sheets[0];
+//         emit('send-sheet-id', props.sheets[0].id); // 첫 번째 시트의 ID를 emit
+//     }
+// });
+
 onMounted(() => {
-    if (props.sheets && props.sheets.length > 0) {
-        selectedSheet.value = props.sheets[0];
-        emit('send-sheet-id', props.sheets[0].id); // 첫 번째 시트의 ID를 emit
-    }
+    // 첫 번째 시트를 자동으로 선택하지 않도록 onMounted에서 초기 선택 제거
+    selectedSheet.value = null;
+    // 사용자가 직접 첫 번째 선택을 해야 selectedSheet에 값이 들어가게 함
 });
+
 </script>
 
 <template>
@@ -45,7 +52,6 @@ onMounted(() => {
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
                         }"
-                
                 > <  뒤로 가기</div>
             <!-- 2. 선택 악보 -->
             <div class="flex flex-col justify-center items-center h-[60%] m-4 gap-1">
@@ -101,10 +107,10 @@ onMounted(() => {
                             
 
                             <img v-if="selectedSheet.level === 0" src="@/assets/img/sheet_play/number0.png" alt="Level 1" class="w-[90%] h-[90%] object-contain p-2" />
-                            <img v-else-if="selectedSheet.level === 1" src="@/assets/img/sheet_play/number1.png" alt="Level 1" class="w-[90%] h-[90%]  object-contain pb-4" />
-                            <img v-else-if="selectedSheet.level === 2" src="@/assets/img/sheet_play/number2.png" alt="Level 2" class="w-[90%] h-[90%]  object-contain pb-4" />
-                            <img v-else-if="selectedSheet.level === 3" src="@/assets/img/sheet_play/number3.png" alt="Level 3" class="w-[90%] h-[90%]  object-contain pb-4" />
-                            <img v-else-if="selectedSheet.level === 4" src="@/assets/img/sheet_play/number4.png" alt="Level 4" class="w-[90%] h-[90%]  object-contain pb-4" />
+                            <img v-else-if="selectedSheet.level === 1" src="@/assets/img/sheet_play/number1.png" alt="Level 1" class="w-[90%] h-[90%]  object-contain p-2" />
+                            <img v-else-if="selectedSheet.level === 2" src="@/assets/img/sheet_play/number2.png" alt="Level 2" class="w-[90%] h-[90%]  object-contain p-2" />
+                            <img v-else-if="selectedSheet.level === 3" src="@/assets/img/sheet_play/number3.png" alt="Level 3" class="w-[90%] h-[90%]  object-contain p-2" />
+                            <img v-else-if="selectedSheet.level === 4" src="@/assets/img/sheet_play/number4.png" alt="Level 4" class="w-[90%] h-[90%]  object-contain p-2" />
                             <span v-else class="text-xl font-bold">{{ selectedSheet.level }}</span> <!-- level이 1, 2, 3이 아닐 때 -->
                         </div>
                     
