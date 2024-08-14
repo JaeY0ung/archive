@@ -202,7 +202,7 @@
                 jaccard.value.push(res.data.similarity_results.jaccard_similarity);
                 isLast.value = res.data.isLast == 1;
             } catch (err) {
-                console.error('파일 업로드 실패: ', err);
+                console.error('채점 실패: ', err);
             }
         };        
 
