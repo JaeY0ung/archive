@@ -90,16 +90,28 @@ const goToSheetSearchListView = (sort) => {
 </script>
 
 <template>
+<!--  <div class="w-full h-full flex flex-col justify-between">-->
+<!--    <div class="w-full flex flex-col justify-start gap-5">-->
+<!--      <div class="h-[45vh] flex flex-row">-->
+<!--        <div class="flex-6 p-2 flex justify-center items-center">-->
+<!--          <RecentPlaySheetCard :sheet="sheet" />-->
+<!--        </div>-->
+<!--        <div class="flex-3 h-full"></div>-->
+<!--        <div class="container flex-1 h-full">-->
+<!--          <RankingList/>-->
+<!--        </div>-->
+<!--      </div>-->
 	<div class="w-full h-full flex flex-col justify-between">
 		<div class="w-full flex flex-col justify-start gap-5">
 			<div class="h-[45vh] flex flex-row">
 				<div class="flex-6 p-2 flex justify-center items-center">
 					<RecentPlaySheetCard :sheet="sheet" />
 				</div>
+          <dib class="flex-3 h-full"></dib>
 				<MainSwipeComponent class="flex-1" :sheets="popularSheets" :title="'인기'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('POPULAR')"/>
 				<MainSwipeComponent class="flex-1" :sheets="newSheets" :title="'최신'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('LATEST')"/>
 				<MainSwipeComponent class="flex-1" :sheets="recommendSheets" :title="'추천'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('RECOMMNED')"/>
-				<div class="flex-1 h-full">
+				<div class="container flex-1 h-full">
 					<RankingList/>
 				</div>
 			</div>
@@ -130,4 +142,18 @@ const goToSheetSearchListView = (sort) => {
 	border-radius: 10px;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+ .container {
+   border: 1px solid #C9DEFF;
+   border-radius: 12px;
+   padding: 30px 28px;
+   box-sizing: border-box;
+   box-shadow: 0px 0px 6px 1px rgba(63, 128, 234, 0.2);
+ }
+.container:hover {
+  border-color: #007aff; /* 커서를 올렸을 때 배경색 변경 */
+  box-shadow: 0px 4px 18px rgba(0, 122, 255, 0.3);
+  border-width: 2px;
+}
+
 </style>

@@ -10,11 +10,11 @@ const emit = defineEmits(['goToSheetDetail', 'goToSheetSearchListView'])
 </script>
 
 <template>
-    <div class="w-full h-full flex p-4 bg-white/50 rounded-2xl">
+    <div class="container w-full h-full flex p-4 bg-white/50 rounded-2xl">
         <div class="w-full flex flex-col">
             <div class="w-full mb-2 flex justify-between mr-1">
                 <div class="text-xl bold">{{ title }}</div>
-                <div class="flex bold" @click="emit('goToSheetSearchListView')">
+                <div class="flex bold more-button" @click="emit('goToSheetSearchListView')">
                     <div class="flex items-center mr-2">더보기</div>
                     <div class="flex items-center">
                         <img :src="require('@/assets/img/right-arrow.png')" alt="오른쪽 화살표" width="15px" height="15px" class="max-h-[15px] ">
@@ -37,4 +37,23 @@ const emit = defineEmits(['goToSheetDetail', 'goToSheetSearchListView'])
 
 <style scoped>
 
+.container {
+  border: 1px solid #C9DEFF;
+  border-radius: 12px;
+  padding: 30px 28px;
+  box-sizing: border-box;
+  box-shadow: 0px 0px 6px 1px rgba(63, 128, 234, 0.2);
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.scroll-y {
+  overflow-y: auto;
+}
+
+.more-button {
+  cursor: pointer; /* 마우스 모양을 포인터로 변경 */
+}
 </style>
