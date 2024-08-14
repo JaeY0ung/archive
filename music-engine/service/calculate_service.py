@@ -45,6 +45,7 @@ def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes
     else:
         first_matched_time = last_matched_time = min_pitch = max_pitch = 0
 
+
     for note in notes1:
         if note in matched_notes:
             colors1.append('red')  # Original의 빨간점 (매칭된 노트)
@@ -210,9 +211,17 @@ def calculate_similarity(original_file, piano_file, start_time, end_time):
         notes1_segment, notes2, min_shift, max_shift, step, max_discard_time, time_tolerance, pitch_tolerance)
 
     # 원본의 가장 높은 음보다 높거나 가장 낮은 음보다 낮은 음을 필터링
-    min_pitch = min(note[1] for note in notes1_segment)
-    max_pitch = max(note[1] for note in notes1_segment)
-    filtered_aligned_notes = [note for note in best_aligned_notes if min_pitch <= note[1] <= max_pitch]
+    if notes1_segment:
+        min_pitch = min(note[1] for note in notes1_segment)
+        max_pitch = max(note[1] for note in notes1_segment)
+    else:
+        min_pitch = max_pitch = None
+    # 원본의 가장 높은 음보다 높거나 가장 낮은 음보다 낮은 음을 필터링
+    if min_pitch is not None and max_pitch is not None:
+        filtered_aligned_notes = [note for note in best_aligned_notes if min_pitch <= note[1] <= max_pitch]
+    else:
+        filtered_aligned_notes = best_aligned_notes  # `notes1_segment`가 비어 있는 경우 필터링하지 않음
+
     ignored_notes = [note for note in notes2 if note not in filtered_aligned_notes or note[1] < min_pitch or note[1] > max_pitch]
 
     # 매칭되지 않은 노트
