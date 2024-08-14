@@ -64,7 +64,7 @@ console.log(routeName);
                 <div class="flex ml-4 justify-between h-full items-center">
                     <div class="text-black text-lg w-full">현재 스코어</div>
                     <div class="text-gray-900 flex items-center h-full w-[80%]">
-                        {{ resultScore.toFixed(2) }}
+                        {{ resultScore }}
                     </div>
                 </div>
             </div>
