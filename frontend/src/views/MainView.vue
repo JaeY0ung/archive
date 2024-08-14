@@ -20,6 +20,7 @@ const getPopularsheets = async () => {
 		({ data }) => {
 			if (!data) return;
 			popularSheets.value = data;
+			console.log(data);
 		}
 	)
 }
