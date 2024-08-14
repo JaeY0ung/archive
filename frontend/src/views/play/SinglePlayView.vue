@@ -88,7 +88,7 @@ watch(
 		try {
 		  const response = await local.patch(`/plays/single/${singleResultId}`, {
         userId: loginUser.id,
-        score: Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 ),
+        score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
 		  });
       console.log("결과 저장 완료");
 		  Swal.fire({
@@ -158,7 +158,7 @@ watch(
       try {
         await local.patch(`/plays/single/${singleResultId}`, {
           userId: loginUser.id,
-          score: Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 ),
+          score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
         });
         modalTitle.value = "플레이 완료!";
         modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
