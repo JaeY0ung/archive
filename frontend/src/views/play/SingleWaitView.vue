@@ -97,18 +97,14 @@ onUnmounted(() => {});
         class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-80px)] overflow-hidden py-4 rounded-xl"
     >
         <div
-            class="flex flex-col w-full max-w-[95%] h-full max-h-[95%] rounded-xl shadow-xl relative bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200"
+            class="flex flex-col w-full max-w-[95%] h-full max-h-[95%] rounded-xl shadow-xl relative "
         >
             <!--위 -->
             <div
-                class="relative w-full h-3/4 rounded-t-xl bg-white border-gray-500 shadow-2xl overflow-hidden"
+                class="relative w-full h-3/4 rounded-t-xl bg-white shadow-2xl overflow-hidden"
             >
                 <div
                     class="absolute inset-0 bg-cover bg-center opacity-70"
-                    :style="{
-                        backgroundImage: `url(${require('@/assets/img/sheet_play/play-background.png')})`,
-                        backgroundBlendMode: 'multiply',
-                    }"
                 ></div>
                 <SelectCategory
                     v-if="isInCategoryView"
@@ -125,37 +121,23 @@ onUnmounted(() => {});
             </div>
             <!-- 아래 -->
             <div
-                class="flex flex-grow h-[200px] w-full justify-evenly items-center rounded-b-xl mt-1 "
+                class="flex flex-grow h-[200px] w-full justify-between items-center rounded-b-xl mt-1 "
                 style="border-top: 2px solid #fef9c3 ;"
             >
-                <UserCardForPlay
+                <UserCardForPlay 
+                    class="custom-shadow w-[40vw]"
                     :user="loginUser"
                 />
-                <div class="flex w-[400px] h-full p-[5px] gap-3 m-1 bg-white bg-opacity-0 font-bold">
-                    <!-- <div class="flex flex-grow flex-1 items-center justify-center cursor-pointer rounded-xl bg-yellow-100 bg-opacity-50 text-2xl shadow-md" @click="onClickStart">
-                        연주하기
-                    </div> -->
-                    <div class="button-style flex flex-grow flex-1 items-center justify-center cursor-pointer text-2xl shadow-md"
+                <div class="flex w-[40vw] h-full p-[5px] gap-3 m-1 bg-white bg-opacity-0 font-bold">
+
+                    <div class="custom-shadow w-[50%] bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                         @click="onClickStart"
-                        :style="{
-                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_blue_test.png')})`,
-                            backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                        }">
+                        >
                         연주하기
                     </div>
-                    <!-- <div class="flex flex-grow flex-1 items-center justify-center cursor-pointer rounded-xl bg-purple-200 bg-opacity-50 text-2xl shadow-md" @click="onClickQuit">
-                        나가기
-                    </div> -->
-                    <div class="button-style flex flex-grow flex-1 items-center justify-center cursor-pointer text-2xl shadow-md"
+                    <div class="custom-shadow w-[50%] bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                         @click="onClickQuit"
-                        :style="{
-                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
-                            backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                        }">
+                        >
                         나가기
                     </div>
                 </div>
@@ -168,9 +150,7 @@ onUnmounted(() => {});
 .btn {
     @apply font-bold py-2 px-4 rounded transition duration-300 ease-in-out;
 }
-.btn-primary {
-    @apply bg-blue-500 text-white hover:bg-blue-700;
-}
+
 
 .button-style {
     @apply flex flex-grow flex-1 items-center justify-center cursor-pointer rounded-xl;
@@ -180,5 +160,10 @@ onUnmounted(() => {});
 .button-style:active {
     transform: scale(0.7);
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.custom-shadow {
+    @apply rounded-xl bg-white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
 }
 </style>
