@@ -20,6 +20,7 @@ const getPopularsheets = async () => {
 		({ data }) => {
 			if (!data) return;
 			popularSheets.value = data;
+			console.log(data);
 		}
 	)
 }
@@ -87,7 +88,7 @@ const goToSheetSearchListView = (sort) => {
 <template>
 	<div class="w-full h-full flex flex-col justify-between">
 		<div class="w-full flex flex-col justify-start gap-5">
-			<div class="h-[40%] flex flex-row">
+			<div class="h-[45vh] flex flex-row">
 				<div class="flex-6 p-2 flex justify-center items-center">
 					<RecentPlaySheetCard :sheet="sheet" />
 				</div>
@@ -99,7 +100,7 @@ const goToSheetSearchListView = (sort) => {
 				</div>
 			</div>
 
-			<div class="h-[60%] flex flex-row gap-2">
+			<div class="h-[40vh] flex flex-row gap-2">
 				<MainViewComponent  :sheets="popularSheets" :title="'인기'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('POPULAR')" />
 				<MainViewComponent :sheets="newSheets" :title="'최신'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('LATEST')"/>
 				<MainViewComponent :sheets="recommendSheets" :title="'추천'" @goToSheetDetail="goToSheetDetail" @goToSheetSearchListView="goToSheetSearchListView('RECOMMNED')"/>
