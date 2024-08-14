@@ -124,6 +124,8 @@
         };
 
         const startRecording = async () => {
+            f1.value = [];  // 녹음 시작 시점에 배열을 초기화
+            jaccard.value = [];  // 녹음 시작 시점에 배열을 초기화
             startMusic();
             audioBlobs.value = [];
             const stream = await navigator.mediaDevices.getUserMedia({
