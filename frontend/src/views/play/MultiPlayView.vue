@@ -99,7 +99,7 @@ function connect() {
               opponentJaccardScore.value = scoreData.jaccardScore;
             }
             // 상대방의 점수를 받았을 때, isLast가 1이라면(채점이 모두 끝났다면), update한다.
-            if(musicStore.isLast == 1){
+            if(musicStore.isLast == true){
                 const myScore = parseFloat(myJaccardScore.value);
                 const otherScore = parseFloat(opponentJaccardScore.value);
                 local.patch(`/plays/multi/${multi_result_id}`, {

@@ -39,7 +39,7 @@ const goToSheetDetail = (sheetId) => {
 </script>
 
 <template>
-    <div class="flex justify-between items-center bg-white shadow-lg rounded-3xl p-4 relative"  @click="goToSheetDetail(sheet.id)">
+    <div class="container flex justify-between items-center bg-white shadow-lg rounded-3xl p-4 relative"  @click="goToSheetDetail(sheet.id)">
         <!-- 왼쪽 이미지 공간 -->
         <div class="flex justify-center items-center w-[200px] h-[200px] rounded-3xl bg-white shadow-inner overflow-hidden">
             <img  :src="sheet.imageUrl" alt="Sheet Image"  class="w-[90%] h-[90%]  object-contain" />
@@ -74,9 +74,24 @@ const goToSheetDetail = (sheetId) => {
 
 <style scoped>
 .line::before {
-    content: "";
-    display: block;
-    border-left: 1px solid gray;
-    height: 100%;
+  content: "";
+  display: block;
+  border-left: 1px solid gray;
+  height: 100%;
+}
+ .container {
+   border: 1px solid #C9DEFF;
+   border-radius: 12px;
+   padding: 30px 28px;
+   box-sizing: border-box;
+   box-shadow: 0px 0px 6px 1px rgba(63, 128, 234, 0.2);
+ }
+
+.bold {
+  font-weight: bold;
+}
+
+.scroll-y {
+  overflow-y: auto;
 }
 </style>

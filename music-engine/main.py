@@ -59,7 +59,7 @@ class FileRequest(BaseModel):
 convert_service = ConvertService()
 
 @app.post("/playing/single")
-async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singleResultId: str = Form(...)):
+async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singleResultId: str = Form(...), nickname: str = Form(...)):
     logger.info("single_result_id" + singleResultId)
     try:
         # 파일명에 포함된 숫자 추출 (file_number)
@@ -69,8 +69,8 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
         else:
             file_number = "0"
 
-        # 파일명을 uuid와 file_number 조합으로 변경
-        base_filename = f"{uuid}_{file_number}"
+        #파일명을 nickname과 file_number 조합으로 변경
+        base_filename = f"{nickname}_{file_number}"
         original_file_name = f"{base_filename}.webm"
         wav_file_name = f"{base_filename}.wav"
         midi_file_name = f"{base_filename}.mid"
@@ -143,13 +143,11 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
                 response.raise_for_status()  # HTTP 오류 발생 시 예외를 던짐
 
                 # GPU 서버로부터 변환된 MIDI 파일 데이터를 수신
-                midi_file_name = f"result_{file_number}.mid"
-                midi_data = response.content
 
                 # MIDI 데이터를 임시 파일로 저장
                 midi_file_location = os.path.join(UPLOAD_DIR, midi_file_name)
                 with open(midi_file_location, "wb") as midi_file:
-                    midi_file.write(midi_data)
+                    midi_file.write(response.content)
 
             except requests.exceptions.RequestException as e:
                 logger.error(f"GPU 서버와의 통신 중 오류 발생: {str(e)}")
