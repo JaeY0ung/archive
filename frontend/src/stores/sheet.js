@@ -107,6 +107,7 @@
 
         const startMusic = () => {
             isPlay.value = true;
+            isLast.value = false;
             playbackManager.value.play();
             timingSource.value.start();
         };
@@ -202,11 +203,6 @@
                 
                 f1.value.push(res.data.similarity_results.f1_score);
                 jaccard.value.push(res.data.similarity_results.jaccard_similarity);
-                last_measure.value = res.data.last_measure;
-                check_measure.value = check_measure.value + 1;
-                if(last_measure.value == check_measure.value){
-                    isLast.value = 1;
-                }
             } catch (err) {
                 console.error('채점 실패: ', err);
             }
