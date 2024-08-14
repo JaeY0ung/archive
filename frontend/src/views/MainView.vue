@@ -20,9 +20,9 @@ const getPopularsheets = async () => {
 		({ data }) => {
 			if (!data) return;
 			popularSheets.value = data;
-			console.log(data);
 		}
 	)
+	console.log(popularSheets.value);
 }
 
 const getNewSheets = async () => {
@@ -33,6 +33,7 @@ const getNewSheets = async () => {
 			newSheets.value = data;
 		}
 	)
+	console.log(newSheets.value);
 }
 
 const getRandomSheets = async () => {
@@ -43,6 +44,7 @@ const getRandomSheets = async () => {
 			randomSheets.value = data;
 		}
 	)
+	console.log(randomSheets.value);
 }
 
 const getRecommendSheets = async () => {
@@ -53,6 +55,7 @@ const getRecommendSheets = async () => {
 			recommendSheets.value = data;
 		}
 	)
+	console.log(recommendSheets.value);
 	// await getRecommendSheetByUserRecentPlay(
 	// 	(res) => {
 	// 		if (res && res.data) {
@@ -81,6 +84,7 @@ const goToSheetDetail = (sheetId) => {
 const goToSheetSearchListView = (sort) => {
 	router.push({ name: 'sheetSearch', query: { sort } });
 }
+
 
 
 </script>
