@@ -230,6 +230,10 @@ const onClickQuit = () => {
 
 
 const handleBeforeUnload = async () => {
+
+    // 유저가 배틀 페이지를 벗어나면 waiting으로 전환.
+    playStore.changeStatus(route.params.roomId, "waiting");
+
     if(isQuitting.value || isPopstate.value || isReloading.value){
         musicStore.f1Score = [];
         musicStore.jaccardScore = [];

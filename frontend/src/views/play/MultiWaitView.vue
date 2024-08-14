@@ -286,6 +286,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
 
   if (to.name == 'multiPlay') {
+    playStore.changeStatus(route.params.roomId, "playing");
     next();
   } else {
     const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");

@@ -113,11 +113,17 @@ const rankings = ref([
 
             <div class="w-1/4 flex justify-end items-center space-x-2">
                 <span :class="{
-                        'bg-green-500': room.status === '게임 중',
-                        'bg-yellow-500': room.status === '게임 준비 중'
+                        'bg-green-500': room.isPlaying,
+                        'bg-yellow-500': room.isPlaying
                     }"
                     class="w-4 h-4 rounded-full"></span>
-                <span class="text-sm text-gray-600">{{ room.status }}</span>
+                <span v-if="room.isPlaying" class="text-sm text-gray-600"> 게임중입니다. </span>
+                <span v-if="!room.isPlaying" :class="{
+                        'bg-green-500': room.isPlaying,
+                        'bg-yellow-500': room.isPlaying
+                    }"
+                    class="w-4 h-4 rounded-full"></span>
+                <span class="text-sm text-gray-600"> 대기중입니다. </span>
             </div>
             </li>
         </ul>
@@ -129,7 +135,7 @@ const rankings = ref([
 </template>
 
 <style scoped>
-.hover\:bg-opacity-30:hover {
+.hover:bg-opacity-30:hover {
   background-opacity: 0.3;
 }
 

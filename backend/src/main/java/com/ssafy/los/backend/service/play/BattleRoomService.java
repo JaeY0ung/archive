@@ -7,6 +7,7 @@ import com.ssafy.los.backend.domain.repository.play.BattleRoomRepository;
 import com.ssafy.los.backend.dto.play.request.BattleRoomRegisterDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BattleRoomService {
@@ -39,6 +41,7 @@ public class BattleRoomService {
 
         // Redis에 방 ID를 키로 하여 유저 리스트에 추가
         String redisKey = "battleRoom:" + battleRoom.getId();
+        String playingKey = "isPlaying:" + battleRoom.getId();
 
         // Redis에 value로 넣을 List 생성,
         ListOperations<String, Long> listOperations = redisTemplate.opsForList();
@@ -46,11 +49,15 @@ public class BattleRoomService {
         // redisKey를 key값으로 하는 list에 유저의 id를 오른쪽에 추가한다.
         listOperations.rightPush(redisKey, loginUser.getId());
 
+        // Redis에 방 상태를 저장
+        redisTemplate.opsForValue().set(playingKey, false);
+
         // 방과 해당 방에 참여한 인원을 묶어서 보내줄 것이다.
         Map<String, Object> result = new HashMap<>();
 
         result.put("info", battleRoom);
         result.put("occupancy", 1);
+        result.put("isPlaying", false);
 
         return result;
     }
@@ -97,11 +104,18 @@ public class BattleRoomService {
         if (listOperations.size(redisKey) == 0) {
             // redis의 키값쌍을 삭제
             redisTemplate.delete(redisKey);
+            redisTemplate.delete("isPlaying:" + roomId);
 
             // mysql에서의 방 정보 삭제
             deleteBattleRoomById(roomId);
         }
+    }
 
+    // 방의 플레이 상태를 변경해주는 메서드
+    public void updateBattleRoomPlayingStatus(Long roomId, boolean isPlaying) {
+
+        String isPlayingKey = "isPlaying:" + roomId;
+        redisTemplate.opsForValue().set(isPlayingKey, isPlaying);
     }
 
     // room id를 매개변수로 room 정보를 가져오는 메서드
@@ -127,10 +141,14 @@ public class BattleRoomService {
             // Redis에서 유저 리스트 조회
             String redisKey = "battleRoom:" + room.getId();
             ListOperations<String, Long> listOperations = redisTemplate.opsForList();
+            Boolean isPlaying = (Boolean) redisTemplate.opsForValue().get("isPlaying:" + room.getId());
+
+            System.out.println(isPlaying);
 
             Map<String, Object> result = new HashMap<>();
             result.put("info", room);
             result.put("occupancy", listOperations.size(redisKey));
+            result.put("isPlaying", isPlaying);
 
             results.add(result);
         }
