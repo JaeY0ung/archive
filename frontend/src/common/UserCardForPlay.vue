@@ -61,7 +61,7 @@ console.log(routeName);
             </div>
             <hr class="bg-gray-900 ml-5 w-[90%]">
             <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-start justify-center h-full pl-[10px]">
-                <div class="flex ml-4 justify-between h-full items-center">
+                <div class="flex ml-4 justify-between w-full h-full items-center">
                     <div class="text-black text-lg w-full">현재 스코어</div>
                     <div class="text-gray-900 flex items-center h-full w-[80%]">
                         {{ resultScore }}
