@@ -80,25 +80,6 @@ watch(
     { deep: true } // 배열 내부의 변화도 감지
 );
 
-// watch(
-// 	() => musicStore.isLast,
-// 	async (Last) => {
-// 	  if (Last) {
-// 		try {
-// 		  await local.patch(`/plays/single/${singleResultId}`, {
-// 			userId: loginUser.id,
-// 			score: myJaccardScore.value,
-// 		  });
-// 		  modalTitle.value = "플레이 완료!";
-// 		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
-// 		} catch (error) {
-// 		  modalTitle.value = "오류 발생";
-// 		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
-// 		}
-// 		showModal.value = true;
-// 	  }
-// 	}
-// );
 
 watch(
 	() => musicStore.isLast,
@@ -115,7 +96,7 @@ watch(
 			html: `
             <p>
               플레이어: ${loginUser.nickname}<br>
-              최종 점수: ${Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 )}점<br>
+              최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 )}점<br>
             </p>
           `,
 			icon: Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 ) >= 80 ? 'success' : 'error',
