@@ -5,13 +5,14 @@ import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import { useRoute } from "vue-router";
 import { useMusicStore } from "@/stores/sheet";
-import { ref } from "vue";
+import { onUnmounted, ref } from "vue";
 import { watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import { onMounted } from "vue";
 import { onBeforeUnmount } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import PlayModal from "@/common/modal/PlayModal.vue";
+import Swal from 'sweetalert2';
 
 const route = useRoute();
 const router = useRouter();
@@ -53,10 +54,18 @@ if (musicStore.jaccard.length !== 0) {
     );
 }
 
+const resultScore = ref(0);
+
+const updateResultScore = (newScore) => {
+  resultScore.value = newScore;
+  console.log('Updated result score:', resultScore.value);
+};
+
 // watch를 사용하여 f1 배열의 변화를 감지하고 myF1Score를 업데이트
 watch(
     () => musicStore.f1,
     (newF1Scores) => {
+        console.log("F1:  ",musicStore.f1)
         if (newF1Scores.length !== 0) {
             myF1Score.value = Math.floor(
                 (newF1Scores.reduce((acc, score) => acc + score, 0) /
@@ -73,6 +82,7 @@ watch(
 watch(
     () => musicStore.jaccard,
     (newJaccardScores) => {
+      console.log("JC: ",musicStore.jaccard)
         if (newJaccardScores.length !== 0) {
             myJaccardScore.value = Math.floor(
                 (newJaccardScores.reduce((acc, score) => acc + score, 0) /
@@ -85,22 +95,58 @@ watch(
     { deep: true } // 배열 내부의 변화도 감지
 );
 
+// watch(
+// 	() => musicStore.isLast,
+// 	async (Last) => {
+// 	  if (Last) {
+// 		try {
+// 		  await local.patch(`/plays/single/${singleResultId}`, {
+// 			userId: loginUser.id,
+// 			score: myJaccardScore.value,
+// 		  });
+// 		  modalTitle.value = "플레이 완료!";
+// 		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+// 		} catch (error) {
+// 		  modalTitle.value = "오류 발생";
+// 		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+// 		}
+// 		showModal.value = true;
+// 	  }
+// 	}
+// );
+
 watch(
 	() => musicStore.isLast,
 	async (Last) => {
 	  if (Last) {
 		try {
-		  await local.patch(`/plays/single/${singleResultId}`, {
+		  const response = await local.patch(`/plays/single/${singleResultId}`, {
 			userId: loginUser.id,
 			score: myJaccardScore.value,
 		  });
-		  modalTitle.value = "플레이 완료!";
-		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+
+		  Swal.fire({
+			title: '싱글 플레이 결과',
+			html: `
+            <p>
+              플레이어: ${loginUser.nickname}<br>
+              최종 점수: ${resultScore.value}점<br>
+            </p>
+          `,
+			icon: resultScore.value >= 80 ? 'success' : 'error',
+			confirmButtonText: '닫기'
+		  }).then(() => {
+			// 필요한 경우 추가 작업 수행
+		  });
+
 		} catch (error) {
-		  modalTitle.value = "오류 발생";
-		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+		  Swal.fire({
+			title: '오류 발생',
+			text: '플레이 데이터를 저장하는 중 오류가 발생했습니다.',
+			icon: 'error',
+			confirmButtonText: '확인'
+		  });
 		}
-		showModal.value = true;
 	  }
 	}
 );
@@ -129,7 +175,6 @@ const onStartRecordingEmit = async () => {
 			withCredentials: true
 		});
     singleResultId = response.data
-    console.log("싱글 플레이 데이터 저장 성공");
     // sheet.js에서 중간 점수를 보낼 때, singleResultId를 같이 보낼 수 있도록 sheet.js 저장
     musicStore.singleResultId = singleResultId;
     // sheet store에 singleResultId 저장
@@ -154,8 +199,8 @@ const onStartRecordingEmit = async () => {
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 watch(
 	() => musicStore.isLast,
-	async (Last) => {
-	  if (Last) {
+	async (newVal, oldVal) => {
+	  if (newVal) {
 		try {
 		  await local.patch(`/plays/single/${singleResultId}`, {
 			userId: loginUser.id,
@@ -168,6 +213,7 @@ watch(
 		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
 		}
 		showModal.value = true;
+
 	  }
 	}
 );
@@ -242,10 +288,8 @@ onBeforeRouteLeave(async (to, from, next) => {
     if((isPopstate.value == true && to.name == "multiRoomList") || isQuitting.value == true){
       // 뒤로가기를 눌렀을 때, 녹음 중이 아니라면 방목록 페이지로 이동시킨다.
       if(musicStore.isRecording == false){
-        console.log("녹음 중이 아닐 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
         next();
       }else{
-        console.log("녹음 중일 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
         // 뒤로가기를 눌렀을 때, 녹음 중이라면 0점 처리되고, 방목록 페이지로 이동시킨다.
         local.patch(`/plays/single/${singleResultId}`, {
           userId: loginUser.id,
@@ -265,6 +309,12 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
   });
 
+onUnmounted(()=>{
+  musicStore.isLast=false;
+  musicStore.isPlay= false;
+  musicStore.f1 = [];
+  musicStore.jaccard = [];
+})
 
 </script>
 
@@ -274,22 +324,22 @@ onBeforeRouteLeave(async (to, from, next) => {
         <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
       </div>
       <div class="down gap-1">
-        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
+        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" @updateResultScore="updateResultScore" />
         <div class="h-[198px] w-[198px] flex flex-col justify-evenly items-center">
           <div class="flex flex-grow flex-1 h-[40%] w-full items-center justify-center cursor-pointer rounded-xl text-3xl font-bold" 
           @click="onClickQuit"
           :style="{
-                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
-                            backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat' }">
+              backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
+              backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat' }">
               나가기
           </div>
         </div>
       </div>
 
 	  <!-- 모달 컴포넌트 -->
-	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />
+<!--	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />-->
     </div>
 </template>
 

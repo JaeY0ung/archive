@@ -3,7 +3,9 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePlayStore } from '@/stores/play';
 import RoomCreateModal from './RoomCreateModal.vue';
+import { useMusicStore } from '@/stores/sheet';
 
+const musicStore = useMusicStore();
 const router = useRouter();
 const playStore = usePlayStore();
 const isLoading = ref(true);
@@ -16,6 +18,8 @@ isLoading.value = false;
 
 onMounted(() => {
 getAllRooms();
+musicStore.f1 = [];
+musicStore.jaccard = [];
 });
 
 // 배틀 모드 선택
@@ -27,6 +31,8 @@ playStore.setShowModal(true);
 router.push({ name: 'singleWait' });
 }
 };
+
+
 
 // 방 입장
 const enterRoom = async (roomId) => {
@@ -107,11 +113,17 @@ const rankings = ref([
 
             <div class="w-1/4 flex justify-end items-center space-x-2">
                 <span :class="{
-                        'bg-green-500': room.status === '게임 중',
-                        'bg-yellow-500': room.status === '게임 준비 중'
+                        'bg-green-500': room.isPlaying,
+                        'bg-yellow-500': room.isPlaying
                     }"
                     class="w-4 h-4 rounded-full"></span>
-                <span class="text-sm text-gray-600">{{ room.status }}</span>
+                <span v-if="room.isPlaying" class="text-sm text-gray-600"> 게임중입니다. </span>
+                <span v-if="!room.isPlaying" :class="{
+                        'bg-green-500': room.isPlaying,
+                        'bg-yellow-500': room.isPlaying
+                    }"
+                    class="w-4 h-4 rounded-full"></span>
+                <span class="text-sm text-gray-600"> 대기중입니다. </span>
             </div>
             </li>
         </ul>
@@ -123,7 +135,7 @@ const rankings = ref([
 </template>
 
 <style scoped>
-.hover\:bg-opacity-30:hover {
+.hover:bg-opacity-30:hover {
   background-opacity: 0.3;
 }
 

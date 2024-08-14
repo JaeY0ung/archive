@@ -1,28 +1,27 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { watch } from 'vue';
 import { useRouter } from 'vue-router'
 import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
 
 
 const router = useRouter();
 const userStore = useUserStore();
-const { userInfo, isLogin } = storeToRefs(userStore);
 
 const props = defineProps({
     sheet: {
         type: Object,
-        required: true,
+        required: false,
         default: {
-            id: Number,
-            imageUrl: String,
-            title: String,
-            songComposer: String,
-            level: Number,
-            uploaderNickname: String,
-            likeCount: Number,
-            likeStatus: Boolean,
-            difficulty: Number, // 아직 안보냄
+            id: 0,
+            imageUrl: require('@/assets/img/default/song_img.png'),
+            title: "",
+            songComposer: "",
+            level: 0,
+            uploaderNickname: "",
+            likeCount: 0,
+            likeStatus: false,
+            difficulty: 0,
+            songImg: "",
         },
     },
 });
@@ -40,14 +39,10 @@ const goToSheetDetail = (sheetId) => {
 </script>
 
 <template>
-    <div class="flex items-center bg-white shadow-lg rounded-3xl p-4 w-[500px] h-[160px] relative" style="background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(200, 200, 200, 0.8));"  @click="goToSheetDetail(sheet.id)" >
+    <div class="flex justify-between items-center bg-white shadow-lg rounded-3xl p-4 relative"  @click="goToSheetDetail(sheet.id)">
         <!-- 왼쪽 이미지 공간 -->
-        <div class="flex justify-center items-center w-[100px] h-[100px] rounded-3xl bg-white shadow-inner overflow-hidden">
-            <img
-                :src="sheet.imageUrl"
-                alt="Sheet Image"
-                class="w-[90%] h-[90%]  object-contain"
-            />
+        <div class="flex justify-center items-center w-[200px] h-[200px] rounded-3xl bg-white shadow-inner overflow-hidden">
+            <img  :src="sheet.imageUrl" alt="Sheet Image"  class="w-[90%] h-[90%]  object-contain" />
         </div>
         <!-- 텍스트 -->
         <div class="w-[50%]">
@@ -55,7 +50,7 @@ const goToSheetDetail = (sheetId) => {
                 Now Playing
             </div>
             <div class="ml-3 mb-12 flex-grow text-gray-600 font-bold text-lg">
-                {{ sheet.title }}
+                {{ sheet.title ? sheet.title : "최근 플레이한 곡이 없습니다" }}
             </div>
         </div>
         

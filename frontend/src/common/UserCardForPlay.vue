@@ -17,7 +17,6 @@ const defaultProfileImage = require('@/assets/img/common/default_profile.png');
 if(props.user.userImg == null){
     props.user.userImg = defaultProfileImage;
 }else{
-    // img 파일 디코딩
     props.user.userImg = 'data:image/jpeg;base64,' + props.user.userImg;
 }
 
@@ -74,28 +73,23 @@ console.log(routeName);
 </script>
 
 <template>
-    <div class="flex flex-grow w-[40vw] h-[180px] justify-center gap-2 rounded-2xl overflow-hidden"
-    :style="{
-    backgroundImage: `url(${require('@/assets/img/sheet_play/box_blue.png')})`,
-    backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    }">
-        <div class="flex w-[198px] h-[198px] pl-8 pb-4 justify-center items-center ">
+    <div 
+        class="user-card relative flex flex-grow w-[30vw] h-[180px] justify-center gap-2 rounded-3xl overflow-hidden bg-gradient-to-r from-sky-200/80 to-white/90 hover:shadow-lg transition-all duration-300"
+    >
+        <div class="flex w-[198px] h-[198px] pl-8 pb-4 justify-center items-center">
             <div class="flex flex-shrink-0 w-[150px] h-[150px] justify-center items-center rounded-full overflow-hidden bg-white">
                 <img :src="user.userImg" alt="Profile Image" class="object-cover h-full w-full" />
             </div>
         </div>
-        <div class="flex flex-col w-[90%] ">
-            <div class="flex flex-col flex-grow h-full pl-[10px] text-black" style="font-size:30px;">
+        <div class="flex flex-col w-[90%]">
+            <div class="flex flex-col flex-grow h-full pl-[10px] text-black text-2xl">
                 <div class="flex flex-1 items-center">
                     {{ user.nickname }}
-                    <!-- <LevelBadge :level="user.singleScore" class="ml-4" />  -->
-                    <Tier :level="4" class="ml-4" /> 
+                    <Tier v-if="user.nickname !== '상대를 기다리는 중...'" :level="3" class="ml-4" /> 
                 </div>
             </div>
-            <hr class="bg-gray-950 ml-5 w-[90%] flex">
-            <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-start justify-center h-full pl-[10px] ">
+            <hr class="bg-gray-900 ml-5 w-[90%]">
+            <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-start justify-center h-full pl-[10px]">
                 <div class="flex ml-4 justify-between h-full items-center">
                     <div class="text-black text-lg w-full">현재 스코어</div>
                     <div class="text-gray-900 flex items-center h-full w-[80%]">
@@ -104,14 +98,14 @@ console.log(routeName);
                         </template>
                     </div>
                 </div>
-                
-                
             </div>
-        
         </div>
-        
+
+        <!-- 슬라이딩 효과를 주는 색깔바 -->
+        <div class="absolute inset-0 bg-blue-400 transition-transform duration-500 transform -translate-x-full hover:translate-x-0 z-10"></div>
     </div>
 </template>
+
 
 <style scoped>
 

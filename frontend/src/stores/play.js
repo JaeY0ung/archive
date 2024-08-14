@@ -117,9 +117,10 @@ export const usePlayStore = defineStore('playMode', {
           id: room.info.id,
           title: room.info.title,
           capacity: 2, // 모든 방의 capacity를 2로 설정
-          status: '게임 준비 중', // 기본값으로 '게임 준비 중' 설정
+          status: room.isPlaying ? '게임 준비 중' : '게임 실행 중', // 기본값으로 '게임 준비 중' 설정
           occupancy: room.occupancy || 1 // 기본 occupancy는 1로 설정
         }));
+        console.log('방 목록 : ', response.data);
         console.log('방 목록 가져오기 성공:', this.rooms);
       } catch (error) {
         console.error('방 목록 가져오기 실패:', error);
@@ -141,6 +142,14 @@ export const usePlayStore = defineStore('playMode', {
         console.log('퇴장 성공', response.data);
       } catch (error) {
         console.log('방 퇴장 실패', error);
+      }
+    },
+    async changeStatus(roomId, status){
+      try {
+        const response = await local.put(`${baseURL}/battle-rooms/${roomId}/${status}`)
+        console.log("방 게임중 상태 업데이트 성공");  
+      } catch (error) {
+        console.log('방 게임중 상태 업데이트 실패');
       }
     }
   },
