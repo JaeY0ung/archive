@@ -307,85 +307,30 @@ onUnmounted(()=>{
 </script>
 
 <template>
-    <div class="container">
-      <div class="up">
-        <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
-      </div>
-      <div class="down gap-1">
-        <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" @updateResultScore="updateResultScore" />
-        <div class="h-[198px] w-[198px] flex flex-col justify-evenly items-center">
-          <div class="flex flex-grow flex-1 h-[40%] w-full items-center justify-center cursor-pointer rounded-xl text-3xl font-bold" 
-          @click="onClickQuit"
-          :style="{
-              backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
-              backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat' }">
-              나가기
-          </div>
+  <div class="mx-auto w-[80vw] h-[90vh] bg-[#f3f7fd] rounded-2xl p-5 shadow-lg">
+    <div class="bg-white h-[70%] p-5 rounded-2xl shadow-md">
+      <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
+    </div>
+    <div class="flex justify-center items-center h-[25vh] gap-4">
+      <UserCardForPlay class="bg-white custom-shadow" :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" @updateResultScore="updateResultScore" />
+      <div class="h-[198px] w-[198px] flex justify-center items-center">
+        <div 
+          class="custom-shadow flex-grow h-full flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white text-[#4A90E2]  transition-all duration-300 hover:bg-red-600"
+          @click="onClickQuit">
+          나가기
         </div>
       </div>
-
-	  <!-- 모달 컴포넌트 -->
-<!--	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />-->
     </div>
+
+  <!-- 모달 컴포넌트 -->
+<!--	  <PlayModal :visible="showModal" :title="modalTitle" :message="modalMessage" @close="closeModal" />-->
+  </div>
 </template>
 
 <style scoped>
-.container {
-  margin: 10px auto;
-  width: 90vw;
-  height: 90vh;
-  background-color: #f0f0f0;
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0.8;
-}
-.up {
-  background-color: #fff;
-  height: 72%;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.down {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 25vh;
-}
-
-.button-div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.player-card {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 20px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  width: 40%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.player-img {
-  width: 100px;
-  height: 100px;
-  background-color: white;
-  border-radius: 50%;
-  margin-bottom: 10px;
-}
-
-.player-info-text {
-  text-align: center;
-  margin-bottom: 10px;
+.custom-shadow {
+    @apply rounded-xl bg-white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
 }
 
 button {
