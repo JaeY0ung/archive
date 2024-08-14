@@ -276,7 +276,7 @@ const createChart = () => {
         chart = new Chart(ctx, {
             type: "scatter",
             data: {
-                datasets: difficultyOptions.map((difficulty, index) => ({
+                datasets: difficultyOptions.map((difficulty) => ({
                     label: difficulty,
                     data: chartData.filter((item) => {
                         const itemDate = startOfDay(parseISO(item.x));
@@ -333,8 +333,8 @@ const createChart = () => {
                             display: false,
                             text: "날짜",
                         },
-                        min: twentyDaysAgo,
-                        max: addDays(startOfDay(new Date()), 1), // 다음 날의 시작으로 설정하여 오늘 데이터가 잘리지 않도록 함
+                        min: twentyDaysAgo, // Set only once
+                        max: addDays(startOfDay(new Date()), 1), // Set only once
                         ticks: {
                             padding: 10, // x축 레이블과 차트 사이의 패딩 증가
                         },
@@ -360,22 +360,22 @@ const createChart = () => {
 const updateChart = () => {
     if (chart) {
         const chartData = prepareChartData();
-        const twentyDaysAgo = startOfDay(new Date());
-        twentyDaysAgo.setDate(twentyDaysAgo.getDate() - 20);
 
-        chart.data.datasets = difficultyOptions.map((difficulty, index) => ({
+        chart.data.datasets = difficultyOptions.map((difficulty) => ({
             label: difficulty,
             data: chartData.filter((item) => {
                 const itemDate = startOfDay(parseISO(item.x));
-                return item.difficulty === difficulty && itemDate >= twentyDaysAgo;
+                return (
+                    item.difficulty === difficulty &&
+                    itemDate >= startOfDay(addDays(new Date(), -20))
+                );
             }),
             backgroundColor: difficultyColors[difficulty],
             borderColor: difficultyColors[difficulty],
             pointRadius: 6,
             pointHoverRadius: 8,
         }));
-        chart.options.scales.x.min = twentyDaysAgo;
-        chart.options.scales.x.max = startOfDay(new Date());
+
         chart.update();
     }
 };
@@ -481,7 +481,7 @@ onUnmounted(() => {
                                                     {{ comment.difficulty }}
                                                 </span>
                                             </div>
-                                            <div
+                                            <!-- <div
                                                 v-if="comment.username === userInfo.nickname"
                                                 class="comment-actions"
                                                 ref="menuRef"
@@ -517,7 +517,7 @@ onUnmounted(() => {
                                                         삭제
                                                     </button>
                                                 </div>
-                                            </div>
+                                            </div> -->
                                         </div>
                                         <p v-if="editingComment !== comment" class="comment-text">
                                             {{ comment.text }}

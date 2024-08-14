@@ -1,5 +1,5 @@
 <template>
-    <div class="rounded-lg shadow-lg p-6 max-w-[1000px] w-full mx-auto bg-white bg-opacity-40">
+    <div class="rounded-lg shadow-lg p-6 max-w-[1000px] w-full mx-auto bg-white">
         <div class="flex flex-col md:flex-row gap-6">
             <div class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
                 <div

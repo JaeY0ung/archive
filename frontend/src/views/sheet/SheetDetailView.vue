@@ -176,14 +176,14 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="flex w-full h-full justify-between p-2">
+    <div class="flex w-full h-full justify-between p-2 ">
         <!-- 1. 악보 디테일 정보 -->
         <div class="flex flex-col gap-5 w-[50%]">
             <!-- 1-1. 악보 카드 -->
             <BigSheetCard
                 :sheet="sheet"
                 :starRateAvg="starRateAvg"
-                class="rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                class="rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300  bg-white rounded-xl"
             />
 
             <!-- 1-2. 비슷한 수준의 악보 추천 및 리뷰 섹션 (combined) -->
