@@ -38,7 +38,7 @@ const updateSongById = () => {
         props.song.id,
         formData,
         (res) => {
-            emit('update-song-event', props.song.id)
+            emit('update-song-event')
         }
     )
 }
