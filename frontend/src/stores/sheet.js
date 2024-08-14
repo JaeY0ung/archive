@@ -107,6 +107,7 @@
 
         const startMusic = () => {
             isPlay.value = true;
+            isLast.value = false;
             playbackManager.value.play();
             timingSource.value.start();
         };
