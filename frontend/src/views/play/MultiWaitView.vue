@@ -286,6 +286,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
 
   if (to.name == 'multiPlay') {
+    playStore.changeStatus(route.params.roomId, "playing");
     next();
   } else {
     const answer = window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.");
@@ -307,10 +308,21 @@ onBeforeRouteLeave(async (to, from, next) => {
 </script>
 
 <template>
-    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
-        <div class="flex w-full h-[70%] rounded-tl-xl rounded-tr-xl bg-blue-300 justify-center">
-            <SelectCategory v-if="isInCategoryView" @send-sheet-category="getSheetsByCategory" />
-            <SelectSheet v-else :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
+<div
+class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-80px)] overflow-hidden py-4 rounded-xl"
+>
+    <div class="flex flex-col w-full max-w-[95%] h-full max-h-[95%] rounded-xl shadow-xl relative bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200">
+        
+        <div class="relative w-full h-3/4 rounded-t-xl bg-white border-gray-500 shadow-2xl overflow-hidden">
+            <div
+                class="absolute inset-0 bg-cover bg-center opacity-70"
+                :style="{
+                    backgroundImage: `url(${require('@/assets/img/sheet_play/play-background.png')})`,
+                    backgroundBlendMode: 'multiply',
+                }"
+                ></div>
+            <SelectCategory v-if="isInCategoryView" class="absolute inset-0 overflow-auto opacity-80" @send-sheet-category="getSheetsByCategory" />
+            <SelectSheet v-else class="absolute inset-0 overflow-auto" :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
         </div>
         <div class="flex flex-grow w-full h-[35%] rounded-bl-xl rounded-br-xl bg-yellow-100 justify-center">
             <div class="player-card">
@@ -357,6 +369,7 @@ onBeforeRouteLeave(async (to, from, next) => {
             </div>
         </div>
     </div>
+</div>
 </template>
 
 <style scoped>

@@ -106,8 +106,8 @@ onMounted(() => {
                             }">
                             
 
-                            <img v-if="selectedSheet.level === 0" src="@/assets/img/sheet_play/number0.png" alt="Level 1" class="w-[90%] h-[90%] object-contain p-2" />
-                            <img v-else-if="selectedSheet.level === 1" src="@/assets/img/sheet_play/number1.png" alt="Level 1" class="w-[90%] h-[90%]  object-contain p-2" />
+                           
+                            <img v-if="selectedSheet.level === 1" src="@/assets/img/sheet_play/number1.png" alt="Level 1" class="w-[90%] h-[90%]  object-contain p-2" />
                             <img v-else-if="selectedSheet.level === 2" src="@/assets/img/sheet_play/number2.png" alt="Level 2" class="w-[90%] h-[90%]  object-contain p-2" />
                             <img v-else-if="selectedSheet.level === 3" src="@/assets/img/sheet_play/number3.png" alt="Level 3" class="w-[90%] h-[90%]  object-contain p-2" />
                             <img v-else-if="selectedSheet.level === 4" src="@/assets/img/sheet_play/number4.png" alt="Level 4" class="w-[90%] h-[90%]  object-contain p-2" />
