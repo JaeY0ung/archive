@@ -5,7 +5,7 @@ import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import { useRoute } from "vue-router";
 import { useMusicStore } from "@/stores/sheet";
-import { ref } from "vue";
+import { onUnmounted, ref } from "vue";
 import { watch } from "vue";
 import { localAxios } from "@/util/http-common";
 import { onMounted } from "vue";
@@ -57,6 +57,7 @@ if (musicStore.jaccard.length !== 0) {
 watch(
     () => musicStore.f1,
     (newF1Scores) => {
+        console.log("F1:  ",musicStore.f1)
         if (newF1Scores.length !== 0) {
             myF1Score.value = Math.floor(
                 (newF1Scores.reduce((acc, score) => acc + score, 0) /
@@ -73,6 +74,7 @@ watch(
 watch(
     () => musicStore.jaccard,
     (newJaccardScores) => {
+      console.log("JC: ",musicStore.jaccard)
         if (newJaccardScores.length !== 0) {
             myJaccardScore.value = Math.floor(
                 (newJaccardScores.reduce((acc, score) => acc + score, 0) /
@@ -153,8 +155,8 @@ const onStartRecordingEmit = async () => {
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 watch(
 	() => musicStore.isLast,
-	async (Last) => {
-	  if (Last) {
+	async (newVal, oldVal) => {
+	  if (newVal) {
 		try {
 		  await local.patch(`/plays/single/${singleResultId}`, {
 			userId: loginUser.id,
@@ -262,6 +264,12 @@ onBeforeRouteLeave(async (to, from, next) => {
     }
   });
 
+onUnmounted(()=>{
+  musicStore.isLast=false;
+  musicStore.isPlay= false;
+  musicStore.f1 = [];
+  musicStore.jaccard = [];
+})
 
 </script>
 
