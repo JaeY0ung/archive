@@ -1,64 +1,14 @@
-<template>
-    <div class="w-full h-full flex justify-center items-center">
-        <div class="w-[400px] bg-white bg-opacity-50 rounded-2xl p-8 shadow-lg">
-            <h1 class="text-4xl font-bold mb-8 text-center text-gray-600">로그인</h1>
-            <form @submit.prevent="login" class="space-y-6">
-                <div class="space-y-2">
-                    <label for="email" class="block text-sm font-medium text-gray-700"
-                        >이메일</label
-                    >
-                    <input
-                        v-model="loginForm.email"
-                        id="email"
-                        type="email"
-                        required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                </div>
-                <div class="space-y-2">
-                    <label for="password" class="block text-sm font-medium text-gray-700"
-                        >비밀번호</label
-                    >
-                    <input
-                        v-model="loginForm.password"
-                        id="password"
-                        type="password"
-                        required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    />
-                </div>
-                <div class="flex flex-col space-y-4">
-                    <button
-                        type="submit"
-                        class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                    >
-                        로그인
-                    </button>
-                    <button
-                        type="button"
-                        @click="goToRegister"
-                        class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-purple-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                    >
-                        회원가입
-                    </button>
-                    <button
-                        type="button"
-                        @click="naverLogin"
-                        class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 flex items-center justify-center"
-                    >
-                        네이버로 로그인
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</template>
-
 <script setup>
 import { ref } from "vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
+
+// Google Fonts에서 Poppins 폰트 추가
+const link = document.createElement("link");
+link.href = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap";
+link.rel = "stylesheet";
+document.head.appendChild(link);
 
 const { VUE_APP_REQUEST_URL } = process.env;
 
@@ -90,31 +40,115 @@ const naverLogin = () => {
 };
 </script>
 
+<template>
+    <div class="w-full h-full flex justify-center items-center">
+        <div class="w-[400px] bg-white bg-opacity-50 rounded-2xl p-8 shadow-lg">
+            <h1 class="text-4xl font-bold mb-8 text-center text-gray-600">로그인</h1>
+            <form @submit.prevent="login" class="space-y-6">
+                <div class="space-y-2">
+                    <label for="email" class="block text-sm font-medium text-gray-700"
+                        >이메일</label
+                    >
+                    <input
+                        v-model="loginForm.email"
+                        id="email"
+                        type="email"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div class="space-y-2">
+                    <label for="password" class="block text-sm font-medium text-gray-700"
+                        >비밀번호</label
+                    >
+                    <input
+                        v-model="loginForm.password"
+                        id="password"
+                        type="password"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                </div>
+                <div class="flex flex-col space-y-4">
+                    <button type="submit" class="btn-primary btn-primary-login">로그인</button>
+                    <button
+                        type="button"
+                        @click="goToRegister"
+                        class="btn-primary btn-primary-register"
+                    >
+                        회원가입
+                    </button>
+                    <button
+                        type="button"
+                        @click="naverLogin"
+                        class="btn-primary naver-login-btn flex items-center justify-center"
+                    >
+                        <img
+                            src="@/assets/img/naver.png"
+                            alt="네이버로 로그인"
+                            class="naver-login-image"
+                        />
+                        <span class="ml-2">네이버로 로그인</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</template>
+
 <style scoped>
-.naver-login-btn {
-    display: inline-flex;
-    align-items: center;
-    background-color: #03c75a;
-    color: white;
-    padding: 0;
+/* Primary button for login */
+.btn-primary {
+    width: 100%;
+    height: 40px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 2px;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-        sans-serif;
-    font-size: 14px;
-    font-weight: 500;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: "Poppins", sans-serif;
     cursor: pointer;
-    text-decoration: none;
+    text-align: center;
+    color: white;
+    background-color: #3FA2F6;
+    transition: background-color 0.3s ease;
 }
+
+.btn-primary:hover {
+    background-color: #2f5fb2;
+}
+
+.btn-primary-register {
+    width: 100%;
+    height: 40px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: "Poppins", sans-serif;
+    cursor: pointer;
+    text-align: center;
+    color: white;
+    background-color: #3a73e5;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary-register:hover {
+    background-color: rgb(49, 74, 121);
+}
+
+.naver-login-btn {
+    background-color: rgb(3, 199, 90);
+}
+
 .naver-login-btn:hover {
-    background-color: #02b150;
+    background-color: rgb(3, 199, 90);
 }
-.naver-logo {
-    background-color: #03c75a;
-    padding: 10px 12px;
-}
-.naver-text {
-    padding: 10px 12px;
-    background-color: #03c75a;
+
+.naver-login-image {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
 }
 </style>
