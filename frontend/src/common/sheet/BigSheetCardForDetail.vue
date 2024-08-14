@@ -1,11 +1,10 @@
 <template>
-    <div class="rounded-lg shadow-lg p-6 max-w-[1000px] w-full h-[300px] mx-auto bg-white bg-opacity-40">
+    <div class="rounded-lg shadow-lg p-6 max-w-[1000px] w-full mx-auto bg-white">
         <div class="flex flex-col md:flex-row gap-6">
-            <!-- 악보 이미지 -->
-            <div class="w-full md:w-1/3 aspect-square">
+            <div class="w-full md:w-1/3 lg:w-1/4 flex-shrink-0">
                 <div
                     v-if="sheetInfo.imageUrl"
-                    class="w-full h-full rounded-lg shadow-md overflow-hidden"
+                    class="w-full aspect-square rounded-lg shadow-md overflow-hidden"
                 >
                     <img
                         :src="sheetInfo.imageUrl"
@@ -15,93 +14,136 @@
                 </div>
                 <div
                     v-else
-                    class="w-full h-full bg-gray-200 rounded-lg shadow-md flex items-center justify-center"
+                    class="w-full aspect-square bg-gray-200 rounded-lg shadow-md flex items-center justify-center"
                 >
                     <font-awesome-icon :icon="['fas', 'music']" class="text-gray-400 text-5xl" />
                 </div>
             </div>
 
-            <!-- 악보 정보 -->
-            <div class="w-full md:w-2/3 flex flex-col justify-between">
+            <div class="flex-grow flex flex-col justify-between">
                 <div class="space-y-4">
-                    <div class="flex items-start justify-between">
-                        <h2 class="text-2xl font-bold text-gray-800 leading-tight">
+                    <div class="flex items-start justify-between flex-wrap gap-2">
+                        <h2 class="text-2xl md:text-3xl font-bold text-gray-800 leading-tight">
                             {{ sheet.title }}
                         </h2>
-                        <Tier :level="sheet.level" class="ml-2 flex-shrink-0" />
+                        <Tier :level="sheet.level" class="flex-shrink-0" />
                     </div>
 
-                    <div class="text-gray-600 space-y-2">
-                        <p class="flex items-center">
-                            <span class="font-semibold w-20">작곡가:</span>
-                            <span>{{ sheet.songComposer }}</span>
-                        </p>
-                        <p class="flex items-center">
-                            <span class="font-semibold w-20">게시자:</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="flex items-center space-x-2">
+                            <font-awesome-icon :icon="['fas', 'pen']" class="text-gray-500" />
+                            <span class="text-gray-700 font-medium">작곡가:</span>
+                            <span class="text-gray-900">{{ sheet.songComposer }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <font-awesome-icon :icon="['fas', 'user']" class="text-gray-500" />
+                            <span class="text-gray-700 font-medium">업로더:</span>
                             <span
-                                class="cursor-pointer text-blue-600 hover:underline"
+                                class="cursor-pointer text-gray-900 hover:text-blue-600"
                                 @click="goToUserProfile"
                             >
                                 {{ sheet.uploaderNickname }}
                             </span>
-                        </p>
-                    </div>
-
-                    <div class="flex items-center space-x-6 text-sm text-gray-500">
-                        <div class="flex items-center">
-                            <font-awesome-icon :icon="['fas', 'eye']" class="mr-2 text-gray-400" />
-                            <span>{{ sheet.viewCount }}</span>
                         </div>
-                        <div class="flex items-center cursor-pointer" @click="toggleLike">
+                        <div class="flex items-center space-x-2">
+                            <font-awesome-icon :icon="['fas', 'eye']" class="text-gray-500" />
+                            <span class="text-gray-700 font-medium">조회수:</span>
+                            <span class="text-gray-900">{{ sheet.viewCount }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2 cursor-pointer" @click="toggleLike">
                             <font-awesome-icon
                                 :icon="['fas', 'heart']"
-                                :class="sheetInfo.likeStatus ? 'text-red-500' : 'text-gray-400'"
-                                class="mr-2"
+                                :class="localLikeStatus ? 'text-red-500' : 'text-gray-500'"
                             />
-                            <span>{{ sheetInfo.likeCount }}</span>
+                            <span class="text-gray-700 font-medium">좋아요:</span>
+                            <span class="text-gray-900 select-none">{{ localLikeCount }}</span>
                         </div>
-                        <div class="flex items-center">
+                        <div class="flex items-center space-x-2">
+                            <font-awesome-icon :icon="['fas', 'star']" class="text-yellow-400" />
+                            <span class="text-gray-700 font-medium">평점:</span>
+                            <span class="text-gray-900">{{
+                                starRateAvg ? starRateAvg.toFixed(2) : "미평가"
+                            }}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
                             <font-awesome-icon
-                                :icon="['fas', 'star']"
-                                class="mr-2 text-yellow-400"
+                                :icon="['fas', 'shopping-cart']"
+                                class="text-gray-500"
                             />
-                            <span>{{ sheet.difficulty ? sheet.difficulty : "Unrated" }}</span>
+                            <span class="text-gray-700 font-medium">가격:</span>
+                            <span class="text-gray-900">{{
+                                sheet.price === 0 || sheet.price === null
+                                    ? "무료"
+                                    : `${sheet.price} 원`
+                            }}</span>
                         </div>
                     </div>
                 </div>
 
-                <div
-                    class="flex flex-wrap justify-between items-center mt-6 space-y-2 md:space-y-0"
-                >
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
                     <button
-                        class="btn bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-full transition duration-300 ease-in-out transform hover:scale-105 w-full md:w-auto"
+                        class="btn bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
                         @click="goToDifficultyRatingPage"
                     >
-                        <font-awesome-icon :icon="['fas', 'chart-line']" class="mr-2" />
-                        난이도 기여
+                        <font-awesome-icon
+                            :icon="['fas', 'chart-line']"
+                            class="text-2xl transition-all duration-300 group-hover:opacity-0 group-hover:scale-0"
+                        />
+                        <span
+                            class="absolute transition-all duration-300 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 text-xs text-center w-full px-1"
+                        >
+                            난이도<br />평가
+                        </span>
                     </button>
                     <button
-                        class="btn bg-gray-800 hover:bg-gray-900 text-white px-6 py-2 rounded-full transition duration-300 ease-in-out transform hover:scale-105 w-full md:w-auto"
+                        class="btn bg-gray-800 hover:bg-gray-900 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
                         @click="goToPlayRoom"
                     >
-                        <font-awesome-icon :icon="['fas', 'play']" class="mr-2" />
-                        TEST
+                        <font-awesome-icon
+                            :icon="['fas', 'play']"
+                            class="text-2xl transition-all duration-300 group-hover:opacity-0 group-hover:scale-0"
+                        />
+                        <span
+                            class="absolute transition-all duration-300 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 text-xs"
+                        >
+                            플레이
+                        </span>
                     </button>
                     <button
-                        class="btn flex items-center justify-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full transition duration-300 ease-in-out transform hover:scale-105 w-full md:w-auto"
+                        class="btn bg-green-600 hover:bg-green-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
                         :class="{ 'opacity-50 cursor-not-allowed': isCartButtonDisabled }"
                         @click="addSheetToOrder"
                         :disabled="isCartButtonDisabled"
                     >
-                        <font-awesome-icon :icon="['fas', 'shopping-cart']" />
-                        <span>{{ sheet.price === 0 ? "무료" : `${sheet.price}원` }}</span>
+                        <font-awesome-icon
+                            :icon="['fas', 'shopping-cart']"
+                            class="text-2xl transition-all duration-300 group-hover:opacity-0 group-hover:scale-0"
+                        />
+                        <span
+                            class="absolute transition-all duration-300 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 text-xs"
+                        >
+                            {{ sheet.price === 0 || sheet.price === null ? "무료" : "장바구니" }}
+                        </span>
+                    </button>
+                    <button
+                        class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
+                        @click="downloadSheet"
+                    >
+                        <font-awesome-icon
+                            :icon="['fas', 'download']"
+                            class="text-2xl transition-all duration-300 group-hover:opacity-0 group-hover:scale-0"
+                        />
+                        <span
+                            class="absolute transition-all duration-300 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 text-xs"
+                        >
+                            다운로드
+                        </span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 모달 컴포넌트 -->
     <ModalComponent
         :show="showModal"
         message="장바구니에 추가되었습니다."
@@ -113,9 +155,9 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { useUserStore } from "@/stores/user";
 import { showLoginRequestAlert } from "@/util/alert";
 import { addToOrder } from "@/util/order";
@@ -132,12 +174,27 @@ import {
     faChartLine,
     faPlay,
     faShoppingCart,
+    faDownload,
+    faUser,
+    faPen,
 } from "@fortawesome/free-solid-svg-icons";
+import { userPageService } from "@/api/user-page.js";
 
-// FontAwesome 아이콘 등록
-library.add(faMusic, faEye, faHeart, faStar, faChartLine, faPlay, faShoppingCart);
+library.add(
+    faMusic,
+    faEye,
+    faHeart,
+    faStar,
+    faChartLine,
+    faPlay,
+    faShoppingCart,
+    faDownload,
+    faUser,
+    faPen
+);
 
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 const { userInfo, isLogin } = storeToRefs(userStore);
 
@@ -159,25 +216,37 @@ const props = defineProps({
             price: 0,
         }),
     },
+    starRateAvg: {
+        type: Number,
+        default: null,
+    },
 });
 
-const sheetInfo = ref(props.sheet);
 const showModal = ref(false);
-
-const isCartButtonDisabled = computed(() => sheetInfo.value.price === 0);
+const localLikeStatus = ref(props.sheet.likeStatus);
+const localLikeCount = ref(props.sheet.likeCount);
+const singlePlaySheets = ref([]);
 
 watch(
     () => props.sheet,
     (newSheet) => {
-        sheetInfo.value = { ...newSheet };
-        if (newSheet.songImg) {
-            sheetInfo.value.imageUrl = `data:image/jpeg;base64,${newSheet.songImg}`;
-        } else {
-            sheetInfo.value.imageUrl = ""; // 이미지가 없을 경우 빈 문자열로 설정
-        }
+        localLikeStatus.value = newSheet.likeStatus;
+        localLikeCount.value = newSheet.likeCount;
     },
     { deep: true }
 );
+
+const isCartButtonDisabled = computed(() => props.sheet.price === 0);
+
+const sheetInfo = computed(() => {
+    const newSheet = { ...props.sheet };
+    if (newSheet.songImg) {
+        newSheet.imageUrl = `data:image/jpeg;base64,${newSheet.songImg}`;
+    } else {
+        newSheet.imageUrl = "";
+    }
+    return newSheet;
+});
 
 const goToUserProfile = () => {
     router.push({ name: "userProfile", params: { nickName: props.sheet.uploaderNickname } });
@@ -197,14 +266,18 @@ const toggleLike = async () => {
         return;
     }
 
-    if (sheetInfo.value.likeStatus) {
-        await dislikeSheet(props.sheet.id);
-        sheetInfo.value.likeStatus = false;
-        sheetInfo.value.likeCount--;
-    } else {
-        await likeSheet(props.sheet.id);
-        sheetInfo.value.likeStatus = true;
-        sheetInfo.value.likeCount++;
+    try {
+        if (localLikeStatus.value) {
+            await dislikeSheet(props.sheet.id);
+            localLikeStatus.value = false;
+            localLikeCount.value--;
+        } else {
+            await likeSheet(props.sheet.id);
+            localLikeStatus.value = true;
+            localLikeCount.value++;
+        }
+    } catch (error) {
+        console.error("좋아요 토글 중 오류 발생:", error);
     }
 };
 
@@ -227,13 +300,60 @@ const continueShopping = () => {
     showModal.value = false;
 };
 
-const goToDifficultyRatingPage = () => {
+const fetchSinglePlaySheets = async (userId) => {
+    singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
+    console.log("가져온 싱글 플레이", singlePlaySheets.value);
+};
+
+const goToDifficultyRatingPage = async () => {
     if (!isLogin.value) {
         showLoginRequestAlert(router);
         return;
     }
-    router.push({ name: "sheetDifficultyRating", params: { sheetId: sheetInfo.value.id } });
+
+    await fetchSinglePlaySheets(userInfo.value.id);
+    const hasPlayedSheet = singlePlaySheets.value.some((sheet) => sheet.id === props.sheet.id);
+
+    if (hasPlayedSheet) {
+        router.push({ name: "sheetDifficultyRating", params: { sheetId: sheetInfo.value.id } });
+    } else {
+        alert(
+            "이 악보를 플레이한 기록이 없습니다. 난이도 평가를 위해서는 먼저 악보를 플레이해야 합니다."
+        );
+    }
 };
+
+const downloadSheet = () => {
+    if (!isLogin.value) {
+        showLoginRequestAlert(router);
+        return;
+    }
+    console.log("악보 다운로드 시작:", sheetInfo.value.id);
+};
+
+onMounted(() => {
+    if (isLogin.value) {
+        fetchSinglePlaySheets(userInfo.value.id);
+    }
+});
 </script>
 
-<style scoped></style>
+<style scoped>
+@media (max-width: 1023px) {
+    .lg\:w-1\/3 {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+}
+</style>
+
+<style scoped>
+@media (max-width: 1023px) {
+    .lg\:w-1\/3 {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+}
+</style>

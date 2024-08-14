@@ -117,7 +117,7 @@ export const usePlayStore = defineStore('playMode', {
           id: room.info.id,
           title: room.info.title,
           capacity: 2, // 모든 방의 capacity를 2로 설정
-          status: room.isPlaying ? '게임 준비 중' : '게임 실행 중', // 기본값으로 '게임 준비 중' 설정
+          status: room.isPlaying, // 기본값으로 '게임 준비 중' 설정
           occupancy: room.occupancy || 1 // 기본 occupancy는 1로 설정
         }));
         console.log('방 목록 : ', response.data);

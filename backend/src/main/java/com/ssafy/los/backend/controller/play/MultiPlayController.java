@@ -70,7 +70,7 @@ public class MultiPlayController {
     public ResponseEntity<?> getMultiPlayResultAllByUser(@PathVariable("user-id") Long userId) {
         List<MultiPlayResultProfileDto> multiPlayResultProfileDtoList = multiPlayService.getMultiPlayResultList(
                 userId);
-        log.info("MultiPlayResultProfileDtoList: {}", multiPlayResultProfileDtoList.toString());
+//        log.info("MultiPlayResultProfileDtoList: {}", multiPlayResultProfileDtoList.toString());
         return new ResponseEntity<>(multiPlayResultProfileDtoList, HttpStatus.OK);
     }
 
