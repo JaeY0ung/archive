@@ -330,12 +330,12 @@ onBeforeRouteLeave(async (to, from, next) => {
                 <!-- 로그인 유저(나) -->
                 <div class="w-[35%] h-full flex gap-2 justify-center items-center">
                 
-                    <UserCardForPlay :user="user" @onClickStart="onClickStart" class="custom-shadow  h-[90%] w-[35vw]" />
+                    <UserCardForPlay :user="user" @onClickStart="onClickStart" class="custom-shadow  h-[90%] w-[40vw]" />
                     <button
-                        class=" h-[90%] w-[35%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
+                        class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                         v-if="isReady == 'false' && route.name == 'multiWait'" @click="readyButton">
                         대기중</button>
-                    <button class=" h-[95%] w-[35%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
+                    <button class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                         v-if="isReady == 'true' && route.name == 'multiWait'" @click="readyButton">준비완료</button>
                 </div>
                 <!-- 시작하기 + 나가기 -->
@@ -355,23 +355,23 @@ onBeforeRouteLeave(async (to, from, next) => {
 
                 <!-- 상대 유저 -->
                 <div class="player-card w-[35%] flex justify-center gap-2 items-center">
-                    <UserCardForPlay :user="opponent" class="custom-shadow  h-[90%] w-[35vw]" />
+                    <UserCardForPlay :user="opponent" class="custom-shadow  h-[90%] w-[40vw]" />
 
                     <!-- 친구 초대하기 버튼: 대결 상대가 없고, 초대되지 않았을 때만 나타남 -->
                     <button
-                        class=" h-[90%] w-[35%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer "
+                        class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer "
                         v-if="!isInvited" @click="openInviteModalStatus">
-                        친구 초대하기
+                        상대 초대
                     </button>
 
                     <!-- 대기중 버튼: 대결 상대가 있고, 아직 준비가 안 된 상태일 때 나타남 -->
-                    <button class=" h-[90%] w-[35%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer" 
+                    <button class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer" 
                     v-if="isInvited && opponentReady == 'false' && route.name == 'multiWait'">
                         대기중
                     </button>
 
                     <!-- 준비완료 버튼: 대결 상대가 있고, 준비가 완료된 상태일 때 나타남 -->
-                    <button class=" h-[90%] w-[35%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
+                    <button class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                     v-if="isInvited && opponentReady == 'true' && route.name == 'multiWait'">
                         준비완료
                     </button>
