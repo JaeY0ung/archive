@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 @Slf4j
 @RestController
@@ -85,5 +84,21 @@ public class BattleRoomController {
         return new ResponseEntity<>(battleRooms, HttpStatus.OK);
     }
 
+    // 게임이 시작되었을 때, 방의 상태를 게임중으로 변경
+    @PutMapping("/{room_id}/playing")
+    public ResponseEntity<?> playBattleRoom(@PathVariable("room_id") Long roomId) {
+        log.info("방의 상태를 게임중으로 변경하였습니다.");
+        battleRoomService.updateBattleRoomPlayingStatus(roomId, true);
 
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // 게임이 끝났을 때, 방의 상태를 대기중으로 변경
+    @PutMapping("/{room_id}/waiting")
+    public ResponseEntity<?> waitBattleRoom(@PathVariable("room_id") Long roomId) {
+        log.info("방의 상태를 대기중으로 변경하였습니다.");
+        battleRoomService.updateBattleRoomPlayingStatus(roomId, false);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
