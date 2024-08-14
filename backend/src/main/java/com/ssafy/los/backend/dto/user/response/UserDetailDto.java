@@ -6,8 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
- * packageName    : com.ssafy.los.backend.dto.user.response fileName       : UserDetailDto author
- * : moongi date           : 7/28/24 description    :
+ * packageName    : com.ssafy.los.backend.dto.user.response fileName       : UserDetailDto author :
+ * moongi date           : 7/28/24 description    :
  */
 @Builder
 @Data
@@ -21,7 +21,7 @@ public class UserDetailDto {
     private String userImg;
     private LocalDateTime birthDate;
     private Boolean gender;
-    private int cash;
+    private Integer cash;
     private Integer singleScore;
     private Integer multiScore;
     private LocalDateTime deletedAt;

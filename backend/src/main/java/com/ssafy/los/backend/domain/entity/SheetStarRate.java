@@ -38,7 +38,7 @@ public class SheetStarRate extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private int starRate;
+    private int starRate; // 1점부터 5점
 
     @Builder
     public SheetStarRate(User user, Sheet sheet, String content, int starRate) {

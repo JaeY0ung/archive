@@ -1,5 +1,6 @@
 <script setup>
-import {computed, onMounted, ref, watch} from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { getTitleByLen } from '@/util/string-util';
 import { storeToRefs } from "pinia";
 import { showLoginRequestAlert } from "@/util/alert"
 import { useRouter } from 'vue-router'
@@ -137,7 +138,7 @@ const goToDifficultyRatingPage = () => {
                 <!-- 악보 제목 -->
                 <div class="flex justify-start">
                     <div class="bold text-[2vw] mr-3 mb-2">
-                        {{ sheet.title }}
+                        {{ getTitleByLen(sheet?.title, 20) }}
                     </div>
                     <Tier :level="sheet.level" />
                 </div>
@@ -145,21 +146,21 @@ const goToDifficultyRatingPage = () => {
                 <div class="flex items-start">
                     <div class="flex items-center">
                         <!-- <img :src="require('@/assets/img/star-fill.svg')" alt="별" /> -->
-                        <p>{{ sheet.difficulty ? sheet.difficulty : "Unrated" }}</p>
+                        <p>{{ sheet?.difficulty ? sheet?.difficulty : "Unrated" }}</p>
                     </div>
                 </div>
             </div>
 
             <div class="text-xl flex flex-row gap-3">
                 <div class="font-bold">작곡가</div>
-                <p class="text-xl">{{ sheet.songComposer }}</p>
+                <p class="text-xl">{{ getTitleByLen(sheet?.songComposer, 20) }}</p>
             </div>
 
             <div>
                 <div class="text-xl flex flex-row gap-3">
                     <div class="font-bold">게시자</div>
                     <div class="cursor-pointer" @click="goToUserProfile">
-                        {{ sheet.uploaderNickname }}
+                        {{ sheet?.uploaderNickname }}
                     </div>
                 </div>
             </div>
@@ -168,7 +169,7 @@ const goToDifficultyRatingPage = () => {
                 <div class="flex items-start gap-3 text-lg">
                     <div class="flex items-center gap-2">
                         <img :src="require('@/assets/img/view.svg')" class="w-8 h-8" alt="눈" />
-                        <p>{{ sheet.viewCount }}</p>
+                        <p>{{ sheet?.viewCount }}</p>
                     </div>
                     <div class="flex items-center gap-2 mt-0.5 cursor-pointer">
                         <img

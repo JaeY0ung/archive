@@ -22,9 +22,12 @@
         const f1 = ref([]);
         const jaccard = ref([]);   
         const route = useRoute();
-        const isLast = ref(false);
+        const isLast = ref(0);
         const singleResultId = ref(0);
+        const multiResultId = ref(0);
         const playMode = ref("");
+        const last_measure = ref(0);
+        const check_measure = ref(-1);
 
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);
@@ -198,9 +201,15 @@
                 //     }).catch((err)=>{
                 //         console.error(err);
                 //     })
+                // isLast.value = res.data.isLast == 1;
+                
                 f1.value.push(res.data.similarity_results.f1_score);
                 jaccard.value.push(res.data.similarity_results.jaccard_similarity);
-                isLast.value = res.data.isLast == 1;
+                last_measure.value = res.data.last_measure;
+                check_measure.value = check_measure.value + 1;
+                if(last_measure.value == check_measure.value){
+                    isLast.value = 1;
+                }
             } catch (err) {
                 console.error('채점 실패: ', err);
             }
@@ -271,6 +280,9 @@
             isLast,
             singleResultId,
             playMode,
+            last_measure,
+            check_measure,
+            multiResultId,
             initializeOsmd,
             loadAndSetupOsmd,
             setVolume,

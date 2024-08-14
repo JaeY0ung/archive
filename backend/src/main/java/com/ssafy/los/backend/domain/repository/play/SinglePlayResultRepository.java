@@ -7,7 +7,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface SinglePlayResultRepository extends JpaRepository<SinglePlayResult, Long> {
+public interface SinglePlayResultRepository extends JpaRepository<SinglePlayResult, Long>,
+        CustomSinglePlayRepository {
 
     @Query("SELECT s FROM SinglePlayResult s WHERE s.user = :user ORDER BY s.createdAt LIMIT 1")
     SinglePlayResult findOrderCreatedAtByUser(User user);

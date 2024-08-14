@@ -257,16 +257,6 @@ function quitButton () {
     router.push('/room/multi/list');
 }
 
-// const detectReload = () => {
-//   // performance.navigation API를 사용하여 새로고침 감지
-//   const navigationType = performance.getEntriesByType("navigation")[0].type;
-//   if (navigationType === 'reload') {
-//     isReloading.value = true;
-//     alert("fggsdaf");
-//   }
-// }
-
-
 const handleBeforeUnload = async () => {
 
 if(isQuitting.value || isPopstate.value || isReloading.value){
@@ -283,9 +273,7 @@ onMounted(() => {
     // isReady.value = userStore.userReady;
     isReady.value = "false";
     connect();
-    // detectReload();
     // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정
-    window.addEventListener('beforeunload', sendExit);
     window.addEventListener('popstate', () => {
         isPopstate.value = true;
     });
@@ -295,10 +283,10 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', handleBeforeUnload);
-  window.addEventListener('popstate', () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', () => {
     isPopstate.value = true;
-  });
+    });
 });
 
 onBeforeRouteLeave(async (to, from, next) => {

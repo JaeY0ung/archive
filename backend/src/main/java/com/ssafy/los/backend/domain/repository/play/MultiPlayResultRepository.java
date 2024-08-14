@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MultiPlayResultRepository extends JpaRepository<MultiPlayResult, Long> {
+public interface MultiPlayResultRepository extends JpaRepository<MultiPlayResult, Long>,
+        CustomMultiPlayRepository {
 
     List<MultiPlayResult> findAllByWinner(User user);
 

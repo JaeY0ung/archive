@@ -10,7 +10,6 @@ import com.ssafy.los.backend.exception.user.UserUpdateException;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.auth.PasswordService;
 import com.ssafy.los.backend.util.FileUploadUtil;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -97,7 +96,8 @@ public class UserServiceImpl implements UserService {
                 .userId(findUser.getId())
                 .nickname(findUser.getNickname())
                 .userImgName(findUser.getUserImg())
-                .singleScore(Optional.ofNullable(findUser.getSingleScore()).orElse(0)) // null 조심
+                .singleScore(findUser.getSingleScore() != null ? findUser.getSingleScore() : 0)
+                .multiScore(findUser.getMultiScore() != null ? findUser.getMultiScore() : 0)
                 .build();
         userProfileDto.loadUserImg(fileUploadUtil);
 

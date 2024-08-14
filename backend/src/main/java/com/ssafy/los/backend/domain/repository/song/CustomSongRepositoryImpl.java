@@ -26,6 +26,7 @@ public class CustomSongRepositoryImpl implements CustomSongRepository {
                         s.genre))
                 .from(s)
                 .where(containsKeyword(keyword))
+                .orderBy(s.createdAt.desc())
                 .fetch();
     }
 
