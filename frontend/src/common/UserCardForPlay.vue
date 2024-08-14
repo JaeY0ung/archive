@@ -26,17 +26,9 @@ if(props.user.userImg == null){
 */
 
 // 반응형 계산을 위한 computed 속성
-const f1Score = computed(() => {
-    if (musicStore.f1.length === 0) return 0;
-    const averageScore = musicStore.f1.reduce((acc, score) => acc + score, 0) / musicStore.f1.length;
-    return Math.floor(averageScore * 100);
-});
+const f1Score = props.f1Score;
 
-const jaccardScore = computed(() => {
-    if (musicStore.jaccard.length === 0) return 0;
-    const averageScore = musicStore.jaccard.reduce((acc, score) => acc + score, 0) / musicStore.jaccard.length;
-    return Math.floor(averageScore * 100);
-});
+const jaccardScore = props.jaccardScore;
 
 const resultScore = computed(() => {
     return Math.min(100,(Math.max(0,(f1Score.value - 30)) + Math.max(0,(jaccardScore.value - 20))) / 120)*100;
@@ -74,10 +66,10 @@ console.log(routeName);
 
 <template>
     <div 
-        class="user-card relative flex flex-grow w-[30vw] h-[180px] justify-center gap-2 rounded-3xl overflow-hidden bg-gradient-to-r from-sky-200/80 to-white/90 hover:shadow-lg transition-all duration-300"
+        class="bg-[#f3f7fd] text-[#4A4A4A] relative flex flex-grow w-full h-[180px] justify-center gap-2 rounded-3xl font-bold overflow-hidden  hover:shadow-lg transition-all duration-300"
     >
         <div class="flex w-[198px] h-[198px] pl-8 pb-4 justify-center items-center">
-            <div class="flex flex-shrink-0 w-[150px] h-[150px] justify-center items-center rounded-full overflow-hidden bg-white">
+            <div class="flex flex-shrink-0 w-[150px] h-[150px] justify-center items-center rounded-full overflow-hidden">
                 <img :src="user.userImg" alt="Profile Image" class="object-cover h-full w-full" />
             </div>
         </div>
@@ -90,19 +82,15 @@ console.log(routeName);
             </div>
             <hr class="bg-gray-900 ml-5 w-[90%]">
             <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-start justify-center h-full pl-[10px]">
-                <div class="flex ml-4 justify-between h-full items-center">
+                <div class="flex ml-4 justify-between w-full h-full items-center">
                     <div class="text-black text-lg w-full">현재 스코어</div>
                     <div class="text-gray-900 flex items-center h-full w-[80%]">
-                        <template v-for="(digit, index) in resultScore.toFixed(2)" :key="index">
-                            <img :src="getNumberImage(digit)" :alt="digit" class="h-8 w-8" />
-                        </template>
+                        {{ resultScore.toFixed(2) }}
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- 슬라이딩 효과를 주는 색깔바 -->
-        <div class="absolute inset-0 bg-blue-400 transition-transform duration-500 transform -translate-x-full hover:translate-x-0 z-10"></div>
+        
     </div>
 </template>
 

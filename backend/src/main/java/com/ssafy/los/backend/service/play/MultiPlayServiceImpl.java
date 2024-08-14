@@ -9,6 +9,7 @@ import com.ssafy.los.backend.domain.repository.user.UserRepository;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultAfterDto;
 import com.ssafy.los.backend.dto.play.request.MultiPlayResultBeforeDto;
 import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
+import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import jakarta.transaction.Transactional;
@@ -44,6 +45,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
     private final SheetRepository sheetRepository;
     private final FileUploadUtil fileUploadUtil;
     private final SheetService sheetService;
+    private final AuthService authService;
 
     // 방장이 게임을 시작했을 때, multi_result 생성
     @Override
@@ -173,6 +175,8 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             HttpPost request = new HttpPost(fastApiServerUrl + "/playing/single");
             log.info("fastAPI 요청 ={}", request);
 
+            String userNickname = authService.getLoginUser().getNickname();
+
             HttpEntity multipart = MultipartEntityBuilder.create()
                     .addBinaryBody("file", file.getInputStream(),
                             ContentType.MULTIPART_FORM_DATA,
@@ -181,6 +185,8 @@ public class MultiPlayServiceImpl implements MultiPlayService {
                             ContentType.TEXT_PLAIN)
                     .addTextBody("singleResultId", singleResultId.toString(),
                             ContentType.TEXT_PLAIN)
+                    .addTextBody("nickname",userNickname,
+                        ContentType.TEXT_PLAIN)
                     .build();
 
             request.setEntity(multipart);
