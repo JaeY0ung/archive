@@ -102,23 +102,23 @@ watch(
 
 watch(
 	() => musicStore.isLast,
-	async (Last) => {
-	  if (Last) {
+	async (newVal, oldVal) => {
+	  if (newVal) {
 		try {
 		  const response = await local.patch(`/plays/single/${singleResultId}`, {
-			userId: loginUser.id,
-			score: myJaccardScore.value,
+        userId: loginUser.id,
+        score: Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 ),
 		  });
-
+      console.log("결과 저장 완료");
 		  Swal.fire({
 			title: '싱글 플레이 결과',
 			html: `
             <p>
               플레이어: ${loginUser.nickname}<br>
-              최종 점수: ${resultScore.value}점<br>
+              최종 점수: ${Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 )}점<br>
             </p>
           `,
-			icon: resultScore.value >= 80 ? 'success' : 'error',
+			icon: Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 ) >= 80 ? 'success' : 'error',
 			confirmButtonText: '닫기'
 		  }).then(() => {
 			// 필요한 경우 추가 작업 수행
