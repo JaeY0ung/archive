@@ -14,6 +14,8 @@ public class SingePlayResultProfileDto {
 
     private String userImg;
 
+    private Long sheetId;
+
     private String sheetTitle;
 
     private String songComposer;

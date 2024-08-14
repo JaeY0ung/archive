@@ -66,16 +66,19 @@ const fetchUserProfile = async () => {
 // 싱글 플레이 악보 정보
 const fetchSinglePlaySheets = async (userId) => {
     singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
+    console.log('가져온 싱글 플레이', singlePlaySheets.value)
 };
 
 // 멀티 플레이 악보 정보
 const fetchMultiPlaySheets = async (userId) => {
     multiPlaySheets.value = await userPageService.fetchMultiPlaySheets(userId);
+    console.log('가져온 멀티 플레이', multiPlaySheets.value)
 };
 
 // 좋아요한 악보 정보
 const fetchLikedSheets = async (userId) => {
     likedSheets.value = await userPageService.fetchLikedSheets(userId);
+    console.log('가져온 좋아요', likedSheets.value)
 };
 
 // 팔로우 정보
