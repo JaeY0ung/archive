@@ -47,7 +47,7 @@ const search = async () => {
             page: searchFilter.value.page,
 		},
         ({ data }) => { 
-            if (searchFilter.value.page == 0) {
+            if (searchFilter.value.page == 1) {
                 sheets.value = data;
             } else {
                 sheets.value = [...sheets.value, ...data];
