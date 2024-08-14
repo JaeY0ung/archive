@@ -154,7 +154,9 @@ public class SinglePlayServiceImpl implements SinglePlayService {
     @Override
     public String getLiveScore(MultipartFile file, Long sheetId, Long singleResultId)
             throws IllegalArgumentException {
+
         try {
+            String userNickname = authService.getLoginUser().getNickname();
             HttpClient client = HttpClientBuilder.create().build();
             HttpPost request = new HttpPost(fastApiServerUrl + "/playing/single");
 
@@ -165,6 +167,8 @@ public class SinglePlayServiceImpl implements SinglePlayService {
                     .addTextBody("uuid", sheetService.searchById(sheetId).getUuid(),
                             ContentType.TEXT_PLAIN)
                     .addTextBody("singleResultId", singleResultId.toString(),
+                            ContentType.TEXT_PLAIN)
+                    .addTextBody("nickname",userNickname,
                             ContentType.TEXT_PLAIN)
                     .build();
 
