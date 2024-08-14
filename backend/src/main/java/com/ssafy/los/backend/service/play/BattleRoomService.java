@@ -41,6 +41,7 @@ public class BattleRoomService {
 
         // Redis에 방 ID를 키로 하여 유저 리스트에 추가
         String redisKey = "battleRoom:" + battleRoom.getId();
+        // Redis에 방 ID를 키로 하여 유저 리스트와 겹치지 않게 키 설정
         String playingKey = "isPlaying:" + battleRoom.getId();
 
         // Redis에 value로 넣을 List 생성,
@@ -52,11 +53,13 @@ public class BattleRoomService {
         // Redis에 방 상태를 저장
         redisTemplate.opsForValue().set(playingKey, false);
 
-        // 방과 해당 방에 참여한 인원을 묶어서 보내줄 것이다.
+        // 방 entity와 해당 방에 참여한 인원과 방의 게임중 상태를 묶어서 보내줄 것이다.
         Map<String, Object> result = new HashMap<>();
 
         result.put("info", battleRoom);
+        // 방을 만들었으므로 방장만 존재하여 방 인원을 1명으로 지정.
         result.put("occupancy", 1);
+        // 방을 만들었으므로 방의 게임중 상태를 false로 지정.
         result.put("isPlaying", false);
 
         return result;
