@@ -329,10 +329,10 @@ onUnmounted(()=>{
           <div class="flex flex-grow flex-1 h-[40%] w-full items-center justify-center cursor-pointer rounded-xl text-3xl font-bold" 
           @click="onClickQuit"
           :style="{
-                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
-                            backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat' }">
+              backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
+              backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat' }">
               나가기
           </div>
         </div>

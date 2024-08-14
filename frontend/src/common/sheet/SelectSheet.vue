@@ -32,7 +32,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="flex w-full h-full  z-1 bg-black bg-opacity-20"
+    <div class="flex w-full h-full z-1 bg-black bg-opacity-20"
     :style="{
         backgroundImage: `url(${require('@/assets/img/sheet_play/play-background-select.png')})`,
         backgroundSize: 'cover',
@@ -41,8 +41,8 @@ onMounted(() => {
         backgroundBlendMode: 'multiply',
     }">
         <!-- 좌 : 고른 악보 정보 -->
-        <div class="flex flex-col flex-shrink-0 w-[40%] h-full gap-4">
-            <!-- 1. 뒤로 가기 + 선택한 악보 제목 -->
+        <div class="flex flex-col flex-shrink-0 w-[40%] h-full gap-4 relative">
+            <!-- 1. 뒤로 가기  -->
             <div 
                 class="flex justify-center items-center shadow-md h-[10%] w-[40%] rounded-xl m-4 text-gray-600 text-2xl font-bold" 
                 @click="emit('send-go-to-back')"
@@ -56,11 +56,11 @@ onMounted(() => {
             <!-- 2. 선택 악보 -->
             <div class="flex flex-col justify-center items-center h-[60%] m-4 gap-1">
                 <!-- 선택 악보 이미지 -->
-                <div class="flex justify-center items-start w-full mb-2" v-if="selectedSheet">
+                <div class="flex justify-center items-start w-full h-[40vh] mb-2" v-if="selectedSheet">
                     <img 
                     :src="selectedSheet.songImg ? `data:image/jpeg;base64,${selectedSheet?.songImg}` : require('@/assets/img/default/song_img.png')" 
                     alt="선택한 악보 이미지" 
-                    class="object-cover w-[55%] rounded-2xl shadow-2xl"
+                    class="object-cover w-[55%] max-w-[250px] rounded-2xl shadow-2xl"
                     />
                 </div>
                 <!-- 선택 악보 정보 -->
@@ -89,7 +89,7 @@ onMounted(() => {
                     </div>
                     <!--곡 레벨 -->
                     <div class="flex flex-col justify-center items-center gap-2">
-                        <div class=" h-full pr-4 pl-4 text-2xl font-bold text-gray-700 rounded-xl"
+                        <div class="h-full pr-4 pl-4 text-2xl font-bold text-gray-700 rounded-xl"
                         :style="{
                             backgroundImage: `url(${require('@/assets/img/sheet_play/box_green.png')})`,
                             backgroundSize: '90% 90%', 
@@ -104,18 +104,14 @@ onMounted(() => {
                                 backgroundPosition: 'center',
                                 backgroundRepeat: 'no-repeat',
                             }">
-                            
-
-                           
-                            <img v-if="selectedSheet.level === 1" src="@/assets/img/sheet_play/number1.png" alt="Level 1" class="w-[90%] h-[90%]  object-contain p-2" />
-                            <img v-else-if="selectedSheet.level === 2" src="@/assets/img/sheet_play/number2.png" alt="Level 2" class="w-[90%] h-[90%]  object-contain p-2" />
-                            <img v-else-if="selectedSheet.level === 3" src="@/assets/img/sheet_play/number3.png" alt="Level 3" class="w-[90%] h-[90%]  object-contain p-2" />
-                            <img v-else-if="selectedSheet.level === 4" src="@/assets/img/sheet_play/number4.png" alt="Level 4" class="w-[90%] h-[90%]  object-contain p-2" />
+                            <img v-if="selectedSheet.level === 0" src="@/assets/img/sheet_play/number0.png" alt="Level 1" class="w-[90%] h-[90%] object-contain p-2" />
+                            <img v-else-if="selectedSheet.level === 1" src="@/assets/img/sheet_play/number1.png" alt="Level 1" class="w-[90%] h-[90%] object-contain p-2" />
+                            <img v-else-if="selectedSheet.level === 2" src="@/assets/img/sheet_play/number2.png" alt="Level 2" class="w-[90%] h-[90%] object-contain p-2" />
+                            <img v-else-if="selectedSheet.level === 3" src="@/assets/img/sheet_play/number3.png" alt="Level 3" class="w-[90%] h-[90%] object-contain p-2" />
+                            <img v-else-if="selectedSheet.level === 4" src="@/assets/img/sheet_play/number4.png" alt="Level 4" class="w-[90%] h-[90%] object-contain p-2" />
                             <span v-else class="text-xl font-bold">{{ selectedSheet.level }}</span> <!-- level이 1, 2, 3이 아닐 때 -->
                         </div>
-                    
                     </div>
-                   
                 </div>
             </div>
         </div>
@@ -135,6 +131,7 @@ onMounted(() => {
         </div>
     </div>
 </template>
+
 
 <style scoped>
 

@@ -313,10 +313,24 @@ onBeforeRouteLeave( async (to, from, next) => {
         <div class="up">
             <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
         </div>
-        <div class="down">
+        <div class="down"
+        :style="{
+                    backgroundImage: `url(${require('@/assets/img/sheet_play/ground.png')})`,
+                    backgroundBlendMode: 'multiply', 
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
+                    backgroundSize: '100% 100%', 
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat' }"
+        >
             <!-- 본인 프로필을 표시하는 컴포넌트 -->
             <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
-            <button class="btn btn-primary w-24" @click="onClickQuit">
+            <button class="btn  w-24" @click="onClickQuit"
+            :style="{
+              backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
+              backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat' }"
+            >
                 나가기
             </button>
             <!-- 상대방 프로필을 표시하는 컴포넌트 -->
