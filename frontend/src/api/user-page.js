@@ -51,7 +51,7 @@ export const userPageService = {
         try {
             const response = await local.get(`/plays/single/${userId}`);
             return response.data.map((sheet) => ({
-                id: sheet.id,
+                id: sheet.sheetId,
                 title: sheet.sheetTitle,
                 songComposer: sheet.songComposer,
                 uploaderNickname: sheet.uploaderNickname,

@@ -62,8 +62,21 @@ convert_service = ConvertService()
 async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singleResultId: str = Form(...)):
     logger.info("single_result_id" + singleResultId)
     try:
+        # 파일명에 포함된 숫자 추출 (file_number)
+        match = re.search(r'\d+', file.filename)
+        if match:
+            file_number = match.group()
+        else:
+            file_number = "0"
+
+        # 파일명을 uuid와 file_number 조합으로 변경
+        base_filename = f"{uuid}_{file_number}"
+        original_file_name = f"{base_filename}.webm"
+        wav_file_name = f"{base_filename}.wav"
+        midi_file_name = f"{base_filename}.mid"
+
         # 파일 저장 경로 설정
-        file_location = os.path.join(UPLOAD_DIR, file.filename)
+        file_location = os.path.join(UPLOAD_DIR, original_file_name)
 
         # 임시 폴더가 존재하는지 확인하고 없으면 생성
         if not os.path.exists(UPLOAD_DIR):
@@ -76,18 +89,7 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
         # 파일이 실제로 저장되었는지 확인
         if not os.path.exists(file_location):
             raise FileNotFoundError(f"파일이 {file_location}에 저장되지 않았습니다.")
-
-        # 파일명에 포함된 숫자 추출
-        match = re.search(r'\d+', file.filename)
-        if match:
-            file_number = match.group()
-            wav_file_name = f"converted_{file_number}.wav"
-            midi_file_name = f"converted_{file_number}.mid"
-        else:
-            wav_file_name = "converted.wav"
-            midi_file_name = "converted.mid"
-            file_number = ""
-
+        
         if PC == "LOCAL":
             file_extension = os.path.splitext(file.filename)[1].lower()
             if file_extension == ".webm":
@@ -186,7 +188,7 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
             is_last = 1
 
         return {
-            "filename": file.filename,
+            "filename": original_file_name,
             "midi_file": midi_file_location,
             "content_type": file.content_type,
             "similarity_results": similarity_results,

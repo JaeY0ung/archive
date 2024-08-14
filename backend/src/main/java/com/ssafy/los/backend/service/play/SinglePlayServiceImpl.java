@@ -125,6 +125,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
                     SingePlayResultProfileDto dto = SingePlayResultProfileDto.builder()
                             .nickname(result.getUser().getNickname())
                             .userImgName(result.getUser().getUserImg())
+                            .sheetId(result.getSheet().getId())
                             .sheetTitle(result.getSheet().getTitle())
                             .songComposer(result.getSheet().getSong().getComposer())
                             .songImgName(result.getSheet().getSong().getImgName())
