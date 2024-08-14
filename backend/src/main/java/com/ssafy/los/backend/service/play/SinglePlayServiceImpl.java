@@ -70,10 +70,10 @@ public class SinglePlayServiceImpl implements SinglePlayService {
 
         SinglePlayResult singlePlayResult = singlePlayResultRepository.findById(singleResultId)
                 .orElseThrow(() -> new RuntimeException("Single Play Result Not Found"));
-        log.info("업데이트 과정 singlePlayResult : {}", singlePlayResult.toString());
-        log.info("업데이트 과정 status : {}", singlePlayResult.isStatus());
+//        log.info("업데이트 과정 singlePlayResult : {}", singlePlayResult.toString());
+//        log.info("업데이트 과정 status : {}", singlePlayResult.isStatus());
         if (!singlePlayResult.isStatus()) {
-            log.info("조건문 체크");
+//            log.info("조건문 체크");
             User user = userRepository.findUserByIdAndDeletedAtNull(
                             singleResultAfterDto.getUserId())
                     .orElseThrow(() -> new RuntimeException("user not found"));
@@ -88,7 +88,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
 
             // 명시적으로 저장하여 변경 사항 반영
             singlePlayResultRepository.save(singlePlayResult);
-            refreshSingleScoreOfUser(loginUser.getId());
+            refreshSingleScoreOfUser(singlePlayResult.getUser().getId());
 
         } else {
             log.info("이미 저장 완료된 배틀 기록입니다.");
