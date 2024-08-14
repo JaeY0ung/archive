@@ -29,6 +29,8 @@
         const last_measure = ref(0);
         const check_measure = ref(-1);
 
+        let recordingInterval = null;
+
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);
             osmd.value.setOptions({
@@ -146,11 +148,11 @@
                     chunks.value.push(event.data);
                 }
             };
-            setInterval(() => {
+            recordingInterval = setInterval(() => {
                 if (isRecording.value) {
                     splitRecording();
                 }
-            }, 5000); // Calls splitRecording every 5 seconds
+            }, 5000); 
             mediaRecorder.value.onstop = () => {
                 if (chunks.value.length > 0) {
                     const blob = new Blob(chunks.value, { type: 'audio/webm' });
@@ -223,6 +225,10 @@
                 mediaRecorder.value.stop();
                 isLast.value = true;
                 //splitRecording();
+            }
+            if (recordingInterval) {
+                clearInterval(recordingInterval);
+                recordingInterval = null;
             }
             
         };
