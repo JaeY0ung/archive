@@ -59,7 +59,7 @@ watch(isReady, (newVal, oldVal) => {
 
 const opponent = ref({
     userImg: null,
-    nickname: "유저를 기다리는 중...", 
+    nickname: "상대를 기다리는 중...", 
     score: "0",
     isEmpty: true
 })
@@ -114,7 +114,7 @@ function connect() {
                 console.log("exit에 들어왔습니다.")
                 opponent.value = {
                     userImg: defaultProfileImage,
-                    nickname: "유저를 기다리는 중....",
+                    nickname: "상대를 기다리는 중....",
                     score: "0",
                     isEmpty: true
                 }
@@ -317,52 +317,118 @@ onBeforeRouteLeave(async (to, from, next) => {
 </script>
 
 <template>
-    <div class="flex w-full flex-col rounded-xl shadow-xl opacity-[0.8] mb-[10px] bg-red-400">
-        <div class="flex w-full h-[70%] rounded-tl-xl rounded-tr-xl bg-blue-300 justify-center">
-            <SelectCategory v-if="isInCategoryView" @send-sheet-category="getSheetsByCategory" />
-            <SelectSheet v-else :sheets="sheets" @send-go-to-back="isInCategoryView=true" @send-sheet-id="setSheetId"/>
-        </div>
-        <div class="flex flex-grow w-full h-[35%] rounded-bl-xl rounded-br-xl bg-yellow-100 justify-center">
-            <div class="player-card">
-                <UserCardForPlay :user="user" @onClickStart="onClickStart" />
-                <button class="btn text-white" style="background-color: gray;" v-if="isReady == 'false' && route.name == 'multiWait'" @click="readyButton">대기중</button>
-                <button class="btn text-white" style="background-color: red;"  v-if="isReady == 'true' && route.name == 'multiWait'" @click="readyButton">준비완료</button>
+    <div
+        class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-80px)] overflow-hidden py-4 rounded-xl"
+    >
+        <div
+            class="flex flex-col w-full max-w-[95%] h-full max-h-[95%] rounded-xl shadow-xl relative bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200"
+        >
+        
+            <!-- 위 -->
+            <div
+                class="relative w-full h-[65vh] rounded-t-xl  shadow-2xl overflow-hidden"
+            >
+                <div
+                    class="absolute inset-0 bg-cover bg-center opacity-70 "
+                ></div>
+                <SelectCategory
+                    v-if="isInCategoryView"
+                    class="absolute inset-0 overflow-auto opacity-80"
+                    @send-sheet-category="getSheetsByCategory"
+                />
+                <SelectSheet
+                    v-else
+                    class="absolute inset-0 overflow-auto"
+                    :sheets="sheets"
+                    @send-go-to-back="isInCategoryView = true"
+                    @send-sheet-id="setSheetId"
+                />
+            </div>
+            <!-- 아래 -->
+            <div class="flex flex-grow gap-4 w-full h-[180px] rounded-bl-xl rounded-br-xl justify-center inset-0 bg-cover bg-center opacity-70"
+            :style="{
+                    backgroundImage: `url(${require('@/assets/img/sheet_play/ground.png')})`,
+                    backgroundBlendMode: 'multiply', 
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
+                    backgroundSize: '100% 100%', 
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat' }"
+            >
+                <!-- 로그인 유저(나) -->
+                <div class="player-card flex gap-2 justify-center items-center">
+                    <UserCardForPlay :user="user" @onClickStart="onClickStart" class="h-[95%] shadow-2xl" />
+                    <button class="btn bg-yellow-100 bg-opacity-90 rounded-3xl border-opacity-0 text-xl h-[95%] w-[30%] text-gray-800 "  
+                    v-if="isReady == 'false' && route.name == 'multiWait'" @click="readyButton"           >
+                    대기중</button>
+                    <button class="btn text-white" style="background-color: red;"  v-if="isReady == 'true' && route.name == 'multiWait'" @click="readyButton">준비완료</button>
+                </div>
+                <!-- 시작하기 + 나가기 -->
+                <div class="button-div flex flex-col justify-center gap-2">
+                    <button class="btn btn-primary w-[10vw] h-[10vh] text-xl bg-opacity-80" style="background-color: gray;" v-if="isReady == 'false' || opponentReady == 'false'">
+                        시작하기
+                    </button>
+                    <button class="btn btn-primary w-[10vw] h-[10vh] text-xl" v-if="isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
+                        시작하기
+                    </button>
+                    <button class="btn bg-pink-200 bg-opacity-85 text-xl border-opacity-0  w-[10vw] h-[10vh]" @click="quitButton"
+                    >
+                        나가기
+                    </button>
+                </div>
+                
+                <!-- 상대 유저 -->
+                <div class="player-card flex justify-center gap-2 items-center">
+                    <UserCardForPlay :user="opponent" class="h-[95%] shadow-2xl"/>
+                    
+                    <!-- 친구 초대하기 버튼: 대결 상대가 없고, 초대되지 않았을 때만 나타남 -->
+                    <button class="btn border-opacity-0 text-xl h-[95%] w-[30%] text-gray-800 bg-yellow-100 bg-opacity-90 rounded-3xl " 
+                        
+                        v-if="!isInvited" 
+                        @click="openInviteModalStatus">
+                        친구 초대하기
+                    </button>
+                    
+                    <!-- 대기중 버튼: 대결 상대가 있고, 아직 준비가 안 된 상태일 때 나타남 -->
+                    <button class="btn text-white" 
+                        :style="{
+                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_yellow.png')})`,
+                            backgroundSize: '100% 100%',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat'
+                        }"
+                        v-if="isInvited && opponentReady == 'false' && route.name == 'multiWait'">
+                        대기중
+                    </button>
+                    
+                    <!-- 준비완료 버튼: 대결 상대가 있고, 준비가 완료된 상태일 때 나타남 -->
+                    <button class="btn text-white" 
+                        :style="{
+                            backgroundImage: `url(${require('@/assets/img/sheet_play/box_yellow.png')})`,
+                            backgroundSize: '100% 100%',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat'
+                        }"
+                        v-if="isInvited && opponentReady == 'true' && route.name == 'multiWait'">
+                        준비완료
+                    </button>
+                </div>
             </div>
 
-            <div class="button-div">
-                <button class="btn btn-primary w-24" style="background-color: gray;" v-if="isReady == 'false' || opponentReady == 'false'">
-                    시작하기
-                </button>
-                <button class="btn btn-primary w-24" v-if="isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
-                    시작하기
-                </button>
-                <button class="btn btn-primary w-24" @click="quitButton">
-                    나가기
-                </button>
-            </div>
 
-            <div class="player-card">
-                <UserCardForPlay :user="opponent"/>
-                <button class="btn text-white" style="background-color: gray;" v-if="opponentReady == 'false' && route.name == 'multiWait'">대기중</button>
-                <button class="btn text-white" style="background-color: red;"  v-if="opponentReady == 'true' && route.name == 'multiWait'">준비완료</button>
-                <button class="btn text-white" style="background-color: gray;" v-if="isInvited == false" @click="openInviteModalStatus">친구 초대하기</button>
-            </div>
-        </div>
-
-
-        <div v-if="inviteModalStatus" class="invite-modal">
-            <div class="modal-content">
-                <h2 class="modal-title">친구 초대하기</h2>
-                <ul>
-                    <li v-for="user in onlineUsers" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
-                        <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" />
-                        <span>{{ user.nickname }}</span>
-                        <span>{{ user.singleScore }}</span>
-                    </li>
-                </ul>
-                <div class="modal-button">
-                    <button @click="inviteSelectedFriends" >선택한 친구 초대하기</button>
-                    <button @click="closeInviteModalStatus">닫기</button>
+            <div v-if="inviteModalStatus" class="invite-modal">
+                <div class="modal-content">
+                    <h2 class="modal-title">친구 초대하기</h2>
+                    <ul>
+                        <li v-for="user in onlineUsers" :class="{ selected: isFriendSelected(user) }" @click="toggleFriendSelection(user)">
+                            <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" />
+                            <span>{{ user.nickname }}</span>
+                            <span>{{ user.singleScore }}</span>
+                        </li>
+                    </ul>
+                    <div class="modal-button">
+                        <button @click="inviteSelectedFriends" >선택한 친구 초대하기</button>
+                        <button @click="closeInviteModalStatus">닫기</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -370,56 +436,6 @@ onBeforeRouteLeave(async (to, from, next) => {
 </template>
 
 <style scoped>
-
-.down {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 25vh;
-}
-
-.button-div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.player-card {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    width: 65%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.player-img {
-    width: 100px;
-    height: 100px; 
-    background-color: white;
-    border-radius: 50%;
-    margin-bottom: 10px;
-}
-
-.player-info-text {
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-button {
-    border: 1px solid black;
-    width: 100px;
-    height: 40px;
-    margin: 5px;
-    background-color: #2196f3;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
 .invite-modal {
     position: fixed;
     top: 0;
