@@ -211,7 +211,7 @@
                     isLast.value = 1;
                 }
             } catch (err) {
-                console.error('파일 업로드 실패: ', err);
+                console.error('채점 실패: ', err);
             }
         };        
 
