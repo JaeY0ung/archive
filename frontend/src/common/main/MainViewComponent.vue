@@ -1,9 +1,6 @@
 <script setup>
-import { Carousel, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
-
 import SmallSheetCard from '@/common/sheet/SmallSheetCard.vue';
-import SmallSheetCardForPhoto from '@/common/sheet/SmallSheetCardForPhoto.vue';
 
 defineProps({
     sheets: Array,
@@ -13,7 +10,7 @@ const emit = defineEmits(['goToSheetDetail', 'goToSheetSearchListView'])
 </script>
 
 <template>
-    <div class="w-full h-[50vh] flex p-4 bg-white/50 rounded-2xl">
+    <div class="w-full h-full flex p-4 bg-white/50 rounded-2xl">
         <div class="w-full flex flex-col">
             <div class="w-full mb-2 flex justify-between mr-1">
                 <div class="text-xl bold">{{ title }}</div>
@@ -26,7 +23,7 @@ const emit = defineEmits(['goToSheetDetail', 'goToSheetSearchListView'])
             </div>
 
             <div class="w-full h-full flex relative scroll-y">
-                <div class="w-full  flex flex-col absolute scroll-y">
+                <div class="w-full flex flex-col absolute scroll-y gap-2">
                     <template v-if="sheets">
                         <template v-for="sheet in sheets" :key="sheet.id">
                             <SmallSheetCard :sheet="sheet" @click="emit('goToSheetDetail', sheet.id)" />

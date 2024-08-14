@@ -1,13 +1,11 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { watch } from 'vue';
 import { useRouter } from 'vue-router'
 import { useUserStore } from "@/stores/user";
-import { storeToRefs } from "pinia";
 
 
 const router = useRouter();
 const userStore = useUserStore();
-const { userInfo, isLogin } = storeToRefs(userStore);
 
 const props = defineProps({
     sheet: {
@@ -41,10 +39,10 @@ const goToSheetDetail = (sheetId) => {
 </script>
 
 <template>
-    <div class="flex justify-between items-center bg-white shadow-lg rounded-3xl p-4 relative" style="background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(200, 200, 200, 0.8));"  @click="goToSheetDetail(sheet.id)">
+    <div class="flex justify-between items-center bg-white shadow-lg rounded-3xl p-4 relative"  @click="goToSheetDetail(sheet.id)">
         <!-- 왼쪽 이미지 공간 -->
-        <div class="flex justify-center items-center w-[100px] h-[100px] rounded-3xl bg-white shadow-inner overflow-hidden">
-            <img  :src="sheet.imageUrl"   alt="Sheet Image"  class="w-[90%] h-[90%]  object-contain" />
+        <div class="flex justify-center items-center w-[200px] h-[200px] rounded-3xl bg-white shadow-inner overflow-hidden">
+            <img  :src="sheet.imageUrl" alt="Sheet Image"  class="w-[90%] h-[90%]  object-contain" />
         </div>
         <!-- 텍스트 -->
         <div class="w-[50%]">

@@ -18,15 +18,15 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 </script>
 
 <template>
-    <div class="h-[38vh] max-w-[200px] w-[24vw] flex flex-col">
-        <div class="w-full">
-            <img class="w-full" :src="sheet?.imageUrl" alt="악보 이미지">
+    <div class="h-full max-w-[200px] w-[20vw] flex flex-col">
+        <div class="w-full p-3">
+            <img class="w-[200px] h-[200px]" :src="sheet?.imageUrl" alt="악보 이미지">
         </div>
 
         <div class="p-4">
             <div class="flex flex-row mb-2 justify-center gap-3 items-center">
                 <div class="font-bold text-lg">
-                    {{ restrictTitle ? getTitleByLen(sheet?.title, 15) : sheet?.title }}
+                    {{ restrictTitle ? getTitleByLen(sheet?.title, 12) : sheet?.title }}
                 </div>
                 <Tier :level="sheet?.level" class="w-6 h-6" />
             </div>
@@ -38,7 +38,7 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
             <div class="text-sm text-gray-600 mt-1">
                 가격: {{ sheet.price ? sheet.price  + '원' : '무료'}}
             </div>
-            <div class="btn btn-primary">대결하러 가기</div>
+            <div class="btn btn-primary">연습</div>
         </div>
     </div>
 </template>
