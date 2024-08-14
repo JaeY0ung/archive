@@ -94,7 +94,6 @@ const onStartRecordingEmit = async () => {
 			withCredentials: true
 		});
     singleResultId = response.data
-    console.log("싱글 플레이 데이터 저장 성공");
     // sheet.js에서 중간 점수를 보낼 때, singleResultId를 같이 보낼 수 있도록 sheet.js 저장
     musicStore.singleResultId = singleResultId;
     // sheet store에 singleResultId 저장
@@ -179,10 +178,8 @@ onBeforeRouteLeave(async (to, from, next) => {
     if((isPopstate.value == true && to.name == "multiRoomList") || isQuitting.value == true){
       // 뒤로가기를 눌렀을 때, 녹음 중이 아니라면 방목록 페이지로 이동시킨다.
       if(musicStore.isRecording == false){
-        console.log("녹음 중이 아닐 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
         next();
       }else{
-        console.log("녹음 중일 때, 뒤로가기 또는 나가기 버튼으로 페이지 이동");
         // 뒤로가기를 눌렀을 때, 녹음 중이라면 0점 처리되고, 방목록 페이지로 이동시킨다.
         local.patch(`/plays/single/${singleResultId}`, {
           userId: loginUser.id,

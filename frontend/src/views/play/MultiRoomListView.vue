@@ -18,12 +18,8 @@ isLoading.value = false;
 
 onMounted(() => {
 getAllRooms();
-console.log("musicStore.f1Score : ", musicStore.f1Score);
-console.log("musicStore.jaccardScore : ", musicStore.jaccardScore);
-musicStore.f1Score = [];
-musicStore.jaccardScore = [];
-console.log("musicStore.f1Score : ", musicStore.f1Score);
-console.log("musicStore.jaccardScore : ", musicStore.jaccardScore);
+musicStore.f1 = [];
+musicStore.jaccard = [];
 });
 
 // 배틀 모드 선택

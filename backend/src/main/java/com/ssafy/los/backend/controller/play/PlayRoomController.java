@@ -2,6 +2,7 @@ package com.ssafy.los.backend.controller.play;
 
 import com.ssafy.los.backend.dto.play.PlayerEndDto;
 import com.ssafy.los.backend.dto.play.PlayerStartDto;
+import com.ssafy.los.backend.dto.play.request.SendIdDto;
 import com.ssafy.los.backend.dto.user.response.ScoreDto;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.play.MultiPlayService;
@@ -22,7 +23,7 @@ public class PlayRoomController {
     @MessageMapping("/play/{roomId}")
     @SendTo("/play/socket/{roomId}")
     public ScoreDto sendScore(ScoreDto scoreDto) throws Exception {
-        log.info("점수를 받았습니다. : {}");
+        log.info("점수를 받았습니다. : {} : ", scoreDto.toString());
         return scoreDto;
     }
 
@@ -40,10 +41,18 @@ public class PlayRoomController {
         return playerEndDto;
     }
 
-    @MessageMapping("play/end/quit/{roomId}")
+    @MessageMapping("/play/end/quit/{roomId}")
     @SendTo("/play/end/quit/socket/{roomId}")
     public PlayerEndDto sendQuitEndSign(PlayerEndDto playerEndDto) throws Exception {
         log.info("중간 탈주로 인한 종료 신호를 받았습니다. : {}", playerEndDto.toString());
         return playerEndDto;
     }
+
+    @MessageMapping("/play/id/{roomId}")
+    @SendTo("/play/id/socket/{roomId}")
+    public SendIdDto sendId(SendIdDto sendIdDto) throws Exception {
+        log.info("id 전송. : {}", sendIdDto.toString());
+        return sendIdDto;
+    }
+
 }

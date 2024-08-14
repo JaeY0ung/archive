@@ -104,14 +104,12 @@ function connect() {
         })
 
         stompClient.subscribe(`/wait/socket/start/${route.params.roomId}`, function(socket){
-            console.log("start 및 exit 구독 받았음");
             const message = JSON.parse(socket.body);
             if(message.type == "start" && message.content == "true"){
                 selectedSheetId.value = message.sheetId;
                 router.push({name:'multiPlay', params:{ roomId: route.params.roomId , sheetId: selectedSheetId.value }});
             }
             if(message.type == "exit"){
-                console.log("exit에 들어왔습니다.")
                 opponent.value = {
                     userImg: defaultProfileImage,
                     nickname: "유저를 기다리는 중....",
@@ -122,16 +120,11 @@ function connect() {
             }
         })
 
-        // console.log("연결되었습니다.")
-
         stompClient.send(`/app/wait/${route.params.roomId}`, {}, JSON.stringify({ id : "profile", nickname : user.nickname, userImg : user.userImg }));
         stompClient.send(`/app/wait/ready/${route.params.roomId}`, {}, JSON.stringify({ sender : user.nickname, isReady: isReady.value }));
     });
 }
 
-function disconnect() {
-    // console.log("disconnect되었다")
-}
 
 function sendExit(){
     stompClient.send(`/app/wait/start/${route.params.roomId}`, {}, JSON.stringify({ type: "exit", sender : user.nickname, content: 'true', sheetId: 0 }));
@@ -167,7 +160,6 @@ const inviteModalStatus = ref(false);
 const selectedFriend = ref(null);
 
 const openInviteModalStatus = () => {
-    console.log("ONLINE ::::::: ",onlineUsers.value)
     inviteModalStatus.value = true;
 }
 
@@ -193,9 +185,7 @@ const isFriendSelected = (user) => {
 const inviteSelectedFriends = async () => {
     if (selectedFriend.value) {
         // 친구 초대 알림 보내기
-        console.log("초대 알림 방 ID: " + roomId.value)
         await playStore.sendInviteAlert(selectedFriend.value.id, roomId.value);
-        console.log("Invite selected friend:", selectedFriend.value);
     }
     closeInviteModalStatus();
 }

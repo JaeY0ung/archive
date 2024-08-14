@@ -13,9 +13,6 @@ import com.ssafy.los.backend.exception.user.UserNotFoundException;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.util.FileUploadUtil;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -32,6 +29,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -64,34 +65,34 @@ public class SinglePlayServiceImpl implements SinglePlayService {
     @Override
     @Transactional
     public Long completeSinglePlayResult(Long singleResultId,
-            SingleResultAfterDto singleResultAfterDto) {
+                                         SingleResultAfterDto singleResultAfterDto) {
         User loginUser = authService.getLoginUser();
 
         SinglePlayResult singlePlayResult = singlePlayResultRepository.findById(singleResultId)
                 .orElseThrow(() -> new RuntimeException("Single Play Result Not Found"));
         log.info("업데이트 과정 singlePlayResult : {}", singlePlayResult.toString());
         log.info("업데이트 과정 status : {}", singlePlayResult.isStatus());
-        if (!singlePlayResult.isStatus()) {
-            log.info("조건문 체크");
-            User user = userRepository.findUserByIdAndDeletedAtNull(
-                            singleResultAfterDto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("user not found"));
+//        if (!singlePlayResult.isStatus()) {
+        log.info("조건문 체크");
+        User user = userRepository.findUserByIdAndDeletedAtNull(
+                        singleResultAfterDto.getUserId())
+                .orElseThrow(() -> new RuntimeException("user not found"));
 
-            Float score = singleResultAfterDto.getScore();
+        Float score = singleResultAfterDto.getScore();
 
-            singlePlayResult.update(user, score);
+        singlePlayResult.update(user, score);
 
-            // 플레이 종료시간 저장
-            singlePlayResult.updatePlayTime();
-            singlePlayResult.updateStatus(true);
+        // 플레이 종료시간 저장
+        singlePlayResult.updatePlayTime();
+        singlePlayResult.updateStatus(true);
 
-            // 명시적으로 저장하여 변경 사항 반영
-            singlePlayResultRepository.save(singlePlayResult);
-            refreshSingleScoreOfUser(loginUser.getId());
+        // 명시적으로 저장하여 변경 사항 반영
+        singlePlayResultRepository.save(singlePlayResult);
+        refreshSingleScoreOfUser(loginUser.getId());
 
-        } else {
-            log.info("이미 저장 완료된 배틀 기록입니다.");
-        }
+//        } else {
+//            log.info("이미 저장 완료된 배틀 기록입니다.");
+//        }
         return singleResultId;
     }
 

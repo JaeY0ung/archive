@@ -12,9 +12,6 @@ import com.ssafy.los.backend.dto.play.response.MultiPlayResultProfileDto;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.util.FileUploadUtil;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -28,6 +25,10 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -53,50 +54,56 @@ public class MultiPlayServiceImpl implements MultiPlayService {
         MultiPlayResult multiPlayResult = MultiPlayResult.builder()
                 .sheet(playSheet).build();
 
+        log.info("생성된 멀티 리저트 = {}", multiPlayResult.toString());
+        log.info("생성된 멀티 리저트 = {}", multiPlayResult.getSheet().getTitle());
+
         return multiPlayResultRepository.save(multiPlayResult).getId();
     }
 
     // 게임이 종료되었을 떄, 결과 테이블 가져오기
     @Override
     public Long completeMultiPlayResult(Long multiResultId,
-            MultiPlayResultAfterDto multiResultAfterDto) {
+                                        MultiPlayResultAfterDto multiResultAfterDto) {
 
+        log.info("멀티 리절트 아이디 = {}", multiResultId);
         MultiPlayResult multiPlayResult = multiPlayResultRepository.findById(multiResultId)
                 .orElseThrow(() -> new RuntimeException("multi play result not found"));
 
-        if (!multiPlayResult.isStatus()) {
-            User myUser = userRepository.findUserByIdAndDeletedAtNull(
-                            multiResultAfterDto.getMyUserId())
-                    .orElseThrow(() -> new RuntimeException("user not found"));
+        log.info("찾은 멀티 리저트 = {}", multiPlayResult.toString());
 
-            User otherUser = userRepository.findByNicknameAndDeletedAtNull(
-                            multiResultAfterDto.getOtherUserId())
-                    .orElseThrow(() -> new RuntimeException("other user not found"));
+//        if (!multiPlayResult.isStatus()) {
+        User myUser = userRepository.findUserByIdAndDeletedAtNull(
+                        multiResultAfterDto.getMyUserId())
+                .orElseThrow(() -> new RuntimeException("user not found"));
 
-            Float myScore = multiResultAfterDto.getMyScore();
-            Float otherScore = multiResultAfterDto.getOtherScore();
+        User otherUser = userRepository.findByNicknameAndDeletedAtNull(
+                        multiResultAfterDto.getOtherUserId())
+                .orElseThrow(() -> new RuntimeException("other user not found"));
 
-            if (myScore > otherScore) {
-                multiPlayResult.update(myUser, myScore, otherUser, otherScore);
-            } else if (myScore.equals(otherScore)) {
-                multiPlayResult.update(myUser, myScore, otherUser, otherScore);
-                multiPlayResult.updateDraw(true);
-            } else {
-                multiPlayResult.update(otherUser, otherScore, myUser, myScore);
-            }
+        Float myScore = multiResultAfterDto.getMyScore();
+        Float otherScore = multiResultAfterDto.getOtherScore();
 
-            // 게임이 종료되었으므로 상태 완료와 플레이 시간을 저장해준다.
-            multiPlayResult.updatePlayTime();
-            multiPlayResult.updateStatus(true);
-
-            refreshMultiScoreOfUser(myUser.getId());
-            refreshMultiScoreOfUser(otherUser.getId());
-
-            log.info("최종으로 저장된 멀티 result = {}", multiPlayResult.toString());
+        if (myScore > otherScore) {
+            multiPlayResult.update(myUser, myScore, otherUser, otherScore);
+        } else if (myScore.equals(otherScore)) {
+            multiPlayResult.update(myUser, myScore, otherUser, otherScore);
+            multiPlayResult.updateDraw(true);
         } else {
-            // TODO: 이미 완료된 배틀 경기임
-            log.info("이미 저장 완료된 배틀 기록입니다.");
+            multiPlayResult.update(otherUser, otherScore, myUser, myScore);
         }
+
+        // 게임이 종료되었으므로 상태 완료와 플레이 시간을 저장해준다.
+        multiPlayResult.updatePlayTime();
+        multiPlayResult.updateStatus(true);
+
+        refreshMultiScoreOfUser(myUser.getId());
+//            refreshMultiScoreOfUser(otherUser.getId());
+
+        log.info("최종으로 저장된 멀티 result = {}", multiPlayResult.toString());
+//        } else {
+        // TODO: 이미 완료된 배틀 경기임
+//            log.info("이미 저장 완료된 배틀 기록입니다.");
+//        }
         return multiResultId;
     }
 
@@ -162,6 +169,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
         try {
             HttpClient client = HttpClientBuilder.create().build();
             HttpPost request = new HttpPost(fastApiServerUrl + "/playing/single");
+            log.info("fastAPI 요청 ={}", request);
 
             HttpEntity multipart = MultipartEntityBuilder.create()
                     .addBinaryBody("file", file.getInputStream(),
@@ -181,6 +189,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             if (statusCode != 200) {
                 throw new IllegalArgumentException("[파일 계산 실패]");
             }
+
             return EntityUtils.toString(response.getEntity());
         } catch (IOException e) {
             throw new IllegalArgumentException("[파일 계산 실패] " + e.getMessage());
