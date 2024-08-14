@@ -3,7 +3,9 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { usePlayStore } from '@/stores/play';
 import RoomCreateModal from './RoomCreateModal.vue';
+import { useMusicStore } from '@/stores/sheet';
 
+const musicStore = useMusicStore();
 const router = useRouter();
 const playStore = usePlayStore();
 const isLoading = ref(true);
@@ -16,6 +18,8 @@ isLoading.value = false;
 
 onMounted(() => {
 getAllRooms();
+musicStore.f1 = [];
+musicStore.jaccard = [];
 });
 
 // 배틀 모드 선택
@@ -27,6 +31,8 @@ playStore.setShowModal(true);
 router.push({ name: 'singleWait' });
 }
 };
+
+
 
 // 방 입장
 const enterRoom = async (roomId) => {

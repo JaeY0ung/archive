@@ -18,9 +18,7 @@ const route = useRoute();
 </script>
 
 <template>
-    <div
-        class="h-screen w-screen overflow-hidden bg-gradient-to-b from-[#FFFFFF] to-[#D8FEFF]"
-    >
+    <div class="h-screen w-screen overflow-hidden bg-gradient-to-b from-[#FFFFFF] to-[#D8FEFF]">
         <div class="flex h-full w-full">
             <LeftNavigation class="flex h-full flex-shrink-0 flex-col"  :class="{ 'w-[200px]': navVisibility, 'w-0': !navVisibility, }" style="transition: width 0.5s ease" />
             <div class="flex flex-grow flex-col min-h-0 overflow-hidden">

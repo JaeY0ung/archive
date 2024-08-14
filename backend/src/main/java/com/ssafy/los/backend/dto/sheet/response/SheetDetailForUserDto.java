@@ -67,9 +67,9 @@ public class SheetDetailForUserDto implements SheetDetailDto {
         this.price = sheet.getPrice();
         this.level = sheet.getLevel();
         this.status = sheet.getStatus();
-        if (sheet.getStatus() != null && sheet.getStatus() == 0) {
-            this.level = 0;
-        }
+//        if (sheet.getStatus() != null && sheet.getStatus() == 0) {
+//            this.level = 0;
+//        }
         this.viewCount = sheet.getViewCount();
         this.likeCount = likeCount;
         this.likeStatus = likeStatus;

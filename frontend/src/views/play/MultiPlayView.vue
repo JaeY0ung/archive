@@ -25,6 +25,7 @@ const isQuitting = ref(false);
 const isPopstate = ref(false);
 const isReloading = ref(false);
 let multiResultId = 0;
+let multi_result_id = -2;
 const local = localAxios();
 let isLastSender = false;
 let isLastRecieved = false;
@@ -33,8 +34,8 @@ let opponentScore = 0;
 const myF1Score = ref(0);
 const myJaccardScore = ref(0);
 let isResultSender = false;
+let isPlayBehind = false;
 
-console.log("route.params.roomId: " + route.params.roomId);
 
 // sheet.js에서 올바른 경로로 보낼 수 있도록 mode를 지정해준다.
 // back에서 single 처럼 경로를 지정해주는 MultiPlayController의 메서드가 필요함.
@@ -52,8 +53,6 @@ const opponentJaccardScore = ref(0);
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
 const onStartRecordingEmit = () => {
-    console.log("onStartRocordingEmit 실행")
-    console.log(route.params.roomId);
     stompClient.send(`/app/play/start/${route.params.roomId}`, {}, JSON.stringify({type: "start", sender: loginUser.nickname, content: "start", sheetId: route.params.sheetId, resultId: multiResultId}));
     startRecording();
 }
@@ -88,39 +87,53 @@ function connect() {
         function (frame) {
 
           stompClient.subscribe(`/play/socket/${route.params.roomId}`, function(scoreSocket){
+            // 상대방의 점수를 받는 부분 
             const scoreData = JSON.parse(scoreSocket.body);
             if(scoreData.nickname != loginUser.nickname){
               opponentF1Score.value = scoreData.f1Score;
               opponentJaccardScore.value = scoreData.jaccardScore;
             }
+            // 상대방의 점수를 받았을 때, isLast가 1이라면(채점이 모두 끝났다면), update한다.
+            if(musicStore.isLast == 1){
+                const myScore = parseFloat(myJaccardScore.value);
+                const otherScore = parseFloat(opponentJaccardScore.value);
+                local.patch(`/plays/multi/${multi_result_id}`, {
+                myUserId: loginUser.id,
+                myScore: myScore,
+                otherUserId: opponentUser.nickname,
+                otherScore: otherScore
+                }).then(response => {
+                    isRequested = true;
+                }).catch(error => {
+                console.log("멀티 플레이 데이터 업데이트 중 오류 발생")
+                });
+            }
           });
 
           stompClient.subscribe(`/play/start/socket/${route.params.roomId}`, async (socket) => {
             const message = JSON.parse(socket.body);
-            console.log("시작 구독 성공")
             if(loginUser.nickname != message.sender){
             startRecording();
+            isPlayBehind = true;
             // 결과 아이디 최신화.
-            multiResultId = message.resultId;
-            isLastSender = true;
+            if(message.resultId != 0){
+                // multiResultId = message.resultId;
+                isLastSender = true;
+            }
             try{
-                console.log("try");
                 const response = await local.post("/plays/multi" , {
                 sheetId: route.params.sheetId
                 },{
                         withCredentials: true
                     });
-                    console.log("response.data : " + response.data);
-                    console.log("response" + response.data);
-                    console.log("multiResultId : " + multiResultId);
-                    
-                    multiResultId = response.data
-                    console.log("multiResultId : " + multiResultId);
-                console.log("멀티 플레이 데이터 저장 성공");
+                
+                multiResultId = response.data
+                multi_result_id = response.data;
+                musicStore.singleResultId = multi_result_id
+                stompClient.send(`/app/play/id/${route.params.roomId}`, {}, JSON.stringify({sender: loginUser.nickname, resultId: multi_result_id}))
                 isResultSender = true;
                 // sheet.js에서 중간 점수를 보낼 때, multiResultId를 같이 보낼 수 있도록 sheet.js 저장
-                console.log(multiResultId);
-                musicStore.multiResultId = multiResultId;
+                // musicStore.singleResultId = multiResultId;
                 // sheet store에 multiResultId 저장
                 }catch(error){
                     console.log("멀티 플레이 데이터 저장 중 오류 발생");
@@ -129,89 +142,27 @@ function connect() {
             }
           });
 
-          stompClient.subscribe(`/play/end/socket/${route.params.roomId}`, (socket) => {
+          stompClient.subscribe(`/play/id/socket/${route.params.roomId}`, (socket) => {
             const message = JSON.parse(socket.body);
-            console.log("종료 구독 성공");
-            if(loginUser.nickname!= message.sender){
-                isLastRecieved = true;
-                multiResultId = message.multiResultId;
-                console.log("message : " + message);
-                console.log("message.multiResultId : " + multiResultId);
-                console.log("multiResultId : " + multiResultId);
-                // 종료 신호를 받는 유저가 이미 끝난 상태에서, 종료 신호를 받았을 때의 조건문
-                if(musicStore.isLast == 1){
-                    if(!isLastRecieved || !isRequested){
-                        const myScore = parseFloat(myJaccardScore.value);
-                        const otherScore = parseFloat(opponentJaccardScore.value);
-                        local.patch(`/plays/multi/${multiResultId}`, {
-                        myUserId: loginUser.id,
-                        myScore: myScore,
-                        otherUserId: opponentUser.nickname,
-                        otherScore: otherScore
-                        }).then(response => {
-                            console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, opponentJaccardScore.value);
-                            console.log("종료 신호를 받는 유저가 플레이가 끝난 상태에서, 상대방의 종료 신호를 받았습니다.")
-                            isRequested = true;
-                        }).catch(error => {
-                            console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, opponentJaccardScore.value);
-                        console.log("싱글 플레이 데이터 업데이트 중 오류 발생1")
-                        });
-                    }}
+            if(message.sender != loginUser.nickname){
+                multi_result_id = message.resultId;
+                // 스토어에 저장
+                musicStore.singleResultId = multi_result_id;
             }
-          });
+          })
 
-          stompClient.subscribe(`/wait/socket/start/${route.params.roomId}`, function(socket){
-            console.log("MultiPlayView에서 exit 메시지 구독 실행");
+        stompClient.subscribe(`/wait/socket/start/${route.params.roomId}`, function(socket){
             const message = JSON.parse(socket.body);
-            console.log("exit에 들어왔습니다.")
             userStore.opponentUser.nickname = "유저가 방을 나갔습니다."
             userStore.opponentUser.userImg = null
             opponentF1Score.value = 0;
             opponentJaccardScore.value = 0;
         })
 
-        stompClient.subscribe(`play/end/quit/socket/${route.params.roomId}`, function(socket){
-            // musicStore에서 정지 신호 메서드 호출.
-            stopRecording();
-            const message = JSON.parse(socket.body);
-            multiResultId = message.multiResultId;
-            console.log(message);
-            console.log(message.multiResultId);
-            const myScore = parseFloat(myJaccardScore.value);
-                        const otherScore = parseFloat(opponentJaccardScore.value);
-                        local.patch(`/plays/multi/${multiResultId}`, {
-                        myUserId: loginUser.id,
-                        myScore: myScore,
-                        otherUserId: opponentUser.nickname,
-                        otherScore: otherScore
-                        }).then(response => {
-                        console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, 0);
-                        console.log("종료 신호를 받는 유저가 플레이가 끝난 상태에서, 상대방의 종료 신호를 받았습니다.")
-                        isRequested = true;
-                    }).catch(error => {
-                        console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, 0);
-                console.log("싱글 플레이 데이터 업데이트 중 오류 발생2")
-                });
-            })
-
         });
 }
 
 
-
-if (musicStore.f1.length !== 0) {
-    myF1Score.value = Math.floor(
-        (musicStore.f1.reduce((acc, score) => acc + score, 0) /
-            musicStore.f1.length) * 100
-    );
-}
-
-if (musicStore.jaccard.length !== 0) {
-    myJaccardScore.value = Math.floor(
-        (musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
-            musicStore.jaccard.length) * 100
-    );
-}
 
 // watch를 사용하여 f1 배열의 변화를 감지하고 myF1Score를 업데이트
 watch(
@@ -242,7 +193,6 @@ watch(
             myJaccardScore.value = 0;
         }
         // 변화된 점수를 상대방에게 전송하는 소켓 메서드
-        console.log("확인")
         stompClient.send(`/app/play/${route.params.roomId}`, {}, JSON.stringify({nickname: loginUser.nickname, f1Score: myF1Score.value, jaccardScore: myJaccardScore.value}));
     },
     { deep: true } // 배열 내부의 변화도 감지
@@ -260,26 +210,8 @@ watch(() => musicStore.isLast,
             multiResultId: multiResultId
         })
 )}else{
-    // 한 유저가 종료 신호를 보내면, 다른 유저가 받아서 Spring으로 데이터를 전송하는 부분
-    // 1) 플레이가 끝났지만, 아직 isSender로부터 메시지를 받지 못한 경우를 제외.
-    if(!isLastRecieved || !isRequested){
-        const myScore = parseFloat(myJaccardScore.value);
-                        const otherScore = parseFloat(opponentJaccardScore.value);
-                        local.patch(`/plays/multi/${multiResultId}`, {
-                        myUserId: loginUser.id,
-                        myScore: myScore,
-                        otherUserId: opponentUser.nickname,
-                        otherScore: otherScore
-                        }).then(response => {
-            console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, opponentJaccardScore.value);
-            console.log("종료 신호를 받는 유저가 플레이가 끝난 상태에서, 상대방의 종료 신호를 받았습니다.")
-            isRequested = true;
-        }).catch(error => {
-            console.log('최종 보낸 정보', loginUser.id, myJaccardScore.value, opponentUser.nickname, opponentJaccardScore.value);
-            console.log("multiRsultId : " + multiResultId);
-          console.log("싱글 플레이 데이터 업데이트 중 오류 발생3")
-        });
-    }
+    
+    
 }});
 
 const onClickQuit = () => {
@@ -298,7 +230,11 @@ const onClickQuit = () => {
 
 
 const handleBeforeUnload = async () => {
-    if(isQuitting.value || isPopstate.value || isReloading.value){} 
+    if(isQuitting.value || isPopstate.value || isReloading.value){
+        musicStore.f1Score = [];
+        musicStore.jaccardScore = [];
+        musicStore.isLast = 0;
+    } 
     else 
     {
         await playStore.exitRoom(route.params.roomId);
@@ -306,6 +242,7 @@ const handleBeforeUnload = async () => {
         musicStore.jaccardScore = [];
         userStore.opponentUser.nickname = "";
         userStore.opponentUser.userImg = null;
+        musicStore.isLast = 0;
         sendExit();
         sendEndDuringPlay();
     }
@@ -322,6 +259,8 @@ onMounted(() => {
     // 페이지 내부의 ui를 사용해서 이동하는 것이 아닌, 주소창 입력 또는 탭 종료 같은 외부 방법으로 이동할 때
     // 상대방에게 나갔음을 알리는 것.
     window.addEventListener('beforeunload', handleBeforeUnload);
+    musicStore.f1Score = [];
+    musicStore.jaccardScore = [];
 })
 
 onBeforeUnmount(()=>{
@@ -345,9 +284,9 @@ onBeforeRouteLeave( async (to, from, next) => {
         if(musicStore.isRecording){
             sendEndDuringPlay();
         }
-            musicStore.f1Score = [];
-    musicStore.jaccardScore = [];sendExit()
-        ;
+        musicStore.f1Score = [];
+        musicStore.jaccardScore = [];
+        sendExit();
         await playStore.exitRoom(route.params.roomId);
         musicStore.f1Score = [];
         musicStore.jaccardScore = [];
@@ -359,49 +298,6 @@ onBeforeRouteLeave( async (to, from, next) => {
         next(false);
     }
     }
-
-    // if((isPopstate.value == true && to.name == "multiRoomList") || isQuitting.value == true){
-    //     if(window.confirm("방을 나가시겠습니까?\n진행중인 플레이의 기록은 0점 처리됩니다.\n방 목록 페이지로 이동합니다.")){
-    //             // 0점 처리하는 소켓을 보낸다.
-    //             // 상대방이 해당 소켓을 받으면, sender이든, receiver이든 상관없이 게임을 끝내고 spring에 데이터를 전송한다.
-    //             // 상대방은 이 소켓을 받을 때의 점수를 저장한다.
-    //             // 게임을 끝내기 위해 musicStore의 정지 버튼을 호출한다.
-    //             sendEndDuringPlay();
-    //             // 유저 프로필 갱신
-    //     musicStore.f1Score = [];
-    // musicStore.jaccardScore = [];
-    //             sendExit()
-    ;
-    //             await playStore.exitRoom(route.params.roomId);
-    //             userStore.opponentUser.nickname = "";
-    //             userStore.opponentUser.userImg = null;
-    //             router.push({name: "multiRoomList"});
-    //         }
-    //     }
-    
-
-    // // 뒤로가기를 누를경우, 경고창을 띄운 이후, 진행하면 multiRoomList로 보낸다.
-    // // 즉, router.push가 다시 이루어짐으로써 onBeforeRouteLeave 메서드가 재실행된다.
-    // if((isPopstate.value == true && to.name != "multiRoomList")){
-    //     // 녹음 도중 나갔을 경우, 0점 처리하고, 끝낸다.
-    //     if(musicStore.isRecording == true){
-    //     if(window.confirm("방을 나가시겠습니까?\n진행중인 플레이의 기록은 0점 처리됩니다.\n방 목록 페이지로 이동합니다.")){
-    //         router.push({name: "multiRoomList"});
-    //     }
-    //     }else{
-    //     if(window.confirm("방을 나가시겠습니까?\n방 목록 페이지로 이동합니다.")){
-    //         router.push({name: "multiRoomList"});
-    //     }
-    //     }
-    // }
-    // // 뒤로가기가 아닌 나가기 버튼 또는 다른 버튼을 눌러서 방을 나가는 경우.
-    // if(window.confirm("방을 나가시겠습니까?\n다른 페이지로 이동합니다.")){
-    //     sendExit();
-    //     await playStore.exitRoom(route.params.roomId);
-    //     userStore.opponentUser.nickname = "";
-    //     userStore.opponentUser.userImg = null;
-    //     next();
-    // }
     
 })
 

@@ -6,14 +6,15 @@ import com.ssafy.los.backend.domain.entity.User;
 import com.ssafy.los.backend.domain.repository.play.BattleRoomRepository;
 import com.ssafy.los.backend.dto.play.request.BattleRoomRegisterDto;
 import com.ssafy.los.backend.service.auth.AuthService;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -90,7 +91,7 @@ public class BattleRoomService {
         String redisKey = "battleRoom:" + roomId;
         ListOperations<String, Long> listOperations = redisTemplate.opsForList();
 
-        long cnt = listOperations.remove(redisKey, 1, loginUser.getId());
+        listOperations.remove(redisKey, 1, loginUser.getId());
 
         // 조건문을 통해, 방의 인원이 0명이라면 방을 삭제한다.
         if (listOperations.size(redisKey) == 0) {
