@@ -22,7 +22,7 @@
         const f1 = ref([]);
         const jaccard = ref([]);   
         const route = useRoute();
-        const isLast = ref(0);
+        const isLast = ref(false);
         const singleResultId = ref(0);
         const multiResultId = ref(0);
         const playMode = ref("");
@@ -227,8 +227,9 @@
             isRecording.value = false;
             isPlay.value=false;
             if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
-                splitRecording();
                 mediaRecorder.value.stop();
+                isLast.value = true;
+                //splitRecording();
             }
             
         };
