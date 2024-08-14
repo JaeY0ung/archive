@@ -89,9 +89,14 @@ pipeline {
                 }
             }
         }
+        
     }
 
     post {
+        always {
+            // 빌드 후 클린업
+            deleteDir()
+        }
         success {
             echo 'Deployment succeeded!'
         }
