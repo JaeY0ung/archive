@@ -39,21 +39,6 @@ musicStore.playMode = "single";
 // 플레이 점수를 가져온다.
 const myF1Score = ref(0);
 const myJaccardScore = ref(0);
-
-if (musicStore.f1.length !== 0) {
-    myF1Score.value = Math.floor(
-        (musicStore.f1.reduce((acc, score) => acc + score, 0) /
-            musicStore.f1.length) * 100
-    );
-}
-
-if (musicStore.jaccard.length !== 0) {
-    myJaccardScore.value = Math.floor(
-        (musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
-            musicStore.jaccard.length) * 100
-    );
-}
-
 const resultScore = ref(0);
 
 const updateResultScore = (newScore) => {
@@ -189,18 +174,18 @@ watch(
 	() => musicStore.isLast,
 	async (newVal, oldVal) => {
 	  if (newVal) {
-		try {
-		  await local.patch(`/plays/single/${singleResultId}`, {
-			userId: loginUser.id,
-			score: myJaccardScore.value,
-		  });
-		  modalTitle.value = "플레이 완료!";
-		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
-		} catch (error) {
-		  modalTitle.value = "오류 발생";
-		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
-		}
-		showModal.value = true;
+      try {
+        await local.patch(`/plays/single/${singleResultId}`, {
+          userId: loginUser.id,
+          score: Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 ),
+        });
+        modalTitle.value = "플레이 완료!";
+        modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+      } catch (error) {
+        modalTitle.value = "오류 발생";
+        modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+      }
+      showModal.value = true;
 
 	  }
 	}

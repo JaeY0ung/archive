@@ -27,7 +27,7 @@ if(props.user.userImg == null){
 
 
 const resultScore = computed(() => {
-    return Math.min(100,(Math.max(0,(props.f1Score - 30)) + Math.max(0,(props.jaccardScore - 20))) / 120)*100;
+    return Math.min(100,(Math.max(0,(props.f1Score - 30)) + Math.max(0,(props.jaccardScore - 20))) * 100 / 120 );
 });
 
 // 숫자에 해당하는 이미지를 반환하는 함수
