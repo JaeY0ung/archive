@@ -9,6 +9,7 @@ import SmallSheetCardMultiPlay from "@/common/sheet/SmallSheetCardForMultiPlayPr
 import SmallSheetCardLike from "@/common/sheet/SmallSheetCardForLikeProfile.vue";
 import FollowModal from "@/common/modal/FollowModal.vue";
 import Profile from "@/common/icons/Profile.vue";
+import { da } from "date-fns/locale";
 
 const userStore = useUserStore();
 const route = useRoute();
@@ -48,6 +49,7 @@ const fetchUserProfile = async () => {
         const data = await userPageService.fetchUserProfile(route.params.nickName);
         if (data) {
             userProfile.value = data;
+            console.log('가져온 유저 정보', data);
             userImg.value = `data:image/jpeg;base64,${data.userImg}`;
             userNotFound.value = false;
             // 프로필 정보를 가져온 후 악보
@@ -66,16 +68,19 @@ const fetchUserProfile = async () => {
 // 싱글 플레이 악보 정보
 const fetchSinglePlaySheets = async (userId) => {
     singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
+    console.log('가져온 싱글 플레이', singlePlaySheets.value)
 };
 
 // 멀티 플레이 악보 정보
 const fetchMultiPlaySheets = async (userId) => {
     multiPlaySheets.value = await userPageService.fetchMultiPlaySheets(userId);
+    console.log('가져온 멀티 플레이', multiPlaySheets.value)
 };
 
 // 좋아요한 악보 정보
 const fetchLikedSheets = async (userId) => {
     likedSheets.value = await userPageService.fetchLikedSheets(userId);
+    console.log('가져온 좋아요', likedSheets.value)
 };
 
 // 팔로우 정보
@@ -189,7 +194,13 @@ onMounted(async () => {
                                     <span class="block text-2xl font-bold text-gray-700">{{
                                         userProfile?.singleScore
                                     }}</span>
-                                    <span class="text-sm text-gray-500">Score</span>
+                                    <span class="text-sm text-gray-500">SingleScore</span>
+                                </div>
+                                <div class="text-center">
+                                    <span class="block text-2xl font-bold text-gray-700">{{
+                                        userProfile?.multiScore
+                                    }}</span>
+                                    <span class="text-sm text-gray-500">MultiScore</span>
                                 </div>
                                 <div
                                     class="text-center cursor-pointer hover:text-blue-500 transition duration-300"
@@ -274,7 +285,7 @@ onMounted(async () => {
                         <h3
                             class="text-xl font-semibold text-gray-800 mb-1 pb-1 border-b-2 border-gray-300"
                         >
-                            대결 플레이
+                            멀티 플레이
                         </h3>
                         <div
                             v-if="multiPlaySheets.length > 0"

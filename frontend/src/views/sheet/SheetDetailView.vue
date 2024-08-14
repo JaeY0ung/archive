@@ -16,6 +16,7 @@ import {
 } from "@/api/sheet";
 import { format, parseISO } from "date-fns";
 import { ko } from "date-fns/locale";
+import { userPageService } from "@/api/user-page.js";
 
 const userStore = useUserStore();
 const { userInfo, isLogin } = storeToRefs(userStore);
@@ -26,12 +27,28 @@ const sameLevelSheets = ref([]);
 const starRateList = ref([]);
 const starRateStatistic = ref([0, 0, 0, 0, 0]);
 const starRateAvg = ref(null);
+const singlePlaySheets = ref([]);
 
 const totalStarRateCount = computed(() => {
     let sum = 0;
     starRateStatistic.value.map((s) => (sum += s));
     return sum;
 });
+
+// 싱글 플레이 악보 정보 가져오기
+const fetchSinglePlaySheets = async (userId) => {
+    singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
+    console.log("가져온 싱글 플레이", singlePlaySheets.value);
+};
+
+// 난이도 평가 페이지로 이동
+const goToDifficultyEvaluation = () => {
+    if (singlePlaySheets.value.length > 0) {
+        router.push({ name: "difficultyEvaluation" });
+    } else {
+        alert("난이도 평가에 참여하려면 최소 한 개 이상의 싱글 플레이 악보가 필요합니다.");
+    }
+};
 
 const starRateMaxCount = computed(() => {
     let max = 0;
@@ -56,10 +73,6 @@ const starRateRegisterForm = ref({
     content: "",
     starRate: 5,
 });
-
-const updateStarRate = (starRate) => {
-    starRateRegisterForm.value.starRate = starRate;
-};
 
 // 같은 수준의 악보 랜덤으로 가져오기
 const searchRandomSameLevelSheets = async () => {
@@ -93,6 +106,10 @@ const registerStarRate = async () => {
         showLoginRequestAlert(router);
         return;
     }
+    // if (singlePlaySheets.value.length === 0) {
+    //     alert('난이도 평가에 참여하려면 최소 한 개 이상의 싱글 플레이 악보가 필요합니다.');
+    //     return;
+    // }
     if (!starRateRegisterForm.value.content) {
         alert("평가 글을 작성해주세요");
         return;
@@ -117,6 +134,7 @@ const round = (number, place) => {
 const fetchSheetDetail = async () => {
     await searchSheetDetail(route.params.sheetId, ({ data }) => {
         if (!data) return;
+        console.log("가져온 악보 정보", data);
         sheet.value = data;
     });
 };
@@ -129,13 +147,11 @@ const goToSheetDetail = (sheetId) => {
     });
 };
 
-// Add onMounted hook
 onMounted(async () => {
     await fetchSheetDetail();
     await searchStarRateList();
 });
 
-// Update watch to use the new fetchSheetDetail function
 watch(
     () => route.params.sheetId,
     async () => {
@@ -149,16 +165,25 @@ watch(sheet, async () => {
 
 // Sheet 컴포넌트 비동기 로드
 const AsyncSheet = defineAsyncComponent(() => import("@/common/sheet/Sheet.vue"));
+
+onMounted(async () => {
+    await fetchSheetDetail();
+    await searchStarRateList();
+    if (isLogin.value) {
+        await fetchSinglePlaySheets(userInfo.value.id);
+    }
+});
 </script>
 
 <template>
-    <div class="flex w-full h-full justify-between p-2">
+    <div class="flex w-full h-full justify-between p-2 ">
         <!-- 1. 악보 디테일 정보 -->
-        <div class="flex flex-col gap-5 w-[50%] h-full">
+        <div class="flex flex-col gap-5 w-[50%]">
             <!-- 1-1. 악보 카드 -->
             <BigSheetCard
                 :sheet="sheet"
-                class="rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                :starRateAvg="starRateAvg"
+                class="rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300  bg-white rounded-xl"
             />
 
             <!-- 1-2. 비슷한 수준의 악보 추천 및 리뷰 섹션 (combined) -->
