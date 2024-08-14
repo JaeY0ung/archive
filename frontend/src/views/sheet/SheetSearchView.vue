@@ -25,7 +25,7 @@ const priceInfo = ref([
 
 const searchFilter = ref({
 	keyword: "", // 검색어 없음
-	levels: [0, 1, 2, 3, 4, 5], // 모든 레벨
+	levels: [1, 2, 3, 4, 5], // 모든 레벨
 	genres: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // 모든 장르
 	prices: [0, 1], // 무료, 유료 (전부)
 	successStatuses: [], // 필터 없음
@@ -45,7 +45,7 @@ const search = async () => {
             sort: searchFilter.value.sort,
             page: searchFilter.value.page,
 		},
-        ({ data }) => { 
+        ({ data }) => {
             console.log("악보 결과:", data);
 			sheets.value = data;
 		}
@@ -234,52 +234,37 @@ const goToSheetDetail = (sheetId) => {
                     </div>
                 </template>
             </div>
-
-            <div
-                class="flex-grow bg-white bg-opacity-50 p-4 rounded-lg shadow-md box-border overflow-y-auto max-h-[calc(100vh-160px)]"
-            >
-                <div
-                    class="flex flex-grow w-full h-full relative overflow-hidden items-center"
-                >
-                    <template v-if="sheets.length">
-                        <!-- <div class="flex flex-col w-full absolute scroll-y mt-3" :class="[view === 'card' ? 'scroll-x' : 'scroll-y']">
-							<SmallSheetCard v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" />
-						</div> -->
-                        <!-- 리스트 버전 -->
-                        <div
-                            v-if="view === 'list'"
-                            class="flex flex-col w-full absolute overflow-hidden-scroll overflow-y-auto mt-3"
-                        >
-                            <SmallSheetCardForListView 
-                                v-for="sheet in sheets"
-                                :key="sheet.id"
-                                :sheet="sheet"
-                                :restrictTitle="false" 
-                                @click="goToSheetDetail(sheet.id)"
-                                
-                            />
-                        </div>
-
-                        <!-- 카드 버전 -->
-                        <div
-                            v-if="view === 'card'"
-                            class="flex flex-wrap justify-center overflow-y-auto gap-4"
-                        >
-                            <SmallSheetCard
-                                v-for="sheet in sheets"
-                                :key="sheet.id"
-                                :sheet="sheet"
-                                :restrictTitle="true"
-                                @click="goToSheetDetail(sheet.id)"
-                                class="max-w-[400px] w-full sm:w-auto"
-                            />
-                        </div>
-                    </template>
-                    <template v-else>
-                        <p>검색 결과가 없습니다.</p>
-                    </template>
-                </div>
-            </div>
+		  <div class="flex-grow bg-white bg-opacity-50 p-4 rounded-lg shadow-md box-border overflow-y-auto max-h-[calc(100vh-160px)]">
+			<div class="w-full h-full relative">
+			  <template v-if="sheets.length">
+				<!-- 리스트 버전 -->
+				<div v-if="view === 'list'" class="flex flex-col w-full">
+				  <SmallSheetCardForListView
+					  v-for="sheet in sheets"
+					  :key="sheet.id"
+					  :sheet="sheet"
+					  :restrictTitle="false"
+					  @click="goToSheetDetail(sheet.id)"
+					  class="mb-4"
+				  />
+				</div>
+				<!-- 카드 버전 -->
+				<div v-if="view === 'card'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+				  <SmallSheetCard
+					  v-for="sheet in sheets"
+					  :key="sheet.id"
+					  :sheet="sheet"
+					  :restrictTitle="true"
+					  @click="goToSheetDetail(sheet.id)"
+					  class="w-full"
+				  />
+				</div>
+			  </template>
+			  <template v-else>
+				<p>검색 결과가 없습니다.</p>
+			  </template>
+			</div>
+		  </div>
         </div>
     </div>
 </template>
