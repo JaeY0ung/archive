@@ -183,18 +183,6 @@ const onStartRecordingEmit = async () => {
   }
 }
 
-// 악보를 끝까지 완주했을 때, 호출되는 메서드
-// Todo: 모달창으로 성공, 실패를 알려줄 것.
-// watch(() => musicStore.isLast,
-//   (Last) => {
-//     local.patch(`/plays/single/${singleResultId}`, {
-//       userId: loginUser.id,
-//       score: myJaccardScore.value
-//     }).catch(error => {
-//       console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
-//     });
-//   }
-// );
 
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 watch(
