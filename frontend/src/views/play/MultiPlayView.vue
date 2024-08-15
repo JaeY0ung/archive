@@ -98,7 +98,7 @@ function connect() {
             if(scoreData.nickname != loginUser.nickname){
               opponentF1Score.value = scoreData.f1Score;
               opponentJaccardScore.value = scoreData.jaccardScore;
-              opponentIsLast.value = scoreData.isLast;
+              opponentIsLast.value = scoreData.isLast | opponentIsLast.value;
             }
             // 상대방의 점수를 받았을 때, isLast가 1이라면(채점이 모두 끝났다면), update한다.
             if(musicStore.isLast && opponentIsLast.value){
