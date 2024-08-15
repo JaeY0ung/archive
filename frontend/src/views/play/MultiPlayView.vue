@@ -100,9 +100,10 @@ watch(
             }).catch(error => {
                 console.error("Failed to send multi play result", error);
             });
-        } else {
-            console.log("One or both players have not finished yet.");
-        }
+            } 
+            else {
+                onsole.log("One or both players have not finished yet.");
+            }
     }
 );
 

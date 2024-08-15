@@ -50,7 +50,6 @@ export const userPageService = {
     fetchSinglePlaySheets: async (userId) => {
         try {
             const response = await local.get(`/plays/single/${userId}`);
-            console.log(response.data);
             return response.data.map((sheet) => ({
                 id: sheet.sheetId,
                 title: sheet.sheetTitle,

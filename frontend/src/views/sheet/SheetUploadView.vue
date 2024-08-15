@@ -93,7 +93,6 @@ const uploadFile = async () => {
     registerSheet(formData,
         ({ data }) => {
             // 악보 난이도 예측 API 따로 추가
-            console.log('해당 악보가 등록되었습니다.', data);
             // predictSheetLevel(sheetId);
             showAgainRegisterAlert(router, data);
         }
@@ -172,8 +171,8 @@ const closeSongRegisterModal = () => {
             </div>
 
             <div v-else class="flex w-full relative overflow-x-scroll x-scroll cursor-pointer gap-2 mt-3" style="-ms-overflow-style:none; scrollbar-width:none;">
-                <template v-for="song in songs">
-                    <SmallSongCard @click="selectedSong = song" :song class="max-w-[400px] w-full h-fit" :restrictLength="12">
+                <template v-for="song in songs" :key="song.id">
+                    <SmallSongCard @click="selectedSong = song" :song class="max-w-[400px] w-full h-fit" :restrictLength="12" >
                         <template v-if="selectedSong?.id == song.id">
                             <img :src="require('@/assets/img/check.png')" alt="체크 표시"
                                 class="absolute top-1 right-1 w-4 h-4" />

@@ -172,10 +172,9 @@ const register = async () => {
     }
 
     try {
-        const response = await local.post("/auth/users", user.value, {
+        await local.post("/auth/users", user.value, {
             withCredentials: true,
         });
-        console.log("회원가입 성공:", response.data);
         alert("회원가입이 완료되었습니다.");
         router.push({ name: "login" });
     } catch (error) {
