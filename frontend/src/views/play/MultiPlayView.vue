@@ -128,11 +128,12 @@ function connect() {
             // 상대방의 점수를 받는 부분 
             const scoreData = JSON.parse(scoreSocket.body);
             if(scoreData.nickname != loginUser.nickname){
-              opponentF1Score.value = scoreData.f1Score;
-              opponentJaccardScore.value = scoreData.jaccardScore;
+                opponentF1Score.value = scoreData.f1Score;
+                opponentJaccardScore.value = scoreData.jaccardScore;
 
-              // 상대방 닉네임을 제대로 업데이트하도록 수정
-              modalOpponentNickname.value = opponentUser.nickname;
+                // 상대방 닉네임을 제대로 업데이트하도록 수정
+                modalOpponentNickname.value = opponentUser.nickname;
+                opponentIsLast.value = scoreData.isLast == 0 ? false : true;
             }
             // 상대방의 점수를 받았을 때, isLast가 1이라면(채점이 모두 끝났다면), update한다.
             if(musicStore.isLast == true){
@@ -241,7 +242,7 @@ watch(
                                 nickname: loginUser.nickname,
                                 f1Score: myF1Score.value,
                                 jaccardScore: myJaccardScore.value,
-                                isLast : musicStore.isLast,
+                                isLast : musicStore.isLast ? 1 : 0,
                             }));
     },
     { deep: true } // 배열 내부의 변화도 감지
@@ -265,7 +266,8 @@ watch(() => musicStore.isLast,
             score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
             multiResultId: multiResultId
         }));
-      stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
+        stompClient.send(`/app/play/end/${route.params.roomId}`, {}, 
+        JSON.stringify(
           {
             sender: opponentUser.nickname,
             score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
