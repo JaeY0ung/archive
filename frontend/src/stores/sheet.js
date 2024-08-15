@@ -64,7 +64,7 @@
 
         const setupPlaybackManager = () => {
             audioPlayer.value = new BasicAudioPlayer();
-            timingSource = new LinearTimingSource();
+            timingSource.value = new LinearTimingSource();
             playbackManager.value = new PlaybackManager(timingSource.value, undefined, audioPlayer.value, undefined);
             playbackManager.value.DoPlayback = true;
             playbackManager.value.DoPreCount = false;

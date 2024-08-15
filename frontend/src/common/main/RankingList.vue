@@ -28,7 +28,6 @@ const multiRankings = ref([
 
 getTop10SingleScoreUsers(
     ({ data }) => {
-        console.log(data)
         top10SingleScoreUsers.value = data;
         // multiScore
         // nickname
