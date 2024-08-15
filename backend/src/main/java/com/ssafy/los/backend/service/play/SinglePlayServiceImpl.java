@@ -208,6 +208,8 @@ public class SinglePlayServiceImpl implements SinglePlayService {
         User user = userRepository.findById(userId).orElseThrow();
         if (avgLevel != null) {
             user.setRefreshSingleScore((int) (avgLevel * 1000));
+        } else {
+            user.setRefreshSingleScore(0);
         }
     }
 }

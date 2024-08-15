@@ -25,4 +25,5 @@ public interface UserService {
     UserProfileDto searchUserProfileByNickname(String nickname);
 
     User selectUserById(Long userId);
+
 }
