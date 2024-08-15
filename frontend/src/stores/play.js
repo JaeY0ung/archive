@@ -32,6 +32,8 @@ export const usePlayStore = defineStore('playMode', {
       try {
         const response = await local.get(`${baseURL}/users/online-users`);
         this.onlineUsers = response.data;
+        console.log("this.onlineUsers")
+        console.log(this.onlineUsers)
       } catch (error) {
         console.error('온라인 유저 목록을 불러오는 것에 실패했습니다', error);
       }

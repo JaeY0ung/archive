@@ -394,7 +394,7 @@ onBeforeRouteLeave(async (to, from, next) => {
                     class="flex items-center justify-between p-4 mb-2 border rounded-lg cursor-pointer transition-all duration-200"
                     >
                     <div class="flex items-center">
-                        <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" class="w-12 h-12 rounded-full mr-4 object-cover" />
+                        <img :src="user.userImg ? `data:image/jpeg;base64,${user.userImg}` : defaultProfileImage" alt="User Image" class="w-12 h-12 rounded-full mr-4 object-cover" />
                         <span class="text-lg font-medium text-[#333333]">{{ user.nickname }}</span>
                     </div>
                     <div class="text-sm text-gray-500">{{ user.singleScore }}</div>

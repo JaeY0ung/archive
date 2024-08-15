@@ -8,6 +8,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ public class UserStatusController {
     private static final Logger LOGGER = Logger.getLogger(UserStatusController.class.getName());
     private final UserStatusService userStatusService;
     private final UserService userService;
+    private final FileUploadUtil fileUploadUtil;
 
     @GetMapping("/is-online/{id}")
     public ResponseEntity<Boolean> isUserOnline(@PathVariable Long id) {
@@ -42,10 +45,11 @@ public class UserStatusController {
                 .filter(Objects::nonNull) // null 값을 필터링
                 .map(user -> OnlineUserDto.builder()
                         .id(user.getId())
-                        .userImg(user.getUserImg())
+                        .userImgName(user.getUserImg())
                         .nickname(user.getNickname())
                         .singleScore(user.getSingleScore())
                         .build())
+                .peek(user -> user.loadUserImg(fileUploadUtil))
                 .collect(Collectors.toList());
 
         return new ResponseEntity<>(onlineUserDtoList, HttpStatus.OK);
