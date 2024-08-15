@@ -198,6 +198,7 @@ function connect() {
       }
   );
   stompClient = Stomp.over(socket);
+  stompClient.debug = null;
   stompClient.connect(
       {
         "Content-Type": "application/json",
