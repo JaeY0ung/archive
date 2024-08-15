@@ -171,7 +171,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
             throws IllegalArgumentException {
 
         try {
-            String userNickname = authService.getLoginUser().getNickname();
+            String userId = authService.getLoginUser().getId().toString();
             HttpClient client = HttpClientBuilder.create().build();
             HttpPost request = new HttpPost(fastApiServerUrl + "/playing/single");
 
@@ -183,7 +183,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
                             ContentType.TEXT_PLAIN)
                     .addTextBody("singleResultId", singleResultId.toString(),
                             ContentType.TEXT_PLAIN)
-                    .addTextBody("nickname", userNickname,
+                    .addTextBody("userId", userId,
                             ContentType.TEXT_PLAIN)
                     .build();
 

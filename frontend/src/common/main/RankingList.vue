@@ -7,8 +7,8 @@ const top10SingleScoreUsers = ref([]);
 const top10MultiScoreUsers = ref([]);
 
 const singleRankings = ref([
-    { rank: 1, name: "김철수", successes: 65, failures: 15 },
-    { rank: 2, name: "이영희", successes: 60, failures: 20 },
+    { rank: 1, name: "신순호", successes: 65, failures: 15 },
+    { rank: 2, name: "송창모", successes: 60, failures: 20 },
     { rank: 3, name: "박민수", successes: 55, failures: 25 },
     { rank: 4, name: "최지훈", successes: 50, failures: 30 },
     { rank: 5, name: "정수현", successes: 45, failures: 35 },
@@ -17,8 +17,8 @@ const singleRankings = ref([
 ]);
 
 const multiRankings = ref([
-    { rank: 1, name: "이슬기", wins: 70, losses: 10 },
-    { rank: 2, name: "장미라", wins: 65, losses: 15 },
+    { rank: 1, name: "신순호", wins: 70, losses: 10 },
+    { rank: 2, name: "송창모", wins: 65, losses: 15 },
     { rank: 3, name: "윤상현", wins: 60, losses: 20 },
     { rank: 4, name: "배성우", wins: 55, losses: 25 },
     { rank: 5, name: "김나연", wins: 50, losses: 30 },

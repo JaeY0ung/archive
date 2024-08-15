@@ -39,7 +39,7 @@
                     isLastTrigger.value = false;
                 }
             }
-        );
+        ,{deep:true});
 
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);

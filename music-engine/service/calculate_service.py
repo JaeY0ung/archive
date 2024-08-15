@@ -30,7 +30,7 @@ def apply_pitch_offset(notes, offset):
     return [(start, pitch + offset, duration) for start, pitch, duration in notes]
 
 # 노트 비교를 위한 시각화 함수
-def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes', title2='Result Notes', time_tolerance=0.3, pitch_tolerance=1.0):
+def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes', title2='Result Notes', time_tolerance=0.3, pitch_tolerance=1.0, note_size=80):
     fig, axs = plt.subplots(2, 1, figsize=(15, 10), sharex=True, sharey=True)
 
     # Original notes
@@ -45,16 +45,15 @@ def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes
     else:
         first_matched_time = last_matched_time = min_pitch = max_pitch = 0
 
-
     for note in notes1:
         if note in matched_notes:
             colors1.append('red')  # Original의 빨간점 (매칭된 노트)
         elif note[0] < first_matched_time or note[0] > last_matched_time:
-            colors1.append('black')  # Original의 검은점 (범위 밖의 노트)
+            colors1.append('yellow')  # Original의 검은점 (범위 밖의 노트)
         else:
             colors1.append('blue')  # Original의 파란점 (매칭되지 않은 노트)
 
-    axs[0].scatter(times1, pitches1, c=colors1, edgecolors='k', label='Original Notes')
+    axs[0].scatter(times1, pitches1, c=colors1, edgecolors='k', label='Original Notes', s=note_size)
 
     axs[0].set_title(title1)
     axs[0].set_ylabel('Pitch')
@@ -69,11 +68,11 @@ def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes
         if any(abs(note[0] - match[0]) < time_tolerance and abs(note[1] - match[1]) <= pitch_tolerance for match in matched_notes):
             colors2.append('green')  # Result의 초록점 (매칭된 노트)
         elif note[1] < min_pitch or note[1] > max_pitch:
-            colors2.append('black')  # Result의 검은점 (범위 밖의 노트)
+            colors2.append('yellow')  # Result의 검은점 (범위 밖의 노트)
         else:
             colors2.append('blue')  # Result의 파란점 (매칭되지 않은 노트)
 
-    axs[1].scatter(times2, pitches2, c=colors2, edgecolors='k', label='Result Notes')
+    axs[1].scatter(times2, pitches2, c=colors2, edgecolors='k', label='Result Notes', s=note_size)
 
     axs[1].set_title(title2)
     axs[1].set_xlabel('Time (s)')
@@ -81,6 +80,7 @@ def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes
     axs[1].legend()
 
     plt.show()
+
 
 # 노트 매칭 개수 계산 및 매칭된 노트 추출
 def note_matching_count(notes1, notes2, tolerance, pitch_tolerance):
