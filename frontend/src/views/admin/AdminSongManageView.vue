@@ -21,7 +21,7 @@ const updatingSongId = ref('')
 
 const updateEventOccur = () => {
     getSongs();
-    updatingSongId = '';
+    updatingSongId.value = '';
 }
 
 const deleteSongById = async (songId) => {

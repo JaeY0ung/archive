@@ -26,7 +26,7 @@ const route = useRoute();
             />
             <div class="flex flex-grow flex-col min-h-0 overflow-hidden">
                 <!-- 위 -->
-                <div class="flex h-[60px] w-full flex-row items-center">
+                <div class="flex h-[60px] w-full flex-row items-center bg-white">
                     <div class="flex h-full flex-1 items-center cursor-pointer">
                         <Hamburger
                             class="m-[5px] flex h-[50px] w-[50px] items-center justify-center"
@@ -62,6 +62,9 @@ const route = useRoute();
                         <MyProfile />
                     </div>
                 </div>
+              <!-- 간격을 위해 상단 바 아래에 margin 추가 -->
+              <div class="h-[10px] w-full"></div>
+
                 <!-- 실제 뷰 -->
                 <div
                     class="h-[90%] overflow-hidden px-[55px] pl-[55px] pt-[20px] pb-[20px] scrollbar-hide"
@@ -90,4 +93,5 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
+
 </style>

@@ -38,7 +38,6 @@ const totalStarRateCount = computed(() => {
 // 싱글 플레이 악보 정보 가져오기
 const fetchSinglePlaySheets = async (userId) => {
     singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
-    console.log("가져온 싱글 플레이", singlePlaySheets.value);
 };
 
 // 난이도 평가 페이지로 이동
