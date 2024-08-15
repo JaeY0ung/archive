@@ -74,7 +74,7 @@ function connect() {
         withCredentials: true
     });
     stompClient = Stomp.over(socket);
-    // stompClient.debug = null;   
+    stompClient.debug = null;   
     stompClient.connect({
         "Content-Type": "application/json",
         "Authorization": `Bearer ${accessToken}`

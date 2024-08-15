@@ -150,7 +150,7 @@ const goToDifficultyRatingPage = () => {
             </div>
 
             <div class="text-xl flex flex-row gap-3">
-                <div class="font-bold">작곡가</div>
+                <div class="font-bold">아티스트</div>
                 <p class="text-xl">{{ getTitleByLen(sheet?.songComposer, 20) }}</p>
             </div>
 

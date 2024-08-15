@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import BigSheetCard from "@/common/sheet/BigSheetCardForDetail.vue";
+import SmallSheetCardForDetail from "@/common/sheet/SmallSheetCardForDetail.vue";
 import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 import { storeToRefs } from "pinia";
 import { computed, ref, watch, defineAsyncComponent } from "vue";
@@ -187,16 +188,17 @@ onMounted(async () => {
                 <!-- 비슷한 수준의 악보 추천 -->
                 <div class="mb-6 hide-scrollbar">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">비슷한 수준의 악보</h2>
-                    <div class="scroll-x flex rounded-xl pb-2">
+                    <div class="shrink-0 scroll-x flex rounded-xl pl-4 pb-2">
                         <template v-if="sameLevelSheets && sameLevelSheets.length != 0">
-                            <SmallSheetCard
+                            <SmallSheetCardForDetail
                                 v-for="sheet in sameLevelSheets"
                                 :key="sheet.id"
                                 :sheet="sheet"
                                 @click="goToSheetDetail(sheet.id)"
-                                class="cursor-pointer h-fit mr-4 last:mr-0 transition-transform duration-300 hover:scale-105"
+                                :restrictTitle="true"
+                                class="shrink-0 cursor-pointer h-fit mr-4 last:mr-0 transition-transform duration-300 hover:scale-105"
                             />
-
+                            
                         </template>
                         <template v-else>
                             <div class="w-full flex justify-center items-center text-gray-500">
