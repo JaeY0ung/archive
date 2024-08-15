@@ -1,95 +1,111 @@
 <template>
-    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 shadow-md">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 space-y-4 relative">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-semibold text-center w-full">방 만들기</h2>
-                <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold focus:outline-none" @click="closeModal">&times;</button>
-            </div>
-            <hr class="border-gray-300 mt-2"/>
-            <div>
-                <label for="roomTitle" class="block text-lg font-medium text-gray-700">방장님 환영합니다!</label>
-                <input 
-                    id="roomTitle"
-                    v-model="roomTitle"
-                    @keyup.enter="createEnterRoom"
-                    class="mt-2 w-full p-3 border text-2xl border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-200"
-                    placeholder="방 제목을 입력하세요"
-                />
-            </div>
-            <div class="flex justify-center">
-            <button 
-                @click="createEnterRoom"
-                class="w-full py-3 mt-4 pt-4 pb-4 bg-sky-100 text-gray-600 rounded-lg text-2xl hover:bg-gray-100 transition-colors duration-200 shadow-md"
-            >
-                확인
-            </button>
+    <Transition name="modal">
+        <div
+            v-if="showModal"
+            class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 backdrop-blur-sm"
+            aria-labelledby="modal-title"
+            role="dialog"
+            aria-modal="true"
+        >
+            <div class="flex items-center justify-center min-h-screen">
+                <div
+                    class="modal-content bg-white rounded-2xl overflow-hidden shadow-2xl w-full max-w-md mx-4"
+                >
+                    <div class="px-6 pt-6 pb-4">
+                        <h3 class="text-2xl font-semibold text-gray-900 mb-6" id="modal-title">
+                            방 만들기
+                        </h3>
+                        <div class="mb-6">
+                            <input
+                                type="text"
+                                name="roomTitle"
+                                id="roomTitle"
+                                v-model="roomTitle"
+                                @keyup.enter="createEnterRoom"
+                                class="w-full px-4 py-3 rounded-lg bg-gray-100 border-transparent focus:border-blue-500 focus:bg-white focus:ring-0 text-sm transition duration-150 ease-in-out"
+                                placeholder="방 제목을 입력하세요"
+                            />
+                        </div>
+                    </div>
+                    <div class="px-6 py-2 bg-gray-50 flex justify-end space-x-3">
+                        <button
+                            type="button"
+                            @click="closeModal"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg transition duration-150 ease-in-out"
+                        >
+                            취소
+                        </button>
+                        <button
+                            type="button"
+                            @click="createEnterRoom"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-lg transition duration-150 ease-in-out"
+                        >
+                            확인
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </Transition>
 </template>
 
 <script setup>
-import { storeToRefs } from 'pinia';
-import { usePlayStore } from '@/stores/play';
-import { localAxios } from "@/util/http-common";
-import { useRouter } from 'vue-router';
+import { storeToRefs } from "pinia";
+import { usePlayStore } from "@/stores/play";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
-
-const local = localAxios();
-
 const playStore = usePlayStore();
 const { showModal, roomTitle } = storeToRefs(playStore);
 
 const closeModal = () => {
     playStore.setShowModal(false);
-    roomTitle.value = ''; 
+    roomTitle.value = "";
 };
 
 const createEnterRoom = async () => {
+    if (!roomTitle.value.trim()) {
+        alert("방 제목을 입력해주세요.");
+        return;
+    }
     await playStore.createRoom();
     const roomId = playStore.rooms[playStore.rooms.length - 1].id;
-    router.push({ path: `/room/multi/${roomId}/wait` }); // wait 페이지로 이동
-    roomTitle.value = ''; 
+    router.push({ path: `/room/multi/${roomId}/wait` });
+    roomTitle.value = "";
+    closeModal();
 };
 </script>
 
-<style scoped>
-.room-modal {
-position: fixed;
-z-index: 1;
-left: 0;
-top: 0;
-width: 100%;
-height: 100%;
-overflow: auto;
-background-color: rgb(0,0,0);
-background-color: rgba(0,0,0,0.4);
-display: flex;
-justify-content: center;
-align-items: center;
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
+
+body {
+    font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+        Arial, sans-serif;
 }
 
-.room-modal-content {
-background-color: #fefefe;
-padding: 20px;
-border: 1px solid #888;
-width: 80%;
-max-width: 400px;
-border-radius: 10px;
+.modal-enter-active,
+.modal-leave-active {
+    transition: opacity 0.3s ease;
 }
 
-.close {
-color: #aaa;
-float: right;
-font-size: 28px;
-font-weight: bold;
+.modal-enter-from,
+.modal-leave-to {
+    opacity: 0;
 }
 
-.close:hover,
-.close:focus {
-color: black;
-text-decoration: none;
-cursor: pointer;
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 40px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
 }
-</style> 
+
+.modal-content {
+    animation: fadeInUp 0.5s ease-out;
+}
+</style>
