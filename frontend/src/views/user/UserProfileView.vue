@@ -237,11 +237,6 @@ onMounted(async () => {
                                 >
                                     {{ isFollowing ? "Unfollow" : "Follow" }}
                                 </button>
-                                <button
-                                    class="btn px-4 py-2 rounded font-semibold bg-red-500 hover:bg-red-600 text-white transition duration-300"
-                                >
-                                    Fight
-                                </button>
                             </template>
                             <button
                                 v-else

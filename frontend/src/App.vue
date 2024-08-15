@@ -26,7 +26,7 @@ const route = useRoute();
             />
             <div class="flex flex-grow flex-col min-h-0 overflow-hidden">
                 <!-- 위 -->
-                <div class="flex h-[60px] w-full flex-row items-center bg-white">
+                <div class="flex h-[75px] w-full flex-row items-center bg-white">
                     <div class="flex h-full flex-1 items-center cursor-pointer">
                         <Hamburger
                             class="m-[5px] flex h-[50px] w-[50px] items-center justify-center"
