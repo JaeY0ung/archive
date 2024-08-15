@@ -334,7 +334,6 @@ onBeforeUnmount(()=>{
 })
 
 onBeforeRouteLeave( async (to, from, next) => {
-    musicStore.isLast = 0;
     if(to.name == from.name){
         isReloading.value = true;
     }
