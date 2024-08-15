@@ -206,7 +206,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             HttpPost request = new HttpPost(fastApiServerUrl + "/playing/single");
             log.info("fastAPI 요청 ={}", request);
 
-            String userNickname = authService.getLoginUser().getNickname();
+            String userId = authService.getLoginUser().getId().toString();
 
             HttpEntity multipart = MultipartEntityBuilder.create()
                     .addBinaryBody("file", file.getInputStream(),
@@ -216,7 +216,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
                             ContentType.TEXT_PLAIN)
                     .addTextBody("singleResultId", singleResultId.toString(),
                             ContentType.TEXT_PLAIN)
-                    .addTextBody("nickname", userNickname,
+                    .addTextBody("userId", userId,
                             ContentType.TEXT_PLAIN)
                     .build();
 
