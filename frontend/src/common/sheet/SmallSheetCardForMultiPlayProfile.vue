@@ -168,7 +168,7 @@ const formatTitle = (title) => {
                         <h3 class="sheet-title">{{ sheet.title }}</h3>
                         <div class="info-grid">
                             <div class="info-item">
-                                <span class="info-label">작곡가</span>
+                                <span class="info-label">아티스트</span>
                                 <span class="info-value info-container">{{
                                     sheet.songComposer
                                 }}</span>

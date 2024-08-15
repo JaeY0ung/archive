@@ -232,7 +232,7 @@ onMounted(() => {
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="flex items-center space-x-2">
                             <font-awesome-icon :icon="['fas', 'pen']" class="text-gray-500" />
-                            <span class="text-gray-700 font-medium">작곡가:</span>
+                            <span class="text-gray-700 font-medium">아티스트:</span>
                             <span class="text-gray-900">{{ sheet.songComposer }}</span>
                         </div>
                         <div class="flex items-center space-x-2">
