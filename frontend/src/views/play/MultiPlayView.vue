@@ -307,9 +307,9 @@ const handleBeforeUnload = async () => {
         sendExit();
         sendEndDuringPlay();
     }
-    musicStore.isLast = 0;
     musicStore.f1Score = [];
-    musicStore.jaccardScore = [];}
+    musicStore.jaccardScore = [];
+    }
 ;
 
 onMounted(() => {
