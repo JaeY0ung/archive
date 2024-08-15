@@ -331,7 +331,6 @@ onBeforeUnmount(()=>{
         isPopstate.value = true;
     });
     window.removeEventListener('beforeunload', handleBeforeUnload);
-    stompClient.disconnect();
 })
 
 onBeforeRouteLeave( async (to, from, next) => {
