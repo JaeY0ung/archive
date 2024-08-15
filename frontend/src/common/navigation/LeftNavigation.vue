@@ -79,13 +79,20 @@ const visiblePages = computed(() => {
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
 .left-nav-container {
-    background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(133, 193, 233, 0.95));
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    /*background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(133, 193, 233, 0.95));*/
+    background: #f4f8ff;
+    /*box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);*/
     backdrop-filter: blur(10px);
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
     font-family: "Poppins", sans-serif;
-    border: 1px solid rgba(255, 255, 255, 0.2); 
+    /*border: 1px solid rgba(255, 255, 255, 0.2);*/
+
+    border: 1px solid #C9DEFF;
+    /*border-radius: 12px;*/
+    /*padding: 30px 28px;*/
+    /*box-sizing: border-box;*/
+    box-shadow: 0px 0px 6px 1px rgba(63, 128, 234, 0.2);
 }
     
 .left-nav-container > div > a:hover {
