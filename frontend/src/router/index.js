@@ -74,6 +74,11 @@ const routes = [
                 name: "adminUploadSheet",
                 component: () => import("@/views/admin/AdminUploadSheetView.vue"),
             },
+            {
+                path: "user/update-score",
+                name: "adminUpdateScore",
+                component: () => import("@/views/admin/AdminRefreshView.vue"),
+            },
         ],
     },
     // -----------------------------------------------

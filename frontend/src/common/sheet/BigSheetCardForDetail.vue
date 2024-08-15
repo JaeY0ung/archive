@@ -6,6 +6,7 @@ import { useUserStore } from "@/stores/user";
 import { showLoginRequestAlert } from "@/util/alert";
 import { addToOrder } from "@/util/order";
 import { likeSheet, dislikeSheet } from "@/api/likesheet";
+import { downloadSheetById } from '@/api/sheet';
 import ModalComponent from "@/common/modal/ModalComponent";
 import Tier from "@/common/icons/Tier.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -173,6 +174,18 @@ const downloadSheet = () => {
         showLoginRequestAlert(router);
         return;
     }
+    // console.log("악보 다운로드 시작:", sheetInfo.value.id);
+    downloadSheetById(
+        props.sheet.id,
+        ({ data }) => {
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(new Blob([data]));
+            link.setAttribute('download', `${props.sheet.title}.mid`); // 원하는 파일 이름과 확장자로 수정하세요
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+    )
 };
 
 onMounted(() => {
