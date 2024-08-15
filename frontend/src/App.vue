@@ -64,7 +64,7 @@ const route = useRoute();
                 </div>
                 <!-- 실제 뷰 -->
                 <div
-                    class="h-[90%] overflow-hidden px-[15px] pl-[55px] pt-[20px] pb-[20px] scrollbar-hide"
+                    class="h-[90%] overflow-hidden px-[55px] pl-[55px] pt-[20px] pb-[20px] scrollbar-hide"
                     @click="closeNav"
                 >
                     <RouterView :key="route.fullPath" />
