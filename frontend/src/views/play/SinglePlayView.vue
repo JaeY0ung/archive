@@ -43,14 +43,12 @@ const resultScore = ref(0);
 
 const updateResultScore = (newScore) => {
   resultScore.value = newScore;
-  console.log('Updated result score:', resultScore.value);
 };
 
 // watch를 사용하여 f1 배열의 변화를 감지하고 myF1Score를 업데이트
 watch(
     () => musicStore.f1,
     (newF1Scores) => {
-        console.log("F1:  ",musicStore.f1)
         if (newF1Scores.length !== 0) {
             myF1Score.value = Math.floor(
                 (newF1Scores.reduce((acc, score) => acc + score, 0) /
@@ -67,7 +65,6 @@ watch(
 watch(
     () => musicStore.jaccard,
     (newJaccardScores) => {
-      console.log("JC: ",musicStore.jaccard)
         if (newJaccardScores.length !== 0) {
             myJaccardScore.value = Math.floor(
                 (newJaccardScores.reduce((acc, score) => acc + score, 0) /
@@ -88,18 +85,17 @@ watch(
 		try {
 		  const response = await local.patch(`/plays/single/${singleResultId}`, {
         userId: loginUser.id,
-        score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
+        score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
 		  });
-      console.log("결과 저장 완료");
 		  Swal.fire({
         title: '싱글 플레이 결과',
         html: `
               <p>
                 플레이어: ${loginUser.nickname}<br>
-                최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 )}점<br>
+                최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 )}점<br>
               </p>
             `,
-        icon: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ) >= 80 ? 'success' : 'error',
+        icon: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ) >= 80 ? 'success' : 'error',
         confirmButtonText: '닫기'
 		  }).then(() => {
 			// 필요한 경우 추가 작업 수행
@@ -125,9 +121,6 @@ const onClickQuit = () => {
     if (answer) {
         isQuitting.value = true;
         router.push("/room/multi/list");
-    } else {
-        // 취소를 눌렀을 경우, 아무런 동작도 하지 않습니다.
-        console.log("방 나가기가 취소되었습니다.");
     }
 }
 
@@ -145,7 +138,7 @@ const onStartRecordingEmit = async () => {
     musicStore.singleResultId = singleResultId;
     // sheet store에 singleResultId 저장
   }catch(error){
-    console.log("싱글 플레이 데이터 저장 중 오류 발생");
+    console.error("싱글 플레이 데이터 저장 중 오류 발생");
   }
 }
 
@@ -158,7 +151,7 @@ watch(
       try {
         await local.patch(`/plays/single/${singleResultId}`, {
           userId: loginUser.id,
-          score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
+          score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
         });
         modalTitle.value = "플레이 완료!";
         modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
@@ -249,7 +242,7 @@ onBeforeRouteLeave(async (to, from, next) => {
           userId: loginUser.id,
           score: 0
         }).catch(error => {
-          console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
+          console.error("싱글 플레이 데이터 업데이트 중 오류 발생")
         });
       }
     }

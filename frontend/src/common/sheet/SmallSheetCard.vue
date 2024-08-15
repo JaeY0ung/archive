@@ -31,9 +31,9 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 
 		<!-- (오른쪽) 악보 정보 -->
 		<div class="w-full m-auto flex flex-col gap-1">
-			<div class="bold flex justify-between mb-1" style="font-size: 18px;">
-				<div class="flex items-center">
-					{{ restrictTitle? getTitleByLen(sheet.title, 12) : sheet.title  }}
+			<div class="w-full bold flex justify-between mb-1" style="font-size: 18px;">
+				<div class="flex items-center overflow-hidden text-ellipsis whitespace-nowrap">
+					{{ restrictTitle? getTitleByLen(sheet.title, 20) : sheet.title  }}
 				</div>
 				<div class="flex items-center">
 					<Tier class="w-[18px] h-[18px]" :level="sheet.level" />

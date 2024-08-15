@@ -80,12 +80,6 @@
             let lastEmittedMeasureIndex = 0;
             playbackManager.value.addListener({
                 cursorPositionChanged: (currentTimestamp, data) => {
-                    const currentMeasureIndex = data.CurrentMeasureIndex;
-                    // if (currentMeasureIndex >= 0 && currentMeasureIndex - lastEmittedMeasureIndex >= 8) {
-                    //     lastEmittedMeasureIndex = currentMeasureIndex;
-                    //     triggerSplit.value++;
-                    //     splitRecording();
-                    // }
                 },
                 resetOccurred: (data) => {
                     lastEmittedMeasureIndex = 0;
@@ -142,7 +136,6 @@
         };
 
         const startRecording = async () => {
-            console.log("START RECORDING");
             f1.value = [];  // 녹음 시작 시점에 배열을 초기화
             jaccard.value = [];  // 녹음 시작 시점에 배열을 초기화
             startMusic();
@@ -168,18 +161,17 @@
                 if (isRecording.value) {
                     splitRecording();
                 }
-            }, 5000); 
+            }, 10000); 
             mediaRecorder.value.onstop = () => {
                 if (chunks.value.length > 0) {
                     const blob = new Blob(chunks.value, { type: 'audio/webm' });
-                    console.log(`Blob size: ${blob.size} bytes`);
                     audioBlobs.value.push({ blob });
                     chunks.value = [];
                     if (isPlay.value == true) {
-                        console.log("5초컷 NORMAL")
-                        const doubledBlob = new Blob([blob, blob], { type: 'audio/webm' }); // 자기 자신을 두 번 결합
-                        console.log(doubledBlob.size);
-                        sendToServer(doubledBlob); // 두 번 결합한 Blob을 서버로 전송
+                        sendToServer(blob);
+                        // const doubledBlob = new Blob([blob, blob], { type: 'audio/webm' }); // 자기 자신을 두 번 결합
+                        // console.log(doubledBlob.size);
+                        // sendToServer(doubledBlob); // 두 번 결합한 Blob을 서버로 전송
                     }
                 }
         
@@ -197,7 +189,6 @@
             formData.append('file', blob, `chunk_${audioBlobs.value.length - 1}.webm`);
             const sheetIdBlob = new Blob([route.params.sheetId], { type: 'application/json' });
             formData.append('sheetId', sheetIdBlob);
-            console.log("Sending formData", formData);
             sendRequests.value= sendRequests.value + 1;
             try {
                 const res = await local.post(`/plays/${playMode.value}/${singleResultId.value}/live-score`, formData, {
@@ -205,19 +196,15 @@
                         'Content-Type': 'multipart/form-data',
                     },
                 });
-                console.log('채점 성공: ', res.data);
-                
                 f1.value.push(res.data.similarity_results.f1_score);
                 jaccard.value.push(res.data.similarity_results.jaccard_similarity);
                 receivedResponse.value = receivedResponse.value + 1;
             } catch (err) {
                 receivedResponse.value = receivedResponse.value + 1;
-                console.error('채점 실패: ', err);
             }
         };        
 
         const splitRecording = () => {
-            console.log("SPLIT")
             if (isRecording.value && mediaRecorder.value.state === 'recording') {
                 mediaRecorder.value.stop();
             }

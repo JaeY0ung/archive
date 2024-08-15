@@ -13,6 +13,10 @@ import com.ssafy.los.backend.exception.user.UserNotFoundException;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.util.FileUploadUtil;
+import java.io.IOException;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -27,12 +31,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -65,9 +64,8 @@ public class SinglePlayServiceImpl implements SinglePlayService {
 
     // 게임이 종료되었을 때, 결과 테이블 가져오기
     @Override
-    @Transactional
     public Long completeSinglePlayResult(Long singleResultId,
-                                         SingleResultAfterDto singleResultAfterDto) {
+            SingleResultAfterDto singleResultAfterDto) {
         User loginUser = authService.getLoginUser();
 
         SinglePlayResult singlePlayResult = singlePlayResultRepository.findById(singleResultId)
@@ -75,7 +73,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
         log.info("업데이트 과정 singlePlayResult : {}", singlePlayResult.toString());
         log.info("업데이트 과정 status : {}", singlePlayResult.isStatus());
 //        if (!singlePlayResult.isStatus()) {
-        log.info("조건문 체크");
+//        log.info("조건문 체크");
         User user = userRepository.findUserByIdAndDeletedAtNull(
                         singleResultAfterDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("user not found"));
@@ -88,25 +86,16 @@ public class SinglePlayServiceImpl implements SinglePlayService {
         singlePlayResult.updatePlayTime();
         singlePlayResult.updateStatus(true);
 
-            // 명시적으로 저장하여 변경 사항 반영
-            singlePlayResultRepository.save(singlePlayResult);
-//            refreshSingleScoreOfUser(singlePlayResult.getUser().getId());
-
-//        } else {
-//            log.info("이미 저장 완료된 배틀 기록입니다.");
-//        }
+        // 명시적으로 저장하여 변경 사항 반영
+        singlePlayResultRepository.save(singlePlayResult);
+        refreshSingleScoreOfUser(singlePlayResult.getUser().getId());
         return singleResultId;
-    }
-
-    public void refreshSingleScoreOfUser(long userId) {
-
     }
 
     // 싱글 결과 목록 조회(유저, 악보 기준)
     @Override
     public Page<SinglePlayResult> getSinglePlayResultList(Pageable pageable) {
-        Page<SinglePlayResult> page = singlePlayResultRepository.findAll(pageable);
-        return page;
+        return singlePlayResultRepository.findAll(pageable);
     }
 
     // 싱글 결과 목록 조회 (프로필 페이지)
@@ -114,32 +103,58 @@ public class SinglePlayServiceImpl implements SinglePlayService {
     public List<SingePlayResultProfileDto> getSinglePlayResultListByUser(Long userId) {
         User findUser = userRepository.findUserByIdAndDeletedAtNull(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저를 찾을 수 없습니다: " + userId));
-        List<SinglePlayResult> lll = singlePlayResultRepository.findByUser(findUser);
-        for (int i = 0; i < lll.size(); i++) {
-            log.info(lll.get(i).getScore().toString());
-        }
-        log.info("============={}====", singlePlayResultRepository.findByUser(findUser).stream()
-                .map((result) -> result.getScore()));
+
         return singlePlayResultRepository.findByUser(findUser).stream()
                 .map(result -> {
-                    SingePlayResultProfileDto dto = SingePlayResultProfileDto.builder()
-                            .nickname(result.getUser().getNickname())
-                            .userImgName(result.getUser().getUserImg())
-                            .sheetId(result.getSheet().getId())
-                            .sheetTitle(result.getSheet().getTitle())
-                            .songComposer(result.getSheet().getSong().getComposer())
-                            .songImgName(result.getSheet().getSong().getImgName())
-                            .uploaderNickname(result.getSheet().getUploader() != null
-                                    ? result.getSheet().getUploader().getNickname()
-                                    : "")
-                            .level(result.getSheet().getLevel())
-                            .score(result.getScore())
-                            .playTime(result.getPlayTime())
-                            .build();
-                    dto.loadUserImg(fileUploadUtil);
-                    dto.loadSongImg(fileUploadUtil);
+                    SingePlayResultProfileDto.SingePlayResultProfileDtoBuilder builder = SingePlayResultProfileDto.builder();
+
+                    if (result.getUser() != null) {
+                        builder.nickname(result.getUser().getNickname())
+                                .userImgName(result.getUser().getUserImg());
+                    }
+
+                    if (result.getSheet() != null) {
+                        builder.sheetId(result.getSheet().getId())
+                                .sheetTitle(result.getSheet().getTitle())
+                                .level(result.getSheet().getLevel());
+
+                        if (result.getSheet().getSong() != null) {
+                            builder.songComposer(result.getSheet().getSong().getComposer())
+                                    .songImgName(result.getSheet().getSong().getImgName());
+                        }
+
+                        if (result.getSheet().getUploader() != null) {
+                            builder.uploaderNickname(result.getSheet().getUploader().getNickname());
+                        } else {
+                            builder.uploaderNickname("");
+                        }
+                    }
+
+                    // score와 playTime에 대한 null 체크 추가
+                    if (result.getScore() != null) {
+                        builder.score(result.getScore());
+                    }
+                    if (result.getPlayTime() >= 0) {  // TODO : 0 이하의 값은 무시
+                        builder.playTime(result.getPlayTime());
+                    }
+
+                    SingePlayResultProfileDto dto = builder.build();
+
+                    try {
+                        dto.loadUserImg(fileUploadUtil);
+                    } catch (Exception e) {
+                        log.warn("Failed to load user image for user: {}", result.getUser().getId());
+                    }
+
+                    try {
+                        dto.loadSongImg(fileUploadUtil);
+                    } catch (Exception e) {
+                        log.warn("Failed to load song image for sheet: {}", result.getSheet().getId());
+                    }
+
                     return dto;
                 })
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
 
@@ -168,7 +183,7 @@ public class SinglePlayServiceImpl implements SinglePlayService {
                             ContentType.TEXT_PLAIN)
                     .addTextBody("singleResultId", singleResultId.toString(),
                             ContentType.TEXT_PLAIN)
-                    .addTextBody("nickname",userNickname,
+                    .addTextBody("nickname", userNickname,
                             ContentType.TEXT_PLAIN)
                     .build();
 
@@ -186,12 +201,15 @@ public class SinglePlayServiceImpl implements SinglePlayService {
         }
     }
 
-    @Transactional
     @Override
     public void refreshSingleScoreOfUser(Long userId) throws IllegalArgumentException {
         Double avgLevel = singlePlayResultRepository.calculateAvgOfPassedSinglePlayResultByUserId(
                 userId);
         User user = userRepository.findById(userId).orElseThrow();
-        user.setRefreshSingleScore((int) (avgLevel * 1000));
+        if (avgLevel != null) {
+            user.setRefreshSingleScore((int) (avgLevel * 1000));
+        } else {
+            user.setRefreshSingleScore(0);
+        }
     }
 }

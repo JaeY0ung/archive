@@ -116,7 +116,7 @@ props.sheet.imageUrl = props.sheet.songImg
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: calc(100% - 30px);
-    line-height: 1.1; /* 줄 높이 조정 */
+    line-height: 1.2; /* 줄 높이 조정 */
     padding-top: 2px; /* 상단 패딩 추가 */
 }
 
