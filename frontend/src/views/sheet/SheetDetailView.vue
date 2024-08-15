@@ -2,7 +2,7 @@
 import { onMounted } from "vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import BigSheetCard from "@/common/sheet/BigSheetCardForDetail.vue";
-import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
+import SmallSheetCardForDetail from "@/common/sheet/SmallSheetCard.vue";
 import { storeToRefs } from "pinia";
 import { computed, ref, watch, defineAsyncComponent } from "vue";
 import { useUserStore } from "@/stores/user";
@@ -189,13 +189,13 @@ onMounted(async () => {
                     <h2 class="text-xl font-bold text-gray-800 mb-4">비슷한 수준의 악보</h2>
                     <div class="scroll-x flex rounded-xl pb-2">
                         <template v-if="sameLevelSheets && sameLevelSheets.length != 0">
-                            <SmallSheetCard
+                            <SmallSheetCardForDetail
                                 v-for="sheet in sameLevelSheets"
                                 :key="sheet.id"
                                 :sheet="sheet"
                                 @click="goToSheetDetail(sheet.id)"
                                 :restrictTitle="true"
-                                class="cursor-pointer h-fit mr-4 last:mr-0 transition-transform duration-300 hover:scale-105"
+                                class="shrink-0 cursor-pointer h-fit mr-4 last:mr-0 transition-transform duration-300 hover:scale-105"
                             />
                             
                         </template>
