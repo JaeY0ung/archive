@@ -202,7 +202,6 @@ function connect() {
             const message = JSON.parse(socket.body);
             userStore.opponentUser.nickname = "유저가 방을 나갔습니다."
             userStore.opponentUser.userImg = null
-            opponentUser.userImg = null;
             opponentF1Score.value = 0;
             opponentJaccardScore.value = 0;
         })
