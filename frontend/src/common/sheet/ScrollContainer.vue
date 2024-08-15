@@ -51,7 +51,8 @@ onUnmounted(() => {
 
 <template>
     <div ref="outerDiv" class="flex flex-grow overflow-hidden relative">
-        <div ref="container" class="pointer-events-none absolute overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px', maxHeight: containerHeight+'px' }" ></div>
+        <div class="absolute inset-0 bg-transparent z-10"></div>
+        <div ref="container" class="absolute overflow-y-scroll overflow-x-hidden" :style="{ width: containerWidth + 'px', height: containerHeight + 'px', maxHeight: containerHeight+'px' }" ></div>
     </div>
 </template>
 
