@@ -233,6 +233,7 @@ watch(
         } else {
             myJaccardScore.value = 0;
         }
+        console.log("ISLAST LOGGER:", musicStore.isLast)
         // 변화된 점수를 상대방에게 전송하는 소켓 메서드
         stompClient.send(`/app/play/${route.params.roomId}`,
                             {},
@@ -261,13 +262,13 @@ watch(() => musicStore.isLast,
         stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
         {
             sender: loginUser.nickname,
-            score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
+            score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
             multiResultId: multiResultId
         }));
       stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
           {
             sender: opponentUser.nickname,
-            score: Math.min(100,(Math.max(0,(opponentF1Score.value - 30)) + Math.max(0,(opponentJaccardScore.value - 20))) * 100 / 120 ),
+            score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
             multiResultId: multiResultId
           }));
     }else{

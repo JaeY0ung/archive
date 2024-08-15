@@ -153,20 +153,6 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
                 logger.error(f"GPU 서버와의 통신 중 오류 발생: {str(e)}")
                 raise HTTPException(status_code=500, detail="GPU 서버와의 통신 중 오류 발생")
 
-            # # WAV 데이터를 임시 파일로 저장
-            # wav_file_location = os.path.join(UPLOAD_DIR, wav_file_name)
-            # with open(wav_file_location, "wb") as wav_file:
-            #     wav_file.write(wav_data)
-
-            # # WAV 파일을 MIDI로 변환
-            # midi_data = convert_service.wav_to_midi(wav_file_location, UPLOAD_DIR)
-
-            # # MIDI 데이터를 임시 파일로 저장
-            # midi_file_location = os.path.join(UPLOAD_DIR, midi_file_name)
-            # with open(midi_file_location, "wb") as midi_file:
-            #     midi_file.write(midi_data)
-
-            # 원본 webm 파일 삭제
             os.remove(file_location)
 
 
