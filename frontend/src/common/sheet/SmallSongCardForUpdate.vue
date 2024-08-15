@@ -17,6 +17,11 @@ const triggerFileInput = () => {
 };
 
 const handleFileChange = (event) => {
+    if (event.target.files[0] && event.target.files[0].type != "image/jpeg" && event.target.files[0].type != "image/png") {
+        fileInputRef.value.value = "";
+        showUnselectedWarningAlert(router, "jpg나 png 확장자의 파일을 업로드해 주세요");
+        return;
+    }
     file.value = event.target.files[0];
     props.song.imageUrl = URL.createObjectURL(file.value)
 }
