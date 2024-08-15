@@ -210,11 +210,13 @@ function connect() {
 watch(
     () => musicStore.f1,
     (newF1Scores) => {
+        console.log(newF1Scores)
         if (newF1Scores.length !== 0) {
             myF1Score.value = Math.floor(
                 (newF1Scores.reduce((acc, score) => acc + score, 0) /
                     newF1Scores.length) * 100
             );
+            console.log("MYF1 : ",myF1Score.value)
         } else {
             myF1Score.value = 0;
         }
@@ -226,11 +228,13 @@ watch(
 watch(
     () => musicStore.jaccard,
     (newJaccardScores) => {
+        console.log(newJaccardScores)
         if (newJaccardScores.length !== 0) {
             myJaccardScore.value = Math.floor(
                 (newJaccardScores.reduce((acc, score) => acc + score, 0) /
                     newJaccardScores.length) * 100
             );
+            console.log(myJaccardScore.value)
         } else {
             myJaccardScore.value = 0;
         }
