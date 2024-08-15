@@ -278,7 +278,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     window.removeEventListener('beforeunload', handleBeforeUnload);
-    window.addEventListener('popstate', () => {
+    window.removeEventListener('popstate', () => {
         isPopstate.value = true;
     });
 });

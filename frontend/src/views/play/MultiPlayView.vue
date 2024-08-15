@@ -267,7 +267,7 @@ onMounted(() => {
 onBeforeUnmount(()=>{
     stompClient.disconnect();
     // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정 해제
-    window.addEventListener('popstate', () => {
+    window.removeEventListener('popstate', () => {
     isPopstate.value = true;
     });
     window.removeEventListener('beforeunload', handleBeforeUnload);
