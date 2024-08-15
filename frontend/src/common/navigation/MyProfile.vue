@@ -120,7 +120,7 @@ const logout = async () => {
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
-  border: 2px solid #3F80EA; /* 추가된 border */
+  border: 2px solid #3498db; /* 추가된 border */
 }
 
 .user-profile-button:hover {
@@ -162,7 +162,7 @@ const logout = async () => {
   overflow: hidden;
   width: auto;
   min-width: 120px;
-  border: 2px solid #3F80EA; /* 추가된 border */
+  border: 2px solid #3498db; /* 추가된 border */
 }
 
 .menu-item {

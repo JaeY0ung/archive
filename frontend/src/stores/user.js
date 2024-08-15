@@ -231,7 +231,7 @@ export const useUserStore = defineStore(
                     }
                 },
                 (error) => {
-                    console.erorr(error);
+                    console.error(error);
                     isLogin.value = false;
                 }
             );
