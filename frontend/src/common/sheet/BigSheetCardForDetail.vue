@@ -282,8 +282,8 @@ onMounted(() => {
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
                     <button
-                        class="btn bg-purple-600 hover:bg-purple-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
-                        @click="goToDifficultyRatingPage"
+                        class="btn hover:bg-purple-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
+                        style="background-color: #4682B4;" @click="goToDifficultyRatingPage"
                     >
                         <font-awesome-icon
                             :icon="['fas', 'chart-line']"
@@ -296,8 +296,8 @@ onMounted(() => {
                         </span>
                     </button>
                     <button
-                        class="btn bg-gray-800 hover:bg-gray-900 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
-                        @click="goToPlayRoom"
+                        class="btn hover:bg-gray-900 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
+                        style="background-color: #FF4500;" @click="goToPlayRoom"
                     >
                         <font-awesome-icon
                             :icon="['fas', 'play']"
@@ -310,10 +310,11 @@ onMounted(() => {
                         </span>
                     </button>
                     <button
-                        class="btn bg-green-600 hover:bg-green-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
+                        class="btn hover:bg-green-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12"
                         :class="{ 'opacity-50 cursor-not-allowed': isCartButtonDisabled }"
                         @click="addSheetToOrder"
                         :disabled="isCartButtonDisabled"
+                        style="background-color: #DDA0DD;"
                     >
                         <font-awesome-icon
                             :icon="['fas', 'shopping-cart']"
@@ -324,8 +325,8 @@ onMounted(() => {
                             {{ sheet.price == 0 || sheet.price === null ? "무료" : "장바구니" }}
                         </span>
                     </button>
-                    <button class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12" :disabled="sheet.canDownload == false || sheet.canDownload == 'false'"
-                        @click="downloadSheet" >
+                    <button class="btn hover:bg-blue-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12" :disabled="sheet.canDownload == false || sheet.canDownload == 'false'"
+                        style="background-color: #FFD700;" @click="downloadSheet" >
                         <font-awesome-icon :icon="['fas', 'download']"
                             class="text-2xl transition-all duration-300 group-hover:opacity-0 group-hover:scale-0" />
                         <span class="absolute transition-all duration-300 opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 text-xs">
