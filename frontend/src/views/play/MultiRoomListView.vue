@@ -58,7 +58,9 @@ const enterRoom = async (roomId) => {
                 <div class="flex gap-6 mb-8">
                     <button
                         @click="selectMode('single')"
-                        class="flex-1 bg-blue-500 text-white py-4 px-6 rounded-lg text-xl font-bold shadow-md transition duration-300 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        class="flex-1 text-white py-4 px-6 rounded-lg text-xl font-bold shadow-md transition duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+                        :class="{ 'custom-blue-hover': true }"
+                        :style="{ backgroundColor: 'rgb(52, 152, 219)' }"
                     >
                         싱글 플레이
                     </button>
@@ -66,7 +68,7 @@ const enterRoom = async (roomId) => {
                         @click="selectMode('multi')"
                         class="flex-1 bg-green-500 text-white py-4 px-6 rounded-lg text-xl font-bold shadow-md transition duration-300 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
                     >
-                        멀티 방 만들기
+                        멀티 방 생성
                     </button>
                 </div>
 
@@ -168,5 +170,9 @@ const enterRoom = async (roomId) => {
 
 .custom-scrollbar::-webkit-scrollbar {
     display: none;
+}
+
+.custom-blue-hover:hover {
+    background-color: rgb(34, 131, 196) !important;
 }
 </style>
