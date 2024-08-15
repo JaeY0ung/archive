@@ -61,9 +61,9 @@ public class DifficultyServiceImpl implements DifficultyService {
         boolean isExisted = difficultyRepository.existsByUserAndSheet(user, sheet);
 
         // TODO : 개발 테스트 완료하면 한 악보당 중복 체크 불가능하도록 만들기
-//        if (isExisted) {
-//            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
-//        }
+        if (isExisted) {
+            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
+        }
 
         Difficulty difficulty = Difficulty.builder()
                 .user(user)

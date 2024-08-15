@@ -154,9 +154,9 @@ const formatTitle = (title) => {
             </div>
 
             <!-- 호버 오버레이 -->
-            <!-- <div class="hover-overlay">
+            <div class="hover-overlay">
                 <span class="hover-text">자세히 보기</span>
-            </div> -->
+            </div>
         </div>
 
         <!-- Modal -->
@@ -478,7 +478,7 @@ const formatTitle = (title) => {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.35);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -495,7 +495,6 @@ const formatTitle = (title) => {
 .hover-text {
     color: white;
     font-size: 18px;
-    font-weight: bold;
 }
 
 /* Modal styles */

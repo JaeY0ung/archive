@@ -477,7 +477,7 @@ onUnmounted(() => {
                             </div>
                             <button
                                 @click="submitCommentAndDifficulty"
-                                class="px-4 py-2 bg-green-500 text-white rounded font-bold transition-colors hover:bg-green-600 active:transform active:scale-98"
+                                class="px-4 py-2 bg-green-500 text-white rounded transition-colors hover:bg-green-600 active:transform active:scale-98"
                             >
                                 등록
                             </button>
