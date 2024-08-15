@@ -22,6 +22,7 @@ const removeItem = (itemId) => {
 
 const clearAllItems = () => {
 	clearOrder();
+
 	orderItems.value = [];
 	selectedItems.value.clear();
 };
