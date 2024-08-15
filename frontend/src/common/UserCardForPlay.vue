@@ -27,8 +27,7 @@ if(props.user.userImg == null){
 
 
 const resultScore = computed(() => {
-    let score =  Math.min(100,(Math.max(0,(props.f1Score - 30)) + Math.max(0,(props.jaccardScore - 20))) * 100 / 120 );
-    return score;
+    return Math.min(100,(Math.max(0,(props.f1Score - 50)) + Math.max(0,(props.jaccardScore - 40))) * 100 / 80 );
 });
 
 

@@ -153,20 +153,6 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
                 logger.error(f"GPU 서버와의 통신 중 오류 발생: {str(e)}")
                 raise HTTPException(status_code=500, detail="GPU 서버와의 통신 중 오류 발생")
 
-            # # WAV 데이터를 임시 파일로 저장
-            # wav_file_location = os.path.join(UPLOAD_DIR, wav_file_name)
-            # with open(wav_file_location, "wb") as wav_file:
-            #     wav_file.write(wav_data)
-
-            # # WAV 파일을 MIDI로 변환
-            # midi_data = convert_service.wav_to_midi(wav_file_location, UPLOAD_DIR)
-
-            # # MIDI 데이터를 임시 파일로 저장
-            # midi_file_location = os.path.join(UPLOAD_DIR, midi_file_name)
-            # with open(midi_file_location, "wb") as midi_file:
-            #     midi_file.write(midi_data)
-
-            # 원본 webm 파일 삭제
             os.remove(file_location)
 
 
@@ -177,22 +163,16 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
         if not os.path.exists(original_file_location):
             raise FileNotFoundError(f"original 폴더에 {original_file_location} 파일이 존재하지 않습니다.")
 
-        start_time = max(0, int(file_number) * 5 - 1)
-        end_time = (int(file_number) + 1) * 5 + 1
-        last_measure = convert_service.get_rounded_measures(original_file_location,5);
+        start_time = max(0, int(file_number) * 10 - 1)
+        end_time = (int(file_number) + 1) * 10 + 1
         similarity_results = calculate_similarity(original_file_location, midi_file_location, start_time, end_time)
-        is_last = 0
-        if last_measure == int(file_number):
-            is_last = 1
 
         return {
             "filename": original_file_name,
             "midi_file": midi_file_location,
             "content_type": file.content_type,
             "similarity_results": similarity_results,
-            "isLast": is_last,
             "file_number": file_number,
-            "last_measure": last_measure,
         }
 
     except subprocess.CalledProcessError as e:

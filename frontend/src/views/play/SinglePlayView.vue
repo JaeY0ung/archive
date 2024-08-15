@@ -88,7 +88,7 @@ watch(
 		try {
 		  const response = await local.patch(`/plays/single/${singleResultId}`, {
         userId: loginUser.id,
-        score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
+        score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
 		  });
       console.log("결과 저장 완료");
 		  Swal.fire({
@@ -96,10 +96,10 @@ watch(
         html: `
               <p>
                 플레이어: ${loginUser.nickname}<br>
-                최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 )}점<br>
+                최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 )}점<br>
               </p>
             `,
-        icon: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ) >= 80 ? 'success' : 'error',
+        icon: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ) >= 80 ? 'success' : 'error',
         confirmButtonText: '닫기'
 		  }).then(() => {
 			// 필요한 경우 추가 작업 수행
@@ -150,7 +150,7 @@ watch(
       try {
         await local.patch(`/plays/single/${singleResultId}`, {
           userId: loginUser.id,
-          score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
+          score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
         });
         modalTitle.value = "플레이 완료!";
         modalMessage.value = "축하합니다! 플레이를 완료했습니다.";

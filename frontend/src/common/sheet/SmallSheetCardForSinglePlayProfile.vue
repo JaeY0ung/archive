@@ -44,54 +44,31 @@ const navigateToDetail = () => {
 </script>
 
 <template>
-    <div
-        class="w-[330px] h-[90px] m-[5px] p-[5px] flex flex-row justify-between gap-3 bg-white rounded-lg overflow-hidden cursor-pointer"
-        style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3)"
-        @click="navigateToDetail"
-    >
-        <div class="flex justify-start gap-3">
-            <!-- (왼쪽) 악보 사진 -->
-            <div class="h-[80px] w-[80px] flex-shrink-0 flex justify-center">
-                <img class="rounded-lg object-cover" :src="sheet.imageUrl" alt="원본 곡 이미지" />
+    <div class="sheet-card" @click="navigateToDetail">
+        <div class="sheet-image">
+            <img :src="sheet.imageUrl" :alt="sheet.title" />
+        </div>
+        <div class="sheet-info">
+            <div class="sheet-title">
+                <h2>{{ formatTitle(sheet.title) }}</h2>
             </div>
-
-            <!-- (중앙) 악보 정보 -->
-            <div class="min-w-0 flex-grow pt-[5px] flex flex-col gap-1">
-                <div class="bold flex justify-between items-start" style="font-size: 16px">
-                    <div class="custom-title mr-2">
-                        {{ formatTitle(sheet.title) }}
-                    </div>
-                    <Tier class="w-[16px] h-[16px] flex-shrink-0" :level="sheet.level" />
-                </div>
-                <div class="medium mb-1 truncate" style="font-size: 12px">
-                    {{ sheet.songComposer }}
-                </div>
-                <div class="medium flex items-center gap-1 truncate" style="font-size: 12px">
-                    업로더 {{ sheet.uploaderNickname }}
-                </div>
+            <p class="composer">{{ sheet.songComposer }}</p>
+            <div class="uploader-info">
+                <span class="uploader">업로더 {{ sheet.uploaderNickname }}</span>
             </div>
         </div>
-
-        <!-- (오른쪽) 점수 및 추가 기능 -->
-        <div class="p-[5px] flex flex-col items-end justify-center gap-2 flex-shrink-0">
+        <div class="action-slot">
+            <Tier class="tier-icon" :level="sheet.level" />
             <slot />
             <div
                 v-if="sheet.singleScore !== undefined"
-                class="relative"
+                class="score-container"
                 @mouseenter="showScore = true"
                 @mouseleave="showScore = false"
             >
-                <div
-                    :class="[
-                        'p-2 rounded-full flex items-center justify-center',
-                        isSuccess ? 'bg-green-100' : 'bg-red-100',
-                    ]"
-                >
-                    <span 
-                        :class="['font-bold text-lg', textColor]"
-                        class="w-[52px] text-center"
-                    >
-                        {{ showScore ? sheet.singleScore : (isSuccess ? "GOOD" : "BAD") }}
+                <div :class="['score-display', isSuccess ? 'success' : 'failure']">
+                    <span :class="['score-text', textColor]">
+                        {{ showScore ? sheet.singleScore : isSuccess ? "GOOD" : "BAD" }}
                     </span>
                 </div>
             </div>
@@ -100,19 +77,143 @@ const navigateToDetail = () => {
 </template>
 
 <style scoped>
-.truncate {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
+
+.sheet-card {
+    font-family: "Noto Sans KR", sans-serif;
+    display: flex;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    width: 330px;
+    height: 100px;
+    user-select: none;
+    cursor: pointer;
 }
 
-.custom-title {
-    white-space: pre-line;
-    word-break: break-word;
+.sheet-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sheet-image {
+    width: 80px;
+    height: 80px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.sheet-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.sheet-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.sheet-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2px;
+}
+
+.sheet-title h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    line-height: 1.2;
     max-width: 100%;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    word-break: break-word;
+    padding-top: 2px;
+}
+
+.composer {
+    font-size: 13px;
+    color: #666;
+    margin: 4px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+.uploader-info {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.uploader {
+    color: #888;
+    background-color: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 100%;
+    line-height: 1.2;
+}
+
+.action-slot {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-left: 8px;
+    width: 52px;
+}
+
+.tier-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    align-self: flex-end;
+}
+
+.score-container {
+    margin-top: auto;
+    align-self: flex-end;
+}
+
+.score-display {
+    padding: 6px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+}
+
+.score-display.success {
+    background-color: #e8f5e9;
+}
+
+.score-display.failure {
+    background-color: #ffebee;
+}
+
+.score-text {
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
 }
 </style>

@@ -3,12 +3,6 @@ package com.ssafy.los.backend.controller.user;
 import com.ssafy.los.backend.dto.user.response.OnlineUserDto;
 import com.ssafy.los.backend.service.user.UserService;
 import com.ssafy.los.backend.service.user.UserStatusService;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
 import com.ssafy.los.backend.util.FileUploadUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")

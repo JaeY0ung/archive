@@ -1,17 +1,14 @@
 <script setup>
-import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/stores/user";
 import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
+import { ref, onBeforeUnmount, watch, onMounted, computed } from "vue";
+import { useUserStore } from "@/stores/user";
 import { useMusicStore } from "@/stores/sheet";
-import { onBeforeUnmount, watch } from "vue";
+import { usePlayStore } from "@/stores/play";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { computed } from "vue";
-import { ref } from "vue";
-import { onMounted } from "vue";
 import { localAxios } from "@/util/http-common";
-import { usePlayStore } from "@/stores/play";
 
 const playStore = usePlayStore();
 const { VUE_APP_REQUEST_URL } = process.env; // 소켓 엔드포인트 연결을 위한 주소 설정
@@ -36,6 +33,12 @@ const myJaccardScore = ref(0);
 let isResultSender = false;
 let isPlayBehind = false;
 
+const showCompletionModal = ref(false);
+
+// 모달에 전달할 데이터 변수
+const modalMyScore = ref(0);
+const modalOpponentScore = ref(0);
+const modalOpponentNickname = ref("");
 
 // sheet.js에서 올바른 경로로 보낼 수 있도록 mode를 지정해준다.
 // back에서 single 처럼 경로를 지정해주는 MultiPlayController의 메서드가 필요함.
@@ -78,11 +81,13 @@ const sendEndDuringPlay = () => {
 watch(
   () => [musicStore.isLast, opponentIsLast.value],
   ([isMyLast, isOpponentLast]) => {
+    console.log("My isLast: ", isMyLast);
+    console.log("Opponent isLast: ", isOpponentLast);
     if (isMyLast && isOpponentLast) {
-      console.log("MULTI END");
+      console.log("Both players have finished. MULTI END");
       const myScore = parseFloat(myJaccardScore.value);
       const otherScore = parseFloat(opponentJaccardScore.value);
-      
+
       local.patch(`/plays/multi/${multi_result_id}`, {
         myUserId: loginUser.id,
         myScore: myScore,
@@ -91,11 +96,14 @@ watch(
       }).then(response => {
         isRequested = true;
       }).catch(error => {
-        console.error(error);
+        console.error("Failed to send multi play result", error);
       });
+    } else {
+      console.log("One or both players have not finished yet.");
     }
   }
 );
+
 
 
 function connect() {
@@ -119,9 +127,27 @@ function connect() {
             // 상대방의 점수를 받는 부분 
             const scoreData = JSON.parse(scoreSocket.body);
             if(scoreData.nickname != loginUser.nickname){
-              opponentF1Score.value = scoreData.f1Score;
-              opponentJaccardScore.value = scoreData.jaccardScore;
-              opponentIsLast.value = scoreData.isLast | opponentIsLast.value;
+                opponentF1Score.value = scoreData.f1Score;
+                opponentJaccardScore.value = scoreData.jaccardScore;
+
+                // 상대방 닉네임을 제대로 업데이트하도록 수정
+                modalOpponentNickname.value = opponentUser.nickname;
+                opponentIsLast.value = scoreData.isLast == 0 ? false : true;
+            }
+            // 상대방의 점수를 받았을 때, isLast가 1이라면(채점이 모두 끝났다면), update한다.
+            if(musicStore.isLast == true){
+                const myScore = parseFloat(myJaccardScore.value);
+                const otherScore = parseFloat(opponentJaccardScore.value);
+                local.patch(`/plays/multi/${multi_result_id}`, {
+                myUserId: loginUser.id,
+                myScore: myScore,
+                otherUserId: opponentUser.nickname,
+                otherScore: otherScore
+                }).then(response => {
+                    isRequested = true;
+                }).catch(error => {
+                console.log("멀티 플레이 데이터 업데이트 중 오류 발생")
+                });
             }
           });
 
@@ -184,11 +210,13 @@ function connect() {
 watch(
     () => musicStore.f1,
     (newF1Scores) => {
+        console.log(newF1Scores)
         if (newF1Scores.length !== 0) {
             myF1Score.value = Math.floor(
                 (newF1Scores.reduce((acc, score) => acc + score, 0) /
                     newF1Scores.length) * 100
             );
+            console.log("MYF1 : ",myF1Score.value)
         } else {
             myF1Score.value = 0;
         }
@@ -200,22 +228,25 @@ watch(
 watch(
     () => musicStore.jaccard,
     (newJaccardScores) => {
+        console.log(newJaccardScores)
         if (newJaccardScores.length !== 0) {
             myJaccardScore.value = Math.floor(
                 (newJaccardScores.reduce((acc, score) => acc + score, 0) /
                     newJaccardScores.length) * 100
             );
+            console.log(myJaccardScore.value)
         } else {
             myJaccardScore.value = 0;
         }
+        console.log("ISLAST LOGGER:", musicStore.isLast)
         // 변화된 점수를 상대방에게 전송하는 소켓 메서드
         stompClient.send(`/app/play/${route.params.roomId}`,
-                            {}, 
+                            {},
                             JSON.stringify({
-                                nickname: loginUser.nickname, 
-                                f1Score: myF1Score.value, 
+                                nickname: loginUser.nickname,
+                                f1Score: myF1Score.value,
                                 jaccardScore: myJaccardScore.value,
-                                isLast : musicStore.isLast,
+                                isLast : musicStore.isLast ? 1 : 0,
                             }));
     },
     { deep: true } // 배열 내부의 변화도 감지
@@ -225,14 +256,28 @@ watch(
 // Todo: 모달창으로 성공, 실패를 알려줄 것.
 watch(() => musicStore.isLast,
   (newVal, oldVal) => {
+    if (newVal) {
+      // 모달에 표시할 데이터를 설정
+      modalMyScore.value = myJaccardScore.value;
+      modalOpponentScore.value = opponentJaccardScore.value;
+      modalOpponentNickname.value = opponentUser.nickname;
+      showCompletionModal.value = true;
+    }
     if(isLastSender){
         stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
         {
             sender: loginUser.nickname,
-            score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
+            score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
             multiResultId: multiResultId
-        })
-)}else{
+        }));
+        stompClient.send(`/app/play/end/${route.params.roomId}`, {}, 
+        JSON.stringify(
+          {
+            sender: opponentUser.nickname,
+            score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
+            multiResultId: multiResultId
+          }));
+    }else{
     
     
 }});
@@ -334,11 +379,11 @@ onBeforeRouteLeave( async (to, from, next) => {
         </div>
         <div class="flex justify-center items-center h-[25vh] gap-4">
             <!-- 본인 프로필을 표시하는 컴포넌트 -->
-            <UserCardForPlay 
+            <UserCardForPlay
             class="custom-shadow h-[85%] w-[35vh]"
             :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
             <!-- 나가기 -->
-            <button 
+            <button
                 class="custom-shadow_ver2 w-[20vw] h-[90%] text-[#f3f7fd] border-none outline-none py-10 flex-grow flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white  transition-all duration-300 hover:bg-sky-100"
                 @click="onClickQuit">
                 나가기
@@ -352,6 +397,24 @@ onBeforeRouteLeave( async (to, from, next) => {
                 class="custom-shadow  h-[85%] w-[35vh]"
             />
         </div>
+      <!-- 악보 완주 시 표시할 모달 -->
+      <PlayModal
+          v-if="showCompletionModal"
+          :title="'축하합니다!'"
+          :message="'악보를 성공적으로 완주했습니다.'"
+          :isVisible="showCompletionModal"
+          :myScore="modalMyScore"
+          :opponentScore="modalOpponentScore"
+          :opponentNickname="modalOpponentNickname"
+          @close="showCompletionModal = false"
+      />
+<!--      <PlayModal-->
+<!--          v-if="showCompletionModal"-->
+<!--          :title="'축하합니다!'"-->
+<!--          :message="'악보를 성공적으로 완주했습니다.'"-->
+<!--          :isVisible="showCompletionModal"-->
+<!--          @close="showCompletionModal = false"-->
+<!--      />-->
     </div>
 </template>
 

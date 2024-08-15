@@ -49,7 +49,7 @@ const fetchUserProfile = async () => {
         const data = await userPageService.fetchUserProfile(route.params.nickName);
         if (data) {
             userProfile.value = data;
-            console.log('가져온 유저 정보', data);
+            console.log("가져온 유저 정보", data);
             userImg.value = `data:image/jpeg;base64,${data.userImg}`;
             userNotFound.value = false;
             // 프로필 정보를 가져온 후 악보
@@ -68,19 +68,19 @@ const fetchUserProfile = async () => {
 // 싱글 플레이 악보 정보
 const fetchSinglePlaySheets = async (userId) => {
     singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
-    console.log('가져온 싱글 플레이', singlePlaySheets.value)
+    console.log("가져온 싱글 플레이", singlePlaySheets.value);
 };
 
 // 멀티 플레이 악보 정보
 const fetchMultiPlaySheets = async (userId) => {
     multiPlaySheets.value = await userPageService.fetchMultiPlaySheets(userId);
-    console.log('가져온 멀티 플레이', multiPlaySheets.value)
+    console.log("가져온 멀티 플레이", multiPlaySheets.value);
 };
 
 // 좋아요한 악보 정보
 const fetchLikedSheets = async (userId) => {
     likedSheets.value = await userPageService.fetchLikedSheets(userId);
-    console.log('가져온 좋아요', likedSheets.value)
+    console.log("가져온 좋아요", likedSheets.value);
 };
 
 // 팔로우 정보
@@ -256,6 +256,7 @@ onMounted(async () => {
 
                 <div
                     class="flex-grow overflow-y-auto bg-white rounded-b-xl shadow-[0_4px_15px_0_rgba(0,0,0,0.1)] custom-scrollbar"
+                    style="padding-bottom: 30px"
                 >
                     <div class="p-5">
                         <h3
@@ -265,9 +266,9 @@ onMounted(async () => {
                         </h3>
                         <div
                             v-if="singlePlaySheets.length > 0"
-                            class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
+                            class="w-full relative overflow-x-auto custom-scrollbar-x"
                         >
-                            <div class="flex absolute">
+                            <div class="flex">
                                 <SmallSheetCardSinglePlay
                                     v-for="sheet in singlePlaySheets"
                                     :key="sheet.id"
@@ -289,9 +290,9 @@ onMounted(async () => {
                         </h3>
                         <div
                             v-if="multiPlaySheets.length > 0"
-                            class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
+                            class="w-full relative overflow-x-auto custom-scrollbar-x"
                         >
-                            <div class="flex absolute">
+                            <div class="flex">
                                 <SmallSheetCardMultiPlay
                                     v-for="sheet in multiPlaySheets"
                                     :key="sheet.id"
@@ -313,9 +314,9 @@ onMounted(async () => {
                         </h3>
                         <div
                             v-if="likedSheets.length > 0"
-                            class="w-full h-[100px] relative overflow-x-auto custom-scrollbar-x"
+                            class="w-full relative overflow-x-auto custom-scrollbar-x"
                         >
-                            <div class="flex absolute">
+                            <div class="flex">
                                 <SmallSheetCardLike
                                     v-for="sheet in likedSheets"
                                     :key="sheet.id"

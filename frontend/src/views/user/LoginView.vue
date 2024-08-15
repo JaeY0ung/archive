@@ -143,7 +143,7 @@ const naverLogin = () => {
 }
 
 .naver-login-btn:hover {
-    background-color: rgb(3, 199, 90);
+    background-color: rgb(28, 135, 76);
 }
 
 .naver-login-image {

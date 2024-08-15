@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import SmallSheetCard from './SmallSheetCard.vue';
 
 const props = defineProps({
-	sheets: Array,
+    sheets: Array,
 })
 
 const emit = defineEmits(['send-go-to-back', 'send-sheet-id']);
@@ -15,13 +15,6 @@ const onClickSheetCard = (sheet) => {
     selectedSheet.value = sheet;
     emit('send-sheet-id', sheet.id);
 };
-
-// onMounted(() => {
-//     if (props.sheets && props.sheets.length > 0) {
-//         selectedSheet.value = props.sheets[0];
-//         emit('send-sheet-id', props.sheets[0].id); // 첫 번째 시트의 ID를 emit
-//     }
-// });
 
 onMounted(() => {
     // 첫 번째 시트를 자동으로 선택하지 않도록 onMounted에서 초기 선택 제거
@@ -56,8 +49,11 @@ onMounted(() => {
                 <div class="flex items-center justify-center w-full h-[40%]" v-if="selectedSheet">
                     <div class="flex flex-col justify-center flex-grow h-full w-[70%] ">
                         <div class="flex flex-row m-4 justify-around items-center p-4 pr-10 pl-4 mb-2 rounded-xl bg-[#f0f4ff] shadow-lg custom-shadow-blue">
-                            <div class="text-sm text-gray-700">제목</div>
-                            <div class="text-lg text-center font-bold text-[#4A90E2]">{{selectedSheet.title}}</div>
+                            <div class="text-sm w-[20%] text-gray-700">제목</div>
+                            <div 
+                            class="text-lg text-center font-bold text-[#4A90E2] truncate">
+                            {{ selectedSheet.title.length > 12 ? selectedSheet.title.slice(0, 12) + '...' : selectedSheet.title }}
+                        </div>
                         </div>
                         <div class="flex flex-row m-4 justify-around items-center p-4 mt-2 pr-10 pl-4 rounded-xl bg-[#f0f4ff] shadow-lg custom-shadow-blue">
                             <div class="text-sm text-gray-700">업로더/작곡가</div>
@@ -82,7 +78,7 @@ onMounted(() => {
                     v-for="sheet in sheets"
                     :key="sheet.id"
                     :sheet="sheet"
-                    :restrictTitle="false"
+                    :restrictTitle="true"
                     @click="onClickSheetCard(sheet)"
                     class="w-full bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-4"
                 />
