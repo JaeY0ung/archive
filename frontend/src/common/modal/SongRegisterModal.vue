@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { getAllGenres } from "@/api/genre"
 import { useRouter } from 'vue-router';
 import { registerSong } from '@/api/song';
+import { showUnselectedWarningAlert } from '@/util/alert';
 
 const router = useRouter();
 const emit = defineEmits(["closeModalEvent"])
@@ -24,9 +25,9 @@ const fileInfo = ref({
 });
 
 const handleFileChange = (event) => {
-    if (event.target.files[0] && event.target.files[0].type != "image/jpeg") { // 파일이 있는데, jpg가 아닐 때
+    if (event.target.files[0] && event.target.files[0].type != "image/jpeg" && event.target.files[0].type != "image/png") {
         fileInput.value.value = "";
-        alert(".jpg 확장자의 파일을 업로드해 주세요");
+        showUnselectedWarningAlert(router, "jpg나 png 확장자의 파일을 업로드해 주세요");
         return;
     }
     fileInfo.value.file = event.target.files[0];
