@@ -109,6 +109,134 @@ const enterRoom = async (roomId) => {
                             class="grid grid-cols-1 md:grid-cols-2 gap-4"
                         >
                             <li
+                                class="bg-white rounded-lg shadow-sm p-4 cursor-pointer transition duration-300 hover:shadow-md hover:bg-gray-50"
+                            >
+                                <div class="flex items-center">
+                                    <img
+                                        src="https://images.genius.com/61dd48b7d985535163c8c6fa4e63a4f4.300x300x1.jpg"
+                                        class="w-16 h-16 rounded-md object-cover mr-4"
+                                        alt="Song image"
+                                    />
+                                    <div class="flex-1">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-800 truncate"
+                                        >
+                                            초보만
+                                        </h3>
+                                        <div class="flex items-center mt-2">
+                                            <span
+                                                class="text-sm text-gray-600 mr-4"
+                                                >2/2</span
+                                            >
+                                            <span
+                                                class="
+                                                    w-3 h-3 rounded-full mr-2 bg-red-500"
+                                            ></span>
+                                            <span
+                                                class="text-sm text-gray-600"
+                                                >게임중</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>    
+                            <li
+                                class="bg-white rounded-lg shadow-sm p-4 cursor-pointer transition duration-300 hover:shadow-md hover:bg-gray-50"
+                            >
+                                <div class="flex items-center">
+                                    <img
+                                        src="@/assets/img/default/song_img.png"
+                                        class="w-16 h-16 rounded-md object-cover mr-4"
+                                        alt="Song image"
+                                    />
+                                    <div class="flex-1">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-800 truncate"
+                                        >
+                                            캐논 한 판 하실분
+                                        </h3>
+                                        <div class="flex items-center mt-2">
+                                            <span
+                                                class="text-sm text-gray-600 mr-4"
+                                                >1/2</span
+                                            >
+                                            <span
+                                                class="
+                                                    w-3 h-3 rounded-full mr-2 bg-green-500"
+                                            ></span>
+                                            <span
+                                                class="text-sm text-gray-600"
+                                                >대기중</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>    
+                            <li
+                                class="bg-white rounded-lg shadow-sm p-4 cursor-pointer transition duration-300 hover:shadow-md hover:bg-gray-50"
+                            >
+                                <div class="flex items-center">
+                                    <img
+                                        src="https://image.bugsm.co.kr/album/images/500/40993/4099372.jpg"
+                                        class="w-16 h-16 rounded-md object-cover mr-4"
+                                        alt="Song image"
+                                    />
+                                    <div class="flex-1">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-800 truncate"
+                                        >
+                                            2000점 이상만
+                                        </h3>
+                                        <div class="flex items-center mt-2">
+                                            <span
+                                                class="text-sm text-gray-600 mr-4"
+                                                >2/2</span
+                                            >
+                                            <span
+                                                class="
+                                                    w-3 h-3 rounded-full mr-2 bg-red-500"
+                                            ></span>
+                                            <span
+                                                class="text-sm text-gray-600"
+                                                >대기중</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>    
+                            <li
+                                class="bg-white rounded-lg shadow-sm p-4 cursor-pointer transition duration-300 hover:shadow-md hover:bg-gray-50"
+                            >
+                                <div class="flex items-center">
+                                    <img
+                                        src="https://cdn.imweb.me/thumbnail/20210627/81c6dd19d96a2.jpg"
+                                        class="w-16 h-16 rounded-md object-cover mr-4"
+                                        alt="Song image"
+                                    />
+                                    <div class="flex-1">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-800 truncate"
+                                        >
+                                            콜드플레이 완주방
+                                        </h3>
+                                        <div class="flex items-center mt-2">
+                                            <span
+                                                class="text-sm text-gray-600 mr-4"
+                                                >2/2</span
+                                            >
+                                            <span
+                                                class="
+                                                    w-3 h-3 rounded-full mr-2 bg-red-500"
+                                            ></span>
+                                            <span
+                                                class="text-sm text-gray-600"
+                                                >게임중</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>    
+                        <li
                                 v-for="room in playStore.getRooms"
                                 :key="room.id"
                                 @click="enterRoom(room.id)"
