@@ -35,17 +35,29 @@ props.sheet.imageUrl = props.sheet.songImg
         </div>
         <div class="sheet-info">
             <div class="sheet-title">
-                <h2>{{ restrictTitle ? getTitleByLen(sheet.title, 12) : sheet.title }}</h2>
-                <Tier class="tier-icon" :level="sheet.level" />
+                <h2>
+                    {{
+                        restrictTitle
+                            ? getTitleByLen(sheet.title, 12)
+                            : sheet.title
+                    }}
+                </h2>
             </div>
             <p class="composer">{{ getTitleByLen(sheet.songComposer, 20) }}</p>
             <div class="uploader-info">
-                <span class="uploader">업로더 {{ sheet.uploaderNickname }}</span>
-                <span v-if="route.name === 'order'" class="price">{{ sheet.price }}원</span>
+                <span class="uploader"
+                    >업로더 {{ sheet.uploaderNickname }}</span
+                >
+                <span v-if="route.name === 'order'" class="price"
+                    >{{ sheet.price }}원</span
+                >
             </div>
         </div>
         <div class="action-slot">
             <slot />
+        </div>
+        <div class="tier-icon-container">
+            <Tier class="tier-icon" :level="sheet.level" />
         </div>
     </div>
 </template>
@@ -63,14 +75,16 @@ props.sheet.imageUrl = props.sheet.songImg
     margin-bottom: 16px;
     transition: all 0.3s ease;
     width: 330px;
+    min-width: 330px;
     height: 100px;
-	user-select: none;
-    cursor: default; 
+    user-select: none;
+    cursor: default;
+    position: relative;
 }
 
 .sheet-card * {
-    user-select: none; 
-    cursor: default; 
+    user-select: none;
+    cursor: default;
 }
 
 .sheet-card:hover {
@@ -116,14 +130,22 @@ props.sheet.imageUrl = props.sheet.songImg
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: calc(100% - 30px);
-    line-height: 1.1; /* 줄 높이 조정 */
-    padding-top: 2px; /* 상단 패딩 추가 */
+    line-height: 1.1;
+    padding-top: 2px;
+}
+
+.tier-icon-container {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
 }
 
 .tier-icon {
     width: 20px;
     height: 20px;
-    flex-shrink: 0;
 }
 
 .composer {
@@ -146,19 +168,19 @@ props.sheet.imageUrl = props.sheet.songImg
 .uploader {
     color: #888;
     background-color: #f0f0f0;
-    padding: 3px 6px; 
+    padding: 3px 6px;
     border-radius: 10px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 70%;
-    line-height: 1.2; 
+    line-height: 1.2;
 }
 
 .price {
     font-weight: 500;
     color: #007aff;
-    line-height: 1.2; 
+    line-height: 1.2;
 }
 
 .action-slot {

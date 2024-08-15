@@ -246,7 +246,7 @@ public class DifficultyServiceImpl implements DifficultyService {
 
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
-    // TODO : 평가가 하나도 없는 경우 (-1) 로직 처리하기
+    // TODO : 평가가 하나도 없는 경우 로직 처리하기
     @Override
     public int calculateDifficulty(Long sheetId) {
         Sheet findSheet = sheetRepository.findById(sheetId)
@@ -262,7 +262,7 @@ public class DifficultyServiceImpl implements DifficultyService {
 
         int totalDifficulties = validDifficulties.size();
         if (totalDifficulties == 0) {
-            return -1; // 평가가 하나도 없는 경우
+            return 1; // TODO : 평가가 하나도 없는 경우
         }
 
         int trimCount = (int) Math.round(totalDifficulties * 0.1);
@@ -292,6 +292,9 @@ public class DifficultyServiceImpl implements DifficultyService {
         // 평균을 1-5 범위로 매핑
         int result = Math.min(Math.max((int) Math.round(averageDifficulty), 1), 5);
         log.info("result = {}", result);
+
+        // 악보에 반영하기
+        findSheet.updateLevel(result);
         return result;
     }
 

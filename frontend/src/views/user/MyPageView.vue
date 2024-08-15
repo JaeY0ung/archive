@@ -132,7 +132,7 @@ onMounted(() => {
 
                 <div class="avatar mb-6" @click="triggerFileInput">
                     <div
-                        class="w-40 h-40 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2 mx-auto relative overflow-hidden cursor-pointer"
+                        class="w-40 h-40 rounded-full mx-auto relative overflow-hidden cursor-pointer"
                     >
                         <img
                             v-if="imagePreview || currentProfileImage"
