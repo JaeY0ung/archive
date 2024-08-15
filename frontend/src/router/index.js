@@ -113,27 +113,12 @@ const routes = [
         name: "sheetUpload",
         component: () => import("@/views/sheet/SheetUploadView.vue"),
     },
-    {
-        path: "/sheet/fullscreen",
-        name: "sheet/fullscreen",
-        component: () => import("@/views/sheet/SheetFullScreenView.vue"),
-    },
     // -----------------------------------------------
-    {
-        path: "/payment",
-        name: "payment",
-        component: () => import("@/views/order-and-pay/PaymentView.vue"),
-    },
     // -----------------------------------------------
     {
         path: "/order",
         name: "order",
         component: () => import("@/views/order-and-pay/OrderView.vue"),
-    },
-    {
-        path: "/payment",
-        name: "payment",
-        component: () => import("@/views/order-and-pay/PaymentView.vue"),
     },
     {
         path: "/payment/result",
@@ -156,11 +141,6 @@ const routes = [
         component: PaymentResultHandler
     },
     // 음악 녹음 페이지
-    {
-        path: "/play/recording",
-        name: "recording",
-        component: () => import("@/views/sheet/RecordingVue"),
-    },
     // 난이도 기여 페이지
     {
         path: "/difficulty/:sheetId",
