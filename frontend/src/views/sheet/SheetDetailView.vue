@@ -194,8 +194,9 @@ onMounted(async () => {
                                 :key="sheet.id"
                                 :sheet="sheet"
                                 @click="goToSheetDetail(sheet.id)"
-                                class="flex-shrink-0 cursor-pointer h-fit w-[10px] mr-4 last:mr-0 transition-transform duration-300 hover:scale-105"
+                                class="cursor-pointer h-fit mr-4 last:mr-0 transition-transform duration-300 hover:scale-105"
                             />
+
                         </template>
                         <template v-else>
                             <div class="w-full flex justify-center items-center text-gray-500">
