@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
@@ -40,6 +40,10 @@ const props = defineProps({
 
 const songImage = ref("");
 
+const hasValidSheet = computed(() => {
+    return props.sheet && props.sheet.id !== 0;
+});
+
 watch(() => props.sheet.songImg, updateSongImage, { immediate: true });
 
 function updateSongImage() {
@@ -63,18 +67,21 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="current-sheet-card w-full">
-        <div v-if="isLogin" class="action-container">
+    <div class="current-sheet-card">
+        <div v-if="isLogin && hasValidSheet" class="action-container">
             <div class="content-wrapper">
                 <div class="sheet-cover">
                     <img :src="songImage" :alt="sheet.title" />
                 </div>
                 <div class="info-container">
                     <div class="current-challenge">
-                        <font-awesome-icon :icon="['fas', 'music']" /> 최근 도전한 곡
+                        <font-awesome-icon :icon="['fas', 'music']" /> 최근
+                        도전한 곡
                     </div>
-                    <h2 class="sheet-title">{{ sheet.title }}</h2>
-                    <p class="composer-name">
+                    <h2 class="sheet-title" :title="sheet.title">
+                        {{ sheet.title }}
+                    </h2>
+                    <p class="composer-name" :title="sheet.songComposer">
                         {{ sheet.songComposer }}
                     </p>
                 </div>
@@ -84,7 +91,11 @@ onMounted(() => {
                 <font-awesome-icon :icon="['fas', 'play']" /> 플레이하기
             </button>
         </div>
-        <div v-else class="login-message">
+        <div v-else-if="isLogin && !hasValidSheet" class="message-container">
+            <font-awesome-icon :icon="['fas', 'music']" />
+            악보 연주에 도전해보세요!
+        </div>
+        <div v-else class="message-container">
             <font-awesome-icon :icon="['fas', 'lock']" />
             로그인 후 원하는 곡을 연주해보세요!
         </div>
@@ -101,8 +112,7 @@ onMounted(() => {
     flex-direction: column;
     padding: 25px;
     width: 100%;
-    max-width: 350px;
-    margin: 20px auto;
+    margin: 20px 0;
     transition: all 0.3s ease;
 }
 
@@ -115,15 +125,16 @@ onMounted(() => {
     display: flex;
     align-items: center;
     margin-bottom: 25px;
+    width: 100%;
 }
 
 .sheet-cover {
     width: 100px;
     height: 100px;
+    min-width: 100px;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
 }
 
 .sheet-cover img {
@@ -137,6 +148,7 @@ onMounted(() => {
     flex-grow: 1;
     margin-left: 25px;
     overflow: hidden;
+    width: calc(100% - 125px);
 }
 
 .current-challenge {
@@ -146,7 +158,7 @@ onMounted(() => {
     letter-spacing: 1px;
     margin-bottom: 12px;
     color: #3498db;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     background-color: #e8f4fd;
     padding: 8px 15px;
@@ -170,7 +182,7 @@ onMounted(() => {
 .composer-name {
     font-size: 1.1rem;
     margin: 0;
-    padding: 4px;
+    padding: 4px 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -178,7 +190,7 @@ onMounted(() => {
 }
 
 .action-container {
-    margin-top: 25px;
+    width: 100%;
 }
 
 .play-button {
@@ -208,23 +220,25 @@ onMounted(() => {
     box-shadow: 0 15px 25px rgba(52, 152, 219, 0.4);
 }
 
-.login-message {
+.message-container {
     background-color: #f1f3f5;
     color: #34495e;
-    padding: 18px 25px;
+    padding: 30px;
     border-radius: 25px;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: bold;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 25px;
+    width: 100%;
     box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    min-height: 150px;
 }
 
-.login-message svg {
-    margin-right: 12px;
+.message-container svg {
+    margin-right: 15px;
+    font-size: 1.5rem;
     color: #3498db;
 }
 </style>

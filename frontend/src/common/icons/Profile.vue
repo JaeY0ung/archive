@@ -20,6 +20,16 @@
                 </clipPath>
             </defs>
 
+            <!-- Black border circle -->
+            <circle
+                cx="300"
+                cy="300"
+                r="290"
+                fill="none"
+                stroke="gray"
+                stroke-width="20"
+            />
+
             <circle
                 cx="300"
                 cy="300"
