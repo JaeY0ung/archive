@@ -282,8 +282,6 @@
             isLast,
             singleResultId,
             playMode,
-            last_measure,
-            check_measure,
             multiResultId,
             initializeOsmd,
             loadAndSetupOsmd,
