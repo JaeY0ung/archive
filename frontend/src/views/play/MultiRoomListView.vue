@@ -198,7 +198,7 @@ const enterRoom = async (roomId) => {
                                             ></span>
                                             <span
                                                 class="text-sm text-gray-600"
-                                                >대기중</span
+                                                >게임중</span
                                             >
                                         </div>
                                     </div>
