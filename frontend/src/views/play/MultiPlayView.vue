@@ -8,7 +8,7 @@ import { onBeforeUnmount, watch } from "vue";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { computed } from "vue";
-import { ref } from "vue";
+import { ref,watch } from "vue";
 import { onMounted } from "vue";
 import { localAxios } from "@/util/http-common";
 import { usePlayStore } from "@/stores/play";
@@ -75,6 +75,30 @@ const sendEndDuringPlay = () => {
     musicStore.jaccardScore = [];
 }
 
+// 두 개의 상태를 감시하여 update를 트리거함
+watch(
+  () => [musicStore.isLast, opponentIsLast.value],
+  ([isMyLast, isOpponentLast]) => {
+    if (isMyLast && isOpponentLast) {
+      console.log("MULTI END");
+      const myScore = parseFloat(myJaccardScore.value);
+      const otherScore = parseFloat(opponentJaccardScore.value);
+      
+      local.patch(`/plays/multi/${multi_result_id}`, {
+        myUserId: loginUser.id,
+        myScore: myScore,
+        otherUserId: opponentUser.nickname,
+        otherScore: otherScore
+      }).then(response => {
+        isRequested = true;
+      }).catch(error => {
+        console.error(error);
+      });
+    }
+  }
+);
+
+
 function connect() {
     // local & https
     const socket = new SockJS(
@@ -99,22 +123,6 @@ function connect() {
               opponentF1Score.value = scoreData.f1Score;
               opponentJaccardScore.value = scoreData.jaccardScore;
               opponentIsLast.value = scoreData.isLast | opponentIsLast.value;
-            }
-            // 상대방의 점수를 받았을 때, isLast가 1이라면(채점이 모두 끝났다면), update한다.
-            if(musicStore.isLast && opponentIsLast.value){
-                console.log("MULTI END");
-                const myScore = parseFloat(myJaccardScore.value);
-                const otherScore = parseFloat(opponentJaccardScore.value);
-                local.patch(`/plays/multi/${multi_result_id}`, {
-                    myUserId: loginUser.id,
-                    myScore: myScore,
-                    otherUserId: opponentUser.nickname,
-                    otherScore: otherScore
-                }).then(response => {
-                    isRequested = true;
-                }).catch(error => {
-                    console.error(error);
-                });
             }
           });
 
