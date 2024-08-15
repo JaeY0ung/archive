@@ -61,9 +61,9 @@ public class DifficultyServiceImpl implements DifficultyService {
         boolean isExisted = difficultyRepository.existsByUserAndSheet(user, sheet);
 
         // TODO : 개발 테스트 완료하면 한 악보당 중복 체크 불가능하도록 만들기
-//        if (isExisted) {
-//            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
-//        }
+        if (isExisted) {
+            throw new IllegalStateException("이미 해당 악보에 대한 난이도 평가를 하셨습니다.");
+        }
 
         Difficulty difficulty = Difficulty.builder()
                 .user(user)
@@ -246,7 +246,7 @@ public class DifficultyServiceImpl implements DifficultyService {
 
 
     // 악보 난이도 계산 조회 (등록, 삭제, 수정에서 반영되어야 함)
-    // TODO : 평가가 하나도 없는 경우 (-1) 로직 처리하기
+    // TODO : 평가가 하나도 없는 경우 로직 처리하기
     @Override
     public int calculateDifficulty(Long sheetId) {
         Sheet findSheet = sheetRepository.findById(sheetId)
@@ -262,7 +262,7 @@ public class DifficultyServiceImpl implements DifficultyService {
 
         int totalDifficulties = validDifficulties.size();
         if (totalDifficulties == 0) {
-            return -1; // 평가가 하나도 없는 경우
+            return 1; // TODO : 평가가 하나도 없는 경우
         }
 
         int trimCount = (int) Math.round(totalDifficulties * 0.1);
@@ -292,6 +292,9 @@ public class DifficultyServiceImpl implements DifficultyService {
         // 평균을 1-5 범위로 매핑
         int result = Math.min(Math.max((int) Math.round(averageDifficulty), 1), 5);
         log.info("result = {}", result);
+
+        // 악보에 반영하기
+        findSheet.updateLevel(result);
         return result;
     }
 

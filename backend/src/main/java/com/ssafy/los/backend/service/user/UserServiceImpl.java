@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
                 .email(userCreateDto.getEmail())
                 .nickname(userCreateDto.getNickname())
 //                .birthDate(userCreateDto.getBirthDate())
-//                .gender(userCreateDto.getGender())
+                .gender(true) // 임시 제거
                 .pwdHash(hashPwd)
                 .role(role)
                 .singleScore(0)
