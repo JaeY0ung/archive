@@ -11,7 +11,6 @@ const emit = defineEmits(['send-go-to-back', 'send-sheet-id']);
 const selectedSheet = ref(null);
 
 const onClickSheetCard = (sheet) => {
-    console.log(sheet)
     selectedSheet.value = sheet;
     emit('send-sheet-id', sheet.id);
 };

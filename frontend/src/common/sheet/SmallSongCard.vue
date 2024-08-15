@@ -8,7 +8,6 @@ const props = defineProps({
 })
 
 watch(() => props.song, () => {
-    // console.log(props.song)
     props.song.imageUrl = props.song.img ? `data:image/jpeg;base64,${props.song.img}` : require('@/assets/img/default/song_img.png');
 })
 props.song.imageUrl = props.song.img ? `data:image/jpeg;base64,${props.song.img}` : require('@/assets/img/default/song_img.png'); 

@@ -43,14 +43,12 @@ const resultScore = ref(0);
 
 const updateResultScore = (newScore) => {
   resultScore.value = newScore;
-  console.log('Updated result score:', resultScore.value);
 };
 
 // watch를 사용하여 f1 배열의 변화를 감지하고 myF1Score를 업데이트
 watch(
     () => musicStore.f1,
     (newF1Scores) => {
-        console.log("F1:  ",musicStore.f1)
         if (newF1Scores.length !== 0) {
             myF1Score.value = Math.floor(
                 (newF1Scores.reduce((acc, score) => acc + score, 0) /
@@ -67,7 +65,6 @@ watch(
 watch(
     () => musicStore.jaccard,
     (newJaccardScores) => {
-      console.log("JC: ",musicStore.jaccard)
         if (newJaccardScores.length !== 0) {
             myJaccardScore.value = Math.floor(
                 (newJaccardScores.reduce((acc, score) => acc + score, 0) /
@@ -90,7 +87,6 @@ watch(
         userId: loginUser.id,
         score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
 		  });
-      console.log("결과 저장 완료");
 		  Swal.fire({
         title: '싱글 플레이 결과',
         html: `
@@ -137,7 +133,7 @@ const onStartRecordingEmit = async () => {
     musicStore.singleResultId = singleResultId;
     // sheet store에 singleResultId 저장
   }catch(error){
-    console.log("싱글 플레이 데이터 저장 중 오류 발생");
+    console.error("싱글 플레이 데이터 저장 중 오류 발생");
   }
 }
 
@@ -241,7 +237,7 @@ onBeforeRouteLeave(async (to, from, next) => {
           userId: loginUser.id,
           score: 0
         }).catch(error => {
-          console.log("싱글 플레이 데이터 업데이트 중 오류 발생")
+          console.error("싱글 플레이 데이터 업데이트 중 오류 발생")
         });
       }
     }

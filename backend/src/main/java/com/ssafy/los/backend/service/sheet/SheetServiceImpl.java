@@ -102,7 +102,7 @@ public class SheetServiceImpl implements SheetService {
     }
 
     @Override
-    public Resource getSheetFileByFileName(String uuid) throws IllegalArgumentException {
+    public Resource getSheetFileByUuid(String uuid) throws IllegalArgumentException {
         return fileUploadUtil.downloadSheetFile(uuid);
     }
 

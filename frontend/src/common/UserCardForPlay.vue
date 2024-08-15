@@ -33,7 +33,6 @@ const resultScore = computed(() => {
 
 // wait/play 화면의 프로필 ui 변경을 위한 route이름 변수화
 const routeName = route.name;
-console.log(routeName);
 
 
 

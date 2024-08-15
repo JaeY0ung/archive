@@ -14,7 +14,6 @@ async function userConfirm(param, success, fail) {
             },
             withCredentials: true,
         });
-        // console.log('유저 정보를 확인하는 정보를 백엔드로 전달합니다.', response);
         success(response);
     } catch (error) {
         fail(error);
@@ -35,7 +34,6 @@ async function findByEmail(success, fail) {
 
         // Axios 요청에 헤더 포함
         const response = await local.get(`/auth/userInfo`, { headers });
-        // console.log('findByEmail', response.data)
         success(response);
     } catch (error) {
         fail(error);
@@ -52,4 +50,22 @@ async function signout(success, fail) {
     await local.delete(`/users`).then(success).catch(fail);
 }
 
-export { userConfirm, logout, findByEmail, findById, signout };
+async function getTop10SingleScoreUsers(success) {
+    local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
+    await local.get(`/users/single-top-10`).then(success).catch((err) => console.error(err));
+}
+
+async function getTop10MultiScoreUsers(success) {
+    local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
+    await local.get(`/users/multi-top-10`).then(success).catch((err) => console.error(err));
+}
+
+export {
+    userConfirm,
+    logout,
+    findByEmail,
+    findById,
+    signout,
+    getTop10SingleScoreUsers,
+    getTop10MultiScoreUsers,
+};

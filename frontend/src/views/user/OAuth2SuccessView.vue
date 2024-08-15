@@ -25,7 +25,6 @@ onMounted(async () => {
             const accessToken = authHeader.substring(7);
             // 세션 스토리지에 저장
             sessionStorage.setItem("accessToken", accessToken);
-            // console.log("accessToken을 세션 스토리에 저장합니다. = ", accessToken);
         } else {
             console.warn("Authorization 헤더가 없거나 Bearer 토큰이 아닙니다.");
         }

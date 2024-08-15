@@ -105,10 +105,6 @@ const registerStarRate = async () => {
         showLoginRequestAlert(router);
         return;
     }
-    // if (singlePlaySheets.value.length === 0) {
-    //     alert('난이도 평가에 참여하려면 최소 한 개 이상의 싱글 플레이 악보가 필요합니다.');
-    //     return;
-    // }
     if (!starRateRegisterForm.value.content) {
         alert("평가 글을 작성해주세요");
         return;
@@ -133,7 +129,6 @@ const round = (number, place) => {
 const fetchSheetDetail = async () => {
     await searchSheetDetail(route.params.sheetId, ({ data }) => {
         if (!data) return;
-        console.log("가져온 악보 정보", data);
         sheet.value = data;
     });
 };

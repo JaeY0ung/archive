@@ -2,10 +2,13 @@ package com.ssafy.los.backend.controller.user;
 
 import com.ssafy.los.backend.dto.user.request.UserCreateDto;
 import com.ssafy.los.backend.dto.user.request.UserUpdateDto;
+import com.ssafy.los.backend.dto.user.response.UserDetailDto;
 import com.ssafy.los.backend.dto.user.response.UserProfileDto;
 import com.ssafy.los.backend.service.user.UserService;
 import com.ssafy.los.backend.util.FileUploadUtil;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -79,17 +82,49 @@ public class UserController {
         return new ResponseEntity<>(userProfileDto, HttpStatus.OK);
     }
 
-    // 프로필을 위한 싱글 플레이한 악보 및 결과 가져오기
-    @GetMapping("/users/profile/single/{user-id}")
-    public ResponseEntity<?> getUserProfileSinglePlay(@PathVariable("user-id") Long userId) {
+    @GetMapping("/single-top-10")
+    public ResponseEntity<?> getUserProfileSinglePlay() {
+        List<UserDetailDto> userList = userService.searchTop10SingleScoreUsers()
+                .stream()
+                .map(user -> {
+                    UserDetailDto userDetailDto = UserDetailDto.builder()
+                            .id(user.getId())
+                            .role(user.getRole())
+                            .nickname(user.getNickname())
+                            .email(user.getEmail())
+                            .userImgName(user.getUserImg())
+                            .cash(user.getCash())
+                            .singleScore(user.getSingleScore())
+                            .multiScore(user.getMultiScore())
+                            .build();
+                    userDetailDto.loadUserImg(fileUploadUtil);
+                    return userDetailDto;
+                })
+                .collect(Collectors.toList());
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(userList, HttpStatus.OK);
     }
-    
-    // 프로필을 위한 멀티 플레이한 악보 및 결과 가져오기
-    @GetMapping("/users/profile/multi/{user-id}")
-    public ResponseEntity<?> getUserProfileMultiPlay(@PathVariable("user-id") Long userId) {
 
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("/multi-top-10")
+    public ResponseEntity<?> getUserProfileMultiPlay() {
+        List<UserDetailDto> userList = userService.searchTop10MultiScoreUsers()
+                .stream()
+                .map(user -> {
+                    UserDetailDto userDetailDto = UserDetailDto.builder()
+                            .id(user.getId())
+                            .role(user.getRole())
+                            .nickname(user.getNickname())
+                            .email(user.getEmail())
+                            .userImgName(user.getUserImg())
+                            .cash(user.getCash())
+                            .singleScore(user.getSingleScore())
+                            .multiScore(user.getMultiScore())
+                            .build();
+                    userDetailDto.loadUserImg(fileUploadUtil);
+                    return userDetailDto;
+                })
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(userList, HttpStatus.OK);
     }
 }
