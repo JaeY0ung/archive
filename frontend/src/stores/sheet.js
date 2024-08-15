@@ -22,13 +22,13 @@
         const f1 = ref([]);
         const jaccard = ref([]);   
         const route = useRoute();
-        const isLast = ref(false);
         const singleResultId = ref(0);
         const multiResultId = ref(0);
         const playMode = ref("");
+        const isLast = ref(false);
+        const isLastTrigger = ref(false);
         const sendRequests = ref(0);
         const receivedResponse = ref(0);
-        const isLastTrigger = ref(false);
         let recordingInterval = null;
 
         watch(
@@ -47,6 +47,11 @@
                 pageBackgroundColor: 'white',
                 drawPartNames: false,
             });
+            isLast.value = false;
+            isLastTrigger.value = false;
+            sendRequests.value = 0;;
+            receivedResponse.value = 0;
+            
         };
 
         const loadMusicXML = async (sheetId) => {
@@ -261,6 +266,8 @@
             isPlay.value = false;
             isLast.value = false;
             isLastTrigger.value = false;
+            sendRequests.value = 0;;
+            receivedResponse.value = 0;
             isRecording.value= false;
             mediaRecorder.value = null;
         };
