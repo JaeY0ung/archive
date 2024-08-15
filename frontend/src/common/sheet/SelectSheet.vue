@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import SmallSheetCard from './SmallSheetCard.vue';
 
 const props = defineProps({
-	sheets: Array,
+    sheets: Array,
 })
 
 const emit = defineEmits(['send-go-to-back', 'send-sheet-id']);
@@ -15,13 +15,6 @@ const onClickSheetCard = (sheet) => {
     selectedSheet.value = sheet;
     emit('send-sheet-id', sheet.id);
 };
-
-// onMounted(() => {
-//     if (props.sheets && props.sheets.length > 0) {
-//         selectedSheet.value = props.sheets[0];
-//         emit('send-sheet-id', props.sheets[0].id); // 첫 번째 시트의 ID를 emit
-//     }
-// });
 
 onMounted(() => {
     // 첫 번째 시트를 자동으로 선택하지 않도록 onMounted에서 초기 선택 제거
@@ -85,7 +78,7 @@ onMounted(() => {
                     v-for="sheet in sheets"
                     :key="sheet.id"
                     :sheet="sheet"
-                    :restrictTitle="false"
+                    :restrictTitle="true"
                     @click="onClickSheetCard(sheet)"
                     class="w-full bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow p-4"
                 />
