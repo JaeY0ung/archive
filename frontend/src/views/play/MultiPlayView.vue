@@ -8,7 +8,7 @@ import { onBeforeUnmount, watch } from "vue";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { computed } from "vue";
-import { ref } from "vue";
+import { ref,watch } from "vue";
 import { onMounted } from "vue";
 import { localAxios } from "@/util/http-common";
 import { usePlayStore } from "@/stores/play";
@@ -61,6 +61,7 @@ console.log(opponentUser.userImg);
 
 const opponentF1Score = ref(0);
 const opponentJaccardScore = ref(0);
+const opponentIsLast = ref(false);
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
 const onStartRecordingEmit = () => {
@@ -79,6 +80,35 @@ const sendEndDuringPlay = () => {
     musicStore.f1Score = [];
     musicStore.jaccardScore = [];
 }
+
+// 두 개의 상태를 감시하여 update를 트리거함
+watch(
+  () => [musicStore.isLast, opponentIsLast.value],
+  ([isMyLast, isOpponentLast]) => {
+    console.log("My isLast: ", isMyLast);
+    console.log("Opponent isLast: ", isOpponentLast);
+    if (isMyLast && isOpponentLast) {
+      console.log("Both players have finished. MULTI END");
+      const myScore = parseFloat(myJaccardScore.value);
+      const otherScore = parseFloat(opponentJaccardScore.value);
+
+      local.patch(`/plays/multi/${multi_result_id}`, {
+        myUserId: loginUser.id,
+        myScore: myScore,
+        otherUserId: opponentUser.nickname,
+        otherScore: otherScore
+      }).then(response => {
+        isRequested = true;
+      }).catch(error => {
+        console.error("Failed to send multi play result", error);
+      });
+    } else {
+      console.log("One or both players have not finished yet.");
+    }
+  }
+);
+
+
 
 function connect() {
     // local & https
@@ -127,8 +157,8 @@ function connect() {
           stompClient.subscribe(`/play/start/socket/${route.params.roomId}`, async (socket) => {
             const message = JSON.parse(socket.body);
             if(loginUser.nickname != message.sender){
-            startRecording();
-            isPlayBehind = true;
+                startRecording();
+                isPlayBehind = true;
             // 결과 아이디 최신화.
             if(message.resultId != 0){
                 // multiResultId = message.resultId;
@@ -136,7 +166,7 @@ function connect() {
             }
             try{
                 const response = await local.post("/plays/multi" , {
-                sheetId: route.params.sheetId
+                    sheetId: route.params.sheetId
                 },{
                         withCredentials: true
                     });
@@ -207,7 +237,14 @@ watch(
             myJaccardScore.value = 0;
         }
         // 변화된 점수를 상대방에게 전송하는 소켓 메서드
-        stompClient.send(`/app/play/${route.params.roomId}`, {}, JSON.stringify({nickname: loginUser.nickname, f1Score: myF1Score.value, jaccardScore: myJaccardScore.value}));
+        stompClient.send(`/app/play/${route.params.roomId}`,
+                            {},
+                            JSON.stringify({
+                                nickname: loginUser.nickname,
+                                f1Score: myF1Score.value,
+                                jaccardScore: myJaccardScore.value,
+                                isLast : musicStore.isLast,
+                            }));
     },
     { deep: true } // 배열 내부의 변화도 감지
 );
@@ -215,9 +252,6 @@ watch(
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 // Todo: 모달창으로 성공, 실패를 알려줄 것.
 watch(() => musicStore.isLast,
-<<<<<<< Updated upstream
-  (Last) => {
-=======
   (newVal, oldVal) => {
     if (newVal) {
       // 모달에 표시할 데이터를 설정
@@ -226,12 +260,11 @@ watch(() => musicStore.isLast,
       modalOpponentNickname.value = opponentUser.nickname;
       showCompletionModal.value = true;
     }
->>>>>>> Stashed changes
     if(isLastSender){
         stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
         {
             sender: loginUser.nickname,
-            score: myJaccardScore.value,
+            score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
             multiResultId: multiResultId
         }));
       stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
@@ -259,7 +292,7 @@ const handleBeforeUnload = async () => {
     if(isQuitting.value || isPopstate.value || isReloading.value){
         musicStore.f1Score = [];
         musicStore.jaccardScore = [];
-        musicStore.isLast = 0;
+        musicStore.isLast = false;
     } 
     else 
     {
@@ -268,7 +301,7 @@ const handleBeforeUnload = async () => {
         musicStore.jaccardScore = [];
         userStore.opponentUser.nickname = "";
         userStore.opponentUser.userImg = null;
-        musicStore.isLast = 0;
+        musicStore.isLast = false;
         sendExit();
         sendEndDuringPlay();
     }
@@ -330,31 +363,14 @@ onBeforeRouteLeave( async (to, from, next) => {
 
 
 </script>
+
 <template>
-    <div class="container">
-        <div class="up">
+    <div class="container mx-auto w-[90vw] h-[90vh] pb-8 bg-[#f3f7fd] rounded-lg p-5 shadow-lg opacity-80">
+        <div class="up bg-white h-[72%] mb-5 p-5 rounded-lg shadow-lg">
             <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
         </div>
-        <div class="down"
-        :style="{
-                    backgroundImage: `url(${require('@/assets/img/sheet_play/ground.png')})`,
-                    backgroundBlendMode: 'multiply', 
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
-                    backgroundSize: '100% 100%', 
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat' }"
-        >
+        <div class="flex justify-center items-center h-[25vh] gap-4">
             <!-- 본인 프로필을 표시하는 컴포넌트 -->
-<<<<<<< Updated upstream
-            <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
-            <button class="btn  w-24" @click="onClickQuit"
-            :style="{
-              backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
-              backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat' }"
-            >
-=======
             <UserCardForPlay
             class="custom-shadow h-[85%] w-[35vh]"
             :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
@@ -362,7 +378,6 @@ onBeforeRouteLeave( async (to, from, next) => {
             <button
                 class="custom-shadow_ver2 w-[20vw] h-[90%] text-[#f3f7fd] border-none outline-none py-10 flex-grow flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white  transition-all duration-300 hover:bg-sky-100"
                 @click="onClickQuit">
->>>>>>> Stashed changes
                 나가기
             </button>
             <!-- 상대방 프로필을 표시하는 컴포넌트 -->
@@ -371,6 +386,7 @@ onBeforeRouteLeave( async (to, from, next) => {
                 @onClickStart="onClickStart"
                 :f1Score="opponentF1Score"
                 :jaccardScore="opponentJaccardScore"
+                class="custom-shadow  h-[85%] w-[35vh]"
             />
         </div>
       <!-- 악보 완주 시 표시할 모달 -->
@@ -393,17 +409,19 @@ onBeforeRouteLeave( async (to, from, next) => {
 <!--      />-->
     </div>
 </template>
+
 <style scoped>
-.container {
-    margin: 10px auto;
-    width: 90vw;
-    height: 90vh;
-    background-color: #f0f0f0;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    opacity: 0.8;
+.custom-shadow {
+    @apply rounded-xl bg-white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
 }
+
+.custom-shadow_ver2 {
+    @apply rounded-xl bg-[#4A90E2];
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
+}
+
+
 .up {
     background-color: #fff;
     height: 72%;
@@ -411,13 +429,6 @@ onBeforeRouteLeave( async (to, from, next) => {
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.down {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 25vh;
 }
 
 .button-div {
