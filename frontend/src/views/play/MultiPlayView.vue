@@ -86,7 +86,12 @@ watch(
         console.log("Opponent isLast: ", isOpponentLast);
         if (isMyLast && isOpponentLast) {
             // 여기다 모달을 다세요
-            console.log("Both players have finished. MULTI END");
+          console.log("Both players have finished. MULTI END");
+          modalMyScore.value = myJaccardScore.value;  // 내 점수를 모달에 전달
+          modalOpponentScore.value = opponentJaccardScore.value;  // 상대방 점수를 모달에 전달
+          modalOpponentNickname.value = opponentUser.nickname;  // 상대방 닉네임을 모달에 전달
+          showCompletionModal.value = true;  // 모달을 표시
+
             const myScore = parseFloat(myJaccardScore.value);
             const otherScore = parseFloat(opponentJaccardScore.value);
 
@@ -100,10 +105,9 @@ watch(
             }).catch(error => {
                 console.error("Failed to send multi play result", error);
             });
-            } 
-            else {
-                onsole.log("One or both players have not finished yet.");
-            }
+        } else {
+            console.log("One or both players have not finished yet.");
+        }
     }
 );
 
@@ -269,13 +273,6 @@ watch(() => musicStore.isLast,
             stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
             {
                 sender: loginUser.nickname,
-                score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
-                multiResultId: multiResultId
-            }));
-            stompClient.send(`/app/play/end/${route.params.roomId}`, {}, 
-            JSON.stringify(
-            {
-                sender: opponentUser.nickname,
                 score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
                 multiResultId: multiResultId
             }));
