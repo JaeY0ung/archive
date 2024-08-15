@@ -1,6 +1,6 @@
     // src/stores/musicStore.js
     import { defineStore } from 'pinia';
-    import { ref } from 'vue';
+    import { ref, watch } from 'vue';
     import { OpenSheetMusicDisplay, PlaybackManager, BasicAudioPlayer, LinearTimingSource } from '@/assets/js/opensheetmusicdisplay.min.js';
     import { getMusicXmlById } from '@/api/sheet';
     import { localAxios } from "@/util/http-common";
@@ -26,10 +26,20 @@
         const singleResultId = ref(0);
         const multiResultId = ref(0);
         const playMode = ref("");
-        const last_measure = ref(0);
-        const check_measure = ref(-1);
-
+        const sendRequests = ref(0);
+        const receivedResponse = ref(0);
+        const isLastTrigger = ref(false);
         let recordingInterval = null;
+
+        watch(
+            () => [sendRequests.value, receivedResponse.value, isLastTrigger.value],
+            () => {
+                if (isLastTrigger.value && sendRequests.value === receivedResponse.value) {
+                    isLast.value = true;
+                    isLastTrigger.value = false;
+                }
+            }
+        );
 
         const initializeOsmd = (container) => {
             osmd.value = new OpenSheetMusicDisplay(container);
@@ -127,6 +137,7 @@
         };
 
         const startRecording = async () => {
+            console.log("START RECORDING");
             f1.value = [];  // 녹음 시작 시점에 배열을 초기화
             jaccard.value = [];  // 녹음 시작 시점에 배열을 초기화
             startMusic();
@@ -182,7 +193,7 @@
             const sheetIdBlob = new Blob([route.params.sheetId], { type: 'application/json' });
             formData.append('sheetId', sheetIdBlob);
             console.log("Sending formData", formData);
-            
+            sendRequests.value= sendRequests.value + 1;
             try {
                 const res = await local.post(`/plays/${playMode.value}/${singleResultId.value}/live-score`, formData, {
                     headers: {
@@ -190,22 +201,12 @@
                     },
                 });
                 console.log('채점 성공: ', res.data);
-                // console.log(route.params.sheetId)
-                // console.log(res.data.similarity_results)
-                //     local.post(`/play/single`,{
-                //         sheetId: route.params.sheetId,
-                //         score: res.data.similarity_results.f1_score+res.data.similarity_results.jaccard,
-                //     })
-                //     .then((res)=>{
-                //         console.log(res);
-                //     }).catch((err)=>{
-                //         console.error(err);
-                //     })
-                // isLast.value = res.data.isLast == 1;
                 
                 f1.value.push(res.data.similarity_results.f1_score);
                 jaccard.value.push(res.data.similarity_results.jaccard_similarity);
+                receivedResponse.value = receivedResponse.value + 1;
             } catch (err) {
+                receivedResponse.value = receivedResponse.value + 1;
                 console.error('채점 실패: ', err);
             }
         };        
@@ -223,8 +224,7 @@
             isPlay.value=false;
             if (mediaRecorder.value && mediaRecorder.value.state === 'recording') {
                 mediaRecorder.value.stop();
-                isLast.value = true;
-                //splitRecording();
+                isLastTrigger.value = true;
             }
             if (recordingInterval) {
                 clearInterval(recordingInterval);
@@ -259,6 +259,8 @@
                 }
             }
             isPlay.value = false;
+            isLast.value = false;
+            isLastTrigger.value = false;
             isRecording.value= false;
             mediaRecorder.value = null;
         };
@@ -280,8 +282,6 @@
             isLast,
             singleResultId,
             playMode,
-            last_measure,
-            check_measure,
             multiResultId,
             initializeOsmd,
             loadAndSetupOsmd,

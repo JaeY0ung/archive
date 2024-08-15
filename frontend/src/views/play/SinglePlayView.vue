@@ -80,56 +80,37 @@ watch(
     { deep: true } // 배열 내부의 변화도 감지
 );
 
-// watch(
-// 	() => musicStore.isLast,
-// 	async (Last) => {
-// 	  if (Last) {
-// 		try {
-// 		  await local.patch(`/plays/single/${singleResultId}`, {
-// 			userId: loginUser.id,
-// 			score: myJaccardScore.value,
-// 		  });
-// 		  modalTitle.value = "플레이 완료!";
-// 		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
-// 		} catch (error) {
-// 		  modalTitle.value = "오류 발생";
-// 		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
-// 		}
-// 		showModal.value = true;
-// 	  }
-// 	}
-// );
 
 watch(
 	() => musicStore.isLast,
-	async (Last) => {
-	  if (Last) {
+	async (newVal, oldVal) => {
+	  if (newVal) {
 		try {
 		  const response = await local.patch(`/plays/single/${singleResultId}`, {
-			userId: loginUser.id,
-			score: myJaccardScore.value,
+        userId: loginUser.id,
+        score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
 		  });
-
+      console.log("결과 저장 완료");
 		  Swal.fire({
-			title: '싱글 플레이 결과',
-			html: `
-            <p>
-              플레이어: ${loginUser.nickname}<br>
-              최종 점수: ${resultScore.value}점<br>
-            </p>
-          `,
-			icon: resultScore.value >= 80 ? 'success' : 'error',
-			confirmButtonText: '닫기'
+        title: '싱글 플레이 결과',
+        html: `
+              <p>
+                플레이어: ${loginUser.nickname}<br>
+                최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 )}점<br>
+              </p>
+            `,
+        icon: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ) >= 80 ? 'success' : 'error',
+        confirmButtonText: '닫기'
 		  }).then(() => {
 			// 필요한 경우 추가 작업 수행
 		  });
 
 		} catch (error) {
 		  Swal.fire({
-			title: '오류 발생',
-			text: '플레이 데이터를 저장하는 중 오류가 발생했습니다.',
-			icon: 'error',
-			confirmButtonText: '확인'
+        title: '오류 발생',
+        text: '플레이 데이터를 저장하는 중 오류가 발생했습니다.',
+        icon: 'error',
+        confirmButtonText: '확인'
 		  });
 		}
 	  }
@@ -177,7 +158,7 @@ watch(
       try {
         await local.patch(`/plays/single/${singleResultId}`, {
           userId: loginUser.id,
-          score: Math.min(100,(Math.max(0,(myF1Score - 30)) + Math.max(0,(myJaccardScore - 20))) * 100 / 120 ),
+          score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
         });
         modalTitle.value = "플레이 완료!";
         modalMessage.value = "축하합니다! 플레이를 완료했습니다.";

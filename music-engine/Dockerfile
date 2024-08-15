@@ -21,15 +21,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # pip 최신 버전으로 업그레이드
 RUN pip install --upgrade pip
 
-# Cython, numpy 설치
-RUN pip install numpy==1.21.6 Cython==0.29.24
-
-# omnizart 설치
-RUN pip install omnizart
-
-# omnizart 체크포인트 다운로드
-RUN omnizart download-checkpoints
-
 # 작업 디렉토리 설정
 WORKDIR /app
 
