@@ -55,20 +55,6 @@ const editedDifficulty = ref("");
 const menuOpenState = ref({});
 const menuRef = ref(null);
 
-const sortedComments = computed(() => {
-    return [...comments.value].sort((a, b) => {
-        const dateA = new Date(a.createdAt);
-        const dateB = new Date(b.createdAt);
-        return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
-    });
-});
-
-const paginatedComments = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    return sortedComments.value.slice(start, end);
-});
-
 const difficultyOptions = ["브론즈", "실버", "골드", "플래티넘", "다이아몬드"];
 const difficultyMap = {
     1: "브론즈",
@@ -84,9 +70,13 @@ const itemsPerPage = 5;
 const chartRef = ref(null);
 let chart = null;
 
-const totalPages = computed(() =>
-    Math.ceil(comments.value.length / itemsPerPage)
-);
+const paginatedComments = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    return comments.value.slice(start, end);
+});
+
+const totalPages = computed(() => Math.ceil(comments.value.length / itemsPerPage));
 
 const getImageUrl = (base64String) => {
     return base64String ? `data:image/jpeg;base64,${base64String}` : "";
@@ -116,8 +106,7 @@ const submitCommentAndDifficulty = async () => {
     }
 
     if (newComment.value.trim() && newDifficulty.value) {
-        const difficultyLevel =
-            difficultyOptions.indexOf(newDifficulty.value) + 1;
+        const difficultyLevel = difficultyOptions.indexOf(newDifficulty.value) + 1;
 
         const difficultyData = {
             level: difficultyLevel,
@@ -125,10 +114,7 @@ const submitCommentAndDifficulty = async () => {
         };
 
         await local
-            .post(
-                `/sheets/${route.params.sheetId}/difficulties`,
-                difficultyData
-            )
+            .post(`/sheets/${route.params.sheetId}/difficulties`, difficultyData)
             .then((response) => {
                 fetchCommentsAndDifficulties();
                 newComment.value = "";
@@ -139,9 +125,7 @@ const submitCommentAndDifficulty = async () => {
                 if (error.response && error.response.data) {
                     alert(error.response.data);
                 } else {
-                    alert(
-                        "난이도 평가 저장에 실패했습니다. 다시 시도해 주세요."
-                    );
+                    alert("난이도 평가 저장에 실패했습니다. 다시 시도해 주세요.");
                 }
             });
     }
@@ -162,10 +146,7 @@ const fetchCommentsAndDifficulties = async () => {
                     text: item.content,
                     createdAt: item.createdAt,
                 }));
-                // 차트 최신화
                 updateChart();
-                // 악보 난이도 정보 최신화
-                searchSheetDetail();
             } else {
                 comments.value = [];
             }
@@ -179,6 +160,11 @@ const fetchCommentsAndDifficulties = async () => {
 
 const toggleSortOrder = () => {
     sortOrder.value = sortOrder.value === "desc" ? "asc" : "desc";
+    comments.value.sort((a, b) => {
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        return sortOrder.value === "desc" ? dateB - dateA : dateA - dateB;
+    });
     currentPage.value = 1;
 };
 
@@ -226,8 +212,7 @@ const saveEdit = async () => {
         return;
     }
 
-    const difficultyLevel =
-        difficultyOptions.indexOf(editedDifficulty.value) + 1;
+    const difficultyLevel = difficultyOptions.indexOf(editedDifficulty.value) + 1;
 
     const updatedData = {
         level: difficultyLevel,
@@ -235,10 +220,7 @@ const saveEdit = async () => {
     };
 
     await local
-        .put(
-            `/sheets/difficulties/${editingComment.value.difficultyId}`,
-            updatedData
-        )
+        .put(`/sheets/difficulties/${editingComment.value.difficultyId}`, updatedData)
         .then(() => {
             alert("난이도 평가가 수정되었습니다.");
             fetchCommentsAndDifficulties();
@@ -279,7 +261,7 @@ const difficultyColors = {
     브론즈: "rgb(205, 127, 50)",
     실버: "rgb(192, 192, 192)",
     골드: "rgb(255, 215, 0)",
-    플래티넘: "rgb(127, 255, 212)",
+    플래티넘: "rgb(229, 228, 226)",
     다이아몬드: "rgb(185, 242, 255)",
 };
 
@@ -298,10 +280,7 @@ const createChart = () => {
                     label: difficulty,
                     data: chartData.filter((item) => {
                         const itemDate = startOfDay(parseISO(item.x));
-                        return (
-                            item.difficulty === difficulty &&
-                            itemDate >= twentyDaysAgo
-                        );
+                        return item.difficulty === difficulty && itemDate >= twentyDaysAgo;
                     }),
                     backgroundColor: difficultyColors[difficulty],
                     borderColor: difficultyColors[difficulty],
@@ -329,9 +308,7 @@ const createChart = () => {
                         callbacks: {
                             label: function (context) {
                                 const point = context.raw;
-                                return `난이도: ${
-                                    point.difficulty
-                                }, 날짜: ${new Date(
+                                return `난이도: ${point.difficulty}, 날짜: ${new Date(
                                     point.x
                                 ).toLocaleDateString()}`;
                             },
@@ -424,207 +401,153 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="w-full h-full max-w-7xl p-2.5 box-border">
-        <div class="flex gap-4 h-[100%]">
-            <div class="flex-1 flex flex-col h-full overflow-hidden">
-                <div class="bg-white p-5 rounded-lg shadow-md h-full">
+    <div class="difficulty-contribution">
+        <div class="content-wrapper">
+            <div class="left-column">
+                <div class="sheet-info">
                     <BigSheetCard :sheet="sheet" />
-                    <div class="mt-10">
-                        <canvas ref="chartRef" class="w-full"></canvas>
-                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas ref="chartRef"></canvas>
                 </div>
             </div>
-            <div class="flex-1 flex flex-col h-full overflow-hidden">
-                <div
-                    class="bg-white p-5 rounded-lg shadow-md h-full flex flex-col pb-15"
-                >
-                    <h2 class="mb-5 text-2xl font-extrabold text-gray-800">
-                        난이도 평가
-                    </h2>
-                    <div class="mb-5">
+            <div class="right-column">
+                <div class="comments-ratings-section">
+                    <h2>난이도 평가</h2>
+                    <div class="comment-form">
                         <textarea
                             v-model="newComment"
                             placeholder="난이도 평가를 해주세요"
-                            class="w-full h-20 p-2.5 border border-gray-300 rounded-lg text-sm resize-y transition-colors focus:outline-none focus:border-green-500"
+                            class="comment-input"
                         ></textarea>
-                        <div class="flex justify-between items-center mt-2.5">
-                            <div class="flex gap-1 flex-wrap">
+                        <div class="difficulty-and-submit">
+                            <div class="difficulty-selection">
                                 <button
                                     v-for="difficulty in difficultyOptions"
                                     :key="difficulty"
                                     @click="setDifficulty(difficulty)"
                                     :class="[
-                                        'px-2.5 py-1 rounded-full cursor-pointer font-bold transition-all text-xs',
-                                        difficulty === newDifficulty
-                                            ? 'transform scale-105 text-white'
-                                            : 'text-gray-700',
-                                        {
-                                            'bg-[#cd7f32]':
-                                                difficulty === '브론즈',
-                                            'bg-[#c0c0c0]':
-                                                difficulty === '실버',
-                                            'bg-[#ffd700]':
-                                                difficulty === '골드',
-                                            'bg-[#7FFFD4]':
-                                                difficulty === '플래티넘',
-                                            'bg-[#b9f2ff]':
-                                                difficulty === '다이아몬드',
-                                        },
+                                        'difficulty-button',
+                                        difficulty,
+                                        { active: difficulty === newDifficulty },
                                     ]"
                                 >
                                     {{ difficulty }}
                                 </button>
                             </div>
-                            <button
-                                @click="submitCommentAndDifficulty"
-                                class="px-4 py-2 bg-green-500 text-white rounded transition-colors hover:bg-green-600 active:transform active:scale-98"
-                            >
+                            <button @click="submitCommentAndDifficulty" class="submit-button">
                                 등록
                             </button>
                         </div>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto scrollbar-hide">
-                        <div
-                            v-if="comments.length === 0"
-                            class="text-center p-5 bg-gray-100 rounded-lg text-base text-gray-600"
-                        >
+                    <div class="comments-container">
+                        <div v-if="comments.length === 0" class="no-comments-message">
                             첫 댓글을 달아주세요!
                         </div>
                         <div v-else>
-                            <div class="flex justify-between items-center mb-5">
-                                <h3 class="text-lg font-bold text-gray-800">
-                                    댓글 목록
-                                </h3>
-                                <button
-                                    @click="toggleSortOrder"
-                                    class="px-2.5 py-1 bg-gray-200 rounded transition-colors hover:bg-gray-300 text-sm"
-                                >
-                                    {{
-                                        sortOrder === "desc"
-                                            ? "최신순"
-                                            : "오래된순"
-                                    }}
+                            <div class="comments-header">
+                                <h3>댓글 목록</h3>
+                                <button @click="toggleSortOrder" class="sort-button">
+                                    {{ sortOrder === "desc" ? "최신순" : "오래된순" }}
                                 </button>
                             </div>
 
-                            <div class="space-y-4">
+                            <div class="comments-list">
                                 <div
-                                    v-for="(
-                                        comment, index
-                                    ) in paginatedComments"
+                                    v-for="(comment, index) in paginatedComments"
                                     :key="index"
-                                    class="flex gap-4 bg-white p-4 rounded-lg border border-gray-200 transition-shadow hover:shadow-md"
+                                    class="comment-item"
                                 >
-                                    <div class="flex-shrink-0">
+                                    <div class="comment-avatar">
                                         <img
                                             v-if="comment.userAvatar"
                                             :src="comment.userAvatar"
                                             alt="User avatar"
-                                            class="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
+                                            class="user-avatar"
                                         />
-                                        <div
-                                            v-else
-                                            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center"
-                                        >
-                                            <Profile
-                                                class="w-6 h-6 text-gray-600"
-                                            />
-                                        </div>
+                                        <Profile v-else class="profile-icon" />
                                     </div>
-                                    <div class="flex-1">
-                                        <div
-                                            class="flex justify-between items-center mb-1"
-                                        >
-                                            <div
-                                                class="flex items-center gap-2.5"
-                                            >
-                                                <strong class="text-gray-800">{{
-                                                    comment.username
-                                                }}</strong>
+                                    <div class="comment-content">
+                                        <div class="comment-header">
+                                            <div class="user-info">
+                                                <strong>{{ comment.username }}</strong>
                                                 <span
                                                     :class="[
-                                                        'px-2.5 py-1 rounded-full text-xs font-bold',
-                                                        {
-                                                            'bg-[#cd7f32]':
-                                                                comment.difficulty ===
-                                                                '브론즈',
-                                                            'bg-[#c0c0c0]':
-                                                                comment.difficulty ===
-                                                                '실버',
-                                                            'bg-[#ffd700]':
-                                                                comment.difficulty ===
-                                                                '골드',
-                                                            'bg-[#7FFFD4]':
-                                                                comment.difficulty ===
-                                                                '플래티넘',
-                                                            'bg-[#b9f2ff]':
-                                                                comment.difficulty ===
-                                                                '다이아몬드',
-                                                        },
+                                                        'difficulty-badge',
+                                                        comment.difficulty,
                                                     ]"
                                                 >
                                                     {{ comment.difficulty }}
                                                 </span>
                                             </div>
+                                            <!-- <div
+                                                v-if="comment.username === userInfo.nickname"
+                                                class="comment-actions"
+                                                ref="menuRef"
+                                            >
+                                                <button
+                                                    @click="
+                                                        toggleMenu(comment.difficultyId, $event)
+                                                    "
+                                                    class="menu-button"
+                                                >
+                                                    <svg width="24" height="24" viewBox="0 0 32 32">
+                                                        <circle cx="16" cy="8" r="2" fill="#333" />
+                                                        <circle cx="16" cy="16" r="2" fill="#333" />
+                                                        <circle cx="16" cy="24" r="2" fill="#333" />
+                                                    </svg>
+                                                </button>
+                                                <div
+                                                    v-if="menuOpenState[comment.difficultyId]"
+                                                    class="action-menu"
+                                                >
+                                                    <button
+                                                        @click="startEditing(comment)"
+                                                        class="edit-button"
+                                                    >
+                                                        수정
+                                                    </button>
+                                                    <button
+                                                        @click="
+                                                            deleteDifficulty(comment.difficultyId)
+                                                        "
+                                                        class="delete-button"
+                                                    >
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </div> -->
                                         </div>
-                                        <p
-                                            v-if="editingComment !== comment"
-                                            class="text-gray-700 mt-1"
-                                        >
+                                        <p v-if="editingComment !== comment" class="comment-text">
                                             {{ comment.text }}
                                         </p>
-                                        <div v-else class="mt-2">
+                                        <div v-else class="edit-form">
                                             <textarea
                                                 v-model="editedContent"
-                                                class="w-full p-2 border border-gray-300 rounded-lg text-sm resize-y transition-colors focus:outline-none focus:border-green-500"
+                                                class="edit-input"
                                             ></textarea>
-                                            <div class="flex gap-1 mt-2">
+                                            <div class="difficulty-selection">
                                                 <button
                                                     v-for="difficulty in difficultyOptions"
                                                     :key="difficulty"
-                                                    @click="
-                                                        editedDifficulty =
-                                                            difficulty
-                                                    "
+                                                    @click="editedDifficulty = difficulty"
                                                     :class="[
-                                                        'px-2 py-1 rounded-full cursor-pointer font-bold transition-all text-xs',
-                                                        difficulty ===
-                                                        editedDifficulty
-                                                            ? 'transform scale-105 text-black'
-                                                            : 'text-gray-700',
-                                                        {
-                                                            'bg-[#cd7f32]':
-                                                                difficulty ===
-                                                                '브론즈',
-                                                            'bg-[#c0c0c0]':
-                                                                difficulty ===
-                                                                '실버',
-                                                            'bg-[#ffd700]':
-                                                                difficulty ===
-                                                                '골드',
-                                                            'bg-[#7FFFD4]':
-                                                                difficulty ===
-                                                                '플래티넘',
-                                                            'bg-[#b9f2ff]':
-                                                                difficulty ===
-                                                                '다이아몬드',
-                                                        },
+                                                        'difficulty-button',
+                                                        difficulty,
+                                                        { active: difficulty === editedDifficulty },
                                                     ]"
                                                 >
                                                     {{ difficulty }}
                                                 </button>
                                             </div>
-                                            <div class="flex gap-2 mt-2">
-                                                <button
-                                                    @click="saveEdit"
-                                                    class="px-3 py-1 bg-green-500 text-white rounded font-bold transition-colors hover:bg-green-600 text-sm"
-                                                >
+                                            <div class="edit-actions">
+                                                <button @click="saveEdit" class="save-button">
                                                     저장
                                                 </button>
                                                 <button
                                                     @click="cancelEditing"
-                                                    class="px-3 py-1 bg-red-500 text-white rounded font-bold transition-colors hover:bg-red-600 text-sm"
+                                                    class="cancel-button"
                                                 >
                                                     취소
                                                 </button>
@@ -633,29 +556,408 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                             </div>
+                            <div class="pagination">
+                                <button @click="prevPage" :disabled="currentPage === 1">
+                                    이전
+                                </button>
+                                <span>{{ currentPage }} / {{ totalPages }}</span>
+                                <button @click="nextPage" :disabled="currentPage === totalPages">
+                                    다음
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex justify-center items-center mt-5 gap-2.5">
-                        <button
-                            @click="prevPage"
-                            :disabled="currentPage === 1"
-                            class="px-2.5 py-1 bg-gray-200 rounded transition-colors hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            이전
-                        </button>
-                        <span class="text-sm"
-                            >{{ currentPage }} / {{ totalPages }}</span
-                        >
-                        <button
-                            @click="nextPage"
-                            :disabled="currentPage === totalPages"
-                            class="px-2.5 py-1 bg-gray-200 rounded transition-colors hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            다음
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.difficulty-contribution {
+    width: 100%;
+    height: 100%;
+    max-width: 1800px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.content-wrapper {
+    display: flex;
+    gap: 20px;
+    height: 95%;
+}
+
+.left-column,
+.right-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.comments-ratings-section {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.sheet-info {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    flex: 0 0 auto;
+    margin-bottom: 20px;
+}
+
+.chart-container {
+    flex: 1;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.comments-ratings-section {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 60px;
+}
+
+.comments-ratings-section h2 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.comment-form {
+    margin-bottom: 20px;
+}
+
+.comments-container {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.comments-container::-webkit-scrollbar {
+    display: none;
+}
+
+.comment-input,
+.edit-input {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    resize: vertical;
+    transition: border-color 0.3s;
+}
+
+.comment-input:focus,
+.edit-input:focus {
+    outline: none;
+    border-color: #4caf50;
+}
+
+.difficulty-and-submit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.difficulty-selection {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.difficulty-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    font-size: 12px;
+}
+
+.difficulty-button.active {
+    transform: scale(1.05);
+    color: white;
+}
+
+.submit-button,
+.save-button,
+.cancel-button {
+    padding: 8px 15px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.1s;
+    font-size: 14px;
+}
+
+.submit-button,
+.save-button {
+    background-color: #4caf50;
+}
+
+.cancel-button {
+    background-color: #f44336;
+}
+
+.submit-button:hover,
+.save-button:hover {
+    background-color: #45a049;
+}
+
+.cancel-button:hover {
+    background-color: #d32f2f;
+}
+
+.submit-button:active,
+.save-button:active,
+.cancel-button:active {
+    transform: scale(0.98);
+}
+
+.comments-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.comments-header h3 {
+    margin: 0;
+    color: #333;
+}
+
+.sort-button {
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 14px;
+}
+
+.sort-button:hover {
+    background-color: #e0e0e0;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.comment-item {
+    display: flex;
+    gap: 15px;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    transition: box-shadow 0.3s;
+}
+
+.comment-item:hover {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.comment-avatar {
+    flex-shrink: 0;
+}
+
+.user-avatar,
+.profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+}
+
+.profile-icon {
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.comment-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.difficulty-badge {
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+}
+
+.comment-text {
+    margin-top: 5px;
+    color: #333;
+}
+
+.comment-actions {
+    position: relative;
+}
+
+.menu-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+}
+
+.menu-button:hover {
+    background-color: #f0f0f0;
+}
+
+.action-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    min-width: 100px;
+    overflow: hidden;
+}
+
+.action-menu button {
+    padding: 8px 12px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    color: #333;
+    font-size: 14px;
+}
+
+.action-menu button:hover {
+    background-color: #f0f0f0;
+}
+
+.action-menu .edit-button {
+    color: #4caf50;
+}
+
+.action-menu .delete-button {
+    color: #f44336;
+}
+
+.브론즈 {
+    background-color: #cd7f32;
+}
+.실버 {
+    background-color: #c0c0c0;
+}
+.골드 {
+    background-color: #ffd700;
+}
+.플래티넘 {
+    background-color: #e5e4e2;
+}
+.다이아몬드 {
+    background-color: #b9f2ff;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination button {
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    font-size: 14px;
+}
+
+.no-comments-message {
+    text-align: center;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    font-size: 16px;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .content-wrapper {
+        flex-direction: column;
+    }
+
+    .left-column,
+    .right-column {
+        width: 100%;
+        height: auto;
+    }
+}
+</style>

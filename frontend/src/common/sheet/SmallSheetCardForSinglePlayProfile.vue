@@ -89,6 +89,7 @@ const navigateToDetail = () => {
     margin-bottom: 16px;
     transition: all 0.3s ease;
     width: 330px;
+    min-width: 330px;
     height: 100px;
     user-select: none;
     cursor: pointer;

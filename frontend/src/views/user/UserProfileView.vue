@@ -5,7 +5,7 @@ import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
 import { userPageService } from "@/api/user-page.js";
 import SmallSheetCardSinglePlay from "@/common/sheet/SmallSheetCardForSinglePlayProfile.vue";
-import SmallSheetCardMultiPlay from "@/common/sheet/SmallSheetCardForMultiPlayProfile.vue";
+import SmallSheetCardMultiPlay from "@/common/sheet/SmallSheetCardFor2MultiPlayProfile.vue";
 import SmallSheetCardLike from "@/common/sheet/SmallSheetCardForLikeProfile.vue";
 import FollowModal from "@/common/modal/FollowModal.vue";
 import Profile from "@/common/icons/Profile.vue";
@@ -67,16 +67,19 @@ const fetchUserProfile = async () => {
 // 싱글 플레이 악보 정보
 const fetchSinglePlaySheets = async (userId) => {
     singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
+    console.log('싱글 플레이 악보', singlePlaySheets.value)
 };
 
 // 멀티 플레이 악보 정보
 const fetchMultiPlaySheets = async (userId) => {
     multiPlaySheets.value = await userPageService.fetchMultiPlaySheets(userId);
+    console.log('멀티 플레이 악보', multiPlaySheets.value)
 };
 
 // 좋아요한 악보 정보
 const fetchLikedSheets = async (userId) => {
     likedSheets.value = await userPageService.fetchLikedSheets(userId);
+    console.log('좋아요 악보', likedSheets.value)
 };
 
 // 팔로우 정보
