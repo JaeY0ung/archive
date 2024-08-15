@@ -9,6 +9,7 @@ import {usePlayStore} from "@/stores/play";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import {localAxios} from "@/util/http-common";
+import Swal from "sweetalert2";
 
 const playStore = usePlayStore();
 const {VUE_APP_REQUEST_URL} = process.env; // 소켓 엔드포인트 연결을 위한 주소 설정
@@ -94,28 +95,86 @@ const sendEndDuringPlay = () => {
 }
 
 // 두 개의 상태를 감시하여 update를 트리거함
+// watch(
+//     () => [musicStore.isLast, opponentIsLast.value],
+//     ([isMyLast, isOpponentLast]) => {
+//       console.log("My isLast: ", isMyLast);
+//       console.log("Opponent isLast: ", isOpponentLast);
+//       if (isMyLast && isOpponentLast) {
+//         // 여기다 모달을 다세요
+//         console.log("Both players have finished. MULTI END");
+//         modalMyScore.value = myJaccardScore.value;  // 내 점수를 모달에 전달
+//         modalOpponentScore.value = opponentJaccardScore.value;  // 상대방 점수를 모달에 전달
+//         modalOpponentNickname.value = opponentUser.nickname;  // 상대방 닉네임을 모달에 전달
+//         showCompletionModal.value = true;  // 모달을 표시
+//         alert(modalOpponentScore + "상대방의 점수")
+//
+//
+//         Swal.fire({
+//           title: '멀티 플레이 결과',
+//           html: `
+//               <p>
+//                 : ${loginUser.nickname}<br>
+//                 최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 )}점<br>
+//               </p>
+//             `,
+//           icon: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ) >= 80 ? 'success' : 'error',
+//           confirmButtonText: '닫기'
+//         }).then(() => {
+//           // 필요한 경우 추가 작업 수행
+//         });
+//
+//         const myScore = parseFloat(myJaccardScore.value);
+//         const otherScore = parseFloat(opponentJaccardScore.value);
+//
+//         local.patch(`/plays/multi/${multi_result_id}`, {
+//           myUserId: loginUser.id,
+//           myScore: myScore,
+//           otherUserId: opponentUser.nickname,
+//           otherScore: otherScore
+//         }).then(response => {
+//           isRequested = true;
+//         }).catch(error => {
+//           console.error("Failed to send multi play result", error);
+//         });
+//       } else {
+//         console.log("One or both players have not finished yet.");
+//       }
+//     }
+// );
 watch(
     () => [musicStore.isLast, opponentIsLast.value],
     ([isMyLast, isOpponentLast]) => {
       console.log("My isLast: ", isMyLast);
       console.log("Opponent isLast: ", isOpponentLast);
       if (isMyLast && isOpponentLast) {
-        // 여기다 모달을 다세요
         console.log("Both players have finished. MULTI END");
-        modalMyScore.value = myJaccardScore.value;  // 내 점수를 모달에 전달
-        modalOpponentScore.value = opponentJaccardScore.value;  // 상대방 점수를 모달에 전달
-        modalOpponentNickname.value = opponentUser.nickname;  // 상대방 닉네임을 모달에 전달
-        showCompletionModal.value = true;  // 모달을 표시
-        alert(modalOpponentScore + "상대방의 점수")
 
-        const myScore = parseFloat(myJaccardScore.value);
-        const otherScore = parseFloat(opponentJaccardScore.value);
+        // 내 점수 및 상대방 점수 계산
+        const myFinalScore = Math.min(100, (Math.max(0, (myF1Score.value - 50)) + Math.max(0, (myJaccardScore.value - 40))) * 100 / 80);
+        const opponentFinalScore = opponentJaccardScore.value;
 
+        Swal.fire({
+          title: '멀티 플레이 결과',
+          html: `
+          <p>플레이어: ${loginUser.nickname}<br>
+          최종 점수: ${myFinalScore}점<br><br>
+          상대방: ${modalOpponentNickname.value}<br>
+          상대방 최종 점수: ${opponentFinalScore}점<br></p>
+        `,
+          icon: myFinalScore >= 80 ? 'success' : 'error',
+          confirmButtonText: '닫기'
+        }).then(() => {
+          // 필요한 경우 추가 작업 수행
+          showCompletionModal.value = true; // 모달을 표시 (필요 시)
+        });
+
+        // 서버에 결과 업데이트
         local.patch(`/plays/multi/${multi_result_id}`, {
           myUserId: loginUser.id,
-          myScore: myScore,
+          myScore: myFinalScore,
           otherUserId: opponentUser.nickname,
-          otherScore: otherScore
+          otherScore: opponentFinalScore
         }).then(response => {
           isRequested = true;
         }).catch(error => {
@@ -126,6 +185,7 @@ watch(
       }
     }
 ,{deep:true});
+
 
 
 function connect() {
