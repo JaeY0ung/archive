@@ -46,7 +46,7 @@ const getWinRate = (wins, losses) => {
 
 <template>
     <div
-        class="w-full h-full min-w-[300px] flex flex-col bg-transparent rounded-2xl"
+        class="w-full h-full min-w-[250px] flex flex-col bg-transparent rounded-2xl"
     >
         <div class="w-full flex justify-between mb-6">
             <button
