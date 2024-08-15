@@ -314,29 +314,21 @@ onBeforeRouteLeave( async (to, from, next) => {
 
 
 </script>
+
 <template>
-    <div class="container">
-        <div class="up">
+    <div class="container mx-auto w-[90vw] h-[90vh] pb-8 bg-[#f3f7fd] rounded-lg p-5 shadow-lg opacity-80">
+        <div class="up bg-white h-[72%] mb-5 p-5 rounded-lg shadow-lg">
             <Sheet :sheetId="route.params.sheetId" height="95" @startRecordingEmit="onStartRecordingEmit"/>
         </div>
-        <div class="down"
-        :style="{
-                    backgroundImage: `url(${require('@/assets/img/sheet_play/ground.png')})`,
-                    backgroundBlendMode: 'multiply', 
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
-                    backgroundSize: '100% 100%', 
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat' }"
-        >
+        <div class="flex justify-center items-center h-[25vh] gap-4">
             <!-- 본인 프로필을 표시하는 컴포넌트 -->
-            <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
-            <button class="btn  w-24" @click="onClickQuit"
-            :style="{
-              backgroundImage: `url(${require('@/assets/img/sheet_play/box_pink.png')})`,
-              backgroundSize: '100% 100%', // 배경 이미지가 요소에 딱 맞게 조정됨
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat' }"
-            >
+            <UserCardForPlay 
+            class="custom-shadow h-[85%] w-[35vh]"
+            :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
+            <!-- 나가기 -->
+            <button 
+                class="custom-shadow_ver2 w-[20vw] h-[90%] text-[#f3f7fd] border-none outline-none py-10 flex-grow flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white  transition-all duration-300 hover:bg-sky-100"
+                @click="onClickQuit">
                 나가기
             </button>
             <!-- 상대방 프로필을 표시하는 컴포넌트 -->
@@ -345,21 +337,24 @@ onBeforeRouteLeave( async (to, from, next) => {
                 @onClickStart="onClickStart"
                 :f1Score="opponentF1Score"
                 :jaccardScore="opponentJaccardScore"
+                class="custom-shadow  h-[85%] w-[35vh]"
             />
         </div>
     </div>
 </template>
+
 <style scoped>
-.container {
-    margin: 10px auto;
-    width: 90vw;
-    height: 90vh;
-    background-color: #f0f0f0;
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    opacity: 0.8;
+.custom-shadow {
+    @apply rounded-xl bg-white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
 }
+
+.custom-shadow_ver2 {
+    @apply rounded-xl bg-[#4A90E2];
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
+}
+
+
 .up {
     background-color: #fff;
     height: 72%;
@@ -367,13 +362,6 @@ onBeforeRouteLeave( async (to, from, next) => {
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.down {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 25vh;
 }
 
 .button-div {
