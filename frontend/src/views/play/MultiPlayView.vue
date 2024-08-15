@@ -53,9 +53,6 @@ const loginUser = userStore.userInfo;
 // pinia에 저장되어 있는 상대방의 정보를 가져온다.
 const opponentUser = userStore.opponentUser;
 opponentUser.userImg = opponentUser.userImg.split(',')[1];
-console.log("======================")
-console.log(loginUser.userImg);
-console.log(opponentUser.userImg);
 
 const opponentF1Score = ref(0);
 const opponentJaccardScore = ref(0);
@@ -94,61 +91,11 @@ const sendEndDuringPlay = () => {
   musicStore.jaccardScore = [];
 }
 
-// 두 개의 상태를 감시하여 update를 트리거함
-// watch(
-//     () => [musicStore.isLast, opponentIsLast.value],
-//     ([isMyLast, isOpponentLast]) => {
-//       console.log("My isLast: ", isMyLast);
-//       console.log("Opponent isLast: ", isOpponentLast);
-//       if (isMyLast && isOpponentLast) {
-//         // 여기다 모달을 다세요
-//         console.log("Both players have finished. MULTI END");
-//         modalMyScore.value = myJaccardScore.value;  // 내 점수를 모달에 전달
-//         modalOpponentScore.value = opponentJaccardScore.value;  // 상대방 점수를 모달에 전달
-//         modalOpponentNickname.value = opponentUser.nickname;  // 상대방 닉네임을 모달에 전달
-//         showCompletionModal.value = true;  // 모달을 표시
-//         alert(modalOpponentScore + "상대방의 점수")
-//
-//
-//         Swal.fire({
-//           title: '멀티 플레이 결과',
-//           html: `
-//               <p>
-//                 : ${loginUser.nickname}<br>
-//                 최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 )}점<br>
-//               </p>
-//             `,
-//           icon: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ) >= 80 ? 'success' : 'error',
-//           confirmButtonText: '닫기'
-//         }).then(() => {
-//           // 필요한 경우 추가 작업 수행
-//         });
-//
-//         const myScore = parseFloat(myJaccardScore.value);
-//         const otherScore = parseFloat(opponentJaccardScore.value);
-//
-//         local.patch(`/plays/multi/${multi_result_id}`, {
-//           myUserId: loginUser.id,
-//           myScore: myScore,
-//           otherUserId: opponentUser.nickname,
-//           otherScore: otherScore
-//         }).then(response => {
-//           isRequested = true;
-//         }).catch(error => {
-//           console.error("Failed to send multi play result", error);
-//         });
-//       } else {
-//         console.log("One or both players have not finished yet.");
-//       }
-//     }
-// );
+
 watch(
     () => [musicStore.isLast, opponentIsLast.value],
     ([isMyLast, isOpponentLast]) => {
-      console.log("My isLast: ", isMyLast);
-      console.log("Opponent isLast: ", isOpponentLast);
       if (isMyLast && isOpponentLast) {
-        console.log("Both players have finished. MULTI END");
 
         // 내 점수 및 상대방 점수 계산
         const myFinalScore = Math.min(100, (Math.max(0, (myF1Score.value - 50)) + Math.max(0, (myJaccardScore.value - 40))) * 100 / 80);
@@ -180,9 +127,7 @@ watch(
         }).catch(error => {
           console.error("Failed to send multi play result", error);
         });
-      } else {
-        console.log("One or both players have not finished yet.");
-      }
+      } 
     }
 ,{deep:true});
 
@@ -229,7 +174,7 @@ function connect() {
             }).then(response => {
               isRequested = true;
             }).catch(error => {
-              console.log("멀티 플레이 데이터 업데이트 중 오류 발생")
+              console.error("멀티 플레이 데이터 업데이트 중 오류 발생")
             });
           }
         });
@@ -263,7 +208,7 @@ function connect() {
               // musicStore.singleResultId = multiResultId;
               // sheet store에 multiResultId 저장
             } catch (error) {
-              console.log("멀티 플레이 데이터 저장 중 오류 발생");
+              console.error("멀티 플레이 데이터 저장 중 오류 발생");
             }
 
           }
@@ -294,13 +239,11 @@ function connect() {
 watch(
     () => musicStore.f1,
     (newF1Scores) => {
-      console.log(newF1Scores)
       if (newF1Scores.length !== 0) {
         myF1Score.value = Math.floor(
             (newF1Scores.reduce((acc, score) => acc + score, 0) /
                 newF1Scores.length) * 100
         );
-        console.log("MYF1 : ", myF1Score.value)
       } else {
         myF1Score.value = 0;
       }
@@ -312,17 +255,14 @@ watch(
 watch(
     () => musicStore.jaccard,
     (newJaccardScores) => {
-      console.log(newJaccardScores)
       if (newJaccardScores.length !== 0) {
         myJaccardScore.value = Math.floor(
             (newJaccardScores.reduce((acc, score) => acc + score, 0) /
                 newJaccardScores.length) * 100
         );
-        console.log(myJaccardScore.value)
       } else {
         myJaccardScore.value = 0;
       }
-      console.log("ISLAST LOGGER:", musicStore.isLast)
       // 변화된 점수를 상대방에게 전송하는 소켓 메서드
       stompClient.send(`/app/play/${route.params.roomId}`,
           {},

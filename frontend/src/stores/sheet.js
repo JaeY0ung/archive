@@ -10,8 +10,8 @@
         const local = localAxios();
         const osmd = ref(null);
         const playbackManager = ref(null);
-        const audioPlayer = ref(new BasicAudioPlayer());
-        const timingSource = ref(new LinearTimingSource());
+        const audioPlayer = ref(null);
+        const timingSource = ref(null);
         const isPlay = ref(false);
         const isRecording = ref(false);
         const mediaRecorder = ref(null);
@@ -63,6 +63,8 @@
         };
 
         const setupPlaybackManager = () => {
+            audioPlayer.value = new BasicAudioPlayer();
+            timingSource.value = new LinearTimingSource();
             playbackManager.value = new PlaybackManager(timingSource.value, undefined, audioPlayer.value, undefined);
             playbackManager.value.DoPlayback = true;
             playbackManager.value.DoPreCount = false;
@@ -257,6 +259,8 @@
             receivedResponse.value = 0;
             isRecording.value= false;
             mediaRecorder.value = null;
+            audioPlayer.value = null;
+            timingSource.value = null;
         };
 
         return {
