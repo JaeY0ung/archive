@@ -134,7 +134,7 @@ onMounted(() => {
 			<h3 class="font-semibold">{{ item.title }}</h3>
 			<p class="flex text-gray-600 text-sm">
 				<img src="@/assets/img/cash.png" class="mt-0.5 mr-2" style="width:15px; height: 15px;">
-			{{ item.price }}\</p>
+			{{ item.price }}</p>
 		</div>
 		
 		<button @click="checkout"
