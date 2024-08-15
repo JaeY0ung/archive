@@ -232,8 +232,8 @@ const scrollEvent = () => {
                 <div class="flex flex-grow w-full h-full relative overflow-hidden items-center">
                     <template v-if="sheets.length">
                         <!-- 리스트 버전 -->
-                        <div v-if="view === 'list'" class="flex flex-col w-full absolute overflow-hidden-scroll mt-3" ref="listDiv" @scroll="scrollEvent">
-                            <SmallSheetCardForListView  v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" :restrictTitle="false"  @click="goToSheetDetail(sheet.id)" />
+                        <div v-if="view === 'list'" class="flex flex-col w-full h-full absolute overflow-hidden-scroll mt-3" ref="listDiv" @scroll="scrollEvent">
+                            <SmallSheetCardForListView v-for="sheet in sheets" :key="sheet.id" :sheet="sheet" :restrictTitle="false"  @click="goToSheetDetail(sheet.id)" />
                         </div>
 
                         <!-- 카드 버전 -->

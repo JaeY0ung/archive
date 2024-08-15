@@ -50,4 +50,22 @@ async function signout(success, fail) {
     await local.delete(`/users`).then(success).catch(fail);
 }
 
-export { userConfirm, logout, findByEmail, findById, signout };
+async function getTop10SingleScoreUsers(success) {
+    local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
+    await local.get(`/users/single-top-10`).then(success).catch((err) => console.error(err));
+}
+
+async function getTop10MultiScoreUsers(success) {
+    local.defaults.headers["Authorization"] = sessionStorage.getItem("accessToken");
+    await local.get(`/users/multi-top-10`).then(success).catch((err) => console.error(err));
+}
+
+export {
+    userConfirm,
+    logout,
+    findByEmail,
+    findById,
+    signout,
+    getTop10SingleScoreUsers,
+    getTop10MultiScoreUsers,
+};

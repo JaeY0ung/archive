@@ -52,7 +52,6 @@ const loginUser = userStore.userInfo;
 // pinia에 저장되어 있는 상대방의 정보를 가져온다.
 const opponentUser = userStore.opponentUser;
 opponentUser.userImg = opponentUser.userImg.split(',')[1];
-console.log("======================")
 console.log(loginUser.userImg);
 console.log(opponentUser.userImg);
 
@@ -86,7 +85,12 @@ watch(
         console.log("Opponent isLast: ", isOpponentLast);
         if (isMyLast && isOpponentLast) {
             // 여기다 모달을 다세요
-            console.log("Both players have finished. MULTI END");
+          console.log("Both players have finished. MULTI END");
+          modalMyScore.value = myJaccardScore.value;  // 내 점수를 모달에 전달
+          modalOpponentScore.value = opponentJaccardScore.value;  // 상대방 점수를 모달에 전달
+          modalOpponentNickname.value = opponentUser.nickname;  // 상대방 닉네임을 모달에 전달
+          showCompletionModal.value = true;  // 모달을 표시
+
             const myScore = parseFloat(myJaccardScore.value);
             const otherScore = parseFloat(opponentJaccardScore.value);
 
@@ -272,13 +276,6 @@ watch(() => musicStore.isLast,
                 score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
                 multiResultId: multiResultId
             }));
-            stompClient.send(`/app/play/end/${route.params.roomId}`, {}, 
-            JSON.stringify(
-            {
-                sender: opponentUser.nickname,
-                score: Math.min(100,(Math.max(0,(myF1Score.value - 50)) + Math.max(0,(myJaccardScore.value - 40))) * 100 / 80 ),
-                multiResultId: multiResultId
-            }));
     }else{
     
     
@@ -312,7 +309,8 @@ const handleBeforeUnload = async () => {
         sendEndDuringPlay();
     }
     musicStore.f1Score = [];
-    musicStore.jaccardScore = [];}
+    musicStore.jaccardScore = [];
+    }
 ;
 
 onMounted(() => {
@@ -331,7 +329,7 @@ onMounted(() => {
 onBeforeUnmount(()=>{
     // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정 해제
     window.addEventListener('popstate', () => {
-    isPopstate.value = true;
+        isPopstate.value = true;
     });
     window.removeEventListener('beforeunload', handleBeforeUnload);
 })
