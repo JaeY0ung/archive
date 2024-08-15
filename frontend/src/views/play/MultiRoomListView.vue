@@ -74,7 +74,7 @@ const enterRoom = async (roomId) => {
 
                 <!-- 방 리스트 -->
                 <div class="flex-grow overflow-y-auto custom-scrollbar">
-                    <div class="bg-gray-50 rounded-xl shadow-inner p-6 h-full">
+                    <div class="bg-gray-50 rounded-xl shadow-inner p-6">
                         <h2 class="text-2xl font-bold mb-6 text-gray-800">
                             방 리스트
                         </h2>
@@ -106,7 +106,7 @@ const enterRoom = async (roomId) => {
                         </div>
                         <ul
                             v-else
-                            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+                            class="grid grid-cols-1 md:grid-cols-2 gap-4 grow-0 mb-24"
                         >
                             <li
                                 class="bg-white rounded-lg shadow-sm p-4 cursor-pointer transition duration-300 hover:shadow-md hover:bg-gray-50"
