@@ -29,7 +29,7 @@
                         type="password"
                         required
                         @input="checkPasswordMatch"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
@@ -43,7 +43,7 @@
                         type="password"
                         required
                         @input="checkPasswordMatch"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <p
                         v-if="passwordMessage"
@@ -66,7 +66,7 @@
                         id="birthDate"
                         type="date"
                         required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
@@ -79,7 +79,7 @@
                         id="nickname"
                         type="text"
                         required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
 
@@ -91,7 +91,7 @@
                                 type="radio"
                                 v-model="gender"
                                 :value="true"
-                                class="form-radio text-purple-600"
+                                class="form-radio text-blue-600"
                             />
                             <span class="ml-2">남성</span>
                         </label>
@@ -100,7 +100,7 @@
                                 type="radio"
                                 v-model="gender"
                                 :value="false"
-                                class="form-radio text-purple-600"
+                                class="form-radio text-blue-600"
                             />
                             <span class="ml-2">여성</span>
                         </label>
@@ -110,7 +110,7 @@
                 <button
                     type="submit"
                     :disabled="!passwordsMatch"
-                    class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-300"
+                    class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:bg-gray-300"
                 >
                     가입하기
                 </button>
@@ -172,10 +172,9 @@ const register = async () => {
     }
 
     try {
-        const response = await local.post("/auth/users", user.value, {
+        await local.post("/auth/users", user.value, {
             withCredentials: true,
         });
-        console.log("회원가입 성공:", response.data);
         alert("회원가입이 완료되었습니다.");
         router.push({ name: "login" });
     } catch (error) {

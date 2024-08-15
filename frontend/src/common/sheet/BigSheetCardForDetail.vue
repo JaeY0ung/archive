@@ -149,7 +149,6 @@ const continueShopping = () => {
 
 const fetchSinglePlaySheets = async (userId) => {
     singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
-    console.log("가져온 싱글 플레이", singlePlaySheets.value);
 };
 
 const goToDifficultyRatingPage = async () => {

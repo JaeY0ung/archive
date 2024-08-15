@@ -24,7 +24,6 @@ const getPopularsheets = async () => {
         if (!data) return;
         popularSheets.value = data;
     });
-    console.log(popularSheets.value);
 };
 
 const getNewSheets = async () => {
@@ -32,7 +31,6 @@ const getNewSheets = async () => {
         if (!data) return;
         newSheets.value = data;
     });
-    console.log(newSheets.value);
 };
 
 const getRandomSheets = async () => {
@@ -40,7 +38,6 @@ const getRandomSheets = async () => {
         if (!data) return;
         randomSheets.value = data;
     });
-    console.log(randomSheets.value);
 };
 
 const getRecommendSheets = async () => {
@@ -48,11 +45,9 @@ const getRecommendSheets = async () => {
         if (!data) return;
         recommendSheets.value = data;
     });
-    console.log(recommendSheets.value);
 };
 
 searchRecentPlayedsheet(({ data }) => {
-    console.log("받은 최근 악보", data);
     recentPlayedSheet.value = data;
 });
 

@@ -35,13 +35,13 @@ public class UserServiceImpl implements UserService {
         String role = "ROLE_USER"; // 기본적으로 USER 권한 추가
         User user = User.builder()
                 .email(userCreateDto.getEmail())
-                .birthDate(userCreateDto.getBirthDate())
                 .nickname(userCreateDto.getNickname())
-                .gender(userCreateDto.getGender())
+//                .birthDate(userCreateDto.getBirthDate())
+//                .gender(userCreateDto.getGender())
                 .pwdHash(hashPwd)
                 .role(role)
                 .singleScore(0)
-                .multiScore(0)
+                .multiScore(1000)
                 .cash(0)
                 .build();
         return userRepository.save(user).getId();

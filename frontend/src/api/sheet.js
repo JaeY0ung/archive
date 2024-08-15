@@ -27,8 +27,6 @@ function predictSheetLevel(sheetId) {
     return local.post(`sheets/predict-level/${sheetId}`)
         .then(response => {
             if (response.status === 200) {
-                console.log(`난이도 예측 성공: sheet-id ${sheetId}`);
-                return response.data;
             } else {
                 throw new Error('난이도 예측 요청이 실패하였습니다.');
             }

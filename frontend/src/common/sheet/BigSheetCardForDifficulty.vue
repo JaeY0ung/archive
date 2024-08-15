@@ -302,7 +302,6 @@ const continueShopping = () => {
 
 const fetchSinglePlaySheets = async (userId) => {
     singlePlaySheets.value = await userPageService.fetchSinglePlaySheets(userId);
-    console.log("가져온 싱글 플레이", singlePlaySheets.value);
 };
 
 const goToDifficultyRatingPage = async () => {
@@ -328,7 +327,6 @@ const downloadSheet = () => {
         showLoginRequestAlert(router);
         return;
     }
-    console.log("악보 다운로드 시작:", sheetInfo.value.id);
 };
 
 onMounted(() => {
