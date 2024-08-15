@@ -7,7 +7,6 @@ defineProps({
     sheets: Array,
     title: String,
 })
-const emit = defineEmits(['goToSheetDetail', 'goToSheetSearchListView'])
 </script>
 
 <template>
@@ -18,7 +17,7 @@ const emit = defineEmits(['goToSheetDetail', 'goToSheetSearchListView'])
                     <Carousel :mouse-drag="true" :snap-align="'center'" :transition="600" :autoplay="3000" :pause-autoplay-on-hover="true">
                         <template v-for="(sheet, index) in sheets" :key="sheet.id">
                             <Slide :index :card="sheet">
-                                <SmallSheetCardForPhoto class="bg-white rounded-2xl shadow-lg" :sheet="sheet"  @click="emit('goToSheetDetail', sheet.id)" />
+                                <SmallSheetCardForPhoto class="bg-white rounded-2xl shadow-lg" :sheet="sheet" />
                             </Slide>
                         </template>
                     </Carousel>

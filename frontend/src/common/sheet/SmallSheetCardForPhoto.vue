@@ -2,7 +2,9 @@
 import { watch } from 'vue';
 import { getTitleByLen } from '@/util/string-util';
 import Tier from "@/common/icons/Tier.vue";
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const props = defineProps({
     sheet: Object,
     restrictTitle: {
@@ -15,6 +17,10 @@ watch(() => props.sheet, () => {
     props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
 });
 props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
+
+const goToSinglePlay = () => {
+    router.push({ name: 'singlePlay', params: { sheetId: props.sheet.id } });
+}
 </script>
 
 <template>
@@ -38,7 +44,7 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
             <div class="text-sm text-gray-600 mt-1">
                 가격: {{ sheet.price ? sheet.price  + '원' : '무료'}}
             </div>
-            <div class="btn btn-primary">연습</div>
+            <div class="btn btn-primary" @click="goToSinglePlay">연습하기</div>
         </div>
     </div>
 </template>

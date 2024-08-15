@@ -63,10 +63,6 @@ getNewSheets();
 getRecommendSheets();
 getRandomSheets();
 
-const goToSheetDetail = (sheetId) => {
-	router.push({ name: 'sheetDetail', params: { sheetId } });
-};
-
 const goToSheetSearchListView = (sort) => {
 	router.push({ name: 'sheetSearch', query: { sort } });
 }
