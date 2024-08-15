@@ -118,17 +118,9 @@ watch(
 );
 
 const onClickQuit = () => {
-    // 확인과 취소를 묻는 경고창을 띄웁니다.
-    const answer = window.confirm("정말로 방을 나가시겠습니까?");
     
-    // 사용자가 확인 버튼을 누른 경우에만 나가기를 진행합니다.
-    if (answer) {
-        isQuitting.value = true;
-        router.push("/room/multi/list");
-    } else {
-        // 취소를 눌렀을 경우, 아무런 동작도 하지 않습니다.
-        console.log("방 나가기가 취소되었습니다.");
-    }
+      isQuitting.value = true;
+      router.push("/room/multi/list");
 }
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
@@ -239,7 +231,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 
     // 뒤로가기를 눌렀을 때, multiRoomList로 보낸이후에 해당 조건문에 걸려서 방목록 페이지로 이동한다.
     // 또는 나가기 버튼을 누른 경우
-    if((isPopstate.value == true && to.name == "multiRoomList") || isQuitting.value == true){
+    if((isPopstate.value == true && to.name == "multiRoomList")){
       // 뒤로가기를 눌렀을 때, 녹음 중이 아니라면 방목록 페이지로 이동시킨다.
       if(musicStore.isRecording == false){
         next();

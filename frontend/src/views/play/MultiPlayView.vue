@@ -49,7 +49,6 @@ const loginUser = userStore.userInfo;
 // pinia에 저장되어 있는 상대방의 정보를 가져온다.
 const opponentUser = userStore.opponentUser;
 opponentUser.userImg = opponentUser.userImg.split(',')[1];
-console.log("======================")
 console.log(loginUser.userImg);
 console.log(opponentUser.userImg);
 
@@ -160,6 +159,7 @@ function connect() {
             const message = JSON.parse(socket.body);
             userStore.opponentUser.nickname = "유저가 방을 나갔습니다."
             userStore.opponentUser.userImg = null
+            opponentUser.userImg = null;
             opponentF1Score.value = 0;
             opponentJaccardScore.value = 0;
         })
@@ -242,6 +242,7 @@ const handleBeforeUnload = async () => {
         musicStore.jaccardScore = [];
         userStore.opponentUser.nickname = "";
         userStore.opponentUser.userImg = null;
+        opponentUser.userImg = null;
         musicStore.isLast = 0;
         sendExit();
         sendEndDuringPlay();
@@ -265,12 +266,12 @@ onMounted(() => {
 })
 
 onBeforeUnmount(()=>{
-    stompClient.disconnect();
     // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정 해제
-    window.removeEventListener('popstate', () => {
-    isPopstate.value = true;
+    window.addEventListener('popstate', () => {
+        isPopstate.value = true;
     });
     window.removeEventListener('beforeunload', handleBeforeUnload);
+    stompClient.disconnect();
 })
 
 onBeforeRouteLeave( async (to, from, next) => {
@@ -295,6 +296,7 @@ onBeforeRouteLeave( async (to, from, next) => {
         musicStore.jaccardScore = [];
         userStore.opponentUser.nickname = "";
         userStore.opponentUser.userImg = null;
+        opponentUser.userImg = null;
         next();
     } else {
         // isExiting.value = false;
