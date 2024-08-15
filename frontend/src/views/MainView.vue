@@ -22,7 +22,6 @@ const getPopularsheets = async () => {
 			popularSheets.value = data;
 		}
 	)
-	console.log(popularSheets.value);
 }
 
 const getNewSheets = async () => {
@@ -33,7 +32,6 @@ const getNewSheets = async () => {
 			newSheets.value = data;
 		}
 	)
-	console.log(newSheets.value);
 }
 
 const getRandomSheets = async () => {
@@ -44,7 +42,6 @@ const getRandomSheets = async () => {
 			randomSheets.value = data;
 		}
 	)
-	console.log(randomSheets.value);
 }
 
 const getRecommendSheets = async () => {
@@ -55,20 +52,9 @@ const getRecommendSheets = async () => {
 			recommendSheets.value = data;
 		}
 	)
-	console.log(recommendSheets.value);
-	// await getRecommendSheetByUserRecentPlay(
-	// 	(res) => {
-	// 		if (res && res.data) {
-	// 			recommendSheets.value = res.data; // 객체 내 data에 접근해서 할당
-	// 			return
-	// 		}
-	// 		console.error('No valid data structure returned from searchSheetRecommand');
-	// 	}
-	// )
 }
 
 searchRecentPlayedsheet(({ data }) => {
-	console.log(data)
 	recentPlayedSheet.value = data
 });
 

@@ -28,11 +28,8 @@ if(props.user.userImg == null){
 
 const resultScore = computed(() => {
     let score =  Math.min(100,(Math.max(0,(props.f1Score - 30)) + Math.max(0,(props.jaccardScore - 20))) * 100 / 120 );
-    return score.toFixed(2);
+    return score;
 });
-
-
-
 
 
 // wait/play 화면의 프로필 ui 변경을 위한 route이름 변수화
@@ -63,8 +60,8 @@ console.log(routeName);
             <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-start justify-center h-full pl-[10px]">
                 <div class="flex ml-4 justify-between w-full h-full items-center">
                     <div class="text-black text-lg w-full">현재 스코어</div>
-                    <div class="text-gray-900 flex items-center h-full w-[80%]">
-                        {{ resultScore }}
+                    <div class="text-[#4A90E2] text-3xl flex items-center pb-2 h-full w-[80%]">
+                        {{ resultScore.toFixed(2) }}
                     </div>
                 </div>
             </div>
