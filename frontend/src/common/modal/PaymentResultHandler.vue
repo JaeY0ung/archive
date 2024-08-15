@@ -7,9 +7,12 @@ const route = useRoute();
 const router = useRouter();
 const isModalVisible = ref(false);
 const paymentResult = ref({});
+let sheetId = null;
 
 const handlePaymentResult = () => {
-  const { status, orderId, itemName, amount, message } = route.query;
+  const { status, orderId, itemName, amount, message, productId } = route.query;
+
+  sheetId = productId;
 
   paymentResult.value = {
 	status,
@@ -26,7 +29,10 @@ const handlePaymentResult = () => {
 
 const closeModal = () => {
   isModalVisible.value = false;
-  router.push('/'); // 또는 다른 적절한 페이지로 이동
+  console.log(sheetId);
+  // router.push(`/sheet/${sheetId}/detail`);
+  router.push({name: 'sheetDetail', params: {sheetId: sheetId}});
+  // router.push(`/sheet/${sheetId}/detail`); // 또는 다른 적절한 페이지로 이동
 };
 
 onMounted(() => {
