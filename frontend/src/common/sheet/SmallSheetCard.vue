@@ -23,7 +23,7 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
 </script>
 
 <template>
-	<div class="w-full h-[85px] min-h-[85px] p-[5px] flex flex-row justify-between gap-3 bg-white rounded-lg" style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);">
+	<div class="w-[330px] h-[100px]  p-[5px] flex flex-row justify-between gap-3 bg-white rounded-lg" style="box-shadow: 0px 5px 8px rgba(0, 0, 0, 0.3);">
 		<!-- (왼쪽) 악보 사진 -->
 		<div class="min-w-[85px] max-w-[85px] h-full flex justify-center">
 			<img class="rounded-lg" :src="sheet.imageUrl" alt="원본 곡 이미지">
