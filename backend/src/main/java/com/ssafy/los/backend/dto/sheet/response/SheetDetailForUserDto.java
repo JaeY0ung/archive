@@ -50,9 +50,11 @@ public class SheetDetailForUserDto implements SheetDetailDto {
 
     private Long likeCount; // 좋아요 수
 
+    private Boolean canDownload;
+
     private Timestamp createdAt;
 
-    public SheetDetailForUserDto(Sheet sheet, Long likeCount, Boolean likeStatus) {
+    public SheetDetailForUserDto(Sheet sheet, Long likeCount, Boolean likeStatus, Boolean canDownload) {
         this.id = sheet.getId();
         this.title = sheet.getTitle();
         if (sheet.getSong() != null) {
@@ -65,14 +67,22 @@ public class SheetDetailForUserDto implements SheetDetailDto {
         }
         this.uuid = sheet.getUuid();
         this.price = sheet.getPrice();
+
         this.level = sheet.getLevel();
         this.status = sheet.getStatus();
-//        if (sheet.getStatus() != null && sheet.getStatus() == 0) {
-//            this.level = 0;
-//        }
+
         this.viewCount = sheet.getViewCount();
         this.likeCount = likeCount;
         this.likeStatus = likeStatus;
+        
+        this.canDownload = canDownload;
+        if (price == null || price == 0) {
+            this.canDownload = true;
+        }
+    }
+
+    public SheetDetailForUserDto(Sheet sheet, Long likeCount, Boolean likeStatus) {
+        this(sheet, likeCount, likeStatus, null);
     }
 
     public SheetDetailForUserDto(Sheet sheet, Long likeCount) {

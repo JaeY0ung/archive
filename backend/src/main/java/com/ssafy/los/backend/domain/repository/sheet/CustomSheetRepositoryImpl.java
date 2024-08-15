@@ -11,6 +11,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.los.backend.constant.Sort;
 import com.ssafy.los.backend.constant.SuccessStatus;
 import com.ssafy.los.backend.domain.entity.QLikeSheet;
+import com.ssafy.los.backend.domain.entity.QOrder;
+import com.ssafy.los.backend.domain.entity.QOrderSheet;
 import com.ssafy.los.backend.domain.entity.QSheet;
 import com.ssafy.los.backend.domain.entity.QSheetStarRate;
 import com.ssafy.los.backend.domain.entity.QSinglePlayResult;
@@ -36,6 +38,8 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     QLikeSheet ls = QLikeSheet.likeSheet;
     QSinglePlayResult spr = QSinglePlayResult.singlePlayResult;
     QSheetStarRate ssr = QSheetStarRate.sheetStarRate;
+    QOrder o = QOrder.order;
+    QOrderSheet os = QOrderSheet.orderSheet;
 
     @Override
     public List<SheetDetailDto> findSheetsByFilterAndLoginUser(SheetSearchFilter sheetSearchFilter,
@@ -88,7 +92,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
 
     @Override
     public SheetDetailDto findSheetDetailViewDtoById(Long sheetId, User loginUser) {
-        return createSelectFromQuery(loginUser)
+        return createSelectFromQuery(loginUser, sheetId)
                 .where(s.id.eq(sheetId), s.deletedAt.isNull(), s.createdAt.isNotNull())
                 .fetchOne();
     }
@@ -147,6 +151,25 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 JPAExpressions.select(ls.count())
                         .from(ls)
                         .where(ls.sheet.eq(s)),
+                createLikeStatusExpression(loginUser)
+        )).from(s);
+    }
+
+
+    private JPAQuery<SheetDetailForUserDto> createSelectFromQuery(User loginUser, Long sheetId) {
+        return queryFactory.select(Projections.constructor(SheetDetailForUserDto.class,
+                s,
+                JPAExpressions.select(ls.count())
+                        .from(ls)
+                        .where(ls.sheet.eq(s)),
+                JPAExpressions.selectOne()
+                        .from(o)
+                        .where(o.user.eq(loginUser),
+                                o.orderSheetList.contains(
+                                        JPAExpressions
+                                                .selectFrom(os)
+                                                .where(os.sheet.id.eq(sheetId))))
+                        .exists(),
                 createLikeStatusExpression(loginUser)
         )).from(s);
     }
@@ -226,9 +249,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
     }
 
     private BooleanExpression containKeyword(String keyword) {
-        if (keyword == null) {
-            return null;
-        } else if (keyword.isEmpty()) {
+        if (keyword == null || keyword.isEmpty()) {
             return null;
         }
         return s.title.contains(keyword)
