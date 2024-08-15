@@ -313,7 +313,7 @@ onMounted(() => {
                             {{ sheet.price == 0 || sheet.price === null ? "무료" : "장바구니" }}
                         </span>
                     </button>
-                    <button class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12" :disabled="!sheet.canDownload"
+                    <button class="btn bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center relative overflow-hidden group h-12" :disabled="sheet.canDownload == false || sheet.canDownload == 'false'"
                         @click="downloadSheet" >
                         <font-awesome-icon :icon="['fas', 'download']"
                             class="text-2xl transition-all duration-300 group-hover:opacity-0 group-hover:scale-0" />
