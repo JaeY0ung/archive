@@ -106,6 +106,7 @@ const showSongRegisterModal = () => {
 
 const closeSongRegisterModal = () => {
     modalVisibility.value = false;
+    searchSongsByKeyword();
 };
 </script>
 

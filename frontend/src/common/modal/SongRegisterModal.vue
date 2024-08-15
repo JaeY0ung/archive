@@ -66,8 +66,7 @@ const uploadSongAndFile = async () => {
     registerSong(
         formData,
         (res) => {
-            router.go(0);
-            // console.log(fileInfo.value)
+            emit('closeModalEvent');
         }
     )
 };
