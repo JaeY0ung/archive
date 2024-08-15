@@ -252,10 +252,10 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
         if (keyword == null || keyword.isEmpty()) {
             return null;
         }
-        return s.title.contains(keyword)
-                .or(s.uploader.nickname.contains(keyword))
-                .or(s.song.title.contains(keyword))
-                .or(s.song.composer.contains(keyword));
+        return s.title.contains(keyword);
+//                .or(s.uploader.nickname.contains(keyword))
+//                .or(s.song.title.contains(keyword))
+//                .or(s.song.composer.contains(keyword));
     }
 
     private BooleanExpression inLevels(Integer[] level) {

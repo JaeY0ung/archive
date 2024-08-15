@@ -79,12 +79,19 @@ onMounted(async () => {
     search();
 });
 
+let isScrolling = false;
+
 const scrollEvent = () => {
+    if (isScrolling) return;
     const { scrollTop, scrollHeight, clientHeight } = listDiv.value;
-    console.log(scrollTop + clientHeight, "까지 옴", scrollHeight - 10, "보다 큰가?")
-    if (scrollTop + clientHeight >= scrollHeight - 10) {
+
+    if (scrollTop + clientHeight >= scrollHeight - 20) {
         page.value++;
         search();
+        isScrolling = true;
+        setTimeout(() => {
+            isScrolling = false;
+        }, 100);
     }
 }
 

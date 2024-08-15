@@ -49,7 +49,7 @@ def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes
         if note in matched_notes:
             colors1.append('red')  # Original의 빨간점 (매칭된 노트)
         elif note[0] < first_matched_time or note[0] > last_matched_time:
-            colors1.append('black')  # Original의 검은점 (범위 밖의 노트)
+            colors1.append('yellow')  # Original의 검은점 (범위 밖의 노트)
         else:
             colors1.append('blue')  # Original의 파란점 (매칭되지 않은 노트)
 
@@ -68,7 +68,7 @@ def plot_notes(notes1, notes2, matched_notes, best_shift, title1='Original Notes
         if any(abs(note[0] - match[0]) < time_tolerance and abs(note[1] - match[1]) <= pitch_tolerance for match in matched_notes):
             colors2.append('green')  # Result의 초록점 (매칭된 노트)
         elif note[1] < min_pitch or note[1] > max_pitch:
-            colors2.append('black')  # Result의 검은점 (범위 밖의 노트)
+            colors2.append('yellow')  # Result의 검은점 (범위 밖의 노트)
         else:
             colors2.append('blue')  # Result의 파란점 (매칭되지 않은 노트)
 
