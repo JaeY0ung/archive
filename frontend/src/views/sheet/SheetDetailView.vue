@@ -2,7 +2,8 @@
 import { onMounted } from "vue";
 import Sheet from "@/common/sheet/Sheet.vue";
 import BigSheetCard from "@/common/sheet/BigSheetCardForDetail.vue";
-import SmallSheetCardForDetail from "@/common/sheet/SmallSheetCard.vue";
+import SmallSheetCardForDetail from "@/common/sheet/SmallSheetCardForDetail.vue";
+import SmallSheetCard from "@/common/sheet/SmallSheetCard.vue";
 import { storeToRefs } from "pinia";
 import { computed, ref, watch, defineAsyncComponent } from "vue";
 import { useUserStore } from "@/stores/user";
@@ -187,7 +188,7 @@ onMounted(async () => {
                 <!-- 비슷한 수준의 악보 추천 -->
                 <div class="mb-6 hide-scrollbar">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">비슷한 수준의 악보</h2>
-                    <div class="scroll-x flex rounded-xl pb-2">
+                    <div class="shrink-0 scroll-x flex rounded-xl pl-4 pb-2">
                         <template v-if="sameLevelSheets && sameLevelSheets.length != 0">
                             <SmallSheetCardForDetail
                                 v-for="sheet in sameLevelSheets"
