@@ -43,7 +43,7 @@ const fileInfo = ref({
 const handleFileChange = (event) => {
     if (!["audio/mid", "audio/midi"].includes(event.target.files[0].type)) {
         fileInput.value.value = "";
-        showUnselectedWarningAlert(router, ".mid 확장자 파일을 업로드해 주세요");
+        showUnselectedWarningAlert(router, "mid 확장자의 파일을 업로드해 주세요");
         return;
     }
     fileInfo.value.file = event.target.files[0];
