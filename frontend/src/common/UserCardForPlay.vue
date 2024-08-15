@@ -27,29 +27,8 @@ if(props.user.userImg == null){
 
 
 const resultScore = computed(() => {
-    return Math.min(100,(Math.max(0,(props.f1Score - 30)) + Math.max(0,(props.jaccardScore - 20))) / 120)*100;
+    return Math.min(100,(Math.max(0,(props.f1Score - 30)) + Math.max(0,(props.jaccardScore - 20))) * 100 / 120 );
 });
-
-// 숫자에 해당하는 이미지를 반환하는 함수
-const getNumberImage = (num) => {
-    const images = {
-        '0': require('@/assets/img/sheet_play/number0.png'),
-        '1': require('@/assets/img/sheet_play/number1.png'),
-        '2': require('@/assets/img/sheet_play/number2.png'),
-        '3': require('@/assets/img/sheet_play/number3.png'),
-        '4': require('@/assets/img/sheet_play/number4.png'),
-        '5': require('@/assets/img/sheet_play/number5.png'),
-        '6': require('@/assets/img/sheet_play/number6.png'),
-        '7': require('@/assets/img/sheet_play/number7.png'),
-        '8': require('@/assets/img/sheet_play/number8.png'),
-        '9': require('@/assets/img/sheet_play/number9.png'),
-        '.': require('@/assets/img/sheet_play/number_dot.png'),
-        '-': require('@/assets/img/sheet_play/number_minus.png'),
-    };
-    return images[num] || ''; // 숫자에 해당하는 이미지가 없을 경우 빈 문자열 반환
-};
-
-
 
 
 // wait/play 화면의 프로필 ui 변경을 위한 route이름 변수화
@@ -80,7 +59,7 @@ console.log(routeName);
             <div v-if="routeName == 'singlePlay' || routeName == 'multiPlay'" class="flex flex-col flex-grow items-start justify-center h-full pl-[10px]">
                 <div class="flex ml-4 justify-between w-full h-full items-center">
                     <div class="text-black text-lg w-full">현재 스코어</div>
-                    <div class="text-gray-900 flex items-center h-full w-[80%]">
+                    <div class="text-[#4A90E2] text-3xl flex items-center pb-2 h-full w-[80%]">
                         {{ resultScore.toFixed(2) }}
                     </div>
                 </div>

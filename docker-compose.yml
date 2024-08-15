@@ -48,15 +48,6 @@ services:
     volumes:
       - redis-data:/data
 
-  omnizart:
-    image: mctlab/omnizart:latest
-    container_name: omnizart_container
-    volumes:
-      - shared_data:/app/shared  # 공용 볼륨 설정
-    entrypoint: /bin/bash
-    stdin_open: true
-    tty: true
-
   fastapi:
     build:
       context: ./music-engine
@@ -65,7 +56,6 @@ services:
     depends_on:
       - mysql
       - redis
-      - omnizart
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Docker 소켓 공유
       - shared_data:/app/shared  # 공용 볼륨 설정

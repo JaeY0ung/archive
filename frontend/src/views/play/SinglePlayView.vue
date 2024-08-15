@@ -39,21 +39,6 @@ musicStore.playMode = "single";
 // 플레이 점수를 가져온다.
 const myF1Score = ref(0);
 const myJaccardScore = ref(0);
-
-if (musicStore.f1.length !== 0) {
-    myF1Score.value = Math.floor(
-        (musicStore.f1.reduce((acc, score) => acc + score, 0) /
-            musicStore.f1.length) * 100
-    );
-}
-
-if (musicStore.jaccard.length !== 0) {
-    myJaccardScore.value = Math.floor(
-        (musicStore.jaccard.reduce((acc, score) => acc + score, 0) /
-            musicStore.jaccard.length) * 100
-    );
-}
-
 const resultScore = ref(0);
 
 const updateResultScore = (newScore) => {
@@ -95,56 +80,37 @@ watch(
     { deep: true } // 배열 내부의 변화도 감지
 );
 
-// watch(
-// 	() => musicStore.isLast,
-// 	async (Last) => {
-// 	  if (Last) {
-// 		try {
-// 		  await local.patch(`/plays/single/${singleResultId}`, {
-// 			userId: loginUser.id,
-// 			score: myJaccardScore.value,
-// 		  });
-// 		  modalTitle.value = "플레이 완료!";
-// 		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
-// 		} catch (error) {
-// 		  modalTitle.value = "오류 발생";
-// 		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
-// 		}
-// 		showModal.value = true;
-// 	  }
-// 	}
-// );
 
 watch(
 	() => musicStore.isLast,
-	async (Last) => {
-	  if (Last) {
+	async (newVal, oldVal) => {
+	  if (newVal) {
 		try {
 		  const response = await local.patch(`/plays/single/${singleResultId}`, {
-			userId: loginUser.id,
-			score: myJaccardScore.value,
+        userId: loginUser.id,
+        score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
 		  });
-
+      console.log("결과 저장 완료");
 		  Swal.fire({
-			title: '싱글 플레이 결과',
-			html: `
-            <p>
-              플레이어: ${loginUser.nickname}<br>
-              최종 점수: ${resultScore.value}점<br>
-            </p>
-          `,
-			icon: resultScore.value >= 80 ? 'success' : 'error',
-			confirmButtonText: '닫기'
+        title: '싱글 플레이 결과',
+        html: `
+              <p>
+                플레이어: ${loginUser.nickname}<br>
+                최종 점수: ${Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 )}점<br>
+              </p>
+            `,
+        icon: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ) >= 80 ? 'success' : 'error',
+        confirmButtonText: '닫기'
 		  }).then(() => {
 			// 필요한 경우 추가 작업 수행
 		  });
 
 		} catch (error) {
 		  Swal.fire({
-			title: '오류 발생',
-			text: '플레이 데이터를 저장하는 중 오류가 발생했습니다.',
-			icon: 'error',
-			confirmButtonText: '확인'
+        title: '오류 발생',
+        text: '플레이 데이터를 저장하는 중 오류가 발생했습니다.',
+        icon: 'error',
+        confirmButtonText: '확인'
 		  });
 		}
 	  }
@@ -189,18 +155,18 @@ watch(
 	() => musicStore.isLast,
 	async (newVal, oldVal) => {
 	  if (newVal) {
-		try {
-		  await local.patch(`/plays/single/${singleResultId}`, {
-			userId: loginUser.id,
-			score: myJaccardScore.value,
-		  });
-		  modalTitle.value = "플레이 완료!";
-		  modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
-		} catch (error) {
-		  modalTitle.value = "오류 발생";
-		  modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
-		}
-		showModal.value = true;
+      try {
+        await local.patch(`/plays/single/${singleResultId}`, {
+          userId: loginUser.id,
+          score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
+        });
+        modalTitle.value = "플레이 완료!";
+        modalMessage.value = "축하합니다! 플레이를 완료했습니다.";
+      } catch (error) {
+        modalTitle.value = "오류 발생";
+        modalMessage.value = "플레이 데이터를 저장하는 중 오류가 발생했습니다.";
+      }
+      showModal.value = true;
 
 	  }
 	}
@@ -315,7 +281,7 @@ onUnmounted(()=>{
       <UserCardForPlay class="bg-white custom-shadow" :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" @updateResultScore="updateResultScore" />
       <div class="h-[198px] w-[198px] flex justify-center items-center">
         <div 
-          class="custom-shadow flex-grow h-full flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white text-[#4A90E2]  transition-all duration-300 hover:bg-red-600"
+          class="custom-shadow flex-grow h-full flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white text-[#4A90E2]  transition-all duration-300 hover:bg-sky-100"
           @click="onClickQuit">
           나가기
         </div>
