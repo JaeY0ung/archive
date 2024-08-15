@@ -36,6 +36,12 @@ const myJaccardScore = ref(0);
 let isResultSender = false;
 let isPlayBehind = false;
 
+const showCompletionModal = ref(false);
+
+// 모달에 전달할 데이터 변수
+const modalMyScore = ref(0);
+const modalOpponentScore = ref(0);
+const modalOpponentNickname = ref("");
 
 // sheet.js에서 올바른 경로로 보낼 수 있도록 mode를 지정해준다.
 // back에서 single 처럼 경로를 지정해주는 MultiPlayController의 메서드가 필요함.
@@ -97,6 +103,9 @@ function connect() {
             if(scoreData.nickname != loginUser.nickname){
               opponentF1Score.value = scoreData.f1Score;
               opponentJaccardScore.value = scoreData.jaccardScore;
+
+              // 상대방 닉네임을 제대로 업데이트하도록 수정
+              modalOpponentNickname.value = opponentUser.nickname;
             }
             // 상대방의 점수를 받았을 때, isLast가 1이라면(채점이 모두 끝났다면), update한다.
             if(musicStore.isLast == true){
@@ -206,15 +215,32 @@ watch(
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 // Todo: 모달창으로 성공, 실패를 알려줄 것.
 watch(() => musicStore.isLast,
+<<<<<<< Updated upstream
   (Last) => {
+=======
+  (newVal, oldVal) => {
+    if (newVal) {
+      // 모달에 표시할 데이터를 설정
+      modalMyScore.value = myJaccardScore.value;
+      modalOpponentScore.value = opponentJaccardScore.value;
+      modalOpponentNickname.value = opponentUser.nickname;
+      showCompletionModal.value = true;
+    }
+>>>>>>> Stashed changes
     if(isLastSender){
         stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
         {
             sender: loginUser.nickname,
             score: myJaccardScore.value,
             multiResultId: multiResultId
-        })
-)}else{
+        }));
+      stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
+          {
+            sender: opponentUser.nickname,
+            score: Math.min(100,(Math.max(0,(opponentF1Score.value - 30)) + Math.max(0,(opponentJaccardScore.value - 20))) * 100 / 120 ),
+            multiResultId: multiResultId
+          }));
+    }else{
     
     
 }});
@@ -319,6 +345,7 @@ onBeforeRouteLeave( async (to, from, next) => {
                     backgroundRepeat: 'no-repeat' }"
         >
             <!-- 본인 프로필을 표시하는 컴포넌트 -->
+<<<<<<< Updated upstream
             <UserCardForPlay :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
             <button class="btn  w-24" @click="onClickQuit"
             :style="{
@@ -327,6 +354,15 @@ onBeforeRouteLeave( async (to, from, next) => {
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat' }"
             >
+=======
+            <UserCardForPlay
+            class="custom-shadow h-[85%] w-[35vh]"
+            :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" />
+            <!-- 나가기 -->
+            <button
+                class="custom-shadow_ver2 w-[20vw] h-[90%] text-[#f3f7fd] border-none outline-none py-10 flex-grow flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white  transition-all duration-300 hover:bg-sky-100"
+                @click="onClickQuit">
+>>>>>>> Stashed changes
                 나가기
             </button>
             <!-- 상대방 프로필을 표시하는 컴포넌트 -->
@@ -337,6 +373,24 @@ onBeforeRouteLeave( async (to, from, next) => {
                 :jaccardScore="opponentJaccardScore"
             />
         </div>
+      <!-- 악보 완주 시 표시할 모달 -->
+      <PlayModal
+          v-if="showCompletionModal"
+          :title="'축하합니다!'"
+          :message="'악보를 성공적으로 완주했습니다.'"
+          :isVisible="showCompletionModal"
+          :myScore="modalMyScore"
+          :opponentScore="modalOpponentScore"
+          :opponentNickname="modalOpponentNickname"
+          @close="showCompletionModal = false"
+      />
+<!--      <PlayModal-->
+<!--          v-if="showCompletionModal"-->
+<!--          :title="'축하합니다!'"-->
+<!--          :message="'악보를 성공적으로 완주했습니다.'"-->
+<!--          :isVisible="showCompletionModal"-->
+<!--          @close="showCompletionModal = false"-->
+<!--      />-->
     </div>
 </template>
 <style scoped>
