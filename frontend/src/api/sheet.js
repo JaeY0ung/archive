@@ -39,6 +39,10 @@ function predictSheetLevel(sheetId) {
         });
 }
 
+async function downloadSheetById(sheetId, success) {
+    await local.get(`/sheets/${ sheetId }/download`).then(success).catch((err) => console.error(err));
+}
+
 async function getRecommendSheetByUserRecentPlay(success) {
     await local.get(`/sheets/recommend`).then(success).catch((err) => console.error(err));
 }
@@ -95,6 +99,8 @@ export {
     getRecommendSheetByUserRecentPlay,
     deleteSheet,
     predictSheetLevel,
+    downloadSheetById,
+
     likeSheet,
     dislikeSheet,
 

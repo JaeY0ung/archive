@@ -9,13 +9,16 @@ import com.ssafy.los.backend.dto.sheet.response.SheetDetailForUserDto;
 import com.ssafy.los.backend.dto.song.request.SongRegisterForm;
 import com.ssafy.los.backend.service.sheet.SheetService;
 import com.ssafy.los.backend.service.song.SongService;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -204,16 +207,19 @@ public class SheetController {
         // TODO : 구매 여부 확인
         SheetDetailDto sheet = sheetService.searchSheetDetailById(sheetId);
         try {
+            Resource file = sheetService.getSheetFileByUuid(sheet.getUuid());
+            byte[] data = Files.readAllBytes(file.getFile().toPath());
             return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("audio/midi"))
                     .header(
                             HttpHeaders.CONTENT_DISPOSITION,
                             String.format("attachment; filename=\"%s.%s\"",
                                     UriUtils.encode(sheet.getTitle(),
                                             StandardCharsets.UTF_8),
-                                    FilenameUtils.getExtension(sheet.getUuid()))
+                                    "mid")
                     )
-                    .body(sheetService.getSheetFileByFileName(sheet.getUuid()));
-        } catch (IllegalArgumentException e) {
+                    .body(new ByteArrayResource(data));
+        } catch (IllegalArgumentException | IOException e) {
             return new ResponseEntity<>("다운로드에 실패했습니다", HttpStatus.BAD_REQUEST);
         }
     }

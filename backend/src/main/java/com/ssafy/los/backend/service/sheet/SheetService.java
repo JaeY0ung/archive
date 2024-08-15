@@ -23,7 +23,7 @@ public interface SheetService {
 
     SheetDetailDto searchSheetDetailById(Long sheetId) throws IllegalArgumentException;
 
-    Resource getSheetFileByFileName(String fileName) throws IllegalArgumentException;
+    Resource getSheetFileByUuid(String fileName) throws IllegalArgumentException;
 
     List<SheetDetailDto> searchSheetByFilter(SheetSearchFilter sheetSearchFilter)
             throws IllegalArgumentException;

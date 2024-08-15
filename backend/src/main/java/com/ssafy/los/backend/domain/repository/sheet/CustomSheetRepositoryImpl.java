@@ -162,6 +162,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                 JPAExpressions.select(ls.count())
                         .from(ls)
                         .where(ls.sheet.eq(s)),
+                createLikeStatusExpression(loginUser),
                 JPAExpressions.selectOne()
                         .from(o)
                         .where(o.user.eq(loginUser),
@@ -169,8 +170,7 @@ public class CustomSheetRepositoryImpl implements CustomSheetRepository {
                                         JPAExpressions
                                                 .selectFrom(os)
                                                 .where(os.sheet.id.eq(sheetId))))
-                        .exists(),
-                createLikeStatusExpression(loginUser)
+                        .exists()
         )).from(s);
     }
 

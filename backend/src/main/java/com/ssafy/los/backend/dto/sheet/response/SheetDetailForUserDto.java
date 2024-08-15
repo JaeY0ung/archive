@@ -74,9 +74,9 @@ public class SheetDetailForUserDto implements SheetDetailDto {
         this.viewCount = sheet.getViewCount();
         this.likeCount = likeCount;
         this.likeStatus = likeStatus;
-        
+
         this.canDownload = canDownload;
-        if (price == null || price == 0) {
+        if (this.price == null || this.price == 0) {
             this.canDownload = true;
         }
     }
