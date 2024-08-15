@@ -1,17 +1,15 @@
 <script setup>
-import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
-import { useUserStore } from "@/stores/user";
 import UserCardForPlay from "@/common/UserCardForPlay.vue";
 import Sheet from "@/common/sheet/Sheet.vue";
+import { onBeforeRouteLeave, useRoute, useRouter } from "vue-router";
+import { ref, onBeforeUnmount, watch, onMounted, computed } from "vue";
+import { useUserStore } from "@/stores/user";
 import { useMusicStore } from "@/stores/sheet";
-import { onBeforeUnmount, watch } from "vue";
+import { usePlayStore } from "@/stores/play";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { computed } from "vue";
-import { ref,watch } from "vue";
-import { onMounted } from "vue";
+
 import { localAxios } from "@/util/http-common";
-import { usePlayStore } from "@/stores/play";
 
 const playStore = usePlayStore();
 const { VUE_APP_REQUEST_URL } = process.env; // 소켓 엔드포인트 연결을 위한 주소 설정
