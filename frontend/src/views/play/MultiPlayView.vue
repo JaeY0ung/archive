@@ -152,7 +152,7 @@ watch(
 
         // 내 점수 및 상대방 점수 계산
         const myFinalScore = Math.min(100, (Math.max(0, (myF1Score.value - 50)) + Math.max(0, (myJaccardScore.value - 40))) * 100 / 80);
-        const opponentFinalScore = opponentJaccardScore.value;
+        const opponentFinalScore = Math.min(100, (Math.max(0, (opponentF1Score.value - 50)) + Math.max(0, (opponentJaccardScore.value - 40))) * 100 / 80);
 
         Swal.fire({
           title: '멀티 플레이 결과',
@@ -184,7 +184,7 @@ watch(
         console.log("One or both players have not finished yet.");
       }
     }
-);
+,{deep:true});
 
 
 

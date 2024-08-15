@@ -59,7 +59,7 @@ class FileRequest(BaseModel):
 convert_service = ConvertService()
 
 @app.post("/playing/single")
-async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singleResultId: str = Form(...), nickname: str = Form(...)):
+async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singleResultId: str = Form(...), userId: str = Form(...)):
     logger.info("single_result_id" + singleResultId)
     try:
         # 파일명에 포함된 숫자 추출 (file_number)
@@ -70,7 +70,7 @@ async def upload_file(file: UploadFile = File(...), uuid: str = Form(...), singl
             file_number = "0"
 
         #파일명을 nickname과 file_number 조합으로 변경
-        base_filename = f"{nickname}_{file_number}"
+        base_filename = f"{userId}_{file_number}"
         original_file_name = f"{base_filename}.webm"
         wav_file_name = f"{base_filename}.wav"
         midi_file_name = f"{base_filename}.mid"
