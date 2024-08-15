@@ -117,9 +117,10 @@ function connect() {
 
           stompClient.subscribe(`/play/start/socket/${route.params.roomId}`, async (socket) => {
             const message = JSON.parse(socket.body);
+            console.log("SOCKET LOG :::: ",message)
             if(loginUser.nickname != message.sender){
-            startRecording();
-            isPlayBehind = true;
+                startRecording();
+                isPlayBehind = true;
             // 결과 아이디 최신화.
             if(message.resultId != 0){
                 // multiResultId = message.resultId;
@@ -127,7 +128,7 @@ function connect() {
             }
             try{
                 const response = await local.post("/plays/multi" , {
-                sheetId: route.params.sheetId
+                    sheetId: route.params.sheetId
                 },{
                         withCredentials: true
                     });
@@ -206,12 +207,12 @@ watch(
 // 악보를 끝까지 완주했을 때, 호출되는 메서드
 // Todo: 모달창으로 성공, 실패를 알려줄 것.
 watch(() => musicStore.isLast,
-  (Last) => {
+  (newVal, oldVal) => {
     if(isLastSender){
         stompClient.send(`/app/play/end/${route.params.roomId}`, {}, JSON.stringify(
         {
             sender: loginUser.nickname,
-            score: myJaccardScore.value,
+            score: Math.min(100,(Math.max(0,(myF1Score.value - 30)) + Math.max(0,(myJaccardScore.value - 20))) * 100 / 120 ),
             multiResultId: multiResultId
         })
 )}else{
@@ -233,7 +234,7 @@ const handleBeforeUnload = async () => {
     if(isQuitting.value || isPopstate.value || isReloading.value){
         musicStore.f1Score = [];
         musicStore.jaccardScore = [];
-        musicStore.isLast = 0;
+        musicStore.isLast = false;
     } 
     else 
     {
@@ -242,7 +243,7 @@ const handleBeforeUnload = async () => {
         musicStore.jaccardScore = [];
         userStore.opponentUser.nickname = "";
         userStore.opponentUser.userImg = null;
-        musicStore.isLast = 0;
+        musicStore.isLast = false;
         sendExit();
         sendEndDuringPlay();
     }
