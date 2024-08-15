@@ -55,6 +55,7 @@ console.log(opponentUser.userImg);
 
 const opponentF1Score = ref(0);
 const opponentJaccardScore = ref(0);
+const opponentIsLast = ref(false);
 
 // Sheet.vue에서 녹음 버튼을 클릭했을 때, 호출되는 메서드
 const onStartRecordingEmit = () => {
@@ -97,27 +98,28 @@ function connect() {
             if(scoreData.nickname != loginUser.nickname){
               opponentF1Score.value = scoreData.f1Score;
               opponentJaccardScore.value = scoreData.jaccardScore;
+              opponentIsLast.value = scoreData.isLast;
             }
             // 상대방의 점수를 받았을 때, isLast가 1이라면(채점이 모두 끝났다면), update한다.
-            if(musicStore.isLast == true){
+            if(musicStore.isLast && opponentIsLast.value){
+                console.log("MULTI END");
                 const myScore = parseFloat(myJaccardScore.value);
                 const otherScore = parseFloat(opponentJaccardScore.value);
                 local.patch(`/plays/multi/${multi_result_id}`, {
-                myUserId: loginUser.id,
-                myScore: myScore,
-                otherUserId: opponentUser.nickname,
-                otherScore: otherScore
+                    myUserId: loginUser.id,
+                    myScore: myScore,
+                    otherUserId: opponentUser.nickname,
+                    otherScore: otherScore
                 }).then(response => {
                     isRequested = true;
                 }).catch(error => {
-                console.log("멀티 플레이 데이터 업데이트 중 오류 발생")
+                    console.error(error);
                 });
             }
           });
 
           stompClient.subscribe(`/play/start/socket/${route.params.roomId}`, async (socket) => {
             const message = JSON.parse(socket.body);
-            console.log("SOCKET LOG :::: ",message)
             if(loginUser.nickname != message.sender){
                 startRecording();
                 isPlayBehind = true;
@@ -199,7 +201,14 @@ watch(
             myJaccardScore.value = 0;
         }
         // 변화된 점수를 상대방에게 전송하는 소켓 메서드
-        stompClient.send(`/app/play/${route.params.roomId}`, {}, JSON.stringify({nickname: loginUser.nickname, f1Score: myF1Score.value, jaccardScore: myJaccardScore.value}));
+        stompClient.send(`/app/play/${route.params.roomId}`,
+                            {}, 
+                            JSON.stringify({
+                                nickname: loginUser.nickname, 
+                                f1Score: myF1Score.value, 
+                                jaccardScore: myJaccardScore.value,
+                                isLast : isLast.value,
+                            }));
     },
     { deep: true } // 배열 내부의 변화도 감지
 );
