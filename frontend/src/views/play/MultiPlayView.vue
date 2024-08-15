@@ -102,7 +102,7 @@ watch(
             });
             } 
             else {
-                onsole.log("One or both players have not finished yet.");
+                console.log("One or both players have not finished yet.");
             }
     }
 );
