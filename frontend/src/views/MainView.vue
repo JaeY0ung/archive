@@ -41,10 +41,15 @@ const getRandomSheets = async () => {
 };
 
 const getRecommendSheets = async () => {
-    await searchSheetsByFilter({ sort: "LATEST" }, ({ data }) => {
-        if (!data) return;
-        recommendSheets.value = data;
-    });
+    await getRecommendSheetByUserRecentPlay(
+        ({ data }) => {
+            if (!data) return;
+            recommendSheets.value = data;
+        });
+  // await searchSheetsByFilter({ sort: "RANDOM" }, ({ data }) => {
+  //   if (!data) return;
+  //   recommendSheets.value = data;
+  // });
 };
 
 searchRecentPlayedsheet(({ data }) => {
