@@ -10,6 +10,7 @@ import com.ssafy.los.backend.exception.user.UserUpdateException;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.auth.PasswordService;
 import com.ssafy.los.backend.util.FileUploadUtil;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -130,6 +131,16 @@ public class UserServiceImpl implements UserService {
             log.info("repository에서 해당 id에 맞는 User를 찾을 수 없습니다: " + userId);
         }
         return user;
+    }
+
+    @Override
+    public List<User> searchTop10SingleScoreUsers() {
+        return userRepository.findTop10ByOrderBySingleScoreDesc();
+    }
+
+    @Override
+    public List<User> searchTop10MultiScoreUsers() {
+        return userRepository.findTop10ByOrderByMultiScoreDesc();
     }
 
 

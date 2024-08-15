@@ -1,7 +1,10 @@
 <script setup>
 import { ref, computed } from "vue";
-
+import { getTop10SingleScoreUsers, getTop10MultiScoreUsers} from "@/api/user"
 const activeRank = ref("single");
+
+const top10SingleScoreUsers = ref([]);
+const top10MultiScoreUsers = ref([]);
 
 const singleRankings = ref([
     { rank: 1, name: "김철수", successes: 65, failures: 15 },
@@ -22,6 +25,22 @@ const multiRankings = ref([
     { rank: 6, name: "서윤아", wins: 45, losses: 35 },
     { rank: 7, name: "고범준", wins: 40, losses: 40 },
 ]);
+
+getTop10SingleScoreUsers(
+    ({ data }) => {
+        console.log(data)
+        top10SingleScoreUsers.value = data;
+        // multiScore
+        // nickname
+        // userImg 이런 정보 옴
+    }
+)
+
+getTop10MultiScoreUsers(
+    ({ data }) => {
+        top10MultiScoreUsers.value = data;
+    }
+)
 
 const sortedRankings = computed(() => {
     const rankingsToSort =
