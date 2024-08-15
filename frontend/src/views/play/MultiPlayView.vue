@@ -52,7 +52,6 @@ const loginUser = userStore.userInfo;
 // pinia에 저장되어 있는 상대방의 정보를 가져온다.
 const opponentUser = userStore.opponentUser;
 opponentUser.userImg = opponentUser.userImg.split(',')[1];
-console.log("======================")
 console.log(loginUser.userImg);
 console.log(opponentUser.userImg);
 
@@ -309,7 +308,8 @@ const handleBeforeUnload = async () => {
         sendEndDuringPlay();
     }
     musicStore.f1Score = [];
-    musicStore.jaccardScore = [];}
+    musicStore.jaccardScore = [];
+    }
 ;
 
 onMounted(() => {
@@ -328,7 +328,7 @@ onMounted(() => {
 onBeforeUnmount(()=>{
     // 브라우저 뒤로가기 버튼 클릭 시 플래그 설정 해제
     window.addEventListener('popstate', () => {
-    isPopstate.value = true;
+        isPopstate.value = true;
     });
     window.removeEventListener('beforeunload', handleBeforeUnload);
 })
