@@ -54,7 +54,6 @@ export const useUserStore = defineStore(
 
         // Foreground 메시지 핸들러
         messaging.onMessage((payload) => {
-            // console.log("Message received. ", payload);
             const notificationTitle = payload.notification.title;
             const notificationBody = payload.notification.body;
             const alertType = payload.data.alertTypeId
@@ -63,12 +62,9 @@ export const useUserStore = defineStore(
             const roomId = payload.data.roomId ? parseInt(payload.data.roomId, 10) : null;
 
             // readStatus 기본값 설정
-            // console.log("readStatus play.js에서 기본값 설정 전: " + readStatus);
             const readStatus = payload.data.readStatus === "true";
-            console.log("readStatus play.js에서 기본값 설정 후: " + readStatus);
 
             if (window && window.showNotification) {
-                // window.showNotification(notificationTitle, notificationBody, alertType, roomId);
                 window.showNotification(
                     notificationTitle,
                     notificationBody,
@@ -83,11 +79,9 @@ export const useUserStore = defineStore(
         async function requestFirebaseToken() {
             try {
                 await Notification.requestPermission();
-                // console.log("알림 권한 요청을 보냈습니다.");
                 const token = await messaging.getToken();
                 return token;
             } catch (error) {
-                // console.error("브라우저에 대한 알림 권한이 없습니다.", error);
                 console.error("브라우저에 대한 알림 권한이 없습니다.");
                 return null;
             }
@@ -134,29 +128,20 @@ export const useUserStore = defineStore(
                 loginUser,
 
                 async (response) => {
-                    // console.log("loginUser: ", loginUser);
                     let accessToken = "";
                     const authHeader = response.headers["authorization"];
                     if (authHeader && authHeader.startsWith("Bearer ")) {
                         accessToken = authHeader.substring(7);
                         sessionStorage.setItem("accessToken", accessToken);
-                        // console.log("accessToken을 세션 스토리에 저장합니다. = ", accessToken);
                     } else {
                         console.warn("Authorization 헤더가 없거나 Bearer 토큰이 아닙니다.");
                     }
 
-                    // let { data } = response;
-                    // console.log("로그인 완료 후 data ", data);
-
                     isLogin.value = true;
                     isLoginError.value = false;
                     isValidToken.value = true;
-
                     await getUserInfo();
-                    // console.log("user 정보: = ", userInfo.value);
-
                     await sendFirebaseTokenToServer(accessToken);
-
                     updateLastActivityTime();
                 },
                 (err) => {
@@ -177,7 +162,6 @@ export const useUserStore = defineStore(
 
                 // 사용자 정보 가져오기
                 await getUserInfo();
-                // console.log("user 정보: = ", userInfo.value);
 
                 // Firebase 토큰을 서버로 전송
                 const accessToken = sessionStorage.getItem("accessToken");
@@ -186,7 +170,6 @@ export const useUserStore = defineStore(
                 // 마지막 활동 시간 업데이트
                 updateLastActivityTime();
 
-                // console.log("OAuth2 로그인 성공");
             } catch (err) {
                 console.error("OAuth2 로그인 중 오류 발생:", err);
                 isLogin.value = false;
@@ -203,7 +186,6 @@ export const useUserStore = defineStore(
                 console.error("Firebase token 요청이 정상적으로 처리되지 않았습니다.");
                 return;
             }
-            // console.log("firebase token 요청 정상 처리: " + firebaseToken);
 
             await local.post(
                 "/alert/save-firebaseToken",
@@ -223,13 +205,12 @@ export const useUserStore = defineStore(
                 (response) => {
                     if (response.status === httpStatusCode.OK) {
                         userInfo.value = response.data;
-                        // console.log("스토어에 저장된 정보입니다.", userInfo);
                     } else {
-                        console.log("해당 유저 정보가 없습니다.");
+                        console.error("해당 유저 정보가 없습니다.");
                     }
                 },
                 (err) => {
-                    console.log("유저 정보를 가져오는데 오류 발생", err);
+                    console.error("유저 정보를 가져오는데 오류 발생", err);
                 }
             );
         };
@@ -245,13 +226,12 @@ export const useUserStore = defineStore(
                         userInfo.value = '';
                         sessionStorage.removeItem("accessToken");
                         lastActivityTime.value = null;
-                        // console.log("로그아웃 되었습니다.");
                     } else {
                         console.error("유저 정보가 없습니다.");
                     }
                 },
                 (error) => {
-                    console.log(error);
+                    console.erorr(error);
                     isLogin.value = false;
                 }
             );

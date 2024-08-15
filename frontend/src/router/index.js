@@ -74,6 +74,11 @@ const routes = [
                 name: "adminUploadSheet",
                 component: () => import("@/views/admin/AdminUploadSheetView.vue"),
             },
+            {
+                path: "user/update-score",
+                name: "adminUpdateScore",
+                component: () => import("@/views/admin/AdminRefreshView.vue"),
+            },
         ],
     },
     // -----------------------------------------------
@@ -108,27 +113,12 @@ const routes = [
         name: "sheetUpload",
         component: () => import("@/views/sheet/SheetUploadView.vue"),
     },
-    {
-        path: "/sheet/fullscreen",
-        name: "sheet/fullscreen",
-        component: () => import("@/views/sheet/SheetFullScreenView.vue"),
-    },
     // -----------------------------------------------
-    {
-        path: "/payment",
-        name: "payment",
-        component: () => import("@/views/order-and-pay/PaymentView.vue"),
-    },
     // -----------------------------------------------
     {
         path: "/order",
         name: "order",
         component: () => import("@/views/order-and-pay/OrderView.vue"),
-    },
-    {
-        path: "/payment",
-        name: "payment",
-        component: () => import("@/views/order-and-pay/PaymentView.vue"),
     },
     {
         path: "/payment/result",
@@ -151,11 +141,6 @@ const routes = [
         component: PaymentResultHandler
     },
     // 음악 녹음 페이지
-    {
-        path: "/play/recording",
-        name: "recording",
-        component: () => import("@/views/sheet/RecordingVue"),
-    },
     // 난이도 기여 페이지
     {
         path: "/difficulty/:sheetId",
@@ -171,7 +156,7 @@ const router = createRouter({
 });
 
 // 로그인이 필요한 라우트 목록
-const authRequiredRoutes = ["mypage", "order", "sheetUpload", "pianoSaurus", "recording", "sheetDifficultyRating"];
+const authRequiredRoutes = ["mypage", "sheetUpload", "pianoSaurus", "recording", "sheetDifficultyRating", "singlePlay"];
 
 // 전역 네비게이션 가드 수정
 router.beforeEach((to, from, next) => {

@@ -1,7 +1,9 @@
 <script setup>
 import { watch } from 'vue';
 import { getTitleByLen } from '@/util/string-util';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const props = defineProps({
     sheet: Object,
     restrictTitle: {
@@ -14,6 +16,10 @@ watch(() => props.sheet, () => {
     props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
 });
 props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.sheet.songImg}` : require('@/assets/img/default/song_img.png');
+
+const goToSinglePlay = () => {
+    router.push({ name: 'singlePlay', params: { sheetId: props.sheet.id } });
+}
 </script>
 
 <template>
@@ -34,7 +40,15 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
                 </p>
                 <img src="/img/cash.e2f5ab38.png" alt="현금 아이콘" class="cash-icon">
             </div>
-            <button class="practice-button">연습하기</button>
+
+            <div class="text-sm text-gray-600">
+                아티스트: {{ restrictTitle ? getTitleByLen(sheet?.songComposer, 12) : sheet?.songComposer }}
+            </div>
+
+            <div class="text-sm text-gray-600 mt-1">
+                가격: {{ sheet.price ? sheet.price  + '원' : '무료'}}
+            </div>
+            <div class="btn btn-primary" @click="goToSinglePlay">연습하기</div>
         </div>
     </div>
 </template>

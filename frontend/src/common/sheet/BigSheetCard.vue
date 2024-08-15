@@ -60,7 +60,6 @@ const goToPlayRoom = () => {
 
 // 좋아요
 const onClickLikeSheet = async () => {
-    console.log(isLogin.value);
     if (!isLogin.value) {
         showLoginRequestAlert(router);
         return;
@@ -90,7 +89,6 @@ const onClickDislikeSheet = async () => {
 
 // TODO : 장바구니에 넣는 로직 추가하기
 const addSheetToOrder = async () => {
-  	console.log("클릭")
   	if (isCartButtonDisabled.value) return; // 가격이 0이면 실행을 중단
     try {
         addToOrder(sheetInfo.value); // LocalStorage에 장바구니 추가

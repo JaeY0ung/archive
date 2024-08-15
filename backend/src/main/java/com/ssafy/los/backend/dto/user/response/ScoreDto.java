@@ -10,6 +10,6 @@ public class ScoreDto {
     private String nickname;
     private Integer f1Score;
     private Integer jaccardScore;
-
+    private String isLast;
 
 }

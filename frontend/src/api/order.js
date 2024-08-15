@@ -9,18 +9,11 @@ async function addSheetToOrderAPI(sheetIds, payType, totalPrice, successCallback
             payType: payType,
             totalPrice: totalPrice,
         });
-        console.log(response.data)
         successCallback(response.data);
     } catch (error) {
         errorCallback(error);
     }
 
-    // console.log("sheetIds-----", sheetIds);
-    // console.log("paymentType---------", payType);
-    // await local.post(`/order`, {
-    //     sheetIds: sheetIds,
-    //     payType: payType,
-    // }).then(success).catch(fail);
 }
 
 async function getOrderSheetsAPI(success, fail) {

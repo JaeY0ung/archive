@@ -10,6 +10,7 @@ import com.ssafy.los.backend.exception.user.UserUpdateException;
 import com.ssafy.los.backend.service.auth.AuthService;
 import com.ssafy.los.backend.service.auth.PasswordService;
 import com.ssafy.los.backend.util.FileUploadUtil;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,13 +35,13 @@ public class UserServiceImpl implements UserService {
         String role = "ROLE_USER"; // 기본적으로 USER 권한 추가
         User user = User.builder()
                 .email(userCreateDto.getEmail())
-                .birthDate(userCreateDto.getBirthDate())
                 .nickname(userCreateDto.getNickname())
-                .gender(userCreateDto.getGender())
+//                .birthDate(userCreateDto.getBirthDate())
+//                .gender(userCreateDto.getGender())
                 .pwdHash(hashPwd)
                 .role(role)
                 .singleScore(0)
-                .multiScore(0)
+                .multiScore(1000)
                 .cash(0)
                 .build();
         return userRepository.save(user).getId();
@@ -131,5 +132,16 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
+
+    @Override
+    public List<User> searchTop10SingleScoreUsers() {
+        return userRepository.findTop10ByOrderBySingleScoreDesc();
+    }
+
+    @Override
+    public List<User> searchTop10MultiScoreUsers() {
+        return userRepository.findTop10ByOrderByMultiScoreDesc();
+    }
+
 
 }
