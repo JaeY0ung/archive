@@ -125,7 +125,7 @@ watch(
         console.log("One or both players have not finished yet.");
       }
     }
-);
+,{deep:true});
 
 
 function connect() {
