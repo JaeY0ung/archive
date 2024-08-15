@@ -1,5 +1,5 @@
 <script setup>
-import { tierInfo } from "@/util/tier-info";
+import { tierInfoExceptUnrank } from "@/util/tier-info";
 import { sortInfo } from "@/util/sort";
 import { searchSheetsByFilter } from "@/api/sheet";
 import { onMounted, onUnmounted, ref, watch } from "vue";
@@ -23,6 +23,8 @@ const priceInfo = ref([
     { value: 1, title: "유료" },
 ]);
 
+const page = ref(0);
+
 const searchFilter = ref({
 	keyword: "", // 검색어 없음
 	levels: [1, 2, 3, 4, 5], // 모든 레벨
@@ -30,7 +32,6 @@ const searchFilter = ref({
 	prices: [0, 1], // 무료, 유료 (전부)
 	successStatuses: [], // 필터 없음
     sort: "LATEST", // 최신순,
-    page: 0,
 })
 
 const view = ref("list")
@@ -44,10 +45,10 @@ const search = async () => {
 			prices: searchFilter.value.prices.join(","),
 			successStatuses: searchFilter.value.successStatuses.join(","),
             sort: searchFilter.value.sort,
-            page: searchFilter.value.page,
+            page: page.value,
 		},
         ({ data }) => { 
-            if (searchFilter.value.page == 1) {
+            if (page.value == 0) {
                 sheets.value = data;
             } else {
                 sheets.value = [...sheets.value, ...data];
@@ -55,12 +56,13 @@ const search = async () => {
 		}
 	)
 }
+
 getAllGenres(({ data }) => genres.value = data)
 search();
 
 // 검색 필터 감지
 watch(searchFilter, async () => {
-    searchFilter.value.page = 0; // 초기화
+        page.value = 0; // 초기화
         search();
     },
     { deep: true }
@@ -79,9 +81,9 @@ onMounted(async () => {
 
 const scrollEvent = () => {
     const { scrollTop, scrollHeight, clientHeight } = listDiv.value;
-    // console.log(scrollTop + clientHeight, "까지 옴", scrollHeight - 10, "보다 큰가?")
+    console.log(scrollTop + clientHeight, "까지 옴", scrollHeight - 10, "보다 큰가?")
     if (scrollTop + clientHeight >= scrollHeight - 10) {
-        searchFilter.value.page++;
+        page.value++;
         search();
     }
 }
@@ -148,7 +150,7 @@ const scrollEvent = () => {
                     <span class="text-sm font-semibold text-gray-700" >티어</span>
                     <hr class="border-gray-300" />
                     <div class="space-y-1">
-                        <template v-for="tier in tierInfo">
+                        <template v-for="tier in tierInfoExceptUnrank">
                             <div class="flex items-center space-x-2 ml-3">
                                 <label>{{ tier.title }}</label>
                                 <input type="checkbox"

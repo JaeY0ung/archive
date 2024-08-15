@@ -315,7 +315,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     <div
         class="flex flex-col flex-grow w-full items-center justify-center h-[calc(100vh-80px)] overflow-hidden py-4 rounded-xl">
         <div
-            class="flex flex-col w-full max-w-[95%] h-full max-h-[95%] rounded-xl shadow-xl relative bg-gradient-to-br from-yellow-100 via-pink-200 to-blue-200">
+            class="flex flex-col w-full max-w-[95%] h-full max-h-[95%] rounded-xl shadow-xl relative bg-[#C0DBFE]">
 
             <!-- 위 -->
             <div class="relative w-full h-[65vh] rounded-t-xl  shadow-2xl overflow-hidden">
@@ -326,90 +326,88 @@ onBeforeRouteLeave(async (to, from, next) => {
                     @send-go-to-back="isInCategoryView = true" @send-sheet-id="setSheetId" />
             </div>
             <!-- 아래 -->
-            <div class="flex flex-grow gap-4 w-full h-[180px] rounded-bl-xl rounded-br-xl justify-center inset-0 bg-cover bg-center opacity-70"
-                :style="{
-                    backgroundImage: `url(${require('@/assets/img/sheet_play/ground.png')})`,
-                    backgroundBlendMode: 'multiply',
-                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-                    backgroundSize: '100% 100%',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat'
-                }">
+            <div class="flex flex-grow  w-full  rounded-bl-xl rounded-br-xl justify-between px-4 inset-0 bg-cover bg-center opacity-70">
                 <!-- 로그인 유저(나) -->
-                <div class="player-card flex gap-2 justify-center items-center">
-                    <UserCardForPlay :user="user" @onClickStart="onClickStart" class="h-[95%] shadow-2xl" />
+                <div class="w-[35%] h-full flex gap-2 justify-center items-center">
+                
+                    <UserCardForPlay :user="user" @onClickStart="onClickStart" class="custom-shadow  h-[90%] w-[40vw]" />
                     <button
-                        class="btn bg-yellow-100 bg-opacity-90 rounded-3xl border-opacity-0 text-xl h-[95%] w-[30%] text-gray-800 "
+                        class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                         v-if="isReady == 'false' && route.name == 'multiWait'" @click="readyButton">
                         대기중</button>
-                    <button class="btn text-white" style="background-color: red;"
+                    <button class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                         v-if="isReady == 'true' && route.name == 'multiWait'" @click="readyButton">준비완료</button>
                 </div>
                 <!-- 시작하기 + 나가기 -->
-                <div class="button-div flex flex-col justify-center gap-2">
-                    <button class="btn btn-primary w-[10vw] h-[10vh] text-xl bg-opacity-80"
-                        style="background-color: gray;" v-if="isReady == 'false' || opponentReady == 'false'">
+                <div class="button-div w-[20%] h-full flex flex-col items-centeer justify-center gap-2">
+                    <button  class="custom-shadow_ver3 w-full h-[40%] text-[#4A90E2] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer" v-if="isReady == 'false' || opponentReady == 'false'">
                         시작하기
                     </button>
-                    <button class="btn btn-primary w-[10vw] h-[10vh] text-xl"
+                    <button class="custom-shadow_ver2 w-full h-[40%] text-[#f3f7fd] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                         v-if="isReady == 'true' && opponentReady == 'true'" @click="goToBattle">
                         시작하기
                     </button>
-                    <button class="btn bg-pink-200 bg-opacity-85 text-xl border-opacity-0  w-[10vw] h-[10vh]"
+                    <button class="custom-shadow_ver2 w-full h-[40%] text-[#f3f7fd] flex justify-center items-center text-2xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
                         @click="quitButton">
                         나가기
                     </button>
                 </div>
 
                 <!-- 상대 유저 -->
-                <div class="player-card flex justify-center gap-2 items-center">
-                    <UserCardForPlay :user="opponent" class="h-[95%] shadow-2xl" />
+                <div class="player-card w-[35%] flex justify-center gap-2 items-center">
+                    <UserCardForPlay :user="opponent" class="custom-shadow  h-[90%] w-[40vw]" />
 
                     <!-- 친구 초대하기 버튼: 대결 상대가 없고, 초대되지 않았을 때만 나타남 -->
                     <button
-                        class="btn border-opacity-0 text-xl h-[95%] w-[30%] text-gray-800 bg-yellow-100 bg-opacity-90 rounded-3xl "
+                        class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer "
                         v-if="!isInvited" @click="openInviteModalStatus">
-                        친구 초대하기
+                        상대 초대
                     </button>
 
                     <!-- 대기중 버튼: 대결 상대가 있고, 아직 준비가 안 된 상태일 때 나타남 -->
-                    <button class="btn text-white" :style="{
-                        backgroundImage: `url(${require('@/assets/img/sheet_play/box_yellow.png')})`,
-                        backgroundSize: '100% 100%',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
-                    }" v-if="isInvited && opponentReady == 'false' && route.name == 'multiWait'">
+                    <button class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer" 
+                    v-if="isInvited && opponentReady == 'false' && route.name == 'multiWait'">
                         대기중
                     </button>
 
                     <!-- 준비완료 버튼: 대결 상대가 있고, 준비가 완료된 상태일 때 나타남 -->
-                    <button class="btn text-white" :style="{
-                        backgroundImage: `url(${require('@/assets/img/sheet_play/box_yellow.png')})`,
-                        backgroundSize: '100% 100%',
-                        backgroundPosition: 'center',
-                        backgroundRepeat: 'no-repeat'
-                    }" v-if="isInvited && opponentReady == 'true' && route.name == 'multiWait'">
+                    <button class=" h-[90%] w-[40%] custom-shadow bg-[#f3f7fd] text-[#4A90E2] flex justify-center items-center text-xl font-bold py-2 px-4 rounded-xl shadow-md hover:bg-[#e6f0fb] active:transform active:scale-95 transition-transform cursor-pointer"
+                    v-if="isInvited && opponentReady == 'true' && route.name == 'multiWait'">
                         준비완료
                     </button>
                 </div>
             </div>
 
 
-            <div v-if="inviteModalStatus" class="invite-modal">
-                <div class="modal-content">
-                    <h2 class="modal-title">친구 초대하기</h2>
-                    <ul>
-                        <li v-for="user in onlineUsers" :class="{ selected: isFriendSelected(user) }"
-                            @click="toggleFriendSelection(user)">
-                            <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" />
-                            <span>{{ user.nickname }}</span>
-                            <span>{{ user.singleScore }}</span>
-                        </li>
-                    </ul>
-                    <div class="modal-button">
-                        <button @click="inviteSelectedFriends">선택한 친구 초대하기</button>
-                        <button @click="closeInviteModalStatus">닫기</button>
+            <div v-if="inviteModalStatus" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
+                <div class="bg-white -2xl shadow-lg p-6 w-[400px]">
+                <h2 class="text-2xl font-bold text-[#333333] mb-6">친구 초대하기</h2>
+                <ul>
+                    <li
+                    v-for="user in onlineUsers"
+                    :key="user.id"
+                    @click="toggleFriendSelection(user)"
+                    :class="{
+                        'bg-blue-100 border-blue-500': isFriendSelected(user),
+                        'bg-gray-50 hover:bg-blue-50': !isFriendSelected(user)
+                    }"
+                    class="flex items-center justify-between p-4 mb-2 border rounded-lg cursor-pointer transition-all duration-200"
+                    >
+                    <div class="flex items-center">
+                        <img :src="user.userImg ? user.userImg : defaultProfileImage" alt="User Image" class="w-12 h-12 rounded-full mr-4 object-cover" />
+                        <span class="text-lg font-medium text-[#333333]">{{ user.nickname }}</span>
                     </div>
+                    <div class="text-sm text-gray-500">{{ user.singleScore }}</div>
+                    </li>
+                </ul>
+                <div class="mt-6 flex justify-end gap-4">
+                    <button @click="inviteSelectedFriends" class="bg-[#4A90E2] text-white font-bold py-2 px-4 rounded-xl shadow hover:bg-blue-600 transition-colors duration-200">
+                    초대하기
+                    </button>
+                    <button @click="closeInviteModalStatus" class="bg-gray-200 text-[#333333] font-bold py-2 px-4 rounded-xl shadow hover:bg-gray-300 transition-colors duration-200">
+                    닫기
+                    </button>
+                </div>
                 </div>
             </div>
         </div>
@@ -417,6 +415,21 @@ onBeforeRouteLeave(async (to, from, next) => {
 </template>
 
 <style scoped>
+.custom-shadow {
+    @apply rounded-xl bg-white;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
+}
+
+.custom-shadow_ver2 {
+    @apply rounded-xl bg-[#4A90E2];
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
+}
+
+.custom-shadow_ver3 {
+    @apply rounded-xl bg-gray-100;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2), 0 2px 4px rgba(0, 123, 255, 0.15);
+}
+
 .invite-modal {
     position: fixed;
     top: 0;
