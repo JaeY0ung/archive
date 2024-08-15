@@ -354,7 +354,6 @@ onBeforeRouteLeave( async (to, from, next) => {
         musicStore.jaccardScore = [];
         userStore.opponentUser.nickname = "";
         userStore.opponentUser.userImg = null;
-        opponentUser.userImg = null;
         next();
     } else {
         // isExiting.value = false;
