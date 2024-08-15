@@ -207,7 +207,7 @@ watch(
                                 nickname: loginUser.nickname, 
                                 f1Score: myF1Score.value, 
                                 jaccardScore: myJaccardScore.value,
-                                isLast : isLast.value,
+                                isLast : musicStore.isLast,
                             }));
     },
     { deep: true } // 배열 내부의 변화도 감지
