@@ -79,11 +79,13 @@ const sendEndDuringPlay = () => {
 watch(
   () => [musicStore.isLast, opponentIsLast.value],
   ([isMyLast, isOpponentLast]) => {
+    console.log("My isLast: ", isMyLast);
+    console.log("Opponent isLast: ", isOpponentLast);
     if (isMyLast && isOpponentLast) {
-      console.log("MULTI END");
+      console.log("Both players have finished. MULTI END");
       const myScore = parseFloat(myJaccardScore.value);
       const otherScore = parseFloat(opponentJaccardScore.value);
-      
+
       local.patch(`/plays/multi/${multi_result_id}`, {
         myUserId: loginUser.id,
         myScore: myScore,
@@ -92,11 +94,14 @@ watch(
       }).then(response => {
         isRequested = true;
       }).catch(error => {
-        console.error(error);
+        console.error("Failed to send multi play result", error);
       });
+    } else {
+      console.log("One or both players have not finished yet.");
     }
   }
 );
+
 
 
 function connect() {
