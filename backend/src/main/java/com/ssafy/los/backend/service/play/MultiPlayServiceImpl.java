@@ -114,8 +114,7 @@ public class MultiPlayServiceImpl implements MultiPlayService {
     public List<MultiPlayResultProfileDto> getMultiPlayResultList(Long userId) {
         User findUser = userRepository.findUserByIdAndDeletedAtNull(userId)
                 .orElseThrow(() -> new RuntimeException("user not found"));
-        List<MultiPlayResult> resultList = multiPlayResultRepository.findAllByUserOrderByCreatedAt(
-                findUser);
+        List<MultiPlayResult> resultList = multiPlayResultRepository.findAllByUserOrderByCreatedAt(findUser);
 
         List<MultiPlayResultProfileDto> multiPlayResultProfileDtoList = new ArrayList<>();
 
@@ -123,29 +122,66 @@ public class MultiPlayServiceImpl implements MultiPlayService {
             User winner = multiPlayResult.getWinner();
             User loser = multiPlayResult.getLoser();
             boolean isWinner = winner.equals(findUser);
-            MultiPlayResultProfileDto result = MultiPlayResultProfileDto.builder()
-                    .myNickname(isWinner ? winner.getNickname() : loser.getNickname())
-                    .myProfileImgName(isWinner ? winner.getUserImg() : loser.getUserImg())
-                    .myScore(isWinner ? multiPlayResult.getWinnerScore()
-                            : multiPlayResult.getLoserScore())
-                    .otherNickname(isWinner ? loser.getNickname() : winner.getNickname())
-                    .otherProfileImgName(isWinner ? loser.getUserImg() : winner.getUserImg())
-                    .otherScore(isWinner ? multiPlayResult.getLoserScore()
-                            : multiPlayResult.getWinnerScore())
-                    .sheetTitle(multiPlayResult.getSheet().getTitle())
-                    .songComposer(multiPlayResult.getSheet().getSong().getComposer())
-                    .songImgName(multiPlayResult.getSheet().getSong().getImgName())
-                    .level(multiPlayResult.getSheet().getLevel())
-                    .uploaderNickname(multiPlayResult.getSheet().getUploader() != null
-                            ? multiPlayResult.getSheet().getUploader().getNickname()
-                            : "")
-                    .playTime(multiPlayResult.getPlayTime())
-                    .draw(multiPlayResult.isDraw())
-                    .build();
 
-            result.loadUserImg(fileUploadUtil);
-            result.loadSongImg(fileUploadUtil);
-            multiPlayResultProfileDtoList.add(result);
+            MultiPlayResultProfileDto.MultiPlayResultProfileDtoBuilder builder = MultiPlayResultProfileDto.builder();
+
+            if (isWinner && winner != null) {
+                builder.myNickname(winner.getNickname())
+                        .myProfileImgName(winner.getUserImg())
+                        .myScore(multiPlayResult.getWinnerScore());
+            } else if (!isWinner && loser != null) {
+                builder.myNickname(loser.getNickname())
+                        .myProfileImgName(loser.getUserImg())
+                        .myScore(multiPlayResult.getLoserScore());
+            }
+
+            if (isWinner && loser != null) {
+                builder.otherNickname(loser.getNickname())
+                        .otherProfileImgName(loser.getUserImg())
+                        .otherScore(multiPlayResult.getLoserScore());
+            } else if (!isWinner && winner != null) {
+                builder.otherNickname(winner.getNickname())
+                        .otherProfileImgName(winner.getUserImg())
+                        .otherScore(multiPlayResult.getWinnerScore());
+            }
+
+            if (multiPlayResult.getSheet() != null) {
+                builder.sheetTitle(multiPlayResult.getSheet().getTitle())
+                        .level(multiPlayResult.getSheet().getLevel());
+
+                if (multiPlayResult.getSheet().getSong() != null) {
+                    builder.songComposer(multiPlayResult.getSheet().getSong().getComposer())
+                            .songImgName(multiPlayResult.getSheet().getSong().getImgName());
+                }
+
+                if (multiPlayResult.getSheet().getUploader() != null) {
+                    builder.uploaderNickname(multiPlayResult.getSheet().getUploader().getNickname());
+                } else {
+                    builder.uploaderNickname("");
+                }
+            }
+
+            builder.playTime(multiPlayResult.getPlayTime())
+                    .draw(multiPlayResult.isDraw());
+
+            MultiPlayResultProfileDto result = builder.build();
+
+            try {
+                result.loadUserImg(fileUploadUtil);
+            } catch (Exception e) {
+                log.warn("Failed to load user image for user: {}", findUser.getId());
+            }
+
+            try {
+                result.loadSongImg(fileUploadUtil);
+            } catch (Exception e) {
+                log.warn("Failed to load song image for sheet: {}",
+                        multiPlayResult.getSheet() != null ? multiPlayResult.getSheet().getId() : "unknown");
+            }
+
+            if (result != null) {
+                multiPlayResultProfileDtoList.add(result);
+            }
         }
 
         return multiPlayResultProfileDtoList;
