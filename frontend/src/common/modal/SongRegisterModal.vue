@@ -132,7 +132,7 @@ const uploadSongAndFile = async () => {
                         </label>
 
                         <div class="flex flex-row gap-4 mt-4 mb-4 justify-end items-center">
-                            <div class="cursor-pointer btn bg-white text-gray-500  border-none shadow-md" @click="router.go(-1)">취소하기</div>
+                            <div class="cursor-pointer btn bg-white text-gray-500  border-none shadow-md" @click="emit('closeModalEvent')">취소하기</div>
                             <button class="btn bg-gray-800 text-gray-100 shadow-md" @click="uploadSongAndFile">제출하기</button>
                         </div>
                     </div>
