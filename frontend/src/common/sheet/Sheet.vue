@@ -30,7 +30,7 @@ const showCountdown = ref(false);
 
 const handleEmit = () => {
     // 클릭 이벤트 발생 시 이벤트를 부모 컴포넌트로 전송
-    if (route.name != "sheetDetail") {
+    if (route.name == "singlePlay") {
         // 5초 뒤 시작
         showCountdown.value = true;
         countdown.value = 5;
