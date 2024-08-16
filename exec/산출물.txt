@@ -1,0 +1,118 @@
+===== 빌드 환경 =====
+BACKEND      gradle:7.6.0-jdk17 / openjdk:17-jdk-slim  포트 8081
+FRONTEND     node:20.14.0                              포트 3000
+MUSIC-ENGINE python:3.8                                포트 9234
+PREDICT      python:3.8                                포트 8001
+MYSQL                                                  포트 3306
+REDIS                                                  포트 6379
+
+===== 환경 변수 ======
+
+BACKEND- application.properties
+
+server.servlet.context-path=/api
+spring.application.name=backend
+server.port=8081
+# Spring DataSource (MySQL)
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.url=jdbc:mysql://localhost:3306/archive?serverTimezone=UTC
+spring.datasource.username=ssafy
+spring.datasource.password=ssafy
+# Spring JPA
+spring.jpa.database=mysql
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.defer-datasource-initialization=true
+spring.jpa.generate-ddl=false
+spring.jpa.show-sql=false
+spring.jpa.properties.hibernate.format_sql=true
+spring.sql.init.mode=never
+#File Upload size Setting
+spring.servlet.multipart.max-file-size=25MB
+spring.servlet.multipart.max-request-size=25MB
+file.upload.handler=handler: /**
+file.path.user-img=/app/shared/file/user-img
+file.path.song-img=/app/shared/file/song-img
+file.path.upload-sheet.musicxml=/app/shared/file/upload-sheet/musicxml
+file.path.upload-sheet.mid=/app/shared/file/upload-sheet/mid
+file.path.play-record=/app/shared/file/play-record
+# JWT setting
+jwt.salt=ssafy-los-archive-secret-key
+# 4 * 60 * 60 (s) = 4?? / redis
+refreshToken.timeToLive=14400
+# 60 * 60 * 1000 (ms) = 1??
+jwt.oauth.token.expireTime=3600000
+# 10 * 60 * 60 * 1000 (ms) = 10??
+jwt.accessToken.expireTime=36000000
+# 7 * 24 * 60 * 60 * 1000 (ms) = 7?
+jwt.refreshToken.expireTime=604800000
+# logging
+logging.level.root=info
+logging.level.com.mbti_j.myroutine.backend.repository=debug
+# Allow Origin
+cors.allowedOrigins=https://arc-hive.shop
+spring.jwt.redis.host=localhost
+spring.jwt.redis.port=6379
+spring.jwt.secret=wngudansrlckddydgpdbswodudtnsghdlqlsek21423
+# registration
+spring.security.oauth2.client.registration.naver.client-name=naver
+spring.security.oauth2.client.registration.naver.client-id=iDUO1TY8oTZc0dDxSfU9
+spring.security.oauth2.client.registration.naver.client-secret=pMvsdDtbPQ
+# // OAuth2AuthorizationRequestRedirectFilter
+spring.security.oauth2.client.registration.naver.redirect-uri=https://arc-hive.shop/api/login/oauth2/code/naver
+spring.security.oauth2.client.registration.naver.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.naver.scope=name,email
+# provider
+# // OAuth2LoginAuthenticationFilter
+spring.security.oauth2.client.provider.naver.authorization-uri=https://nid.naver.com/oauth2.0/authorize
+spring.security.oauth2.client.provider.naver.token-uri=https://nid.naver.com/oauth2.0/token
+spring.security.oauth2.client.provider.naver.user-info-uri=https://openapi.naver.com/v1/nid/me
+spring.security.oauth2.client.provider.naver.user-name-attribute=response
+# fast api
+cors.allowedOrigins.music-engine=https://arc-hive.shop/fastapi
+# firebaseToken
+FIREBASE_PROJECT_ID=test-poj-4f95e
+FIREBASE_PRIVATE_KEY_ID=729c24674819d140ad95c368be5cc6011c596154
+FIREBASE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC/Sjw4YuZd4E+G\ngSV37S2yamdmnzNre3oQfsorDL529sl0Cp6T++l1t7aqTaULcwTlV7yaEekbvXRd\nSxadilXc8hXnZC/6HzfxUpVgsJpCxZcg/3ktvYxlKhqPbqB11Es7XsOVarLeTJd1\nAxEsnFTXodV/tFOsYZt8rNK2rGJwnFWab0K4oI1Msako3Y1KM5HmLQdEHxz3bl9I\nVFpPaT0QWZcfE5ngc5TqHhCtd4AUVrxSuM8u/v+N2sKFwFOuv6sCQdPkDuVBJbJf\nYqD73oXZm/0j1epFy6Dj9rthvP1HVu2dh7hlqbaBEy1XBRHpYy9bp4OKBjMW8Nkt\nwucwC1FhAgMBAAECggEAVVI3xRC73tBvuDc/bpvwP329TCUjSsQjAFuFMil3hNlz\nppob/Dam/ZYpWBHU1WQCoYb+PRxTBMf+sKQO3Mr4nFmwUmq6CY7GJZHnxd5PmAvI\n6nN46eF7Tx42BZba5GOCAOO2Sh1y1buE7LCnBuZd42YwM8tLbP6GW1g8jjUanU4e\nv6yof1Ro9sX+At0UIZ5T66mAOTGRmUdxhuSIpjXYpbf6lXkYw/46BhVAyl9M4d4i\n8tnW9J4AMY0J2xDaqjqUmfYXxxDBz1/OAANNlAcOtwxKQI1Eu8c+1E/l1gxs1r2s\nlwM3yoSvXN4OicCh6rByJHVvq4ZElZb6Ey9oWmQDvwKBgQD79KxPH4SqrH0CVP64\n75U1Z2OwbckTdv1Sa1aPQXBrMevdXhBZqLW7tWh1lLG/BEf1XBDX8A9Pet0+Z+1s\njRHYRoCUQYXrHaRfpD6T5JfvcZYzHUt4zwU4xruEG+0PXzu5VEIkc/AM4eV2ixAZ\nkAFCx0XO+0ON93EEJ0wxUeZ/pwKBgQDCXEbU9r4Py9mVHdHH1mig1NyrHFRJkv+t\n8LMzBgh9EDcDhTEanIriDYVQEHTOAm0d0n4+9V0JrGsaCKr3QPNUeCF67oZuAYdc\n2QT0yjPeyIGBl5pOJNNEMs3JlnEdhmstK0Gsd9GQNf/lDDOkl6D/lsfT0qncHjza\nG4+kqAOHtwKBgQC/WfJnYSuTp86FL+IIuERcu7nVa3uz4cHAj668u9lSQCa/B8pp\nHZ1wAvVjn1tjFDBGYvaT2Uj3dvuCgtGpiHYOCHVso1q+1tNYo9e24HyXqG+HQG9q\nP+faV+xgCAmBjDVCqoBVSQv97K4l2rWOhHTAr7EP4npK3qshmWrfZjElrwKBgHhY\nsvNDJUSasMuIf1ECDh8oLss062vzPaXymMNLRQ5LcAUZ/+G+dLCsNpPw3KKDFhWV\nNN6/BzDqNhcUrugSq5juGa0I7OxIvgxbxJneamfUN3yK5tzkKHzeCFZ+dOQXS13Y\nnv2v428sQJsPBxsvWF1qe6lJlCvb/UoALt2Bu03ZAoGBAMpExAsQviaxc/P71hm9\nAu6MLPLT6pt3fuEjmRshQiySwEdZQy+GWeKdeCuwlBj+XSVtxrOp+8b0hRfvsanq\nrw8+UXXEkPAXx/EziwqbGf409AXZJXVfHG/s0ePNFORdf96AZxknqJPMtQqx9Er1\nVfKQQgpuQq4KnnaEanmtaxZF\n-----END PRIVATE KEY-----\n
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-1af5m@test-poj-4f95e.iam.gserviceaccount.com
+FIREBASE_CLIENT_ID=107529049428932596740
+FIREBASE_AUTH_URI=https://accounts.google.com/o/oauth2/auth
+FIREBASE_TOKEN_URI=https://oauth2.googleapis.com/token
+FIREBASE_AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+FIREBASE_CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-1af5m%40test-poj-4f95e.iam.gserviceaccount.com
+# Kakaopay secret-key
+kakao.pay.api.secret-key=DEV97FA51040B34F59D5F6ABF9A923DC1DEEC8F6
+backend.server.url=https://arc-hive.shop/api
+fastapi.server.url=https://arc-hive.shop/fastapi
+cors.allowedOrigins.predict=https://arc-hive.shop/predict
+
+FRONTEND .env 
+
+VITE_REQUEST_URL=https://arc-hive.shop/api
+BASE_URL=https://arc-hive.shop/api
+VUE_APP_REQUEST_URL=https://arc-hive.shop/api
+VUE_APP_FIREBASE_API_KEY=AIzaSyBIhv_DV0JI0A9s9qjiZWiG7oscfDJSry4
+VUE_APP_FIREBASE_AUTH_DOMAIN=test-poj-4f95e.firebaseapp.com
+VUE_APP_FIREBASE_PROJECT_ID=test-poj-4f95e
+VUE_APP_FIREBASE_STORAGE_BUCKET=test-poj-4f95e.appspot.com
+VUE_APP_FIREBASE_MESSAGING_SENDER_ID=886031009140
+VUE_APP_FIREBASE_APP_ID=1:886031009140:web:03d5a8054720f606595821
+VUE_APP_FIREBASE_MEASUREMENT_ID=G-F4SKLX17FY
+
+MUSIC-ENGINE .env
+
+PROJECT_ROOT_PATH=/app/shared
+UPLOAD_DIR=/app/shared/tem
+XVFB_RUN=xvfb-run
+MUSESCORE_ENV_PATH=musescore
+PC=SERVER
+
+PREDICT .env
+
+PROJECT_ROOT_PATH=/app/shared
+UPLOAD_DIR=/app/shared/tem
+XVFB_RUN=xvfb-run
+MUSESCORE_ENV_PATH=musescore
+PC=SERVER
+
+=============================
+MYSQL 계정 : ssafy / ssafy
