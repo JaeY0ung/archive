@@ -267,7 +267,7 @@ onUnmounted(()=>{
     </div>
     <div class="flex justify-center items-center h-[25vh] gap-4">
       <UserCardForPlay class="bg-white custom-shadow" :user="loginUser" @onClickStart="onClickStart" :f1Score="myF1Score" :jaccardScore="myJaccardScore" @updateResultScore="updateResultScore" />
-      <div class="h-[198px] w-[198px] flex justify-center items-center">
+      <div class="h-[180px] w-[198px] flex justify-center items-center">
         <div 
           class="custom-shadow flex-grow h-full flex items-center justify-center cursor-pointer rounded-xl text-3xl font-bold bg-white text-[#4A90E2]  transition-all duration-300 hover:bg-sky-100"
           @click="onClickQuit">

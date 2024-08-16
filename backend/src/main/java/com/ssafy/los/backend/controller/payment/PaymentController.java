@@ -6,8 +6,6 @@ import com.ssafy.los.backend.dto.payment.response.ApproveResponse;
 import com.ssafy.los.backend.service.order.OrderService;
 import com.ssafy.los.backend.service.payment.KakaoPayService;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -42,12 +43,14 @@ public class PaymentController {
 //            log.info("결제 총 금액: " + kakaoApprove.getAmount());
             Optional<Order> orderItem = orderRepository.findByTid(kakaoApprove.getTid());
             int totalPrice = orderItem.get().getTotalPrice();
+            Long productId = orderItem.get().getOrderSheetList().get(0).getSheet().getId();
             String redirectUrl = UriComponentsBuilder.fromUriString(
                             allowedOrigins + "/payment/result")
                     .queryParam("status", "success")
                     .queryParam("orderId", kakaoApprove.getPartner_order_id())
                     .queryParam("itemName", kakaoApprove.getItem_name())
                     .queryParam("amount", totalPrice)
+                    .queryParam("productId", productId)
                     .toUriString();
 
             response.sendRedirect(redirectUrl);

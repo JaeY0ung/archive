@@ -1,0 +1,82 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/archive?serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=ssafy
+      - SPRING_DATASOURCE_PASSWORD=ssafy
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQLDialect
+      - SPRING_JWT_REDIS_HOST=redis
+      - SPRING_JWT_REDIS_PORT=6379
+    volumes:
+      - shared_data:/app/shared  # 공용 볼륨 설정
+
+  mysql:
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ssafy
+      MYSQL_DATABASE: archive
+      MYSQL_USER: ssafy
+      MYSQL_PASSWORD: ssafy
+      LC_ALL: C.UTF-8
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  fastapi:
+    build:
+      context: ./music-engine
+    ports:
+      - "9234:9234"
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker 소켓 공유
+      - shared_data:/app/shared  # 공용 볼륨 설정
+    environment:
+      UPLOAD_DIR: "/app/shared/temp"
+
+  fastapi-predict:
+    build:
+      context: ./predict  # 새로운 FastAPI 애플리케이션의 경로
+    ports:
+      - "8001:8001"  # 다른 포트 사용 (예: 8001)
+    depends_on:
+      - mysql
+      - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker 소켓 공유
+      - shared_data:/app/shared  # 공용 볼륨 설정
+    environment:
+      UPLOAD_DIR: "/app/shared/temp"
+
+volumes:
+  mysql-data:
+  redis-data:
+  shared_data:  # 공용 볼륨 정의

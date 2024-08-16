@@ -42,9 +42,9 @@ props.sheet.imageUrl = props.sheet.songImg ? `data:image/jpeg;base64,${props.she
                     <Tier class="w-[18px] h-[18px]" :level="sheet.level" />
                 </div>
 
-                <!-- 두 번째 그룹: 작곡가 및 업로더 정보 -->
+                <!-- 두 번째 그룹: 아티스트 및 업로더 정보 -->
                 <div class="flex items-center gap-4 ml-auto">
-					<div class="text-gray-800 text-sm font-bold">작곡가</div>
+					<div class="text-gray-800 text-sm font-bold">아티스트</div>
                     <div class="text-gray-600 text-sm">
                         {{ getTitleByLen(sheet.songComposer, 20) }}
                     </div>

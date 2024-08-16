@@ -55,7 +55,7 @@ onMounted(() => {
                         </div>
                         </div>
                         <div class="flex flex-row m-4 justify-around items-center p-4 mt-2 pr-10 pl-4 rounded-xl bg-[#f0f4ff] shadow-lg custom-shadow-blue">
-                            <div class="text-sm text-gray-700">업로더/작곡가</div>
+                            <div class="text-sm text-gray-700">업로더/아티스트</div>
                             <div class="text-lg text-center font-bold text-[#4A90E2]">{{selectedSheet.uploaderNickname}}</div>
                         </div>   
                     </div>

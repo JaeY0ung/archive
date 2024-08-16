@@ -117,7 +117,7 @@ const uploadSongAndFile = async () => {
 
                         <label class="form-control w-full">
                             <div class="label">
-                                <span class="label-text">곡 작곡가</span>
+                                <span class="label-text">곡 아티스트</span>
                             </div>
                             <input v-model="fileInfo.composer" type="text" class="input input-bordered w-full" />
                         </label>
