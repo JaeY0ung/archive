@@ -43,8 +43,9 @@ const handleEmit = () => {
                 emit('startRecordingEmit', { message: 'Play Button was clicked!' });
             }
         }, 1000);
-        // emit('startRecordingEmit', { message: 'Play Button was clicked!' });
-    } else{
+    } else if (route.name == "multiPlay") {
+        emit('startRecordingEmit', { message: 'Play Button was clicked!' });
+    } else {
         startRecording();
     }
 };
